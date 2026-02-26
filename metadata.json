@@ -1,0 +1,7 @@
+{
+  "name": "Legis Connect - Plataforma Jurídica Online",
+  "description": "Legis Connect é uma plataforma digital que conecta clientes em busca de serviços jurídicos a advogados especializados, otimizando o processo de contratação e prestação de serviços legais.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
