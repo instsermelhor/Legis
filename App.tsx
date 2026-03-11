@@ -19,6 +19,7 @@ import { ChatbotFab } from './components/chatbot/ChatbotFab';
 import { ChatbotModal } from './components/chatbot/ChatbotModal';
 import { TermsOfServiceModal } from './components/common/TermsOfServiceModal';
 import { PrivacyPolicyModal } from './components/common/PrivacyPolicyModal';
+import { EticaOABModal } from './components/common/EticaOABModal';
 import { chatWithGemini } from './services/geminiService';
 import type { View, Lawyer, Intern, ChatMessage, User, Case, Appointment, Review, MapsSearchResult } from './types';
 import { mockLawyers } from './services/mockLawyerService';
@@ -61,6 +62,7 @@ const App: React.FC = () => {
   // Modal State
   const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
+  const [isEticaModalOpen, setIsEticaModalOpen] = useState(false);
 
 
   useEffect(() => {
@@ -390,7 +392,7 @@ const App: React.FC = () => {
       <main className="flex-grow">
         {renderView()}
       </main>
-      <Footer onNavigate={handleNavigate} onShowTerms={() => setIsTermsModalOpen(true)} onShowPrivacy={() => setIsPrivacyModalOpen(true)} />
+      <Footer onNavigate={handleNavigate} onShowTerms={() => setIsTermsModalOpen(true)} onShowPrivacy={() => setIsPrivacyModalOpen(true)} onShowEtica={() => setIsEticaModalOpen(true)} />
       {user?.role !== 'admin' && <ChatbotFab onClick={() => setIsChatbotOpen(true)} />}
       <ChatbotModal
         isOpen={isChatbotOpen}
@@ -401,6 +403,7 @@ const App: React.FC = () => {
       />
       {isTermsModalOpen && <TermsOfServiceModal onClose={() => setIsTermsModalOpen(false)} />}
       {isPrivacyModalOpen && <PrivacyPolicyModal onClose={() => setIsPrivacyModalOpen(false)} />}
+      {isEticaModalOpen && <EticaOABModal onClose={() => setIsEticaModalOpen(false)} />}
     </div>
   );
 };
