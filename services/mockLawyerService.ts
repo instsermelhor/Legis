@@ -30,7 +30,7 @@ export const mockLawyers: Lawyer[] = [
     id: 1,
     name: 'Dr. Carlos Andrade',
     oab: 'SP123456',
-    specialties: ['Direito de Família', 'Direito Civil'],
+    specialties: ['Direito de Família e Sucessões', 'Direito Civil'],
     location: { city: 'São Paulo', state: 'SP', latitude: -23.550520, longitude: -46.633308 },
     photoUrl: 'https://picsum.photos/seed/carlos/400/400',
     rating: 4.9,
