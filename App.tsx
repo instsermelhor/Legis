@@ -83,9 +83,23 @@ const App: React.FC = () => {
 
   const handleNavigate = useCallback((view: View) => {
     // Protected routes
-    if ((view === 'adminDashboard' && user?.role !== 'admin') ||
-      (view === 'dashboard' && user?.role !== 'client')) {
+    if (view === 'adminDashboard' && user?.role !== 'admin') {
       setCurrentView('login');
+      return;
+    }
+    if (view === 'dashboard') {
+      if (!user) {
+        setCurrentView('login');
+        return;
+      } else if (user.role === 'lawyer') {
+        setCurrentView('lawyerDashboard');
+      } else if (user.role === 'intern') {
+        setCurrentView('internDashboard');
+      } else if (user.role === 'client') {
+        setCurrentView('dashboard');
+      } else {
+        setCurrentView('login');
+      }
       return;
     }
     if (view === 'lawyerDashboard' && user?.role !== 'lawyer') {
