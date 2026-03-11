@@ -386,7 +386,7 @@ const App: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen bg-neutral-light font-sans">
-      <Header onNavigate={handleNavigate} user={user} onLogout={handleLogout} />
+      <Header currentView={currentView} onNavigate={handleNavigate} user={user} onLogout={handleLogout} />
       <main className="flex-grow">
         {renderView()}
       </main>
