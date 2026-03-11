@@ -25,15 +25,15 @@ const getCoordinatesForPercent = (percent: number) => {
 };
 
 export const SpecialtyPieChart: React.FC<PieChartProps> = ({ data }) => {
-  const total = useMemo(() => Object.values(data).reduce((acc, value) => acc + value, 0), [data]);
-  
+  const total = useMemo(() => (Object.values(data) as number[]).reduce((acc: number, value: number) => acc + value, 0), [data]);
+
   if (total === 0) {
-      return <p className="text-center text-gray-500">Nenhum dado disponível para exibir o gráfico.</p>
+    return <p className="text-center text-gray-500">Nenhum dado disponível para exibir o gráfico.</p>
   }
 
   let cumulativePercent = 0;
 
-  const slices = Object.entries(data).map(([label, value], index) => {
+  const slices = (Object.entries(data) as [string, number][]).map(([label, value], index) => {
     const percent = value / total;
     const [startX, startY] = getCoordinatesForPercent(cumulativePercent);
     cumulativePercent += percent;

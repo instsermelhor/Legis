@@ -8,8 +8,6 @@ interface StarRatingProps {
 }
 
 export const StarRating: React.FC<StarRatingProps> = ({ rating, maxRating = 5, onRatingChange }) => {
-  const fullStars = Math.floor(rating);
-  const halfStar = rating % 1 !== 0;
   const isInteractive = !!onRatingChange;
 
   const handleRating = (newRating: number) => {
@@ -45,10 +43,10 @@ const Star: React.FC<StarProps> = ({ filled = false, onClick }) => {
 
   return (
     <button
-        type="button"
-        onClick={onClick}
-        disabled={!onClick}
-        className={`w-6 h-6 p-0.5 ${onClick ? 'transform hover:scale-125 transition-transform' : ''}`}
+      type="button"
+      onClick={onClick}
+      disabled={!onClick}
+      className={`w-6 h-6 p-0.5 ${onClick ? 'transform hover:scale-125 transition-transform' : ''}`}
     >
       <svg className={`${color} w-full h-full`} fill="currentColor" viewBox="0 0 20 20">
         <path

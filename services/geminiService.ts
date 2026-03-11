@@ -1,11 +1,17 @@
 import { GoogleGenAI, Type } from "@google/genai";
 // FIX: Corrected import paths for local modules.
 import { AREAS_OF_LAW } from '../constants';
-import type { CaseAnalysis, ChatMessage, MapsSearchResult } from '../types';
+import type { CaseAnalysis, ChatMessage, MapsSearchResult, GroundingChunk } from '../types';
 
-// FIX: Initialize GoogleGenAI with apiKey from environment variables.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
+// Use a getter or safe initialization for GoogleGenAI to avoid module crash when API_KEY is missing.
+const getAI = () => {
+  try {
+    return new GoogleGenAI({ apiKey: process.env.API_KEY || 'dummy_key' });
+  } catch {
+    return null;
+  }
+};
+const ai = getAI();
 export async function analyzeCaseWithGemini(description: string): Promise<CaseAnalysis> {
   const model = "gemini-2.5-flash";
 
@@ -16,7 +22,7 @@ The specializations should be more specific sub-fields within the primary area.
 Provide a brief, neutral summary of the user's situation.
 Determine the urgency of the case as 'high', 'medium', or 'low'.
 You must respond in JSON format.`;
-  
+
   const responseSchema = {
     type: Type.OBJECT,
     properties: {
@@ -59,7 +65,7 @@ You must respond in JSON format.`;
 
     // FIX: Access the response text directly from response.text.
     const text = response.text;
-    
+
     // FIX: Trim whitespace which can sometimes be returned by the API.
     const jsonStr = text.trim();
     const result: CaseAnalysis = JSON.parse(jsonStr);
@@ -73,7 +79,7 @@ You must respond in JSON format.`;
 export async function findPlacesWithMaps(description: string, location?: { latitude: number; longitude: number; }): Promise<MapsSearchResult> {
   const model = 'gemini-2.5-flash';
   const prompt = `Find lawyers or law offices near the user's location that specialize in the following legal case. Provide a helpful summary and list some options. Case description: "${description}"`;
-  
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const config: any = {
     tools: [{ googleMaps: {} }],
@@ -98,8 +104,8 @@ export async function findPlacesWithMaps(description: string, location?: { latit
     });
 
     const text = response.text;
-    const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-    
+    const groundingChunks = (response.candidates?.[0]?.groundingMetadata?.groundingChunks || []) as unknown as GroundingChunk[];
+
     return { text, groundingChunks };
   } catch (error) {
     console.error("Error finding places with Maps Grounding:", error);
@@ -124,7 +130,7 @@ IMPORTANT rules:
 - Your responses must be in Brazilian Portuguese.`;
 
   try {
-    const chat = ai.chats.create({ model, systemInstruction, history });
+    const chat = ai.chats.create({ model, history, config: { systemInstruction } });
     const response = await chat.sendMessage({ message: newMessage });
     return response.text;
   } catch (error) {
