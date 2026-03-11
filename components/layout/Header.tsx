@@ -4,12 +4,13 @@ import { BriefcaseIcon, UserCircleIcon, LogoutIcon } from '../common/IconCompone
 import type { View, User } from '../../types';
 
 interface HeaderProps {
+  currentView: View;
   onNavigate: (view: View) => void;
   user: User | null;
   onLogout: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onNavigate, user, onLogout }) => {
+export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, onLogout }) => {
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -24,11 +25,11 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, user, onLogout }) =>
           <nav className="hidden md:flex items-center space-x-8">
             {user?.role !== 'admin' && (
               <>
-                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('search'); }} className="text-gray-600 hover:text-primary transition duration-150 ease-in-out font-medium">Encontrar Advogado</a>
-                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('dashboard'); }} className="text-gray-600 hover:text-primary transition duration-150 ease-in-out font-medium">Meus Casos</a>
-                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('signup'); }} className="text-gray-600 hover:text-primary transition duration-150 ease-in-out font-medium">Clientes</a>
-                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('forLawyers'); }} className="text-gray-600 hover:text-primary transition duration-150 ease-in-out font-medium">Advogados</a>
-                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('forInterns'); }} className="text-gray-600 hover:text-primary transition duration-150 ease-in-out font-medium">Estudantes</a>
+                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('search'); }} className={`transition duration-150 ease-in-out font-medium ${currentView === 'search' || currentView === 'profile' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Encontrar Advogado</a>
+                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('dashboard'); }} className={`transition duration-150 ease-in-out font-medium ${currentView === 'dashboard' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Meus Casos</a>
+                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('signup'); }} className={`transition duration-150 ease-in-out font-medium ${currentView === 'signup' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Clientes</a>
+                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('forLawyers'); }} className={`transition duration-150 ease-in-out font-medium ${currentView === 'forLawyers' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Advogados</a>
+                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('forInterns'); }} className={`transition duration-150 ease-in-out font-medium ${currentView === 'forInterns' || currentView === 'internDashboard' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Estudantes</a>
               </>
             )}
             {user?.role === 'admin' && (
