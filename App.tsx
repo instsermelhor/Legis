@@ -11,13 +11,16 @@ import { AdminDashboard } from './components/admin/AdminDashboard';
 import { LoginForm, Credentials } from './components/auth/LoginForm';
 import { SignupPage } from './components/auth/SignupPage';
 import { ClientSignupData } from './components/auth/ClientSignupForm';
+import { ForInternsPage } from './components/intern/ForInternsPage';
+import { InternDashboard } from './components/intern/InternDashboard';
+import { InternSignupData } from './components/auth/InternSignupForm';
 import { CompleteProfilePage } from './components/client/CompleteProfilePage';
 import { ChatbotFab } from './components/chatbot/ChatbotFab';
 import { ChatbotModal } from './components/chatbot/ChatbotModal';
 import { TermsOfServiceModal } from './components/common/TermsOfServiceModal';
 import { PrivacyPolicyModal } from './components/common/PrivacyPolicyModal';
 import { chatWithGemini } from './services/geminiService';
-import type { View, Lawyer, ChatMessage, User, Case, Appointment, Review, MapsSearchResult } from './types';
+import type { View, Lawyer, Intern, ChatMessage, User, Case, Appointment, Review, MapsSearchResult } from './types';
 import { mockLawyers } from './services/mockLawyerService';
 
 const ADMIN_EMAIL = 'admin@legisconnect.com';
@@ -25,13 +28,31 @@ const ADMIN_PASSWORD = 'admin';
 
 
 const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<View>('landing');
-  const [user, setUser] = useState<User | null>(null);
+  const [currentView, setCurrentView] = useState<View>(() => {
+    const saved = localStorage.getItem('legis_currentView');
+    return (saved as View) || 'landing';
+  });
+  const [user, setUser] = useState<User | null>(() => {
+    const saved = localStorage.getItem('legis_user');
+    return saved ? JSON.parse(saved) : null;
+  });
   const [searchResults, setSearchResults] = useState<Lawyer[]>([]);
   const [selectedLawyer, setSelectedLawyer] = useState<Lawyer | null>(null);
   const [allLawyers, setAllLawyers] = useState<Lawyer[]>(mockLawyers);
   const [mapsResult, setMapsResult] = useState<MapsSearchResult | null>(null);
-  
+
+  useEffect(() => {
+    localStorage.setItem('legis_currentView', currentView);
+  }, [currentView]);
+
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('legis_user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('legis_user');
+    }
+  }, [user]);
+
   // Chatbot State
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
@@ -61,12 +82,16 @@ const App: React.FC = () => {
   const handleNavigate = useCallback((view: View) => {
     // Protected routes
     if ((view === 'adminDashboard' && user?.role !== 'admin') ||
-        (view === 'dashboard' && user?.role !== 'client')) {
+      (view === 'dashboard' && user?.role !== 'client')) {
       setCurrentView('login');
       return;
     }
-     if (view === 'lawyerDashboard' && user?.role !== 'lawyer') {
+    if (view === 'lawyerDashboard' && user?.role !== 'lawyer') {
       setCurrentView('forLawyers');
+      return;
+    }
+    if (view === 'internDashboard' && user?.role !== 'intern') {
+      setCurrentView('forInterns');
       return;
     }
     setCurrentView(view);
@@ -83,7 +108,7 @@ const App: React.FC = () => {
       handleNavigate('adminDashboard');
       return true;
     }
-    
+
     // Lawyer login
     const lawyer = allLawyers.find(l => l.contact.email.toLowerCase() === lowerEmail);
     if (lawyer) {
@@ -98,14 +123,14 @@ const App: React.FC = () => {
 
     // Test user with incomplete profile
     if (lowerEmail === 'incomplete@legisconnect.com' && password === 'password') {
-        setUser({
-            email: lowerEmail,
-            role: 'client',
-            name: 'Cliente Incompleto',
-            // Phone and address are missing
-        });
-        handleNavigate('dashboard');
-        return true;
+      setUser({
+        email: lowerEmail,
+        role: 'client',
+        name: 'Cliente Incompleto',
+        // Phone and address are missing
+      });
+      handleNavigate('dashboard');
+      return true;
     }
 
     // Client login (any other email)
@@ -119,11 +144,11 @@ const App: React.FC = () => {
           lawyerId: mockLawyers[0].id,
           status: 'Ativo',
           stages: [
-              { name: 'Análise Inicial', status: 'completed' },
-              { name: 'Coleta de Documentos', status: 'completed' },
-              { name: 'Elaboração da Petição', status: 'current' },
-              { name: 'Protocolo Judicial', status: 'upcoming' },
-              { name: 'Sentença', status: 'upcoming' },
+            { name: 'Análise Inicial', status: 'completed' },
+            { name: 'Coleta de Documentos', status: 'completed' },
+            { name: 'Elaboração da Petição', status: 'current' },
+            { name: 'Protocolo Judicial', status: 'upcoming' },
+            { name: 'Sentença', status: 'upcoming' },
           ],
           reviewSubmitted: false,
         },
@@ -135,10 +160,10 @@ const App: React.FC = () => {
           lawyerId: mockLawyers[1].id,
           status: 'Concluído',
           stages: [
-              { name: 'Análise Inicial', status: 'completed' },
-              { name: 'Petição Inicial', status: 'completed' },
-              { name: 'Audiência', status: 'completed' },
-              { name: 'Sentença', status: 'completed' },
+            { name: 'Análise Inicial', status: 'completed' },
+            { name: 'Petição Inicial', status: 'completed' },
+            { name: 'Audiência', status: 'completed' },
+            { name: 'Sentença', status: 'completed' },
           ],
           reviewSubmitted: false,
         }
@@ -163,27 +188,27 @@ const App: React.FC = () => {
           modality: 'Videochamada',
         }
       ];
-      setUser({ 
-          email: lowerEmail, 
-          role: 'client', 
-          name: 'Cliente Exemplo',
-          phone: '(11) 91234-5678',
-          address: 'Rua das Amostras, 123, São Paulo, SP',
-          caseHistory: mockCases,
-          appointments: mockAppointments
+      setUser({
+        email: lowerEmail,
+        role: 'client',
+        name: 'Cliente Exemplo',
+        phone: '(11) 91234-5678',
+        address: 'Rua das Amostras, 123, São Paulo, SP',
+        caseHistory: mockCases,
+        appointments: mockAppointments
       });
       handleNavigate('dashboard');
       return true;
     }
-    
+
     return false;
   }, [allLawyers, handleNavigate]);
-  
+
   const handleLogout = useCallback(() => {
     setUser(null);
     handleNavigate('landing');
   }, [handleNavigate]);
-  
+
   const handleSearch = useCallback((results: Lawyer[], mapsData: MapsSearchResult | null) => {
     setSearchResults(results);
     setMapsResult(mapsData);
@@ -201,36 +226,36 @@ const App: React.FC = () => {
   }, [handleNavigate]);
 
   const handleClientSignup = (data: ClientSignupData) => {
-      console.log("New client signup:", data);
-      setUser({
-          email: data.email,
-          role: 'client',
-          name: data.name,
-          phone: data.phone,
-          address: data.address,
-          caseHistory: [],
-      });
-      handleNavigate('dashboard');
+    console.log("New client signup:", data);
+    setUser({
+      email: data.email,
+      role: 'client',
+      name: data.name,
+      phone: data.phone,
+      address: data.address,
+      caseHistory: [],
+    });
+    handleNavigate('dashboard');
   }
 
   const handleLawyerSignup = (data: Partial<Lawyer>) => {
     const newLawyer: Lawyer = {
-        id: allLawyers.length + 1,
-        name: data.name || 'Novo Advogado',
-        oab: data.oab || 'XX000000',
-        specialties: data.specialties || ['Direito Civil'],
-        location: { city: 'Cidade', state: data.oabUF || 'SP' },
-        photoUrl: 'https://picsum.photos/seed/newlawyer/400/400',
-        rating: 0,
-        reviewCount: 0,
-        bio: 'Advogado recém-cadastrado na plataforma Legis Connect.',
-        experience: { years: 1, cases: 0 },
-        education: [],
-        contact: { phone: data.contact?.phone || '', email: data.contact?.email || '' },
-        reviews: [],
-        availability: [],
-        status: 'pendente',
-        ...data,
+      id: allLawyers.length + 1,
+      name: data.name || 'Novo Advogado',
+      oab: data.oab || 'XX000000',
+      specialties: data.specialties || ['Direito Civil'],
+      location: { city: 'Cidade', state: data.oabUF || 'SP' },
+      photoUrl: 'https://picsum.photos/seed/newlawyer/400/400',
+      rating: 0,
+      reviewCount: 0,
+      bio: 'Advogado recém-cadastrado na plataforma Legis Connect.',
+      experience: { years: 1, cases: 0 },
+      education: [],
+      contact: { phone: data.contact?.phone || '', email: data.contact?.email || '' },
+      reviews: [],
+      availability: [],
+      status: 'pendente',
+      ...data,
     };
     setAllLawyers(prev => [...prev, newLawyer]);
     console.log("New lawyer signup:", newLawyer);
@@ -238,14 +263,34 @@ const App: React.FC = () => {
     handleNavigate('lawyerDashboard');
     return true;
   }
-  
+
+  const handleInternSignup = (data: InternSignupData) => {
+    const newIntern: Intern = {
+      id: Math.floor(Math.random() * 10000),
+      name: data.name || 'Estudante',
+      cpf: data.cpf || '000.000.000-00',
+      university: data.university || 'Universidade',
+      semester: data.semester || '1º ao 3º semestre',
+      specialtyInterest: data.specialtyInterest || 'Não definida',
+      contact: { phone: data.contact?.phone || '', email: data.contact?.email || '' },
+      hoursCompleted: 0,
+      availableHours: 200,
+      casesStudied: [],
+      status: 'active',
+    };
+    console.log("New intern signup:", newIntern);
+    setUser({ email: newIntern.contact.email, role: 'intern', data: newIntern, name: newIntern.name });
+    handleNavigate('internDashboard');
+    return true;
+  }
+
   const handleUpdateProfile = (data: { name: string; phone: string; address: string; }) => {
     if (user) {
-        setUser(prevUser => prevUser ? { ...prevUser, ...data } : null);
-        handleNavigate('dashboard'); // Navigate to dashboard after update
+      setUser(prevUser => prevUser ? { ...prevUser, ...data } : null);
+      handleNavigate('dashboard'); // Navigate to dashboard after update
     }
   }
-  
+
   const handleUpdateLawyerReview = (lawyerId: number, caseId: string, rating: number, comment: string) => {
     setAllLawyers(prevLawyers => {
       return prevLawyers.map(lawyer => {
@@ -261,7 +306,7 @@ const App: React.FC = () => {
           const updatedReviews = [...lawyer.reviews, newReview];
           const newTotalRating = updatedReviews.reduce((acc, r) => acc + r.rating, 0);
           const newAverageRating = newTotalRating / updatedReviews.length;
-          
+
           return {
             ...lawyer,
             reviews: updatedReviews,
@@ -275,7 +320,7 @@ const App: React.FC = () => {
 
     setUser(prevUser => {
       if (!prevUser || !prevUser.caseHistory) return prevUser;
-      
+
       const updatedCaseHistory = prevUser.caseHistory.map(c => {
         if (c.id === caseId) {
           return { ...c, reviewSubmitted: true };
@@ -312,7 +357,7 @@ const App: React.FC = () => {
       case 'profile': {
         // Find the most up-to-date lawyer data to pass to the profile
         const currentLawyerData = selectedLawyer ? allLawyers.find(l => l.id === selectedLawyer.id) || selectedLawyer : null;
-        return currentLawyerData ? <LawyerProfile lawyer={currentLawyerData} onBack={handleBackToSearch} onNavigate={handleNavigate} /> : <LandingPage onNavigate={handleNavigate} onSearch={handleSearch}/>;
+        return currentLawyerData ? <LawyerProfile lawyer={currentLawyerData} onBack={handleBackToSearch} onNavigate={handleNavigate} /> : <LandingPage onNavigate={handleNavigate} onSearch={handleSearch} />;
       }
       case 'dashboard':
         if (user && user.role === 'client' && !isClientProfileComplete(user)) {
@@ -329,6 +374,10 @@ const App: React.FC = () => {
         return <SignupPage onClientSignup={handleClientSignup} onNavigate={handleNavigate} onShowTerms={() => setIsTermsModalOpen(true)} />;
       case 'forLawyers':
         return <ForLawyersPage onLogin={handleLogin} onSignup={handleLawyerSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
+      case 'forInterns':
+        return <ForInternsPage onLogin={handleLogin} onSignup={handleInternSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
+      case 'internDashboard':
+        return user?.data && user.role === 'intern' ? <InternDashboard intern={user.data as Intern} /> : <ForInternsPage onLogin={handleLogin} onSignup={handleInternSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
       case 'landing':
       default:
         return <LandingPage onNavigate={handleNavigate} onSearch={handleSearch} />;
@@ -343,7 +392,7 @@ const App: React.FC = () => {
       </main>
       <Footer onNavigate={handleNavigate} onShowTerms={() => setIsTermsModalOpen(true)} onShowPrivacy={() => setIsPrivacyModalOpen(true)} />
       {user?.role !== 'admin' && <ChatbotFab onClick={() => setIsChatbotOpen(true)} />}
-      <ChatbotModal 
+      <ChatbotModal
         isOpen={isChatbotOpen}
         onClose={() => setIsChatbotOpen(false)}
         history={chatHistory}

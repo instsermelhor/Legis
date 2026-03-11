@@ -1,10 +1,10 @@
-export type View = 'landing' | 'search' | 'profile' | 'dashboard' | 'lawyerDashboard' | 'login' | 'signup' | 'adminDashboard' | 'forLawyers';
+export type View = 'landing' | 'search' | 'profile' | 'dashboard' | 'lawyerDashboard' | 'login' | 'signup' | 'adminDashboard' | 'forLawyers' | 'forInterns' | 'internDashboard';
 
 export interface User {
   email: string;
-  role: 'client' | 'lawyer' | 'admin';
+  role: 'client' | 'lawyer' | 'admin' | 'intern';
   name?: string; // For client/admin name
-  data?: Lawyer; // For lawyer-specific detailed data
+  data?: Lawyer | Intern; // For lawyer-specific detailed data or intern data
   // Client-specific data
   phone?: string;
   address?: string;
@@ -61,8 +61,8 @@ export interface Lawyer {
   name: string;
   oab: string;
   specialties: string[];
-  location: { 
-    city: string; 
+  location: {
+    city: string;
     state: string;
     latitude?: number;
     longitude?: number;
@@ -93,6 +93,20 @@ export interface Lawyer {
   registrationType?: 'active' | 'intern';
 }
 
+export interface Intern {
+  id: number;
+  name: string;
+  cpf: string;
+  university: string;
+  semester: string;
+  specialtyInterest: string;
+  contact: { phone: string; email: string };
+  hoursCompleted: number;
+  availableHours: number;
+  casesStudied?: Case[];
+  status: 'active' | 'pending';
+}
+
 export interface CaseAnalysis {
   primaryArea: string;
   specializations: string[];
@@ -118,11 +132,11 @@ export interface GroundingChunk {
     uri: string;
     title: string;
     placeAnswerSources?: {
-        reviewSnippets?: {
-            uri: string;
-            text: string;
-            author: string;
-        }[];
+      reviewSnippets?: {
+        uri: string;
+        text: string;
+        author: string;
+      }[];
     }[]
   }
 }
