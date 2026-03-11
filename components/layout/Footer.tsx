@@ -1,6 +1,7 @@
 import React from 'react';
 // FIX: Corrected import path for local module.
-import { View } from '../../types';
+import type { View } from '../../types';
+import { BriefcaseIcon } from '../common/IconComponents';
 
 interface FooterProps {
     onNavigate: (view: View) => void;
@@ -17,7 +18,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onShowTerms, onShowP
                     {/* Brand Info */}
                     <div>
                         <div className="flex items-center mb-4">
-                            <img src="/logo.png" alt="Legis Connect Logo" className="h-16 w-auto mb-2" />
+                            <BriefcaseIcon className="h-8 w-8 text-primary" />
                             <span className="ml-3 text-2xl font-bold">Legis Connect</span>
                         </div>
                         <p className="text-gray-400 text-sm">
