@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserCircleIcon, LogoutIcon } from '../common/IconComponents';
+import { BriefcaseIcon, UserCircleIcon, LogoutIcon } from '../common/IconComponents';
 // FIX: Corrected import path for local module.
 import type { View, User } from '../../types';
 
@@ -19,7 +19,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
             className="flex-shrink-0 flex items-center cursor-pointer"
             onClick={() => onNavigate(user?.role === 'admin' ? 'adminDashboard' : 'landing')}
           >
-            <img src="/logo.png" alt="Legis Connect Logo" className="h-10 w-auto" />
+            <BriefcaseIcon className="h-8 w-8 text-primary" />
             <span className="ml-3 text-2xl font-bold text-primary tracking-tight">Legis Connect</span>
           </div>
           <nav className="hidden md:flex items-center space-x-8">
