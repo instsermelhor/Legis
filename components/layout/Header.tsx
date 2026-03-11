@@ -1,5 +1,5 @@
 import React from 'react';
-import { BriefcaseIcon, UserCircleIcon, LogoutIcon } from '../common/IconComponents';
+import { UserCircleIcon, LogoutIcon } from '../common/IconComponents';
 // FIX: Corrected import path for local module.
 import type { View, User } from '../../types';
 
@@ -19,14 +19,14 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
             className="flex-shrink-0 flex items-center cursor-pointer"
             onClick={() => onNavigate(user?.role === 'admin' ? 'adminDashboard' : 'landing')}
           >
-            <BriefcaseIcon className="h-8 w-8 text-primary" />
+            <img src="/logo.png" alt="Legis Connect Logo" className="h-10 w-auto" />
             <span className="ml-3 text-2xl font-bold text-primary tracking-tight">Legis Connect</span>
           </div>
           <nav className="hidden md:flex items-center space-x-8">
             {user?.role !== 'admin' && (
               <>
                 <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('search'); }} className={`transition duration-150 ease-in-out font-medium ${currentView === 'search' || currentView === 'profile' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Encontrar Advogado</a>
-                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('dashboard'); }} className={`transition duration-150 ease-in-out font-medium ${currentView === 'dashboard' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Meus Casos</a>
+                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('dashboard'); }} className={`transition duration-150 ease-in-out font-medium ${['dashboard', 'login', 'lawyerDashboard', 'internDashboard'].includes(currentView) ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Meus Casos</a>
                 <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('signup'); }} className={`transition duration-150 ease-in-out font-medium ${currentView === 'signup' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Clientes</a>
                 <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('forLawyers'); }} className={`transition duration-150 ease-in-out font-medium ${currentView === 'forLawyers' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Advogados</a>
                 <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('forInterns'); }} className={`transition duration-150 ease-in-out font-medium ${currentView === 'forInterns' || currentView === 'internDashboard' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Estudantes</a>

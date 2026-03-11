@@ -1,7 +1,6 @@
 import React from 'react';
 // FIX: Corrected import path for local module.
-import type { View } from '../../types';
-import { BriefcaseIcon } from '../common/IconComponents';
+import { View } from '../../types';
 
 interface FooterProps {
     onNavigate: (view: View) => void;
@@ -18,7 +17,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onShowTerms, onShowP
                     {/* Brand Info */}
                     <div>
                         <div className="flex items-center mb-4">
-                            <BriefcaseIcon className="h-8 w-8 text-primary" />
+                            <img src="/logo.png" alt="Legis Connect Logo" className="h-16 w-auto mb-2" />
                             <span className="ml-3 text-2xl font-bold">Legis Connect</span>
                         </div>
                         <p className="text-gray-400 text-sm">
@@ -51,8 +50,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onShowTerms, onShowP
                     <div>
                         <h3 className="text-lg font-semibold tracking-wider uppercase">Contato</h3>
                          <ul className="mt-4 space-y-2 text-sm text-gray-400">
-                           <li>Email: contato@legisconnect.com</li>
-                           <li>Telefone: (11) 4002-8922</li>
+                           <li>Email: contato@legisconnect.com.br</li>
+                           <li>Telefone: +55 11 948401620</li>
                         </ul>
                     </div>
                 </div>
