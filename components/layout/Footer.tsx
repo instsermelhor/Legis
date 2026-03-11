@@ -7,9 +7,10 @@ interface FooterProps {
     onNavigate: (view: View) => void;
     onShowTerms: () => void;
     onShowPrivacy: () => void;
+    onShowEtica: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ onNavigate, onShowTerms, onShowPrivacy }) => {
+export const Footer: React.FC<FooterProps> = ({ onNavigate, onShowTerms, onShowPrivacy, onShowEtica }) => {
     return (
         <footer className="bg-gray-800 text-white">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -42,6 +43,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onShowTerms, onShowP
                          <ul className="mt-4 space-y-2 text-sm">
                             <li><a href="#" onClick={(e) => { e.preventDefault(); onShowTerms(); }} className="text-gray-400 hover:text-white transition">Termos de Serviço</a></li>
                             <li><a href="#" onClick={(e) => { e.preventDefault(); onShowPrivacy(); }} className="text-gray-400 hover:text-white transition">Política de Privacidade</a></li>
+                            <li><a href="#" onClick={(e) => { e.preventDefault(); onShowEtica(); }} className="text-gray-400 hover:text-white transition">Ética OAB</a></li>
                         </ul>
                     </div>
 
