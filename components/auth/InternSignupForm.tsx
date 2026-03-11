@@ -132,9 +132,10 @@ export const InternSignupForm: React.FC<InternSignupFormProps> = ({ onSignup, on
                                 <option value="Direito Civil">Direito Civil</option>
                                 <option value="Direito Penal">Direito Penal</option>
                                 <option value="Direito Trabalhista">Direito Trabalhista</option>
-                                <option value="Direito de Família">Direito de Família</option>
+                                <option value="Direito de Família e Sucessões">Direito de Família e Sucessões</option>
                                 <option value="Direito Tributário">Direito Tributário</option>
                                 <option value="Direito Digital">Direito Digital</option>
+                                <option value="Direito Internacional">Direito Internacional</option>
                                 <option value="Outras">Outras Áreas</option>
                             </select>
                         </div>

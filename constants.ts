@@ -1,5 +1,5 @@
 export const AREAS_OF_LAW = [
-  'Direito de Família',
+  'Direito de Família e Sucessões',
   'Direito Civil',
   'Direito Trabalhista',
   'Direito Previdenciário',
@@ -9,6 +9,7 @@ export const AREAS_OF_LAW = [
   'Direito Tributário',
   'Direito do Consumidor',
   'Direito Imobiliário',
+  'Direito Internacional',
 ];
 
 export const BRAZILIAN_STATES = [
