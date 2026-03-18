@@ -71,6 +71,9 @@ export const CaseDescriptionForm: React.FC<CaseDescriptionFormProps> = ({ onSear
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <h2 className="text-2xl font-bold text-center text-gray-800">Encontre um advogado especialista</h2>
+      <p className="text-sm text-gray-500 text-center -mt-2">
+        Descreva seu caso e nossa inteligência artificial encontrará os advogados mais qualificados e próximos de você. Simples, rápido e confidencial.
+      </p>
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-gray-700">Descreva sua necessidade jurídica</label>
         <textarea
@@ -119,7 +122,7 @@ export const CaseDescriptionForm: React.FC<CaseDescriptionFormProps> = ({ onSear
         </button>
       </div>
       <p className="text-xs text-gray-500 text-center">
-        Suas informações são confidenciais e protegidas.
+        Suas informações são confidenciais e protegidas de acordo com a Lei nº 8.906/1994 e Lei nº 14.365/2022, Código de Ética e Disciplina da OAB, Art. 133 da CF e LGPD.
       </p>
     </form>
   );
