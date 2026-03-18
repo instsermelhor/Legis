@@ -39,6 +39,15 @@ export const ForLawyersPage: React.FC<ForLawyersPageProps> = ({ onLogin, onSignu
             <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
               Conecte-se a uma vasta rede de clientes que precisam de sua expertise. Gerencie seus casos, agendamentos e finanças em um só lugar.
             </p>
+            <div className="mt-10 max-w-2xl mx-auto text-left bg-gray-50 border border-gray-200 rounded-lg p-6 shadow-sm">
+              <h2 className="text-xl font-bold text-gray-900 mb-3">Legis Connect - O Direito com Foco na Inovação.</h2>
+              <p className="text-gray-700 mb-4">
+                No cenário jurídico contemporâneo, a velocidade e a segurança são ativos indispensáveis. A <strong>Legis Connect</strong> é uma solução inteligente desenvolvida para simplificar a prática jurídica e potencializar resultados através da conectividade.
+              </p>
+              <p className="text-gray-700">
+                Mais do que uma plataforma, somos um elo. Nossa missão é eliminar as barreiras burocráticas e otimizar a interação entre os agentes do Direito e seus Clientes, utilizando tecnologia de ponta para garantir que cada etapa do processo seja clara, segura e acessível. Unimos a tradição dos valores jurídicos à inovação digital para transformar o modo como a justiça acontece.
+              </p>
+            </div>
             <div className="mt-10 flex flex-col sm:flex-row justify-center items-center gap-4">
               <button
                 onClick={() => setMode('signup')}
