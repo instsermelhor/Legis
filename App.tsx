@@ -24,8 +24,8 @@ import { chatWithGemini } from './services/geminiService';
 import type { View, Lawyer, Intern, ChatMessage, User, Case, Appointment, Review, MapsSearchResult } from './types';
 import { mockLawyers } from './services/mockLawyerService';
 
-const ADMIN_EMAIL = 'admin@legisconnect.com';
-const ADMIN_PASSWORD = 'admin';
+const ADMIN_EMAIL = 'admin@legisconnect.com.br';
+const ADMIN_PASSWORD = 'legisadmin';
 
 
 const App: React.FC = () => {
