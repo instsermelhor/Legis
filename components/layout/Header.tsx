@@ -22,15 +22,15 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
             <BriefcaseIcon className="h-8 w-8 text-primary" />
             <span className="ml-3 text-2xl font-bold text-primary tracking-tight">Legis Connect</span>
           </div>
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center">
             {user?.role !== 'admin' && (
               <>
-                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('search'); }} className={`transition duration-150 ease-in-out font-medium ${currentView === 'search' || currentView === 'profile' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Encontrar Advogado</a>
-                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('forLawyers'); }} className={`transition duration-150 ease-in-out font-medium ${currentView === 'forLawyers' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Advogados</a>
-                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('forInterns'); }} className={`transition duration-150 ease-in-out font-medium ${currentView === 'forInterns' || currentView === 'internDashboard' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Estudantes</a>
-                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('dashboard'); }} className={`transition duration-150 ease-in-out font-medium ${['dashboard', 'login', 'lawyerDashboard', 'internDashboard'].includes(currentView) ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Meus Casos</a>
-                <a href="https://www.alphaconsensus.com.br" target="_blank" rel="noopener noreferrer" className="transition duration-150 ease-in-out font-medium text-gray-600 hover:text-primary py-1 border-b-2 border-transparent">Câmara Arbitral e Mediações</a>
-                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('signup'); }} className={`transition duration-150 ease-in-out font-medium ${currentView === 'signup' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Clientes</a>
+                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('search'); }} className={`transition duration-150 ease-in-out font-medium ml-4 ${currentView === 'search' || currentView === 'profile' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Encontrar Advogado</a>
+                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('forLawyers'); }} className={`transition duration-150 ease-in-out font-medium ml-6 ${currentView === 'forLawyers' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Advogados</a>
+                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('forInterns'); }} className={`transition duration-150 ease-in-out font-medium ml-5 ${currentView === 'forInterns' || currentView === 'internDashboard' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Estudantes</a>
+                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('dashboard'); }} className={`transition duration-150 ease-in-out font-medium ml-7 ${['dashboard', 'login', 'lawyerDashboard', 'internDashboard'].includes(currentView) ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Meus Casos</a>
+                <a href="https://www.alphaconsensus.com.br" target="_blank" rel="noopener noreferrer" className="transition duration-150 ease-in-out font-medium ml-9 text-gray-600 hover:text-primary py-1 border-b-2 border-transparent">Câmara Arbitral e Mediações</a>
+                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('signup'); }} className={`transition duration-150 ease-in-out font-medium ml-5 ${currentView === 'signup' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Clientes</a>
               </>
             )}
             {user?.role === 'admin' && (
