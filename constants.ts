@@ -10,6 +10,9 @@ export const AREAS_OF_LAW = [
   'Direito do Consumidor',
   'Direito Imobiliário',
   'Direito Internacional',
+  'Direito de Contratos',
+  'Direito Administrativo',
+  'Direito Eleitoral',
 ];
 
 export const BRAZILIAN_STATES = [
