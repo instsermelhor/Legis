@@ -91,10 +91,21 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
     const [newMessage, setNewMessage] = useState('');
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
     const [caseToReview, setCaseToReview] = useState<Case | null>(null);
+    const [filterProcesso, setFilterProcesso] = useState('');
+    const [filterOABCliente, setFilterOABCliente] = useState('');
 
     const messagesEndRef = useRef<null | HTMLDivElement>(null);
     
     const activeCase = user.caseHistory?.find(c => c.status === 'Ativo');
+
+    const filteredClientCases = useMemo(() => {
+        if (!user.caseHistory) return [];
+        return user.caseHistory.filter(c => {
+            const matchesProcesso = !filterProcesso || c.id.toLowerCase().includes(filterProcesso.toLowerCase());
+            const matchesOAB = !filterOABCliente || c.lawyerName.toLowerCase().includes(filterOABCliente.toLowerCase());
+            return matchesProcesso && matchesOAB;
+        });
+    }, [user.caseHistory, filterProcesso, filterOABCliente]);
 
     const upcomingAppointment = useMemo(() => {
         if (!user.appointments) return null;
@@ -201,8 +212,42 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
 
                             <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-100">
                                 <h2 className="text-2xl font-bold text-gray-800 mb-4">Meus Casos</h2>
+                                {/* Filter Panel */}
+                                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-5">
+                                    <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Filtros de Busca</h3>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">Número do Processo</label>
+                                            <input
+                                                type="text"
+                                                value={filterProcesso}
+                                                onChange={e => setFilterProcesso(e.target.value)}
+                                                placeholder="Ex: case001"
+                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">Nome / OAB do Advogado</label>
+                                            <input
+                                                type="text"
+                                                value={filterOABCliente}
+                                                onChange={e => setFilterOABCliente(e.target.value)}
+                                                placeholder="Ex: Dr. Carlos"
+                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="mt-2 flex justify-end">
+                                        <button
+                                            onClick={() => { setFilterProcesso(''); setFilterOABCliente(''); }}
+                                            className="text-xs text-primary hover:underline"
+                                        >
+                                            Limpar Filtros
+                                        </button>
+                                    </div>
+                                </div>
                                 <div className="space-y-6">
-                                    {user.caseHistory.map(c => (
+                                    {filteredClientCases.map(c => (
                                         <div key={c.id} className="border-t pt-4">
                                             <div className="flex justify-between items-start mb-4">
                                                 <div>
@@ -231,7 +276,11 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                                             )}
                                         </div>
                                     ))}
+                                    {filteredClientCases.length === 0 && (
+                                        <p className="text-gray-500 text-center py-8 bg-gray-50 rounded-lg">Nenhum caso encontrado com os filtros aplicados.</p>
+                                    )}
                                 </div>
+
                             </div>
                         </>
                     ) : (

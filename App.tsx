@@ -15,6 +15,7 @@ import { ForInternsPage } from './components/intern/ForInternsPage';
 import { InternDashboard } from './components/intern/InternDashboard';
 import { InternSignupData } from './components/auth/InternSignupForm';
 import { CompleteProfilePage } from './components/client/CompleteProfilePage';
+import { ForClientsPage } from './components/client/ForClientsPage';
 import { ChatbotFab } from './components/chatbot/ChatbotFab';
 import { ChatbotModal } from './components/chatbot/ChatbotModal';
 import { TermsOfServiceModal } from './components/common/TermsOfServiceModal';
@@ -392,6 +393,8 @@ const App: React.FC = () => {
         return <ForLawyersPage onLogin={handleLogin} onSignup={handleLawyerSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
       case 'forInterns':
         return <ForInternsPage onLogin={handleLogin} onSignup={handleInternSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
+      case 'forClients':
+        return <ForClientsPage onLogin={handleLogin} onSignup={handleClientSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
       case 'internDashboard':
         return user?.data && user.role === 'intern' ? <InternDashboard intern={user.data as Intern} /> : <ForInternsPage onLogin={handleLogin} onSignup={handleInternSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
       case 'landing':
