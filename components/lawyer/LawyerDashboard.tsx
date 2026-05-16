@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 // FIX: Corrected import path for local module.
 import type { Lawyer, Appointment, Case, CaseStage } from '../../types';
 import { CalendarIcon, ClockIcon, VideoCameraIcon, UsersIcon, ClipboardListIcon, CurrencyDollarIcon, PencilIcon, CalendarPlusIcon } from '../common/IconComponents';
@@ -99,10 +99,25 @@ const AppointmentCard: React.FC<{ appointment: Appointment }> = ({ appointment }
 
 export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
     const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
+    const [activeSection, setActiveSection] = useState<'overview' | 'meusCasos'>('overview');
     const [cases, setCases] = useState<Case[]>(initialActiveCases);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
     const [selectedCase, setSelectedCase] = useState<Case | null>(null);
+
+    // Filters for Meus Casos
+    const [filterOAB, setFilterOAB] = useState('');
+    const [filterProcesso, setFilterProcesso] = useState('');
+    const [filterCPF, setFilterCPF] = useState('');
+
+    const filteredCases = useMemo(() => {
+        return cases.filter(c => {
+            const matchesOAB = !filterOAB || lawyer.oab.toLowerCase().includes(filterOAB.toLowerCase());
+            const matchesProcesso = !filterProcesso || c.id.toLowerCase().includes(filterProcesso.toLowerCase());
+            const matchesCPF = !filterCPF || c.clientName.toLowerCase().includes(filterCPF.toLowerCase());
+            return matchesOAB && matchesProcesso && matchesCPF;
+        });
+    }, [cases, filterOAB, filterProcesso, filterCPF, lawyer.oab]);
 
     const handleOpenUpdateModal = (caseToUpdate: Case) => {
         setSelectedCase(caseToUpdate);
@@ -138,15 +153,120 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
         <>
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="bg-neutral-light p-6 sm:p-8 rounded-lg">
-                    <div className="flex items-center space-x-4 mb-8">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
+                        <div className="flex items-center space-x-4">
                         <img src={lawyer.photoUrl} alt={lawyer.name} className="w-16 h-16 rounded-full object-cover ring-2 ring-primary" />
-                        <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Painel do Advogado</h1>
-                            <p className="text-gray-600">Bem-vindo(a) de volta, {lawyer.name}!</p>
+                            <div>
+                                <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Painel do Advogado</h1>
+                                <p className="text-gray-600">Bem-vindo(a) de volta, {lawyer.name}!</p>
+                            </div>
+                        </div>
+                        {/* Section Tabs */}
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setActiveSection('overview')}
+                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
+                                    activeSection === 'overview'
+                                        ? 'bg-primary text-white shadow'
+                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                }`}
+                            >
+                                Visão Geral
+                            </button>
+                            <button
+                                onClick={() => setActiveSection('meusCasos')}
+                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
+                                    activeSection === 'meusCasos'
+                                        ? 'bg-primary text-white shadow'
+                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                }`}
+                            >
+                                Meus Casos
+                            </button>
                         </div>
                     </div>
 
-                    <div className="mb-10">
+                    {/* Meus Casos Section */}
+                    {activeSection === 'meusCasos' && (
+                        <div className="animate-fade-in">
+                            <h2 className="text-xl font-semibold text-gray-700 mb-4">Meus Casos</h2>
+                            {/* Filter Panel */}
+                            <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm mb-6">
+                                <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-3">Filtros de Busca</h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 mb-1">Número da OAB</label>
+                                        <input
+                                            type="text"
+                                            value={filterOAB}
+                                            onChange={e => setFilterOAB(e.target.value)}
+                                            placeholder="Ex: SP123456"
+                                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 mb-1">Número do Processo</label>
+                                        <input
+                                            type="text"
+                                            value={filterProcesso}
+                                            onChange={e => setFilterProcesso(e.target.value)}
+                                            placeholder="Ex: case001"
+                                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 mb-1">CPF / Nome do Cliente</label>
+                                        <input
+                                            type="text"
+                                            value={filterCPF}
+                                            onChange={e => setFilterCPF(e.target.value)}
+                                            placeholder="Ex: Ana Clara"
+                                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="mt-3 flex justify-end">
+                                    <button
+                                        onClick={() => { setFilterOAB(''); setFilterProcesso(''); setFilterCPF(''); }}
+                                        className="text-xs text-primary hover:underline"
+                                    >
+                                        Limpar Filtros
+                                    </button>
+                                </div>
+                            </div>
+                            {/* Cases List */}
+                            <div className="space-y-6">
+                                {filteredCases.length > 0 ? filteredCases.map(c => (
+                                    <div key={c.id} className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
+                                        <div className="flex flex-col sm:flex-row justify-between items-start mb-2">
+                                            <div>
+                                                <h3 className="text-lg font-bold text-gray-800">{c.title}</h3>
+                                                <p className="text-sm text-gray-500">Cliente: {c.clientName}</p>
+                                                <p className="text-xs text-gray-400 mt-1">Nº Processo: <span className="font-mono font-medium">{c.id}</span></p>
+                                            </div>
+                                            <span className="bg-primary/10 text-primary text-xs font-medium mt-2 sm:mt-0 px-2.5 py-0.5 rounded-full">{c.status}</span>
+                                        </div>
+                                        <CaseProgressTracker stages={c.stages} />
+                                        <div className="mt-4 border-t pt-4 flex flex-col sm:flex-row gap-3">
+                                            <button className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors">Ver Detalhes</button>
+                                            <button className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors">Enviar Mensagem</button>
+                                            <button onClick={() => handleOpenUpdateModal(c)} className="flex-1 px-4 py-2 bg-primary/10 text-primary text-sm font-semibold rounded-lg hover:bg-primary/20 transition-colors flex items-center justify-center gap-2">
+                                                <PencilIcon className="w-4 h-4" />
+                                                Atualizar Andamento
+                                            </button>
+                                        </div>
+                                    </div>
+                                )) : (
+                                    <p className="text-gray-500 text-center py-10 bg-white rounded-lg border border-gray-200">Nenhum caso encontrado com os filtros aplicados.</p>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Overview Section */}
+                    {activeSection === 'overview' && (
+                    <>
+                    <div className="mb-10" id="overview-stats">
                         <h2 className="text-xl font-semibold text-gray-700 mb-4">Visão Geral</h2>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             <StatCard icon={<ClipboardListIcon className="w-6 h-6 text-primary" />} label="Casos Ativos" value={cases.length} />
@@ -236,7 +356,9 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                                 <p className="text-gray-500 text-center py-6">Nenhum agendamento encontrado.</p>
                             )}
                         </div>
-                    </div>
+                     </div>
+                    </>
+                    )}
                 </div>
             </div>
             {isUpdateModalOpen && selectedCase && (

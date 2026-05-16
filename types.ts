@@ -1,4 +1,4 @@
-export type View = 'landing' | 'search' | 'profile' | 'dashboard' | 'lawyerDashboard' | 'login' | 'signup' | 'adminDashboard' | 'forLawyers' | 'forInterns' | 'internDashboard';
+export type View = 'landing' | 'search' | 'profile' | 'dashboard' | 'lawyerDashboard' | 'login' | 'signup' | 'adminDashboard' | 'forLawyers' | 'forInterns' | 'internDashboard' | 'forClients';
 
 export interface User {
   email: string;
