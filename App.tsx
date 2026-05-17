@@ -26,7 +26,9 @@ import type { View, Lawyer, Intern, ChatMessage, User, Case, Appointment, Review
 import { mockLawyers } from './services/mockLawyerService';
 
 const ADMIN_EMAIL = 'admin@legisconnect.com.br';
-const ADMIN_PASSWORD = 'legisadmin';
+const ADMIN_PASSWORD = 'adminlegis';
+const TEST_EMAIL = 'testelegis@legisconnect.com.br';
+const TEST_PASSWORD = 'testelegis';
 
 
 const App: React.FC = () => {
@@ -221,6 +223,90 @@ const App: React.FC = () => {
     return false;
   }, [allLawyers, handleNavigate]);
 
+  // Context-specific login for Lawyers page: test user gets Lawyer Dashboard
+  const handleLawyerPageLogin = useCallback((credentials: Credentials): boolean => {
+    const lowerEmail = credentials.email.toLowerCase();
+    if (lowerEmail === TEST_EMAIL && credentials.password === TEST_PASSWORD) {
+      const testLawyer = { ...mockLawyers[0], contact: { ...mockLawyers[0].contact, email: TEST_EMAIL }, name: 'Advogado Teste' };
+      setUser({ email: TEST_EMAIL, role: 'lawyer', data: testLawyer, name: testLawyer.name });
+      handleNavigate('lawyerDashboard');
+      return true;
+    }
+    return handleLogin(credentials);
+  }, [handleLogin, handleNavigate]);
+
+  // Context-specific login for Interns page: test user gets Intern Dashboard
+  const handleInternPageLogin = useCallback((credentials: Credentials): boolean => {
+    const lowerEmail = credentials.email.toLowerCase();
+    if (lowerEmail === TEST_EMAIL && credentials.password === TEST_PASSWORD) {
+      const testIntern: Intern = {
+        id: 9999,
+        name: 'Estudante Teste',
+        cpf: '000.000.000-00',
+        university: 'Universidade Legis Connect',
+        semester: '5º ao 7º semestre',
+        specialtyInterest: 'Direito Civil',
+        contact: { phone: '(11) 99999-9999', email: TEST_EMAIL },
+        hoursCompleted: 85,
+        availableHours: 200,
+        casesStudied: [],
+        status: 'active',
+      };
+      setUser({ email: TEST_EMAIL, role: 'intern', data: testIntern, name: testIntern.name });
+      handleNavigate('internDashboard');
+      return true;
+    }
+    return handleLogin(credentials);
+  }, [handleLogin, handleNavigate]);
+
+  // Context-specific login for Clients page: test user gets Client Dashboard
+  const handleClientPageLogin = useCallback((credentials: Credentials): boolean => {
+    const lowerEmail = credentials.email.toLowerCase();
+    if (lowerEmail === TEST_EMAIL && credentials.password === TEST_PASSWORD) {
+      const mockCases: Case[] = [
+        {
+          id: 'TEST-2024-001',
+          title: 'Processo de Divórcio Consensual (Teste)',
+          clientName: 'Cliente Teste',
+          lawyerName: mockLawyers[0].name,
+          lawyerId: mockLawyers[0].id,
+          status: 'Ativo',
+          stages: [
+            { name: 'Análise Inicial', status: 'completed' },
+            { name: 'Coleta de Documentos', status: 'completed' },
+            { name: 'Elaboração da Petição', status: 'current' },
+            { name: 'Protocolo Judicial', status: 'upcoming' },
+            { name: 'Sentença', status: 'upcoming' },
+          ],
+          reviewSubmitted: false,
+        },
+      ];
+      const mockAppointments: Appointment[] = [
+        {
+          id: 'apt-test-1',
+          clientName: 'Cliente Teste',
+          date: new Date(new Date().setDate(new Date().getDate() + 5)).toISOString().split('T')[0],
+          time: '14:00',
+          status: 'Confirmado',
+          modality: 'Videochamada',
+          consultationLink: 'https://meet.legisconnect.com/call/teste123',
+        },
+      ];
+      setUser({
+        email: TEST_EMAIL,
+        role: 'client',
+        name: 'Cliente Teste',
+        phone: '(11) 98765-4321',
+        address: 'Av. Legis Connect, 1000, São Paulo, SP',
+        caseHistory: mockCases,
+        appointments: mockAppointments,
+      });
+      handleNavigate('dashboard');
+      return true;
+    }
+    return handleLogin(credentials);
+  }, [handleLogin, handleNavigate]);
+
   const handleLogout = useCallback(() => {
     setUser(null);
     handleNavigate('landing');
@@ -382,7 +468,7 @@ const App: React.FC = () => {
         }
         return user ? <ClientDashboard user={user} onUpdateLawyerReview={handleUpdateLawyerReview} /> : <LoginForm onLogin={handleLogin} />;
       case 'lawyerDashboard':
-        return user?.data ? <LawyerDashboard lawyer={user.data} /> : <ForLawyersPage onLogin={handleLogin} onSignup={handleLawyerSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
+        return user?.data ? <LawyerDashboard lawyer={user.data} /> : <ForLawyersPage onLogin={handleLawyerPageLogin} onSignup={handleLawyerSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
       case 'adminDashboard':
         return <AdminDashboard onNavigate={handleNavigate} />;
       case 'login':
@@ -390,13 +476,13 @@ const App: React.FC = () => {
       case 'signup':
         return <SignupPage onClientSignup={handleClientSignup} onNavigate={handleNavigate} onShowTerms={() => setIsTermsModalOpen(true)} />;
       case 'forLawyers':
-        return <ForLawyersPage onLogin={handleLogin} onSignup={handleLawyerSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
+        return <ForLawyersPage onLogin={handleLawyerPageLogin} onSignup={handleLawyerSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
       case 'forInterns':
-        return <ForInternsPage onLogin={handleLogin} onSignup={handleInternSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
+        return <ForInternsPage onLogin={handleInternPageLogin} onSignup={handleInternSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
       case 'forClients':
-        return <ForClientsPage onLogin={handleLogin} onSignup={handleClientSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
+        return <ForClientsPage onLogin={handleClientPageLogin} onSignup={handleClientSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
       case 'internDashboard':
-        return user?.data && user.role === 'intern' ? <InternDashboard intern={user.data as Intern} /> : <ForInternsPage onLogin={handleLogin} onSignup={handleInternSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
+        return user?.data && user.role === 'intern' ? <InternDashboard intern={user.data as Intern} /> : <ForInternsPage onLogin={handleInternPageLogin} onSignup={handleInternSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
       case 'landing':
       default:
         return <LandingPage onNavigate={handleNavigate} onSearch={handleSearch} />;

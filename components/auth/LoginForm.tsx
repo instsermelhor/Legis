@@ -10,13 +10,14 @@ interface LoginFormProps {
     onLogin: (credentials: Credentials) => boolean;
 }
 
-const ADMIN_EMAIL = 'admin@legisconnect.com';
+const ADMIN_EMAIL = 'admin@legisconnect.com.br';
+const TEST_EMAIL = 'testelegis@legisconnect.com.br';
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-    const [userType, setUserType] = useState<'admin' | 'lawyer' | 'client' | null>(null);
+    const [userType, setUserType] = useState<'admin' | 'lawyer' | 'client' | 'test' | null>(null);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
@@ -36,6 +37,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
 
         if (lowerEmail === ADMIN_EMAIL) {
             setUserType('admin');
+        } else if (lowerEmail === TEST_EMAIL) {
+            setUserType('test');
         } else if (mockLawyers.some(l => l.contact.email.toLowerCase() === lowerEmail)) {
             setUserType('lawyer');
         } else {
@@ -77,6 +80,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
                             {userType === 'admin' && <p className="text-sm font-medium text-primary">Login de Administrador</p>}
                             {userType === 'lawyer' && <p className="text-sm font-medium text-green-600">Login de Advogado</p>}
                             {userType === 'client' && <p className="text-sm font-medium text-gray-600">Login de Cliente</p>}
+                            {userType === 'test' && <p className="text-sm font-medium text-amber-600">🔑 Login de Acesso de Teste</p>}
                         </div>
                     )}
                     <div className="rounded-md shadow-sm -space-y-px">
