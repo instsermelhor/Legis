@@ -11,7 +11,7 @@ interface LoginFormProps {
 }
 
 const ADMIN_EMAIL = 'admin@legisconnect.com.br';
-const TEST_EMAIL = 'testelegis@legisconnect.com.br';
+const TEST_EMAIL = 'teste@legisconnect.com.br';
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
     const [email, setEmail] = useState('');
