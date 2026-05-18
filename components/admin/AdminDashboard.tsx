@@ -6,6 +6,7 @@ import { RegistrationsTab } from './RegistrationsTab';
 import { ClientsTab, InternsTab } from './ClientsInternsTab';
 import { FinanceTab } from './FinanceTab';
 import { SettingsTab } from './SettingsTab';
+import { ServicesManagementTab } from './ServicesManagementTab';
 import {
   IconBriefcase, IconUsers, IconGradCap, IconMoney,
   IconSettings, IconChart, IconEdit,
@@ -117,7 +118,7 @@ const LawyersTab: React.FC<{
 };
 
 // ─── Tab definitions ──────────────────────────────────────────────────────────
-type Tab = 'overview' | 'registrations' | 'lawyers' | 'clients' | 'interns' | 'finance' | 'settings';
+type Tab = 'overview' | 'registrations' | 'lawyers' | 'clients' | 'interns' | 'finance' | 'settings' | 'services';
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'overview',       label: 'Visão Geral',         icon: <IconChart /> },
@@ -126,6 +127,7 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'clients',        label: 'Clientes',             icon: <IconUsers /> },
   { id: 'interns',        label: 'Estudantes',           icon: <IconGradCap /> },
   { id: 'finance',        label: 'Financeiro',           icon: <IconMoney /> },
+  { id: 'services',       label: 'Serviços / Eficiência',icon: <IconBriefcase /> },
   { id: 'settings',       label: 'Configurações',        icon: <IconSettings /> },
 ];
 
@@ -189,6 +191,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = () => {
           {activeTab === 'clients'       && <ClientsTab />}
           {activeTab === 'interns'       && <InternsTab />}
           {activeTab === 'finance'       && <FinanceTab lawyers={lawyers} initialFilter={financeFilter} />}
+          {activeTab === 'services'      && <ServicesManagementTab />}
           {activeTab === 'settings'      && <SettingsTab />}
         </main>
       </div>

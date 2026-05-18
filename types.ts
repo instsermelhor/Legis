@@ -1,4 +1,4 @@
-export type View = 'landing' | 'search' | 'profile' | 'dashboard' | 'lawyerDashboard' | 'login' | 'signup' | 'adminDashboard' | 'forLawyers' | 'forInterns' | 'internDashboard' | 'forClients';
+export type View = 'landing' | 'search' | 'profile' | 'dashboard' | 'lawyerDashboard' | 'login' | 'signup' | 'adminDashboard' | 'forLawyers' | 'forInterns' | 'internDashboard' | 'forClients' | 'services';
 
 export interface User {
   email: string;
@@ -144,4 +144,17 @@ export interface GroundingChunk {
 export interface MapsSearchResult {
   text: string;
   groundingChunks: GroundingChunk[];
+}
+
+export interface EfficiencyServiceGroup {
+  id: string;
+  name: string;
+}
+
+export interface EfficiencyService {
+  id: string;
+  groupId: string;
+  name: string;
+  description: string;
+  price: number;
 }
