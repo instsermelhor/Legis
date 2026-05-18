@@ -13,6 +13,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
   );
   const [stateFilter, setStateFilter] = useState('Todos');
   const [search, setSearch] = useState('');
+  const [timeFilter, setTimeFilter] = useState('Mensal');
   
   const [services, setServices] = useState<EfficiencyService[]>(mockEfficiencyServices);
   const [groups, setGroups] = useState<EfficiencyServiceGroup[]>(mockEfficiencyServiceGroups);
@@ -24,10 +25,32 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
     if (savedG) setGroups(JSON.parse(savedG));
   }, []);
 
-  const totalRevenue = mockMonthlyRevenue.reduce((a, m) => a + m.revenue, 0);
-  const totalPending = lawyers.reduce((a, l) => a + (l.pendingPayments || 0), 0);
-  const clientPending = mockClients.reduce((a, c) => a + c.pendingAmount, 0);
-  const internStipends = mockInterns.filter(i => i.status === 'ativo').reduce((a, i) => a + (i.stipend || 0), 0);
+  const getScale = (tf: string) => {
+    switch (tf) {
+      case 'Diário': return 1/30;
+      case 'Semanal': return 1/4;
+      case '1 Ano': return 12;
+      case 'Até 5 Anos': return 60;
+      case 'Mensal':
+      default: return 1;
+    }
+  };
+  const scale = getScale(timeFilter);
+
+  const baseTotalRevenue = mockMonthlyRevenue.reduce((a, m) => a + m.revenue, 0);
+  const baseTotalPending = lawyers.reduce((a, l) => a + (l.pendingPayments || 0), 0);
+  const baseClientPending = mockClients.reduce((a, c) => a + c.pendingAmount, 0);
+  const baseInternStipends = mockInterns.filter(i => i.status === 'ativo').reduce((a, i) => a + (i.stipend || 0), 0);
+  
+  // Simulated Services Revenue Base (Mensal)
+  const baseServicesRevenue = services.reduce((a, s, idx) => a + (s.price * ((idx + 1) * 3)), 0);
+
+  const totalRevenue = baseTotalRevenue * scale;
+  const totalPending = baseTotalPending * scale;
+  const clientPending = baseClientPending * scale;
+  const internStipends = baseInternStipends * scale;
+  const servicesRevenue = baseServicesRevenue * scale;
+
   const maxRev = Math.max(...mockMonthlyRevenue.map(m => m.revenue));
 
   const filteredLawyers = useMemo(() => lawyers.filter(l =>
@@ -51,14 +74,27 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
 
   return (
     <div className="space-y-6">
-      <SectionTitle title="Gestão Financeira" subtitle="Receita e pagamentos individualizados por perfil" />
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <SectionTitle title="Gestão Financeira" subtitle="Receita e pagamentos individualizados por perfil" />
+        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border shadow-sm">
+          <span className="text-sm font-medium text-gray-700">Período do Relatório:</span>
+          <select value={timeFilter} onChange={e => setTimeFilter(e.target.value)} className="text-sm border-none bg-transparent font-bold text-primary focus:outline-none cursor-pointer">
+            <option>Diário</option>
+            <option>Semanal</option>
+            <option>Mensal</option>
+            <option>1 Ano</option>
+            <option>Até 5 Anos</option>
+          </select>
+        </div>
+      </div>
 
       {/* Top KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard icon={<span className="text-emerald-600"><IconMoney /></span>} label="Receita Total (6 meses)" value={`R$ ${totalRevenue.toLocaleString('pt-BR')}`} color="bg-emerald-100" />
-        <StatCard icon={<span className="text-yellow-600"><IconShield /></span>} label="Pendente (Advogados)" value={`R$ ${totalPending.toLocaleString('pt-BR')}`} color="bg-yellow-100" />
-        <StatCard icon={<span className="text-orange-600"><IconShield /></span>} label="Pendente (Clientes)" value={`R$ ${clientPending.toLocaleString('pt-BR')}`} color="bg-orange-100" />
-        <StatCard icon={<span className="text-blue-600"><IconGradCap /></span>} label="Bolsas Ativas/Mês" value={`R$ ${internStipends.toLocaleString('pt-BR')}`} color="bg-blue-100" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <StatCard icon={<span className="text-emerald-600"><IconMoney /></span>} label={`Receita Base (${timeFilter})`} value={`R$ ${totalRevenue.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`} color="bg-emerald-100" />
+        <StatCard icon={<span className="text-orange-600"><IconBriefcase /></span>} label={`Receita Serviços (${timeFilter})`} value={`R$ ${servicesRevenue.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`} color="bg-orange-100" />
+        <StatCard icon={<span className="text-yellow-600"><IconShield /></span>} label={`Pendente Advogados`} value={`R$ ${totalPending.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`} color="bg-yellow-100" />
+        <StatCard icon={<span className="text-orange-600"><IconShield /></span>} label={`Pendente Clientes`} value={`R$ ${clientPending.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`} color="bg-orange-100" />
+        <StatCard icon={<span className="text-blue-600"><IconGradCap /></span>} label={`Bolsas (${timeFilter})`} value={`R$ ${internStipends.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`} color="bg-blue-100" />
       </div>
 
       {/* Revenue bar chart */}
