@@ -125,3 +125,16 @@ export let mockLegalDocuments: LegalDocument[] = [
     lastUpdated: '2024-01-01',
   },
 ];
+
+import { EfficiencyServiceGroup, EfficiencyService } from '../types';
+
+export let mockEfficiencyServiceGroups: EfficiencyServiceGroup[] = [
+  { id: 'group-1', name: 'Gestão Documental e Processual' },
+  { id: 'group-2', name: 'Atendimento e Suporte' },
+];
+
+export let mockEfficiencyServices: EfficiencyService[] = [
+  { id: 'serv-1', groupId: 'group-1', name: 'Organização de Pastas de Clientes', description: 'Digitalização, catalogação e organização de todos os documentos processuais.', price: 150.00 },
+  { id: 'serv-2', groupId: 'group-1', name: 'Acompanhamento de Diários Oficiais', description: 'Leitura diária e triagem de publicações relevantes para os processos.', price: 300.00 },
+  { id: 'serv-3', groupId: 'group-2', name: 'Triagem de Atendimentos', description: 'Filtro inicial de potenciais clientes e agendamento de consultas.', price: 200.00 }
+];

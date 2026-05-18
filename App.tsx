@@ -16,6 +16,7 @@ import { InternDashboard } from './components/intern/InternDashboard';
 import { InternSignupData } from './components/auth/InternSignupForm';
 import { CompleteProfilePage } from './components/client/CompleteProfilePage';
 import { ForClientsPage } from './components/client/ForClientsPage';
+import { EfficiencyServicesPage } from './components/client/EfficiencyServicesPage';
 import { ChatbotFab } from './components/chatbot/ChatbotFab';
 import { ChatbotModal } from './components/chatbot/ChatbotModal';
 import { TermsOfServiceModal } from './components/common/TermsOfServiceModal';
@@ -483,6 +484,8 @@ const App: React.FC = () => {
         return <ForClientsPage onLogin={handleClientPageLogin} onSignup={handleClientSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
       case 'internDashboard':
         return user?.data && user.role === 'intern' ? <InternDashboard intern={user.data as Intern} /> : <ForInternsPage onLogin={handleInternPageLogin} onSignup={handleInternSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
+      case 'services':
+        return <EfficiencyServicesPage />;
       case 'landing':
       default:
         return <LandingPage onNavigate={handleNavigate} onSearch={handleSearch} />;
