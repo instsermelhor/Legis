@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import type { Lawyer } from '../../types';
-import { mockClients, mockInterns, mockMonthlyRevenue } from '../../services/mockDataService';
-import { StatCard, SectionTitle, SearchInput, IconMoney, IconShield, IconChart, IconBriefcase, IconUsers, IconGradCap } from './AdminShared';
+import { mockClients, mockInterns, mockMonthlyRevenue, mockEfficiencyServices, mockEfficiencyServiceGroups } from '../../services/mockDataService';
+import type { EfficiencyService, EfficiencyServiceGroup } from '../../types';
+import { StatCard, SectionTitle, SearchInput, IconMoney, IconShield, IconChart, IconBriefcase, IconUsers, IconGradCap, IconSettings } from './AdminShared';
 
 const BRAZIL_STATES = ['Todos', 'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
-type FilterType = 'lawyers' | 'clients' | 'interns';
+type FilterType = 'lawyers' | 'clients' | 'interns' | 'services';
 
 export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }> = ({ lawyers, initialFilter }) => {
   const [filterType, setFilterType] = useState<FilterType>(
@@ -12,6 +13,16 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
   );
   const [stateFilter, setStateFilter] = useState('Todos');
   const [search, setSearch] = useState('');
+  
+  const [services, setServices] = useState<EfficiencyService[]>(mockEfficiencyServices);
+  const [groups, setGroups] = useState<EfficiencyServiceGroup[]>(mockEfficiencyServiceGroups);
+
+  React.useEffect(() => {
+    const savedS = localStorage.getItem('legis_services');
+    if (savedS) setServices(JSON.parse(savedS));
+    const savedG = localStorage.getItem('legis_serviceGroups');
+    if (savedG) setGroups(JSON.parse(savedG));
+  }, []);
 
   const totalRevenue = mockMonthlyRevenue.reduce((a, m) => a + m.revenue, 0);
   const totalPending = lawyers.reduce((a, l) => a + (l.pendingPayments || 0), 0);
@@ -33,6 +44,10 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
     (stateFilter === 'Todos' || i.state === stateFilter) &&
     i.name.toLowerCase().includes(search.toLowerCase())
   ), [stateFilter, search]);
+
+  const filteredServices = useMemo(() => services.filter(s =>
+    s.name.toLowerCase().includes(search.toLowerCase())
+  ), [services, search]);
 
   return (
     <div className="space-y-6">
@@ -67,8 +82,8 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
       {/* Individualized table */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
         <div className="p-5 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex gap-2">
-            {([['lawyers', 'Advogados', <IconBriefcase />], ['clients', 'Clientes', <IconUsers />], ['interns', 'Estudantes', <IconGradCap />]] as [FilterType, string, React.ReactNode][]).map(([t, label, icon]) => (
+          <div className="flex gap-2 flex-wrap">
+            {([['lawyers', 'Advogados', <IconBriefcase />], ['clients', 'Clientes', <IconUsers />], ['interns', 'Estudantes', <IconGradCap />], ['services', 'Serviços', <IconSettings />]] as [FilterType, string, React.ReactNode][]).map(([t, label, icon]) => (
               <button key={t} onClick={() => { setFilterType(t); setSearch(''); setStateFilter('Todos'); }} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${filterType === t ? 'bg-primary text-white border-primary' : 'bg-white text-gray-600 border-gray-200 hover:border-primary/40'}`}>
                 <span className="w-4 h-4">{icon}</span>{label}
               </button>
@@ -165,6 +180,40 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                   <td colSpan={4} className="px-5 py-3 text-gray-600">Totais</td>
                   <td className="px-5 py-3 text-blue-700">R$ {filteredInterns.reduce((a, i) => a + (i.stipend || 0), 0).toLocaleString('pt-BR')}/mês</td>
                   <td className="px-5 py-3 text-emerald-700">R$ {filteredInterns.reduce((a, i) => a + (i.totalEarned || 0), 0).toLocaleString('pt-BR')}</td>
+                </tr>
+              </tfoot>
+            </table>
+          )}
+
+          {/* Services */}
+          {filterType === 'services' && (
+            <table className="w-full text-sm text-left text-gray-600">
+              <thead className="text-xs text-gray-700 uppercase bg-gray-50">
+                <tr><th className="px-5 py-3">Serviço</th><th className="px-5 py-3">Grupo</th><th className="px-5 py-3 text-right">Valor Padrão</th><th className="px-5 py-3 text-right">Contratos (Simulado)</th><th className="px-5 py-3 text-right">Receita Estimada</th></tr>
+              </thead>
+              <tbody>
+                {filteredServices.map((s, idx) => {
+                  const group = groups.find(g => g.id === s.groupId);
+                  const simulatedContracts = (idx + 1) * 3; // Mocking some contracts based on index
+                  const estimatedRev = s.price * simulatedContracts;
+                  return (
+                    <tr key={s.id} className="border-b hover:bg-gray-50">
+                      <td className="px-5 py-3 font-medium text-gray-900">{s.name}</td>
+                      <td className="px-5 py-3">{group?.name || '—'}</td>
+                      <td className="px-5 py-3 text-right font-semibold text-gray-700">R$ {s.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                      <td className="px-5 py-3 text-right">{simulatedContracts} ativos</td>
+                      <td className="px-5 py-3 text-right font-bold text-emerald-700">R$ {estimatedRev.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                    </tr>
+                  );
+                })}
+                {filteredServices.length === 0 && <tr><td colSpan={5} className="text-center py-8 text-gray-400">Nenhum resultado.</td></tr>}
+              </tbody>
+              <tfoot className="bg-gray-50 font-semibold text-sm border-t">
+                <tr>
+                  <td colSpan={4} className="px-5 py-3 text-gray-600">Receita Total Estimada (Serviços)</td>
+                  <td className="px-5 py-3 text-emerald-700 text-right">
+                    R$ {filteredServices.reduce((a, s, idx) => a + (s.price * ((idx + 1) * 3)), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </td>
                 </tr>
               </tfoot>
             </table>
