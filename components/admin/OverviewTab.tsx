@@ -39,6 +39,48 @@ export const OverviewTab: React.FC<{
     return counts;
   }, [lawyers]);
 
+  const internSemesterDistribution = useMemo(() => {
+    const counts: { [key: string]: number } = {};
+    mockInterns.forEach(i => { counts[i.semester] = (counts[i.semester] || 0) + 1; });
+    return counts;
+  }, []);
+
+  const internSpecialtyDistribution = useMemo(() => {
+    const counts: { [key: string]: number } = {};
+    mockInterns.forEach(i => { counts[i.specialtyInterest] = (counts[i.specialtyInterest] || 0) + 1; });
+    return counts;
+  }, []);
+
+  const serviceGroupDistribution = useMemo(() => {
+    const counts: { [key: string]: number } = {};
+    const groupsRaw = localStorage.getItem('legis_serviceGroups');
+    const groups: { id: string, name: string }[] = groupsRaw ? JSON.parse(groupsRaw) : [];
+    const groupMap = new Map(groups.map(g => [g.id, g.name]));
+    
+    const servicesRaw = localStorage.getItem('legis_services');
+    const servs: { groupId: string }[] = servicesRaw ? JSON.parse(servicesRaw) : [];
+    
+    if (servs.length > 0) {
+      servs.forEach(s => {
+        const name = groupMap.get(s.groupId) || 'Outros';
+        counts[name] = (counts[name] || 0) + 1;
+      });
+    } else {
+      counts['Sem Serviços'] = 1;
+    }
+    return counts;
+  }, [servicesCount]); // recompute if servicesCount changes
+
+  const clientServiceDistribution = useMemo(() => {
+    // Mock distribution since we don't have real contract links
+    return {
+      'Organização de Pastas': 12,
+      'Acompanhamento de Diários': 8,
+      'Triagem de Atendimentos': 5,
+      'Consultoria Avulsa': 3,
+    };
+  }, []);
+
   // Filtered KPI data
   const filteredLawyers = useMemo(() => lawyers.filter(l =>
     (stateFilter === 'Todos' || l.location.state === stateFilter) &&
@@ -66,8 +108,8 @@ export const OverviewTab: React.FC<{
         <StatCard icon={<span className="text-primary"><IconBriefcase /></span>} label="Advogados Cadastrados" value={stats.totalLawyers} sub={`${stats.verifiedLawyers} verificados · ${stats.pendingLawyers} pendentes`} onClick={() => setModal({ type: 'lawyers' })} />
         <StatCard icon={<span className="text-blue-600"><IconUsers /></span>} label="Clientes" value={stats.totalClients} sub={`${stats.activeClients} ativos`} color="bg-blue-100" onClick={() => setModal({ type: 'clients' })} />
         <StatCard icon={<span className="text-purple-600"><IconGradCap /></span>} label="Estudantes" value={stats.totalInterns} sub={`${stats.activeInterns} ativos`} color="bg-purple-100" onClick={() => setModal({ type: 'interns' })} />
-        <StatCard icon={<span className="text-emerald-600"><IconMoney /></span>} label="Receita Último Mês" value={`R$ ${stats.lastMonthRevenue.toLocaleString('pt-BR')}`} sub="clique para ver financeiro" color="bg-emerald-100" onClick={() => onNavigateToFinance && onNavigateToFinance()} />
         <StatCard icon={<span className="text-orange-600"><IconBriefcase /></span>} label="Serviços" value={servicesCount} sub="serviços configurados" color="bg-orange-100" />
+        <StatCard icon={<span className="text-emerald-600"><IconMoney /></span>} label="Receita Último Mês" value={`R$ ${stats.lastMonthRevenue.toLocaleString('pt-BR')}`} sub="clique para ver financeiro" color="bg-emerald-100" onClick={() => onNavigateToFinance && onNavigateToFinance()} />
       </div>
 
       {/* Charts */}
@@ -75,6 +117,22 @@ export const OverviewTab: React.FC<{
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
           <h3 className="text-base font-bold text-gray-800 mb-4">Advogados por Especialidade</h3>
           <SpecialtyPieChart data={specialtyDistribution} />
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+          <h3 className="text-base font-bold text-gray-800 mb-4">Estudantes por Especialidade</h3>
+          <SpecialtyPieChart data={internSpecialtyDistribution} />
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+          <h3 className="text-base font-bold text-gray-800 mb-4">Estudantes por Semestre</h3>
+          <SpecialtyPieChart data={internSemesterDistribution} />
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+          <h3 className="text-base font-bold text-gray-800 mb-4">Serviços por Grupo</h3>
+          <SpecialtyPieChart data={serviceGroupDistribution} />
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+          <h3 className="text-base font-bold text-gray-800 mb-4">Clientes por Serviços Contratados</h3>
+          <SpecialtyPieChart data={clientServiceDistribution} />
         </div>
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
           <h3 className="text-base font-bold text-gray-800 mb-4">Receita Mensal (R$)</h3>
