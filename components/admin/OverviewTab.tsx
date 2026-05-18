@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import type { Lawyer } from '../../types';
-import { mockClients, mockInterns, mockMonthlyRevenue } from '../../services/mockDataService';
+import { mockClients, mockInterns, mockMonthlyRevenue, mockEfficiencyServices } from '../../services/mockDataService';
 import { SpecialtyPieChart } from './SpecialtyPieChart';
 import { StatCard, SectionTitle, SearchInput, Badge, IconBriefcase, IconUsers, IconGradCap, IconMoney, IconX, lawyerStatusBadge, clientStatusBadge, internStatusBadge } from './AdminShared';
 
@@ -15,6 +15,12 @@ export const OverviewTab: React.FC<{
   const [modal, setModal] = useState<KpiModal>(null);
   const [stateFilter, setStateFilter] = useState('Todos');
   const [search, setSearch] = useState('');
+  const [servicesCount, setServicesCount] = useState(mockEfficiencyServices.length);
+
+  React.useEffect(() => {
+    const saved = localStorage.getItem('legis_services');
+    if (saved) setServicesCount(JSON.parse(saved).length);
+  }, []);
 
   const stats = useMemo(() => ({
     totalLawyers: lawyers.length,
@@ -56,11 +62,12 @@ export const OverviewTab: React.FC<{
       <SectionTitle title="Visão Geral" subtitle="Clique em qualquer KPI para ver detalhes e filtros" />
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
         <StatCard icon={<span className="text-primary"><IconBriefcase /></span>} label="Advogados Cadastrados" value={stats.totalLawyers} sub={`${stats.verifiedLawyers} verificados · ${stats.pendingLawyers} pendentes`} onClick={() => setModal({ type: 'lawyers' })} />
         <StatCard icon={<span className="text-blue-600"><IconUsers /></span>} label="Clientes" value={stats.totalClients} sub={`${stats.activeClients} ativos`} color="bg-blue-100" onClick={() => setModal({ type: 'clients' })} />
         <StatCard icon={<span className="text-purple-600"><IconGradCap /></span>} label="Estudantes" value={stats.totalInterns} sub={`${stats.activeInterns} ativos`} color="bg-purple-100" onClick={() => setModal({ type: 'interns' })} />
         <StatCard icon={<span className="text-emerald-600"><IconMoney /></span>} label="Receita Último Mês" value={`R$ ${stats.lastMonthRevenue.toLocaleString('pt-BR')}`} sub="clique para ver financeiro" color="bg-emerald-100" onClick={() => onNavigateToFinance && onNavigateToFinance()} />
+        <StatCard icon={<span className="text-orange-600"><IconBriefcase /></span>} label="Serviços" value={servicesCount} sub="serviços configurados" color="bg-orange-100" />
       </div>
 
       {/* Charts */}
