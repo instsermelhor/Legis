@@ -9,6 +9,8 @@ import { FinancialKPI } from './FinancialKPI';
 import { ChangePasswordModal } from '../common/ChangePasswordModal';
 import { ChangeEmailModal } from '../common/ChangeEmailModal';
 import { AREAS_OF_LAW, BRAZILIAN_STATES } from '../../constants';
+import { mockInterns, mockSecretaries } from '../../services/mockDataService';
+import type { MockIntern, MockSecretary } from '../../services/mockDataService';
 
 interface LawyerDashboardProps {
     lawyer: Lawyer;
@@ -147,7 +149,16 @@ const AppointmentCard: React.FC<{ appointment: Appointment }> = ({ appointment }
 
 export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
     const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
-    const [activeSection, setActiveSection] = useState<'overview' | 'meusCasos' | 'codigos' | 'financeiro' | 'perfil'>('overview');
+    const [activeSection, setActiveSection] = useState<'overview' | 'meusCasos' | 'codigos' | 'financeiro' | 'perfil' | 'estagiarios' | 'secretariado'>('overview');
+
+    // Intern/Secretary selection state
+    const [linkedInternId, setLinkedInternId] = useState<number | null>(null);
+    const [linkedSecretaryId, setLinkedSecretaryId] = useState<number | null>(null);
+    const [internSearch, setInternSearch] = useState('');
+    const [secretarySearch, setSecretarySearch] = useState('');
+    const [confirmLinkIntern, setConfirmLinkIntern] = useState<MockIntern | null>(null);
+    const [confirmLinkSecretary, setConfirmLinkSecretary] = useState<MockSecretary | null>(null);
+    const [linkSuccess, setLinkSuccess] = useState<'intern' | 'secretary' | null>(null);
 
     // Profile Editing State
     const [profileData, setProfileData] = useState({
@@ -461,7 +472,28 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                             >
                                 👤 Meu Perfil
                             </button>
+                            <button
+                                onClick={() => setActiveSection('estagiarios')}
+                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
+                                    activeSection === 'estagiarios'
+                                        ? 'bg-indigo-600 text-white shadow'
+                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                }`}
+                            >
+                                🎓 Estagiários
+                            </button>
+                            <button
+                                onClick={() => setActiveSection('secretariado')}
+                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
+                                    activeSection === 'secretariado'
+                                        ? 'bg-purple-600 text-white shadow'
+                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                }`}
+                            >
+                                🗂️ Secretariado
+                            </button>
                         </div>
+
                     </div>
 
                     {/* Meus Casos Section */}
@@ -914,6 +946,246 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                                     {profileSaved ? '✓ Perfil Salvo!' : 'Salvar Perfil'}
                                 </button>
                             </div>
+                        </div>
+                    )}
+
+                    {/* ─── ESTAGIÁRIOS SECTION ─────────────────────────────────────── */}
+                    {activeSection === 'estagiarios' && (
+                        <div className="space-y-5 animate-fade-in">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-800">🎓 Escolher Estagiário</h3>
+                                    <p className="text-sm text-gray-500 mt-0.5">Selecione um estudante para atuar como estagiário vinculado ao seu escritório.</p>
+                                </div>
+                                {linkedInternId && (
+                                    <div className="bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-2 text-xs font-semibold text-indigo-700">
+                                        ✅ Estagiário vinculado: {mockInterns.find(i => i.id === linkedInternId)?.name}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Search */}
+                            <input
+                                value={internSearch}
+                                onChange={e => setInternSearch(e.target.value)}
+                                placeholder="Buscar por nome, universidade ou área de interesse..."
+                                className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                            />
+
+                            {/* Success Banner */}
+                            {linkSuccess === 'intern' && (
+                                <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3 text-green-700 font-semibold text-sm">
+                                    🎉 Estagiário vinculado com sucesso! Ele receberá uma notificação com suas informações.
+                                </div>
+                            )}
+
+                            {/* Intern Cards */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {mockInterns
+                                    .filter(i => {
+                                        const q = internSearch.toLowerCase();
+                                        return !q || i.name.toLowerCase().includes(q) || i.university.toLowerCase().includes(q) || i.specialtyInterest.toLowerCase().includes(q);
+                                    })
+                                    .map(intern => {
+                                        const isLinked = linkedInternId === intern.id;
+                                        return (
+                                            <div key={intern.id} className={`bg-white rounded-xl border shadow-sm p-5 flex flex-col gap-3 transition-all ${isLinked ? 'border-indigo-400 ring-2 ring-indigo-100' : 'border-gray-200 hover:shadow-md'}`}>
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 rounded-full bg-indigo-100 text-indigo-700 font-bold text-sm flex items-center justify-center shrink-0">
+                                                            {intern.name.charAt(0)}
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-bold text-gray-900 text-sm">{intern.name}</p>
+                                                            <p className="text-xs text-gray-500">{intern.city || '—'} {intern.state ? `/ ${intern.state}` : ''}</p>
+                                                        </div>
+                                                    </div>
+                                                    {isLinked && <span className="text-xs font-bold text-indigo-600 bg-indigo-50 border border-indigo-200 px-2 py-0.5 rounded-full">Vinculado</span>}
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                                                    <div><span className="font-semibold text-gray-700">Universidade:</span><br />{intern.university}</div>
+                                                    <div><span className="font-semibold text-gray-700">Semestre:</span><br />{intern.semester}</div>
+                                                    <div className="col-span-2"><span className="font-semibold text-gray-700">Área de Interesse:</span> {intern.specialtyInterest}</div>
+                                                </div>
+                                                <div className="pt-2 border-t flex gap-2">
+                                                    {isLinked ? (
+                                                        <button
+                                                            onClick={() => { setLinkedInternId(null); setLinkSuccess(null); }}
+                                                            className="flex-1 py-2 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+                                                        >
+                                                            Desvincular
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => setConfirmLinkIntern(intern)}
+                                                            className="flex-1 py-2 text-xs font-semibold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors"
+                                                        >
+                                                            Escolher como Estagiário
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                            </div>
+
+                            {/* Confirm Modal */}
+                            {confirmLinkIntern && (
+                                <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setConfirmLinkIntern(null)}>
+                                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4" onClick={e => e.stopPropagation()}>
+                                        <h3 className="font-bold text-gray-900 text-lg">Confirmar Vinculação</h3>
+                                        <p className="text-sm text-gray-600">
+                                            Você está prestes a vincular <strong>{confirmLinkIntern.name}</strong> como estagiário do seu escritório.
+                                        </p>
+                                        <div className="bg-indigo-50 rounded-xl p-4 text-xs space-y-1.5">
+                                            <p><strong>Universidade:</strong> {confirmLinkIntern.university}</p>
+                                            <p><strong>Semestre:</strong> {confirmLinkIntern.semester}</p>
+                                            <p><strong>Área de Interesse:</strong> {confirmLinkIntern.specialtyInterest}</p>
+                                            <p><strong>Cidade:</strong> {confirmLinkIntern.city || '—'}</p>
+                                        </div>
+                                        <p className="text-xs text-gray-500">O estudante receberá uma notificação com suas informações de contato.</p>
+                                        <div className="flex gap-3">
+                                            <button onClick={() => setConfirmLinkIntern(null)} className="flex-1 py-2.5 text-sm font-semibold text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200">Cancelar</button>
+                                            <button
+                                                onClick={() => {
+                                                    setLinkedInternId(confirmLinkIntern.id);
+                                                    setLinkSuccess('intern');
+                                                    setConfirmLinkIntern(null);
+                                                    setTimeout(() => setLinkSuccess(null), 5000);
+                                                }}
+                                                className="flex-1 py-2.5 text-sm font-semibold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700"
+                                            >
+                                                ✓ Confirmar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* ─── SECRETARIADO SECTION ────────────────────────────────────── */}
+                    {activeSection === 'secretariado' && (
+                        <div className="space-y-5 animate-fade-in">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <h3 className="text-lg font-bold text-gray-800">🗂️ Secretariado</h3>
+                                    <p className="text-sm text-gray-500 mt-0.5">Encontre e contrate profissionais de secretariado para o seu escritório.</p>
+                                </div>
+                                {linkedSecretaryId && (
+                                    <div className="bg-purple-50 border border-purple-200 rounded-xl px-4 py-2 text-xs font-semibold text-purple-700">
+                                        ✅ Secretário(a) vinculado: {mockSecretaries.find(s => s.id === linkedSecretaryId)?.name}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Search */}
+                            <input
+                                value={secretarySearch}
+                                onChange={e => setSecretarySearch(e.target.value)}
+                                placeholder="Buscar por nome, cidade ou área de conhecimento..."
+                                className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200"
+                            />
+
+                            {/* Success Banner */}
+                            {linkSuccess === 'secretary' && (
+                                <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3 text-green-700 font-semibold text-sm">
+                                    🎉 Secretário(a) vinculado com sucesso! Ele(a) receberá uma notificação com suas informações.
+                                </div>
+                            )}
+
+                            {/* Secretary Cards */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {mockSecretaries
+                                    .filter(s => {
+                                        const q = secretarySearch.toLowerCase();
+                                        return !q || s.name.toLowerCase().includes(q) || s.city.toLowerCase().includes(q) || s.areasOfKnowledge.some(a => a.toLowerCase().includes(q));
+                                    })
+                                    .map(sec => {
+                                        const isLinked = linkedSecretaryId === sec.id;
+                                        const availLabel = sec.availability === 'integral' ? 'Integral' : sec.availability === 'meio-periodo' ? 'Meio Período' : 'Freelancer';
+                                        return (
+                                            <div key={sec.id} className={`bg-white rounded-xl border shadow-sm p-5 flex flex-col gap-3 transition-all ${isLinked ? 'border-purple-400 ring-2 ring-purple-100' : 'border-gray-200 hover:shadow-md'}`}>
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-700 font-bold text-sm flex items-center justify-center shrink-0">
+                                                            {sec.name.charAt(0)}
+                                                        </div>
+                                                        <div>
+                                                            <p className="font-bold text-gray-900 text-sm">{sec.name}</p>
+                                                            <p className="text-xs text-gray-500">{sec.city} / {sec.state}</p>
+                                                        </div>
+                                                    </div>
+                                                    {isLinked && <span className="text-xs font-bold text-purple-600 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full">Vinculado</span>}
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+                                                    <div><span className="font-semibold text-gray-700">Experiência:</span><br />{sec.experience} anos</div>
+                                                    <div><span className="font-semibold text-gray-700">Disponibilidade:</span><br />{availLabel}</div>
+                                                    <div className="col-span-2">
+                                                        <span className="font-semibold text-gray-700">Áreas de Conhecimento:</span>
+                                                        <div className="flex flex-wrap gap-1 mt-1">
+                                                            {sec.areasOfKnowledge.slice(0, 3).map(a => (
+                                                                <span key={a} className="px-1.5 py-0.5 bg-purple-50 text-purple-700 border border-purple-100 rounded text-[10px] font-medium">{a}</span>
+                                                            ))}
+                                                            {sec.areasOfKnowledge.length > 3 && <span className="text-[10px] text-gray-400">+{sec.areasOfKnowledge.length - 3} mais</span>}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {sec.bio && <p className="text-xs text-gray-500 border-t pt-2 line-clamp-2">{sec.bio}</p>}
+                                                <div className="pt-1 flex gap-2">
+                                                    {isLinked ? (
+                                                        <button
+                                                            onClick={() => { setLinkedSecretaryId(null); setLinkSuccess(null); }}
+                                                            className="flex-1 py-2 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+                                                        >
+                                                            Desvincular
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => setConfirmLinkSecretary(sec)}
+                                                            className="flex-1 py-2 text-xs font-semibold text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
+                                                        >
+                                                            Contratar
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                            </div>
+
+                            {/* Confirm Modal */}
+                            {confirmLinkSecretary && (
+                                <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setConfirmLinkSecretary(null)}>
+                                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4" onClick={e => e.stopPropagation()}>
+                                        <h3 className="font-bold text-gray-900 text-lg">Confirmar Contratação</h3>
+                                        <p className="text-sm text-gray-600">
+                                            Você está prestes a contratar <strong>{confirmLinkSecretary.name}</strong> para secretariar seu escritório.
+                                        </p>
+                                        <div className="bg-purple-50 rounded-xl p-4 text-xs space-y-1.5">
+                                            <p><strong>Localização:</strong> {confirmLinkSecretary.city} / {confirmLinkSecretary.state}</p>
+                                            <p><strong>Experiência:</strong> {confirmLinkSecretary.experience} anos</p>
+                                            <p><strong>Disponibilidade:</strong> {confirmLinkSecretary.availability === 'integral' ? 'Integral' : confirmLinkSecretary.availability === 'meio-periodo' ? 'Meio Período' : 'Freelancer'}</p>
+                                            <p><strong>Áreas:</strong> {confirmLinkSecretary.areasOfKnowledge.slice(0, 3).join(', ')}</p>
+                                        </div>
+                                        <p className="text-xs text-gray-500">O(A) secretário(a) receberá uma notificação com suas informações profissionais.</p>
+                                        <div className="flex gap-3">
+                                            <button onClick={() => setConfirmLinkSecretary(null)} className="flex-1 py-2.5 text-sm font-semibold text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200">Cancelar</button>
+                                            <button
+                                                onClick={() => {
+                                                    setLinkedSecretaryId(confirmLinkSecretary.id);
+                                                    setLinkSuccess('secretary');
+                                                    setConfirmLinkSecretary(null);
+                                                    setTimeout(() => setLinkSuccess(null), 5000);
+                                                }}
+                                                className="flex-1 py-2.5 text-sm font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700"
+                                            >
+                                                ✓ Confirmar Contratação
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
 

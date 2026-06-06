@@ -1,10 +1,10 @@
-export type View = 'landing' | 'search' | 'profile' | 'dashboard' | 'lawyerDashboard' | 'login' | 'signup' | 'adminDashboard' | 'forLawyers' | 'forInterns' | 'internDashboard' | 'forClients' | 'services';
+export type View = 'landing' | 'search' | 'profile' | 'dashboard' | 'lawyerDashboard' | 'login' | 'signup' | 'adminDashboard' | 'forLawyers' | 'forInterns' | 'internDashboard' | 'forClients' | 'services' | 'forSecretariado' | 'secretariadoDashboard';
 
 export interface User {
   email: string;
-  role: 'client' | 'lawyer' | 'admin' | 'intern';
+  role: 'client' | 'lawyer' | 'admin' | 'intern' | 'secretary';
   name?: string; // For client/admin name
-  data?: Lawyer | Intern; // For lawyer-specific detailed data or intern data
+  data?: Lawyer | Intern | Secretary; // For lawyer-specific detailed data or intern/secretary data
   // Client-specific data
   phone?: string;
   address?: string;
@@ -191,4 +191,28 @@ export interface EfficiencyService {
   name: string;
   description: string;
   price: number;
+}
+
+export interface Secretary {
+  id: number;
+  name: string;
+  cpf?: string;
+  rg?: string;
+  email: string;
+  phone: string;
+  city: string;
+  state: string;
+  address?: string;
+  experience: number; // years
+  areasOfKnowledge: string[];
+  availability: 'integral' | 'meio-periodo' | 'freelancer';
+  bio?: string;
+  status: 'ativo' | 'pendente' | 'inativo';
+  assignedLawyerId?: number;
+  joinedDate: string;
+  // Foreigner
+  isForeigner?: boolean;
+  foreignerDocument?: string;
+  countryOfOrigin?: string;
+  timeInBrazil?: string;
 }

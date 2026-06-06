@@ -138,3 +138,101 @@ export let mockEfficiencyServices: EfficiencyService[] = [
   { id: 'serv-2', groupId: 'group-1', name: 'Acompanhamento de Diários Oficiais', description: 'Leitura diária e triagem de publicações relevantes para os processos.', price: 300.00 },
   { id: 'serv-3', groupId: 'group-2', name: 'Triagem de Atendimentos', description: 'Filtro inicial de potenciais clientes e agendamento de consultas.', price: 200.00 }
 ];
+
+// ─── Secretariat Mock Data ─────────────────────────────────────────────────────
+export interface MockSecretary {
+  id: number;
+  name: string;
+  email: string;
+  phone: string;
+  cpf?: string;
+  city: string;
+  state: string;
+  address?: string;
+  experience: number; // years
+  areasOfKnowledge: string[];
+  availability: 'integral' | 'meio-periodo' | 'freelancer';
+  bio?: string;
+  status: 'ativo' | 'pendente' | 'inativo';
+  assignedLawyerId?: number;
+  joinedDate: string;
+  notes?: string;
+}
+
+export let mockSecretaries: MockSecretary[] = [
+  {
+    id: 1,
+    name: 'Fernanda Alves',
+    email: 'fernanda.alves@email.com',
+    phone: '(11) 97654-3210',
+    cpf: '123.456.789-01',
+    city: 'São Paulo',
+    state: 'SP',
+    address: 'Rua Bela Cintra, 100, Consolação',
+    experience: 5,
+    areasOfKnowledge: ['Atendimento ao Cliente', 'Gestão de Agenda', 'Protocolo Judicial', 'Organização Documental'],
+    availability: 'integral',
+    bio: 'Secretária com 5 anos de experiência em escritórios de advocacia de médio porte. Especializada em gestão de processos e atendimento ao cliente.',
+    status: 'ativo',
+    joinedDate: '2024-01-10',
+  },
+  {
+    id: 2,
+    name: 'Carlos Eduardo Melo',
+    email: 'carlos.melo@email.com',
+    phone: '(21) 96543-2109',
+    cpf: '234.567.890-02',
+    city: 'Rio de Janeiro',
+    state: 'RJ',
+    experience: 3,
+    areasOfKnowledge: ['Redação Jurídica', 'Diários Oficiais', 'Controle Financeiro', 'Triagem de Clientes'],
+    availability: 'meio-periodo',
+    bio: 'Profissional com formação em Administração e experiência em suporte a advogados. Conhecimento em softwares de gestão jurídica.',
+    status: 'ativo',
+    joinedDate: '2024-03-15',
+  },
+  {
+    id: 3,
+    name: 'Maria Luísa Carvalho',
+    email: 'maria.carvalho@email.com',
+    phone: '(31) 95432-1098',
+    cpf: '345.678.901-03',
+    city: 'Belo Horizonte',
+    state: 'MG',
+    experience: 8,
+    areasOfKnowledge: ['Gestão de Escritório', 'Protocolo Judicial', 'Atendimento VIP', 'Organização Documental', 'Redação Jurídica'],
+    availability: 'integral',
+    bio: 'Vasta experiência em grandes escritórios de advocacia. Excelente organização e proatividade. Disponível para trabalho presencial ou remoto.',
+    status: 'ativo',
+    joinedDate: '2023-08-20',
+    assignedLawyerId: 2,
+  },
+  {
+    id: 4,
+    name: 'Rafael Nunes',
+    email: 'rafael.nunes@email.com',
+    phone: '(41) 94321-0987',
+    city: 'Curitiba',
+    state: 'PR',
+    experience: 2,
+    areasOfKnowledge: ['Triagem de Clientes', 'Controle de Agenda', 'Suporte Administrativo'],
+    availability: 'freelancer',
+    status: 'pendente',
+    joinedDate: '2024-05-01',
+  },
+  {
+    id: 5,
+    name: 'Juliana Pires',
+    email: 'juliana.pires@email.com',
+    phone: '(85) 93210-9876',
+    cpf: '456.789.012-04',
+    city: 'Fortaleza',
+    state: 'CE',
+    experience: 6,
+    areasOfKnowledge: ['Diários Oficiais', 'Controle Financeiro', 'Redação Jurídica', 'Protocolo Judicial'],
+    availability: 'integral',
+    bio: 'Secretária jurídica com sólida experiência. Domínio de sistemas de acompanhamento processual eletrônico (PJe, e-SAJ).',
+    status: 'ativo',
+    joinedDate: '2023-11-12',
+  },
+];

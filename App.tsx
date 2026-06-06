@@ -17,13 +17,16 @@ import { InternSignupData } from './components/auth/InternSignupForm';
 import { CompleteProfilePage } from './components/client/CompleteProfilePage';
 import { ForClientsPage } from './components/client/ForClientsPage';
 import { EfficiencyServicesPage } from './components/client/EfficiencyServicesPage';
+import { ForSecretariadoPage } from './components/secretary/ForSecretariadoPage';
+import { SecretariadoDashboard } from './components/secretary/SecretariadoDashboard';
+import { SecretarySignupData } from './components/secretary/SecretariadoSignupForm';
 import { ChatbotFab } from './components/chatbot/ChatbotFab';
 import { ChatbotModal } from './components/chatbot/ChatbotModal';
 import { TermsOfServiceModal } from './components/common/TermsOfServiceModal';
 import { PrivacyPolicyModal } from './components/common/PrivacyPolicyModal';
 import { EticaOABModal } from './components/common/EticaOABModal';
 import { chatWithGemini } from './services/geminiService';
-import type { View, Lawyer, Intern, ChatMessage, User, Case, Appointment, Review, MapsSearchResult } from './types';
+import type { View, Lawyer, Intern, Secretary, ChatMessage, User, Case, Appointment, Review, MapsSearchResult } from './types';
 import { mockLawyers } from './services/mockLawyerService';
 
 const ADMIN_EMAIL = 'admin@legisconnect.com.br';
@@ -99,6 +102,8 @@ const App: React.FC = () => {
         setCurrentView('lawyerDashboard');
       } else if (user.role === 'intern') {
         setCurrentView('internDashboard');
+      } else if (user.role === 'secretary') {
+        setCurrentView('secretariadoDashboard');
       } else if (user.role === 'client') {
         setCurrentView('dashboard');
       } else {
@@ -112,6 +117,10 @@ const App: React.FC = () => {
     }
     if (view === 'internDashboard' && user?.role !== 'intern') {
       setCurrentView('forInterns');
+      return;
+    }
+    if (view === 'secretariadoDashboard' && user?.role !== 'secretary') {
+      setCurrentView('forSecretariado');
       return;
     }
     setCurrentView(view);
@@ -396,11 +405,65 @@ const App: React.FC = () => {
       countryOfOrigin: data.countryOfOrigin,
       timeInBrazil: data.timeInBrazil,
     };
-    console.log("New intern signup:", newIntern);
+    console.log('New intern signup:', newIntern);
     setUser({ email: newIntern.contact.email, role: 'intern', data: newIntern, name: newIntern.name });
     handleNavigate('internDashboard');
     return true;
   }
+
+  // Secretary login
+  const handleSecretaryPageLogin = useCallback((credentials: Credentials): boolean => {
+    const lowerEmail = credentials.email.toLowerCase();
+    if (lowerEmail === TEST_EMAIL && credentials.password === TEST_PASSWORD) {
+      const testSecretary: Secretary = {
+        id: 9998,
+        name: 'Secretária Teste',
+        email: TEST_EMAIL,
+        phone: '(11) 98888-0000',
+        city: 'São Paulo',
+        state: 'SP',
+        experience: 4,
+        areasOfKnowledge: ['Gestão de Agenda', 'Protocolo Judicial', 'Atendimento ao Cliente'],
+        availability: 'integral',
+        bio: 'Secretária com experiência em escritórios jurídicos de médio porte.',
+        status: 'ativo',
+        joinedDate: new Date().toISOString().split('T')[0],
+        assignedLawyerId: 1, // assigned to first mock lawyer
+      };
+      setUser({ email: TEST_EMAIL, role: 'secretary', data: testSecretary, name: testSecretary.name });
+      handleNavigate('secretariadoDashboard');
+      return true;
+    }
+    return handleLogin(credentials);
+  }, [handleLogin, handleNavigate]);
+
+  // Secretary signup
+  const handleSecretarySignup = (data: SecretarySignupData) => {
+    const newSecretary: Secretary = {
+      id: Math.floor(Math.random() * 10000),
+      name: data.name,
+      email: data.email,
+      phone: data.phone,
+      cpf: data.cpf,
+      rg: data.rg,
+      city: data.city,
+      state: data.state,
+      address: data.address,
+      experience: data.experience,
+      areasOfKnowledge: data.areasOfKnowledge,
+      availability: data.availability,
+      bio: data.bio,
+      status: 'pendente',
+      joinedDate: new Date().toISOString().split('T')[0],
+      isForeigner: data.isForeigner,
+      foreignerDocument: data.foreignerDocument,
+      countryOfOrigin: data.countryOfOrigin,
+      timeInBrazil: data.timeInBrazil,
+    };
+    console.log('New secretary signup:', newSecretary);
+    setUser({ email: newSecretary.email, role: 'secretary', data: newSecretary, name: newSecretary.name });
+    handleNavigate('secretariadoDashboard');
+  };
 
   const handleUpdateProfile = (data: { name: string; phone: string; address: string; }) => {
     if (user) {
@@ -505,6 +568,17 @@ const App: React.FC = () => {
             onUpdateEmail={(newEmail) => setUser(prev => prev ? { ...prev, email: newEmail } : prev)}
           />
         ) : <ForInternsPage onLogin={handleInternPageLogin} onSignup={handleInternSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
+      case 'forSecretariado':
+        return <ForSecretariadoPage onLogin={handleSecretaryPageLogin} onSignup={handleSecretarySignup} />;
+      case 'secretariadoDashboard':
+        return user?.data && user.role === 'secretary' ? (
+          <SecretariadoDashboard
+            secretary={user.data as Secretary}
+            userEmail={user.email}
+            onUpdateSecretary={(updates) => setUser(prev => prev ? { ...prev, data: { ...prev.data as Secretary, ...updates } } : prev)}
+            onUpdateEmail={(newEmail) => setUser(prev => prev ? { ...prev, email: newEmail } : prev)}
+          />
+        ) : <ForSecretariadoPage onLogin={handleSecretaryPageLogin} onSignup={handleSecretarySignup} />;
       case 'services':
         return <EfficiencyServicesPage />;
       case 'landing':
