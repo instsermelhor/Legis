@@ -497,7 +497,14 @@ const App: React.FC = () => {
       case 'forClients':
         return <ForClientsPage onLogin={handleClientPageLogin} onSignup={handleClientSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
       case 'internDashboard':
-        return user?.data && user.role === 'intern' ? <InternDashboard intern={user.data as Intern} /> : <ForInternsPage onLogin={handleInternPageLogin} onSignup={handleInternSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
+        return user?.data && user.role === 'intern' ? (
+          <InternDashboard
+            intern={user.data as Intern}
+            userEmail={user.email}
+            onUpdateIntern={(updates) => setUser(prev => prev ? { ...prev, data: { ...prev.data as Intern, ...updates } } : prev)}
+            onUpdateEmail={(newEmail) => setUser(prev => prev ? { ...prev, email: newEmail } : prev)}
+          />
+        ) : <ForInternsPage onLogin={handleInternPageLogin} onSignup={handleInternSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
       case 'services':
         return <EfficiencyServicesPage />;
       case 'landing':
