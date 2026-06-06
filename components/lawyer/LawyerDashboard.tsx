@@ -189,8 +189,17 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
     const [viewingCaseDetails, setViewingCaseDetails] = useState<Case | null>(null);
 
     // Legal Codes State
-    const [selectedCode, setSelectedCode] = useState<LegalCode | null>(null);
+    const [legalCodes, setLegalCodes] = useState<LegalCode[]>(() => dbCodes.getAll());
+    const [selectedCode, setSelectedCode] = useState<LegalCode | null>(() => dbCodes.getAll()[0] || null);
     const [codeSearchQuery, setCodeSearchQuery] = useState('');
+
+    // Refresh codes from storage when the codes section becomes active
+    const handleActivateCodes = () => {
+        const fresh = dbCodes.getAll();
+        setLegalCodes(fresh);
+        setSelectedCode(prev => fresh.find(c => c.id === prev?.id) || fresh[0] || null);
+        setActiveSection('codigos');
+    };
 
     const filteredCases = useMemo(() => {
         return cases.filter(c => {
@@ -409,7 +418,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                                 📊 Financeiro
                             </button>
                             <button
-                                onClick={() => { setActiveSection('codigos'); setSelectedCode(dbCodes.getAll()[0] || null); }}
+                                onClick={handleActivateCodes}
                                 className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
                                     activeSection === 'codigos'
                                         ? 'bg-primary text-white shadow'
@@ -674,7 +683,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                                 {/* Sidebar */}
                                 <div className="md:col-span-1 bg-white border border-gray-200 rounded-xl shadow-sm p-4 space-y-2 h-[550px] overflow-y-auto">
                                     <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 px-2">Legislações</h3>
-                                    {dbCodes.getAll().map(code => (
+                                    {legalCodes.map(code => (
                                         <button
                                             key={code.id}
                                             onClick={() => { setSelectedCode(code); setCodeSearchQuery(''); }}

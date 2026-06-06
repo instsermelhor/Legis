@@ -381,6 +381,20 @@ const App: React.FC = () => {
       availableHours: 200,
       casesStudied: [],
       status: 'active',
+      // Address fields
+      address: data.address,
+      cep: data.cep,
+      street: data.street,
+      number: data.number,
+      complement: data.complement,
+      neighborhood: data.neighborhood,
+      city: data.city,
+      state: data.state,
+      // Foreigner fields
+      isForeigner: data.isForeigner,
+      foreignerDocument: data.foreignerDocument,
+      countryOfOrigin: data.countryOfOrigin,
+      timeInBrazil: data.timeInBrazil,
     };
     console.log("New intern signup:", newIntern);
     setUser({ email: newIntern.contact.email, role: 'intern', data: newIntern, name: newIntern.name });
@@ -469,7 +483,7 @@ const App: React.FC = () => {
         }
         return user ? <ClientDashboard user={user} onUpdateLawyerReview={handleUpdateLawyerReview} /> : <LoginForm onLogin={handleLogin} />;
       case 'lawyerDashboard':
-        return user?.data ? <LawyerDashboard lawyer={user.data} /> : <ForLawyersPage onLogin={handleLawyerPageLogin} onSignup={handleLawyerSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
+        return user?.data ? <LawyerDashboard lawyer={user.data as import('./types').Lawyer} /> : <ForLawyersPage onLogin={handleLawyerPageLogin} onSignup={handleLawyerSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
       case 'adminDashboard':
         return <AdminDashboard onNavigate={handleNavigate} />;
       case 'login':
