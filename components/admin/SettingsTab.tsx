@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { mockLegalDocuments, mockAdminUsers } from '../../services/mockDataService';
 import type { LegalDocument, AdminUser } from '../../services/mockDataService';
 import { SectionTitle, IconEdit, IconPlus, IconKey, IconUpload, IconTrash } from './AdminShared';
+import { dbCodes, LegalCode } from '../../services/dbService';
 
 // ─── Legal Documents ──────────────────────────────────────────────────────────
 const LegalDocuments: React.FC = () => {
@@ -289,14 +290,104 @@ const ServiceGroupsSettings: React.FC = () => {
   );
 };
 
+// ─── Legal Codes Settings ─────────────────────────────────────────────────────
+const LegalCodesSettings: React.FC = () => {
+  const [codes, setCodes] = useState<LegalCode[]>(() => dbCodes.getAll());
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [saved, setSaved] = useState<string | null>(null);
+
+  const handleContentChange = (id: string, content: string) => {
+    setCodes(prev => prev.map(c => c.id === id ? { ...c, content, lastUpdated: new Date().toISOString().split('T')[0] } : c));
+  };
+
+  const handleSave = (id: string) => {
+    const code = codes.find(c => c.id === id);
+    if (code) {
+      dbCodes.update(id, code.content, code.fileName);
+    }
+    setSaved(id);
+    setEditingId(null);
+    setTimeout(() => setSaved(null), 2500);
+  };
+
+  const handleFileUpload = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const content = ev.target?.result as string;
+      const updated = dbCodes.update(id, content, file.name);
+      setCodes(updated);
+      setSaved(id);
+      setTimeout(() => setSaved(null), 2500);
+    };
+    reader.readAsText(file);
+  };
+
+  return (
+    <div className="space-y-4">
+      <h3 className="text-base font-bold text-gray-800">Códigos Legais</h3>
+      <p className="text-sm text-gray-500">Faça o upload ou edite as legislações para consulta dos advogados.</p>
+
+      <div className="space-y-4">
+        {codes.map(code => (
+          <div key={code.id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+              <div>
+                <p className="font-semibold text-gray-800 text-sm">{code.title}</p>
+                {code.fileName && <p className="text-xs text-primary font-medium">Arquivo: {code.fileName}</p>}
+                <p className="text-xs text-gray-400">Atualizado em: {new Date(code.lastUpdated).toLocaleDateString('pt-BR')}</p>
+              </div>
+              <div className="flex gap-2">
+                <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:border-primary/50 cursor-pointer transition-colors">
+                  <IconUpload /> Upload
+                  <input type="file" accept=".txt,.pdf,.doc,.docx" className="hidden" onChange={e => handleFileUpload(code.id, e)} />
+                </label>
+                <button onClick={() => setEditingId(editingId === code.id ? null : code.id)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary bg-primary/5 border border-primary/20 rounded-lg hover:bg-primary/10 transition-colors">
+                  <IconEdit /> {editingId === code.id ? 'Fechar' : 'Editar'}
+                </button>
+                {saved === code.id && <span className="text-xs text-green-600 font-medium self-center">✓ Salvo!</span>}
+              </div>
+            </div>
+
+            {editingId === code.id ? (
+              <div className="p-4">
+                <textarea
+                  value={code.content}
+                  onChange={e => handleContentChange(code.id, e.target.value)}
+                  rows={10}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-y font-mono"
+                />
+                <div className="mt-3 flex gap-2">
+                  <button onClick={() => handleSave(code.id)} className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90">
+                    Salvar Código
+                  </button>
+                  <button onClick={() => setEditingId(null)} className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="p-4">
+                <p className="text-sm text-gray-600 line-clamp-3 whitespace-pre-wrap">{code.content}</p>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // ─── Main SettingsTab ─────────────────────────────────────────────────────────
-type SettingsSection = 'general' | 'documents' | 'users' | 'services_groups';
+type SettingsSection = 'general' | 'codes' | 'documents' | 'users' | 'services_groups';
 
 export const SettingsTab: React.FC = () => {
   const [section, setSection] = useState<SettingsSection>('general');
 
   const sections = [
     { id: 'general' as const, label: 'Configurações Gerais' },
+    { id: 'codes' as const, label: 'Código' },
     { id: 'documents' as const, label: 'Documentos Legais' },
     { id: 'users' as const, label: 'Usuários Administrativos' },
     { id: 'services_groups' as const, label: 'Serviços de Eficiência' },
@@ -315,6 +406,7 @@ export const SettingsTab: React.FC = () => {
       </div>
 
       {section === 'general' && <GeneralSettings />}
+      {section === 'codes' && <LegalCodesSettings />}
       {section === 'documents' && <LegalDocuments />}
       {section === 'users' && <AdminUsers />}
       {section === 'services_groups' && <ServiceGroupsSettings />}
