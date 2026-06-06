@@ -5,6 +5,7 @@ import { CaseProgressTracker } from '../common/CaseProgressTracker';
 import { UpdateCaseStatusModal } from '../common/UpdateCaseStatusModal';
 import { CalendarSyncModal } from '../common/CalendarSyncModal';
 import { dbCodes, LegalCode } from '../../services/dbService';
+import { FinancialKPI } from './FinancialKPI';
 
 interface LawyerDashboardProps {
     lawyer: Lawyer;
@@ -41,10 +42,21 @@ const CLT_STAGES: CaseStage[] = [
     { name: 'Recursos / RO', status: 'upcoming' }
 ];
 
+const GROUP_TYPES: Record<string, string[]> = {
+    Civil: ['Procedimento Comum', 'Juizado Especial Cível', 'Execução de Título'],
+    Penal: ['Procedimento Ordinário', 'Procedimento Sumário', 'Tribunal do Júri'],
+    Trabalhista: ['Rito Ordinário', 'Rito Sumaríssimo'],
+    Outro: ['Procedimento Especial', 'Outros']
+};
+
 const initialActiveCases: Case[] = [
     {
         id: 'case1', clientName: 'Ana Clara Dias', title: 'Inventário e Partilha de Bens', status: 'Ativo', lawyerName: 'Dr. Carlos Andrade',
         lawyerId: 1,
+        group: 'Civil',
+        caseType: 'Procedimento Comum',
+        clientCpf: '123.456.789-00',
+        clientAddress: 'Rua das Acácias, 45, São Paulo - SP',
         stages: [
             { name: 'Reunião Inicial', status: 'completed' },
             { name: 'Levantamento de Bens', status: 'current' },
@@ -55,6 +67,10 @@ const initialActiveCases: Case[] = [
     {
         id: 'case2', clientName: 'Roberto Martins', title: 'Reclamação Trabalhista', status: 'Ativo', lawyerName: 'Dr. Carlos Andrade',
         lawyerId: 1,
+        group: 'Trabalhista',
+        caseType: 'Rito Ordinário',
+        clientCpf: '987.654.321-00',
+        clientAddress: 'Av. Atlântica, 200, Rio de Janeiro - RJ',
         stages: [
             { name: 'Análise Documental', status: 'completed' },
             { name: 'Petição Inicial', status: 'completed' },
@@ -128,7 +144,7 @@ const AppointmentCard: React.FC<{ appointment: Appointment }> = ({ appointment }
 
 export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
     const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
-    const [activeSection, setActiveSection] = useState<'overview' | 'meusCasos' | 'codigos'>('overview');
+    const [activeSection, setActiveSection] = useState<'overview' | 'meusCasos' | 'codigos' | 'financeiro'>('overview');
     
     const [cases, setCases] = useState<Case[]>(() => {
         const saved = localStorage.getItem('legis_lawyer_cases');
@@ -143,8 +159,10 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
     const [filterOAB, setFilterOAB] = useState('');
     const [filterProcesso, setFilterProcesso] = useState('');
     const [filterCPF, setFilterCPF] = useState('');
+    const [filterGroup, setFilterGroup] = useState('');
+    const [filterCaseType, setFilterCaseType] = useState('');
 
-    // Process/Lawsuit Registration Modal State
+    // Process/Lawsuit Registration Form State
     const [showAddCaseForm, setShowAddCaseForm] = useState(false);
     const [clientData, setClientData] = useState({
         name: '',
@@ -163,6 +181,13 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
     const [procedureType, setProcedureType] = useState<'CPC' | 'CPP' | 'CLT' | 'Custom'>('CPC');
     const [customStages, setCustomStages] = useState<CaseStage[]>(CPC_STAGES);
 
+    // Confirmation popups
+    const [pendingCaseToAdd, setPendingCaseToAdd] = useState<{ caseData: Case; clientData: typeof clientData } | null>(null);
+    const [confirmingCase, setConfirmingCase] = useState<Case | null>(null);
+    const [confirmDetailsInputs, setConfirmDetailsInputs] = useState({ processNumber: '', cpf: '' });
+    const [detailsError, setDetailsError] = useState('');
+    const [viewingCaseDetails, setViewingCaseDetails] = useState<Case | null>(null);
+
     // Legal Codes State
     const [selectedCode, setSelectedCode] = useState<LegalCode | null>(null);
     const [codeSearchQuery, setCodeSearchQuery] = useState('');
@@ -171,10 +196,14 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
         return cases.filter(c => {
             const matchesOAB = !filterOAB || lawyer.oab.toLowerCase().includes(filterOAB.toLowerCase());
             const matchesProcesso = !filterProcesso || c.id.toLowerCase().includes(filterProcesso.toLowerCase());
-            const matchesCPF = !filterCPF || c.clientName.toLowerCase().includes(filterCPF.toLowerCase());
-            return matchesOAB && matchesProcesso && matchesCPF;
+            const matchesCPF = !filterCPF || 
+                c.clientName.toLowerCase().includes(filterCPF.toLowerCase()) || 
+                (c.clientCpf || '').replace(/\D/g, '').includes(filterCPF.replace(/\D/g, ''));
+            const matchesGroup = !filterGroup || c.group === filterGroup;
+            const matchesCaseType = !filterCaseType || (c.caseType || '').toLowerCase().includes(filterCaseType.toLowerCase());
+            return matchesOAB && matchesProcesso && matchesCPF && matchesGroup && matchesCaseType;
         });
-    }, [cases, filterOAB, filterProcesso, filterCPF, lawyer.oab]);
+    }, [cases, filterOAB, filterProcesso, filterCPF, filterGroup, filterCaseType, lawyer.oab]);
 
     const handleOpenUpdateModal = (caseToUpdate: Case) => {
         setSelectedCase(caseToUpdate);
@@ -234,6 +263,22 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
     const handleAddCaseSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         
+        let group: Case['group'] = 'Civil';
+        let caseType = 'Procedimento Comum';
+        if (procedureType === 'CPC') {
+            group = 'Civil';
+            caseType = 'Procedimento Comum (CPC)';
+        } else if (procedureType === 'CPP') {
+            group = 'Penal';
+            caseType = 'Procedimento Ordinário (CPP)';
+        } else if (procedureType === 'CLT') {
+            group = 'Trabalhista';
+            caseType = 'Rito Ordinário (CLT)';
+        } else {
+            group = 'Outro';
+            caseType = 'Personalizado';
+        }
+
         const newCase: Case = {
             id: processNumber,
             clientName: clientData.name,
@@ -241,10 +286,19 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
             status: 'Ativo',
             lawyerName: lawyer.name,
             lawyerId: lawyer.id,
-            stages: customStages
+            stages: customStages,
+            group,
+            caseType,
+            clientCpf: clientData.cpf,
+            clientAddress: clientData.address
         };
 
-        const updatedCases = [...cases, newCase];
+        setPendingCaseToAdd({ caseData: newCase, clientData: { ...clientData } });
+    };
+
+    const handleConfirmAddCase = () => {
+        if (!pendingCaseToAdd) return;
+        const updatedCases = [...cases, pendingCaseToAdd.caseData];
         setCases(updatedCases);
         localStorage.setItem('legis_lawyer_cases', JSON.stringify(updatedCases));
 
@@ -265,7 +319,33 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
         setCaseSummary('');
         setProcedureType('CPC');
         setCustomStages(CPC_STAGES);
+        setPendingCaseToAdd(null);
         setShowAddCaseForm(false);
+    };
+
+    const handleOpenDetailsConfirm = (c: Case) => {
+        setConfirmingCase(c);
+        setConfirmDetailsInputs({ processNumber: '', cpf: '' });
+        setDetailsError('');
+    };
+
+    const handleDetailsConfirmSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const inputProcess = confirmDetailsInputs.processNumber.trim();
+        const inputCpfClean = confirmDetailsInputs.cpf.replace(/\D/g, '');
+        const caseProcess = (confirmingCase?.id || '').trim();
+        const caseCpfClean = (confirmingCase?.clientCpf || '').replace(/\D/g, '');
+
+        if (inputProcess !== caseProcess) {
+            setDetailsError('Número de processo incorreto.');
+            return;
+        }
+        if (inputCpfClean !== caseCpfClean) {
+            setDetailsError('CPF do cliente incorreto para este processo.');
+            return;
+        }
+        setViewingCaseDetails(confirmingCase);
+        setConfirmingCase(null);
     };
 
     const highlightSearchText = (text: string, query: string) => {
@@ -297,7 +377,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                             </div>
                         </div>
                         {/* Section Tabs */}
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 flex-wrap">
                             <button
                                 onClick={() => setActiveSection('overview')}
                                 className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
@@ -317,6 +397,16 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                                 }`}
                             >
                                 Meus Casos
+                            </button>
+                            <button
+                                onClick={() => setActiveSection('financeiro')}
+                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
+                                    activeSection === 'financeiro'
+                                        ? 'bg-primary text-white shadow'
+                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                }`}
+                            >
+                                📊 Financeiro
                             </button>
                             <button
                                 onClick={() => { setActiveSection('codigos'); setSelectedCode(dbCodes.getAll()[0] || null); }}
@@ -347,7 +437,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                             {/* Filter Panel */}
                             <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm mb-6">
                                 <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-3">Filtros de Busca</h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
                                     <div>
                                         <label className="block text-xs font-medium text-gray-600 mb-1">Número da OAB</label>
                                         <input
@@ -378,10 +468,45 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                                             className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary p-2 border"
                                         />
                                     </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 mb-1">Grupo (Rito)</label>
+                                        <select
+                                            value={filterGroup}
+                                            onChange={e => { setFilterGroup(e.target.value); setFilterCaseType(''); }}
+                                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-white p-2 border"
+                                        >
+                                            <option value="">Todos</option>
+                                            <option value="Civil">Civil</option>
+                                            <option value="Penal">Penal / Criminal</option>
+                                            <option value="Trabalhista">Trabalhista</option>
+                                            <option value="Outro">Outro</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 mb-1">Tipo de Processo</label>
+                                        {filterGroup && GROUP_TYPES[filterGroup] ? (
+                                            <select
+                                                value={filterCaseType}
+                                                onChange={e => setFilterCaseType(e.target.value)}
+                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-white p-2 border"
+                                            >
+                                                <option value="">Todos</option>
+                                                {GROUP_TYPES[filterGroup].map(t => <option key={t} value={t}>{t}</option>)}
+                                            </select>
+                                        ) : (
+                                            <input
+                                                type="text"
+                                                value={filterCaseType}
+                                                onChange={e => setFilterCaseType(e.target.value)}
+                                                placeholder="Ex: Rito Ordinário"
+                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary p-2 border"
+                                            />
+                                        )}
+                                    </div>
                                 </div>
                                 <div className="mt-3 flex justify-end">
                                     <button
-                                        onClick={() => { setFilterOAB(''); setFilterProcesso(''); setFilterCPF(''); }}
+                                        onClick={() => { setFilterOAB(''); setFilterProcesso(''); setFilterCPF(''); setFilterGroup(''); setFilterCaseType(''); }}
                                         className="text-xs text-primary hover:underline"
                                     >
                                         Limpar Filtros
@@ -396,13 +521,21 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                                             <div>
                                                 <h3 className="text-lg font-bold text-gray-800">{c.title}</h3>
                                                 <p className="text-sm text-gray-500">Cliente: {c.clientName}</p>
-                                                <p className="text-xs text-gray-400 mt-1">Nº Processo: <span className="font-mono font-medium">{c.id}</span></p>
+                                                <p className="text-xs text-gray-400 mt-1">
+                                                    Nº Processo: <span className="font-mono font-semibold text-gray-900 bg-gray-100 px-1 py-0.5 rounded">{c.id}</span>
+                                                    {c.group && <span className="ml-2 text-gray-500">· Rito: <strong>{c.group} ({c.caseType})</strong></span>}
+                                                </p>
                                             </div>
                                             <span className="bg-primary/10 text-primary text-xs font-medium mt-2 sm:mt-0 px-2.5 py-0.5 rounded-full">{c.status}</span>
                                         </div>
                                         <CaseProgressTracker stages={c.stages} />
                                         <div className="mt-4 border-t pt-4 flex flex-col sm:flex-row gap-3">
-                                            <button className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors">Ver Detalhes</button>
+                                            <button
+                                                onClick={() => handleOpenDetailsConfirm(c)}
+                                                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors"
+                                            >
+                                                Ver Detalhes / Localização
+                                            </button>
                                             <button className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors">Enviar Mensagem</button>
                                             <button onClick={() => handleOpenUpdateModal(c)} className="flex-1 px-4 py-2 bg-primary/10 text-primary text-sm font-semibold rounded-lg hover:bg-primary/20 transition-colors flex items-center justify-center gap-2">
                                                 <PencilIcon className="w-4 h-4" />
@@ -443,7 +576,10 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                                             <p className="text-lg font-bold text-red-600">R$ {lawyer.pendingPayments?.toLocaleString('pt-BR') || '0,00'}</p>
                                         </div>
                                     </div>
-                                    <button className="w-full mt-6 bg-gray-100 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                                    <button
+                                        onClick={() => setActiveSection('financeiro')}
+                                        className="w-full mt-6 bg-gray-100 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                                    >
                                         Ver Relatório Financeiro Completo
                                     </button>
                                 </div>
@@ -463,7 +599,12 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                                             </div>
                                             <CaseProgressTracker stages={c.stages} />
                                             <div className="mt-4 border-t pt-4 flex flex-col sm:flex-row gap-3">
-                                                <button className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors">Ver Detalhes</button>
+                                                <button
+                                                    onClick={() => handleOpenDetailsConfirm(c)}
+                                                    className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors"
+                                                >
+                                                    Ver Detalhes / Localização
+                                                </button>
                                                 <button className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors">Enviar Mensagem</button>
                                                 <button onClick={() => handleOpenUpdateModal(c)} className="flex-1 px-4 py-2 bg-primary/10 text-primary text-sm font-semibold rounded-lg hover:bg-primary/20 transition-colors flex items-center justify-center gap-2">
                                                     <PencilIcon className="w-4 h-4" />
@@ -512,6 +653,11 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                                 </div>
                             </div>
                         </>
+                    )}
+
+                    {/* Financial KPI section */}
+                    {activeSection === 'financeiro' && (
+                        <FinancialKPI lawyerId={lawyer.id} />
                     )}
 
                     {/* Codes Section */}
@@ -852,7 +998,157 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                     </div>
                 </div>
             )}
+
+            {/* Confirm Add Lawsuit Popup */}
+            {pendingCaseToAdd && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 animate-fade-in text-left">
+                        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                            📝 Confirmar Cadastro de Processo
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                            Por favor, confirme as informações do novo processo antes de salvá-lo:
+                        </p>
+
+                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-xs space-y-1.5 text-gray-700">
+                            <p><strong>Cliente:</strong> {pendingCaseToAdd.caseData.clientName}</p>
+                            <p><strong>CPF:</strong> {pendingCaseToAdd.clientData.cpf}</p>
+                            <p><strong>E-mail:</strong> {pendingCaseToAdd.clientData.email}</p>
+                            <p><strong>Telefone:</strong> {pendingCaseToAdd.clientData.phone}</p>
+                            <p><strong>Endereço:</strong> {pendingCaseToAdd.clientData.address}</p>
+                            {pendingCaseToAdd.clientData.isForeigner && (
+                                <p className="text-primary"><strong>Estrangeiro:</strong> Doc: {pendingCaseToAdd.clientData.foreignerDocument} (Origem: {pendingCaseToAdd.clientData.countryOfOrigin})</p>
+                            )}
+                            <div className="border-t my-2 pt-2">
+                                <p><strong>Nº Processo:</strong> {pendingCaseToAdd.caseData.id}</p>
+                                <p><strong>Título do Caso:</strong> {pendingCaseToAdd.caseData.title}</p>
+                                <p><strong>Rito Processual:</strong> {pendingCaseToAdd.caseData.group} · {pendingCaseToAdd.caseData.caseType}</p>
+                                <p><strong>Total de Fases:</strong> {pendingCaseToAdd.caseData.stages.length}</p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-2 justify-end">
+                            <button
+                                type="button"
+                                onClick={() => setPendingCaseToAdd(null)}
+                                className="px-4 py-2 text-sm font-semibold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200"
+                            >
+                                Voltar e Editar
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleConfirmAddCase}
+                                className="px-4 py-2 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90"
+                            >
+                                Confirmar Cadastro
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Confirm Details Access Popup */}
+            {confirmingCase && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 animate-fade-in text-left">
+                        <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                            🔒 Confirmação de Acesso
+                        </h3>
+                        <p className="text-sm text-gray-500">
+                            Por favor, confirme o número do processo e o CPF do cliente para validar seu acesso às informações de localização e dados do cliente:
+                        </p>
+
+                        <form onSubmit={handleDetailsConfirmSubmit} className="space-y-4">
+                            <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Confirme o Nº do Processo *</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={confirmDetailsInputs.processNumber}
+                                    onChange={e => setConfirmDetailsInputs(prev => ({ ...prev, processNumber: e.target.value }))}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white"
+                                    placeholder="Ex: case1"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">Confirme o CPF do Cliente *</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={confirmDetailsInputs.cpf}
+                                    onChange={e => setConfirmDetailsInputs(prev => ({ ...prev, cpf: e.target.value }))}
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white"
+                                    placeholder="Ex: 123.456.789-00"
+                                />
+                            </div>
+                            {detailsError && <p className="text-xs text-red-600 font-semibold">{detailsError}</p>}
+                            
+                            <div className="flex gap-2 justify-end pt-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setConfirmingCase(null)}
+                                    className="px-4 py-2 text-sm font-semibold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200"
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90"
+                                >
+                                    Confirmar e Acessar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Client Location & Details Preview Modal */}
+            {viewingCaseDetails && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+                    <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-5 max-h-[90vh] overflow-y-auto animate-fade-in text-left">
+                        <div className="flex justify-between items-center border-b pb-3">
+                            <h3 className="text-lg font-bold text-gray-900">Localização e Detalhes do Cliente</h3>
+                            <button onClick={() => setViewingCaseDetails(null)} className="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-2 text-sm">
+                                <p><strong>Nome do Cliente:</strong> {viewingCaseDetails.clientName}</p>
+                                {viewingCaseDetails.clientCpf && <p><strong>CPF:</strong> {viewingCaseDetails.clientCpf}</p>}
+                                <p><strong>Processo Nº:</strong> {viewingCaseDetails.id} ({viewingCaseDetails.title})</p>
+                                <p><strong>Grupo/Tipo:</strong> {viewingCaseDetails.group} · {viewingCaseDetails.caseType}</p>
+                                <p><strong>Endereço Completo:</strong> {viewingCaseDetails.clientAddress || 'Endereço não cadastrado.'}</p>
+                            </div>
+
+                            {/* Simulated GPS Location Map */}
+                            <div className="space-y-2">
+                                <label className="block text-xs font-bold text-gray-500 uppercase">Localização no GPS</label>
+                                <div className="h-48 bg-blue-100 rounded-lg border border-blue-200 flex flex-col items-center justify-center text-center p-4 relative overflow-hidden">
+                                    <div className="absolute inset-0 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:16px_16px] opacity-35" />
+                                    <span className="text-4xl z-10 animate-bounce">📍</span>
+                                    <p className="text-sm font-semibold text-gray-800 z-10 mt-2">Localização Carregada</p>
+                                    <p className="text-xs text-gray-500 z-10 max-w-xs truncate">
+                                        {viewingCaseDetails.clientAddress || 'Sem coordenadas'}
+                                    </p>
+                                    <div className="absolute bottom-2 right-2 bg-white px-2 py-0.5 rounded text-[10px] font-bold text-gray-500 shadow border">
+                                        Legis Connect GPS Link
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={() => setViewingCaseDetails(null)}
+                            className="w-full py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-colors"
+                        >
+                            Fechar Detalhes
+                        </button>
+                    </div>
+                </div>
+            )}
         </>
     );
 };
+
 export default LawyerDashboard;

@@ -1,7 +1,7 @@
 import React from 'react';
-// FIX: Corrected import path for local module.
 import type { View } from '../../types';
 import { BriefcaseIcon } from '../common/IconComponents';
+import { useAppConfig } from '../../context/AppContext';
 
 interface FooterProps {
     onNavigate: (view: View) => void;
@@ -11,6 +11,8 @@ interface FooterProps {
 }
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate, onShowTerms, onShowPrivacy, onShowEtica }) => {
+    const { config } = useAppConfig();
+
     return (
         <footer className="bg-gray-800 text-white">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -18,11 +20,17 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onShowTerms, onShowP
                     {/* Brand Info */}
                     <div>
                         <div className="flex items-center mb-4">
-                            <BriefcaseIcon className="h-8 w-8 text-primary" />
-                            <span className="ml-3 text-2xl font-bold">Legis Connect</span>
+                            {config.footerLogoUrl ? (
+                                <img src={config.footerLogoUrl} alt={config.appName} className="h-8 w-auto object-contain" />
+                            ) : (
+                                <>
+                                    <BriefcaseIcon className="h-8 w-8 text-primary" />
+                                    <span className="ml-3 text-2xl font-bold">{config.appName}</span>
+                                </>
+                            )}
                         </div>
                         <p className="text-gray-400 text-sm">
-                            Conectando você à justiça. Encontre o advogado certo de forma rápida e segura.
+                            {config.siteTagline}
                         </p>
                     </div>
 
@@ -51,14 +59,20 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onShowTerms, onShowP
                     <div>
                         <h3 className="text-lg font-semibold tracking-wider uppercase">Contato</h3>
                          <ul className="mt-4 space-y-2 text-sm text-gray-400">
-                           <li>Email: contato@legisconnect.com.br</li>
-                           <li>Telefone: +55 11 948401620</li>
+                           {config.contactEmail && <li>Email: {config.contactEmail}</li>}
+                           {config.contactPhone && <li>Telefone: {config.contactPhone}</li>}
+                           {config.customFields?.map(field => (
+                             <li key={field.id}>{field.key}: {field.value}</li>
+                           ))}
+                           {!config.contactEmail && !config.contactPhone && (!config.customFields || config.customFields.length === 0) && (
+                             <li className="italic text-gray-500">Sem informações de contato</li>
+                           )}
                         </ul>
                     </div>
                 </div>
 
                 <div className="mt-8 pt-8 border-t border-gray-700 text-center text-sm text-gray-500">
-                    <p>&copy; {new Date().getFullYear()} Legis Connect. Todos os direitos reservados.</p>
+                    <p>{config.footerText}</p>
                 </div>
             </div>
         </footer>

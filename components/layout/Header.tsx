@@ -1,7 +1,7 @@
 import React from 'react';
 import { BriefcaseIcon, UserCircleIcon, LogoutIcon } from '../common/IconComponents';
-// FIX: Corrected import path for local module.
 import type { View, User } from '../../types';
+import { useAppConfig } from '../../context/AppContext';
 
 interface HeaderProps {
   currentView: View;
@@ -11,6 +11,8 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, onLogout }) => {
+  const { config } = useAppConfig();
+
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -19,8 +21,14 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
             className="flex-shrink-0 flex items-center cursor-pointer"
             onClick={() => onNavigate(user?.role === 'admin' ? 'adminDashboard' : 'landing')}
           >
-            <BriefcaseIcon className="h-8 w-8 text-primary" />
-            <span className="ml-3 text-2xl font-bold text-primary tracking-tight">Legis Connect</span>
+            {config.headerLogoUrl ? (
+              <img src={config.headerLogoUrl} alt={config.appName} className="h-10 w-auto object-contain" />
+            ) : (
+              <>
+                <BriefcaseIcon className="h-8 w-8 text-primary" />
+                <span className="ml-3 text-2xl font-bold text-primary tracking-tight">{config.appName}</span>
+              </>
+            )}
           </div>
           <nav className="hidden md:flex items-center">
             {user?.role !== 'admin' && (

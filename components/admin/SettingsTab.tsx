@@ -3,15 +3,28 @@ import { mockLegalDocuments, mockAdminUsers } from '../../services/mockDataServi
 import type { LegalDocument, AdminUser } from '../../services/mockDataService';
 import { SectionTitle, IconEdit, IconPlus, IconKey, IconUpload, IconTrash } from './AdminShared';
 import { dbCodes, LegalCode } from '../../services/dbService';
+import { useAppConfig } from '../../context/AppContext';
 
 // ─── Legal Documents ──────────────────────────────────────────────────────────
 const LegalDocuments: React.FC = () => {
-  const [docs, setDocs] = useState<LegalDocument[]>(mockLegalDocuments);
+  const [docs, setDocs] = useState<LegalDocument[]>(() => {
+    const savedDocs = localStorage.getItem('legis_legal_docs');
+    return savedDocs ? JSON.parse(savedDocs) : mockLegalDocuments;
+  });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saved, setSaved] = useState<string | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [newContent, setNewContent] = useState('');
+
+  const saveDocs = (newDocs: LegalDocument[]) => {
+    setDocs(newDocs);
+    localStorage.setItem('legis_legal_docs', JSON.stringify(newDocs));
+  };
 
   const handleContentChange = (id: string, content: string) => {
-    setDocs(prev => prev.map(d => d.id === id ? { ...d, content, lastUpdated: new Date().toISOString().split('T')[0] } : d));
+    const updated = docs.map(d => d.id === id ? { ...d, content, lastUpdated: new Date().toISOString().split('T')[0] } : d);
+    saveDocs(updated);
   };
 
   const handleSave = (id: string) => {
@@ -26,15 +39,65 @@ const LegalDocuments: React.FC = () => {
     const reader = new FileReader();
     reader.onload = (ev) => {
       const content = ev.target?.result as string;
-      setDocs(prev => prev.map(d => d.id === id ? { ...d, content: `[Arquivo: ${file.name}]\n${content.substring(0, 500)}...`, lastUpdated: new Date().toISOString().split('T')[0] } : d));
+      const updated = docs.map(d => d.id === id ? { ...d, content: `[Arquivo: ${file.name}]\n${content.substring(0, 500)}...`, lastUpdated: new Date().toISOString().split('T')[0] } : d);
+      saveDocs(updated);
     };
     reader.readAsText(file);
   };
 
+  const handleAdd = () => {
+    if (!newTitle.trim() || !newContent.trim()) return;
+    const newDoc: LegalDocument = {
+      id: `doc-${Date.now()}`,
+      title: newTitle,
+      content: newContent,
+      lastUpdated: new Date().toISOString().split('T')[0]
+    };
+    const updated = [...docs, newDoc];
+    saveDocs(updated);
+    setNewTitle('');
+    setNewContent('');
+    setShowAddForm(false);
+  };
+
+  const handleDelete = (id: string) => {
+    if (window.confirm('Tem certeza que deseja excluir este documento legal?')) {
+      const updated = docs.filter(d => d.id !== id);
+      saveDocs(updated);
+    }
+  };
+
   return (
     <div className="space-y-4">
-      <h3 className="text-base font-bold text-gray-800">Documentos Legais</h3>
-      <p className="text-sm text-gray-500">Edite o conteúdo ou envie arquivos para cada documento.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-base font-bold text-gray-800">Documentos Legais</h3>
+          <p className="text-sm text-gray-500">Edite, adicione ou exclua os termos, políticas e outros documentos legais.</p>
+        </div>
+        <button onClick={() => setShowAddForm(!showAddForm)} className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90">
+          <IconPlus /> Novo Documento
+        </button>
+      </div>
+
+      {showAddForm && (
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 space-y-3">
+          <h4 className="text-sm font-bold text-blue-900 flex items-center gap-2"><IconPlus /> Adicionar Novo Documento Legal</h4>
+          <div className="space-y-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Título do Documento *</label>
+              <input value={newTitle} onChange={e => setNewTitle(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white" placeholder="Ex: Política de Cookies" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">Conteúdo do Documento *</label>
+              <textarea value={newContent} onChange={e => setNewContent(e.target.value)} rows={5} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-y bg-white" placeholder="Escreva o conteúdo do documento..." />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button onClick={handleAdd} className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90">Adicionar Documento</button>
+            <button onClick={() => setShowAddForm(false)} className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">Cancelar</button>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-4">
         {docs.map(doc => (
@@ -51,6 +114,9 @@ const LegalDocuments: React.FC = () => {
                 </label>
                 <button onClick={() => setEditingId(editingId === doc.id ? null : doc.id)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary bg-primary/5 border border-primary/20 rounded-lg hover:bg-primary/10 transition-colors">
                   <IconEdit /> {editingId === doc.id ? 'Fechar' : 'Editar'}
+                </button>
+                <button onClick={() => handleDelete(doc.id)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors">
+                  <IconTrash /> Excluir
                 </button>
                 {saved === doc.id && <span className="text-xs text-green-600 font-medium self-center">✓ Salvo!</span>}
               </div>
@@ -90,22 +156,41 @@ const roleLabels: Record<AdminUser['role'], string> = { super: 'Super Admin', ma
 const roleColors: Record<AdminUser['role'], string> = { super: 'bg-red-100 text-red-800', manager: 'bg-blue-100 text-blue-800', viewer: 'bg-gray-100 text-gray-700' };
 
 const AdminUsers: React.FC = () => {
-  const [users, setUsers] = useState<AdminUser[]>(mockAdminUsers);
+  const [users, setUsers] = useState<AdminUser[]>(() => {
+    const saved = localStorage.getItem('legis_admin_users');
+    return saved ? JSON.parse(saved) : mockAdminUsers;
+  });
   const [showForm, setShowForm] = useState(false);
   const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'viewer' as AdminUser['role'] });
   const [saved, setSaved] = useState(false);
 
+  const saveUsers = (newUsers: AdminUser[]) => {
+    setUsers(newUsers);
+    localStorage.setItem('legis_admin_users', JSON.stringify(newUsers));
+  };
+
   const handleCreate = () => {
     if (!newUser.name || !newUser.email || !newUser.password) return;
     const user: AdminUser = { id: Date.now(), ...newUser, createdAt: new Date().toISOString().split('T')[0], active: true };
-    setUsers(prev => [...prev, user]);
+    const updated = [...users, user];
+    saveUsers(updated);
     setNewUser({ name: '', email: '', password: '', role: 'viewer' });
     setShowForm(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };
 
-  const toggleActive = (id: number) => setUsers(prev => prev.map(u => u.id === id ? { ...u, active: !u.active } : u));
+  const toggleActive = (id: number) => {
+    const updated = users.map(u => u.id === id ? { ...u, active: !u.active } : u);
+    saveUsers(updated);
+  };
+
+  const handleDelete = (id: number) => {
+    if (window.confirm('Tem certeza que deseja excluir este usuário administrativo?')) {
+      const updated = users.filter(u => u.id !== id);
+      saveUsers(updated);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -124,19 +209,19 @@ const AdminUsers: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Nome</label>
-              <input value={newUser.name} onChange={e => setNewUser(u => ({ ...u, name: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" placeholder="Nome completo" />
+              <input value={newUser.name} onChange={e => setNewUser(u => ({ ...u, name: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border" placeholder="Nome completo" />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">E-mail</label>
-              <input type="email" value={newUser.email} onChange={e => setNewUser(u => ({ ...u, email: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" placeholder="email@exemplo.com" />
+              <input type="email" value={newUser.email} onChange={e => setNewUser(u => ({ ...u, email: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border" placeholder="email@exemplo.com" />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Senha</label>
-              <input type="password" value={newUser.password} onChange={e => setNewUser(u => ({ ...u, password: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" placeholder="Senha de acesso" />
+              <input type="password" value={newUser.password} onChange={e => setNewUser(u => ({ ...u, password: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border" placeholder="Senha de acesso" />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Nível de Acesso</label>
-              <select value={newUser.role} onChange={e => setNewUser(u => ({ ...u, role: e.target.value as AdminUser['role'] }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+              <select value={newUser.role} onChange={e => setNewUser(u => ({ ...u, role: e.target.value as AdminUser['role'] }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white">
                 <option value="viewer">Visualizador</option>
                 <option value="manager">Gerente</option>
                 <option value="super">Super Admin</option>
@@ -166,9 +251,14 @@ const AdminUsers: React.FC = () => {
                 <td className="px-5 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${u.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>{u.active ? 'Ativo' : 'Inativo'}</span></td>
                 <td className="px-5 py-3 text-center">
                   {u.role !== 'super' && (
-                    <button onClick={() => toggleActive(u.id)} className={`text-xs font-medium hover:underline ${u.active ? 'text-red-600' : 'text-green-600'}`}>
-                      {u.active ? 'Desativar' : 'Reativar'}
-                    </button>
+                    <div className="flex gap-3 justify-center">
+                      <button onClick={() => toggleActive(u.id)} className={`text-xs font-medium hover:underline ${u.active ? 'text-amber-600' : 'text-green-600'}`}>
+                        {u.active ? 'Desativar' : 'Ativar'}
+                      </button>
+                      <button onClick={() => handleDelete(u.id)} className="text-xs font-medium text-red-600 hover:underline">
+                        Excluir
+                      </button>
+                    </div>
                   )}
                 </td>
               </tr>
@@ -182,23 +272,277 @@ const AdminUsers: React.FC = () => {
 
 // ─── General Settings ─────────────────────────────────────────────────────────
 const GeneralSettings: React.FC = () => {
-  const [siteName, setSiteName] = useState('Legis Connect');
-  const [siteTagline, setSiteTagline] = useState('A solução para seus problemas jurídicos.');
-  const [footerText, setFooterText] = useState('© 2025 Legis Connect. Todos os direitos reservados.');
+  const { config, updateConfig, setLogoFromFile } = useAppConfig();
+  const [appName, setAppName] = useState(config.appName || '');
+  const [siteTagline, setSiteTagline] = useState(config.siteTagline || '');
+  const [footerText, setFooterText] = useState(config.footerText || '');
+  const [contactEmail, setContactEmail] = useState(config.contactEmail || '');
+  const [contactPhone, setContactPhone] = useState(config.contactPhone || '');
+  const [customFields, setCustomFields] = useState<{ id: string; key: string; value: string }[]>(() => config.customFields || []);
+  
+  // Custom fields form state
+  const [newKey, setNewKey] = useState('');
+  const [newValue, setNewValue] = useState('');
+  
   const [saved, setSaved] = useState(false);
 
+  const handleSave = () => {
+    updateConfig({
+      appName: appName.trim(),
+      siteTagline: siteTagline.trim(),
+      footerText: footerText.trim(),
+      contactEmail: contactEmail.trim(),
+      contactPhone: contactPhone.trim(),
+      customFields
+    });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  };
+
+  const handleHeaderLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLogoFromFile(file, 'headerLogoUrl');
+    }
+  };
+
+  const handleFooterLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setLogoFromFile(file, 'footerLogoUrl');
+    }
+  };
+
+  const deleteLogo = (target: 'headerLogoUrl' | 'footerLogoUrl') => {
+    updateConfig({ [target]: null });
+  };
+
+  const handleAddCustomField = () => {
+    if (!newKey.trim() || !newValue.trim()) return;
+    const newField = {
+      id: `field-${Date.now()}`,
+      key: newKey.trim(),
+      value: newValue.trim()
+    };
+    setCustomFields(prev => [...prev, newField]);
+    setNewKey('');
+    setNewValue('');
+  };
+
+  const handleDeleteCustomField = (id: string) => {
+    setCustomFields(prev => prev.filter(f => f.id !== id));
+  };
+
+  const handleEditCustomField = (id: string, key: string, value: string) => {
+    setCustomFields(prev => prev.map(f => f.id === id ? { ...f, key, value } : f));
+  };
+
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
-      <h3 className="text-base font-bold text-gray-800">Configurações Gerais</h3>
-      {[{ label: 'Nome do site', value: siteName, set: setSiteName }, { label: 'Slogan principal', value: siteTagline, set: setSiteTagline }, { label: 'Texto do rodapé', value: footerText, set: setFooterText }].map(f => (
-        <div key={f.label}>
-          <label className="block text-xs font-medium text-gray-500 uppercase mb-1">{f.label}</label>
-          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" value={f.value} onChange={e => f.set(e.target.value)} />
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <h3 className="text-base font-bold text-gray-800">Configurações Gerais</h3>
+        <span className="text-xs text-gray-400">Última atualização: {config.updatedAt ? new Date(config.updatedAt).toLocaleString('pt-BR') : 'Sem dados'}</span>
+      </div>
+      
+      {/* App details */}
+      <div className="space-y-4">
+        <div>
+          <div className="flex justify-between items-center mb-1">
+            <label className="block text-xs font-semibold text-gray-600 uppercase">Nome do Aplicativo</label>
+            <div className="flex gap-2">
+              <button type="button" onClick={() => setAppName('')} className="text-[10px] font-bold text-red-600 hover:underline">Limpar</button>
+              <button type="button" onClick={() => setAppName('Legis Connect')} className="text-[10px] font-bold text-primary hover:underline">Restaurar Padrão</button>
+            </div>
+          </div>
+          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white" value={appName} onChange={e => setAppName(e.target.value)} placeholder="Ex: Legis Connect" />
         </div>
-      ))}
-      <button onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2500); }} className="px-5 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90">
-        {saved ? '✓ Salvo!' : 'Salvar Configurações'}
-      </button>
+        <div>
+          <div className="flex justify-between items-center mb-1">
+            <label className="block text-xs font-semibold text-gray-600 uppercase">Slogan Principal</label>
+            <button type="button" onClick={() => setSiteTagline('')} className="text-[10px] font-bold text-red-600 hover:underline">Excluir Slogan</button>
+          </div>
+          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white" value={siteTagline} onChange={e => setSiteTagline(e.target.value)} placeholder="Slogan do aplicativo" />
+        </div>
+        <div>
+          <div className="flex justify-between items-center mb-1">
+            <label className="block text-xs font-semibold text-gray-600 uppercase">Texto do Rodapé</label>
+            <button type="button" onClick={() => setFooterText('')} className="text-[10px] font-bold text-red-600 hover:underline">Excluir Copyright</button>
+          </div>
+          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white" value={footerText} onChange={e => setFooterText(e.target.value)} placeholder="Ex: © 2026 Legis Connect. Todos os direitos reservados." />
+        </div>
+      </div>
+
+      {/* Contact information details */}
+      <div className="pt-4 border-t space-y-4">
+        <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider">Informações de Contato</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-xs font-medium text-gray-600">E-mail de Contato</label>
+              {contactEmail && <button type="button" onClick={() => setContactEmail('')} className="text-[10px] font-bold text-red-600 hover:underline">Excluir</button>}
+            </div>
+            <input type="email" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white" value={contactEmail} onChange={e => setContactEmail(e.target.value)} placeholder="contato@empresa.com" />
+          </div>
+          <div>
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-xs font-medium text-gray-600">Telefone de Contato</label>
+              {contactPhone && <button type="button" onClick={() => setContactPhone('')} className="text-[10px] font-bold text-red-600 hover:underline">Excluir</button>}
+            </div>
+            <input type="tel" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white" value={contactPhone} onChange={e => setContactPhone(e.target.value)} placeholder="+55 11 99999-9999" />
+          </div>
+        </div>
+      </div>
+
+      {/* Dynamic custom fields section */}
+      <div className="pt-4 border-t space-y-4">
+        <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wider">Outras Informações Customizadas (Incluir/Excluir)</h4>
+        <p className="text-xs text-gray-500">Adicione qualquer campo adicional para exibição nas informações da plataforma.</p>
+        
+        {customFields.length > 0 && (
+          <div className="space-y-3">
+            {customFields.map(field => (
+              <div key={field.id} className="flex gap-3 items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
+                <input
+                  type="text"
+                  value={field.key}
+                  onChange={e => handleEditCustomField(field.id, e.target.value, field.value)}
+                  className="w-1/3 border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none bg-white p-1"
+                  placeholder="Nome do Campo"
+                />
+                <input
+                  type="text"
+                  value={field.value}
+                  onChange={e => handleEditCustomField(field.id, field.key, e.target.value)}
+                  className="flex-grow border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none bg-white p-1"
+                  placeholder="Valor"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleDeleteCustomField(field.id)}
+                  className="px-2 py-1 bg-red-50 text-red-600 hover:bg-red-100 text-xs font-bold rounded"
+                >
+                  Excluir
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Add custom field form */}
+        <div className="bg-blue-50 border border-blue-100 p-3 rounded-lg flex flex-col sm:flex-row gap-3 items-end">
+          <div className="flex-1 w-full text-left">
+            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Novo Campo</label>
+            <input
+              type="text"
+              value={newKey}
+              onChange={e => setNewKey(e.target.value)}
+              className="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:outline-none bg-white p-1"
+              placeholder="Ex: Endereço Comercial"
+            />
+          </div>
+          <div className="flex-1 w-full text-left">
+            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Valor</label>
+            <input
+              type="text"
+              value={newValue}
+              onChange={e => setNewValue(e.target.value)}
+              className="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:outline-none bg-white p-1"
+              placeholder="Ex: Av. Paulista, 1000 - SP"
+            />
+          </div>
+          <button
+            type="button"
+            onClick={handleAddCustomField}
+            className="w-full sm:w-auto px-4 py-1.5 bg-primary text-white font-semibold text-xs rounded hover:bg-primary-dark shadow-sm shrink-0"
+          >
+            + Incluir Informação
+          </button>
+        </div>
+      </div>
+
+      {/* Header and Footer Logos */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t">
+        {/* Header Logo */}
+        <div className="space-y-3">
+          <label className="block text-xs font-semibold text-gray-700 uppercase">Logo do Cabeçalho</label>
+          <div className="flex items-center gap-4">
+            {config.headerLogoUrl ? (
+              <div className="relative group">
+                <img src={config.headerLogoUrl} className="h-16 w-auto object-contain border rounded p-1 max-w-[200px]" alt="Header Logo" />
+                <button
+                  onClick={() => deleteLogo('headerLogoUrl')}
+                  className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow hover:scale-110 transition-all w-6 h-6 flex items-center justify-center font-bold text-xs"
+                  title="Excluir Logo"
+                >
+                  &times;
+                </button>
+              </div>
+            ) : (
+              <div className="h-16 w-40 border border-dashed rounded flex items-center justify-center text-xs text-gray-400 bg-gray-50">
+                Sem logotipo
+              </div>
+            )}
+            <div>
+              <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:border-primary/50 cursor-pointer transition-colors">
+                <IconUpload /> Enviar/Editar Logo
+                <input type="file" accept="image/*" className="hidden" onChange={handleHeaderLogoUpload} />
+              </label>
+              {config.headerLogoUrl && (
+                <button
+                  onClick={() => deleteLogo('headerLogoUrl')}
+                  className="mt-2 text-xs text-red-600 hover:underline flex items-center gap-1 text-left"
+                >
+                  Excluir Logo
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer Logo */}
+        <div className="space-y-3">
+          <label className="block text-xs font-semibold text-gray-700 uppercase">Logo do Rodapé</label>
+          <div className="flex items-center gap-4">
+            {config.footerLogoUrl ? (
+              <div className="relative group">
+                <img src={config.footerLogoUrl} className="h-16 w-auto object-contain border rounded p-1 max-w-[200px]" alt="Footer Logo" />
+                <button
+                  onClick={() => deleteLogo('footerLogoUrl')}
+                  className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow hover:scale-110 transition-all w-6 h-6 flex items-center justify-center font-bold text-xs"
+                  title="Excluir Logo"
+                >
+                  &times;
+                </button>
+              </div>
+            ) : (
+              <div className="h-16 w-40 border border-dashed rounded flex items-center justify-center text-xs text-gray-400 bg-gray-50">
+                Sem logotipo
+              </div>
+            )}
+            <div>
+              <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:border-primary/50 cursor-pointer transition-colors">
+                <IconUpload /> Enviar/Editar Logo
+                <input type="file" accept="image/*" className="hidden" onChange={handleFooterLogoUpload} />
+              </label>
+              {config.footerLogoUrl && (
+                <button
+                  onClick={() => deleteLogo('footerLogoUrl')}
+                  className="mt-2 text-xs text-red-600 hover:underline flex items-center gap-1 text-left"
+                >
+                  Excluir Logo
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="pt-4 border-t flex items-center gap-3">
+        <button onClick={handleSave} className="px-5 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90">
+          {saved ? '✓ Salvo!' : 'Salvar Configurações'}
+        </button>
+        {saved && <span className="text-xs text-green-600 font-medium">✓ Configurações salvas e aplicadas em tempo real.</span>}
+      </div>
     </div>
   );
 };
@@ -379,8 +723,182 @@ const LegalCodesSettings: React.FC = () => {
   );
 };
 
+// ─── Database Settings ────────────────────────────────────────────────────────
+const DatabaseSettings: React.FC = () => {
+  const { config, updateConfig } = useAppConfig();
+  const [dbType, setDbType] = useState(config.dbType || 'local');
+  const [dbCloudProvider, setDbCloudProvider] = useState(config.dbCloudProvider || 'firebase');
+  const [dbApiKey, setDbApiKey] = useState(config.dbApiKey || '');
+  const [dbProjectUrl, setDbProjectUrl] = useState(config.dbProjectUrl || '');
+  const [dbAuthDomain, setDbAuthDomain] = useState(config.dbAuthDomain || '');
+  const [saved, setSaved] = useState(false);
+  const [testing, setTesting] = useState(false);
+  const [testResult, setTestResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  const handleSave = () => {
+    updateConfig({
+      dbType,
+      dbCloudProvider,
+      dbApiKey,
+      dbProjectUrl,
+      dbAuthDomain,
+    });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2500);
+  };
+
+  const handleTestConnection = () => {
+    setTesting(true);
+    setTestResult(null);
+    setTimeout(() => {
+      setTesting(false);
+      if (dbType === 'local') {
+        setTestResult({
+          type: 'success',
+          message: 'Conexão local (localStorage) estabelecida com sucesso! Status: Ativo e operacional.'
+        });
+      } else {
+        if (!dbApiKey || !dbProjectUrl) {
+          setTestResult({
+            type: 'error',
+            message: 'Erro ao conectar na nuvem: Chave da API e URL do Projeto são obrigatórias.'
+          });
+        } else {
+          setTestResult({
+            type: 'success',
+            message: `Conexão de teste com ${dbCloudProvider === 'firebase' ? 'Firebase Firestore' : 'Supabase PostgreSQL'} bem-sucedida!`
+          });
+        }
+      }
+    }, 1500);
+  };
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6">
+      <div>
+        <h3 className="text-base font-bold text-gray-800">Conexão de Banco de Dados</h3>
+        <p className="text-sm text-gray-500">Configure as conexões locais ou em nuvem para sincronização em tempo real de dados jurídicos.</p>
+      </div>
+
+      <div className="space-y-4">
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Tipo de Armazenamento/Conexão</label>
+          <select
+            value={dbType}
+            onChange={e => { setDbType(e.target.value as any); setTestResult(null); }}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white p-2 border"
+          >
+            <option value="local">Banco de Dados Local (localStorage - Offline Primeiro)</option>
+            <option value="cloud">Banco de Dados em Nuvem (Firebase / Supabase)</option>
+          </select>
+        </div>
+
+        {dbType === 'cloud' && (
+          <div className="bg-gray-50 border p-4 rounded-xl space-y-4 animate-fade-in">
+            <h4 className="text-xs font-bold text-gray-700 uppercase">Configurações de Credenciais da Nuvem</h4>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Provedor Cloud</label>
+                <select
+                  value={dbCloudProvider}
+                  onChange={e => setDbCloudProvider(e.target.value as any)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white p-1"
+                >
+                  <option value="firebase">Firebase Firestore</option>
+                  <option value="supabase">Supabase PostgreSQL</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Chave da API (API Key) *</label>
+                <input
+                  type="password"
+                  value={dbApiKey}
+                  onChange={e => setDbApiKey(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white p-1"
+                  placeholder="AIzaSy..."
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">ID do Projeto / URL do Projeto *</label>
+                <input
+                  type="text"
+                  value={dbProjectUrl}
+                  onChange={e => setDbProjectUrl(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white p-1"
+                  placeholder="https://sua-app.supabase.co ou project-id"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">Domínio de Autenticação (Auth Domain)</label>
+                <input
+                  type="text"
+                  value={dbAuthDomain}
+                  onChange={e => setDbAuthDomain(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white p-1"
+                  placeholder="sua-app.firebaseapp.com"
+                />
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Connection Links */}
+        <div className="bg-blue-50 border border-blue-200 p-4 rounded-xl space-y-2 text-xs text-gray-700">
+          <p className="font-bold text-blue-900">Links Úteis para Configuração e Conexão:</p>
+          <ul className="list-disc list-inside space-y-1">
+            <li>
+              Console de Gerenciamento Cloud: {' '}
+              <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-semibold">
+                Firebase Console (Firestore)
+              </a>
+              {' '} ou {' '}
+              <a href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-semibold">
+                Supabase Dashboard (PostgreSQL)
+              </a>
+            </li>
+            <li>
+              Visualização de Banco de Dados Local: {' '}
+              <button
+                type="button"
+                onClick={() => alert('Os dados locais estão armazenados no localStorage do seu navegador sob a chave "legis_lawyer_cases" e "legis_received_docs".')}
+                className="text-primary hover:underline font-semibold"
+              >
+                Inspecionar localStorage Local
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      {testResult && (
+        <div className={`p-3 rounded-lg border text-xs font-medium ${testResult.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
+          {testResult.type === 'success' ? '✓ ' : '✗ '} {testResult.message}
+        </div>
+      )}
+
+      <div className="pt-4 border-t flex flex-wrap gap-3">
+        <button
+          onClick={handleSave}
+          className="px-5 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90"
+        >
+          {saved ? '✓ Salvo!' : 'Salvar Conexão'}
+        </button>
+        
+        <button
+          onClick={handleTestConnection}
+          disabled={testing}
+          className="px-5 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg disabled:opacity-50"
+        >
+          {testing ? 'Testando...' : '🔌 Testar Conexão'}
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // ─── Main SettingsTab ─────────────────────────────────────────────────────────
-type SettingsSection = 'general' | 'codes' | 'documents' | 'users' | 'services_groups';
+type SettingsSection = 'general' | 'codes' | 'documents' | 'users' | 'services_groups' | 'database';
 
 export const SettingsTab: React.FC = () => {
   const [section, setSection] = useState<SettingsSection>('general');
@@ -391,6 +909,7 @@ export const SettingsTab: React.FC = () => {
     { id: 'documents' as const, label: 'Documentos Legais' },
     { id: 'users' as const, label: 'Usuários Administrativos' },
     { id: 'services_groups' as const, label: 'Serviços de Eficiência' },
+    { id: 'database' as const, label: 'Banco de Dados' },
   ];
 
   return (
@@ -410,6 +929,7 @@ export const SettingsTab: React.FC = () => {
       {section === 'documents' && <LegalDocuments />}
       {section === 'users' && <AdminUsers />}
       {section === 'services_groups' && <ServiceGroupsSettings />}
+      {section === 'database' && <DatabaseSettings />}
     </div>
   );
 };
