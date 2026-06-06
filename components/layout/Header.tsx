@@ -18,16 +18,16 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
     { label: 'Encontrar Advogado', view: 'search' as View },
     { label: 'Advogados', view: 'forLawyers' as View },
     { label: 'Estudantes', view: 'forInterns' as View },
-    { label: 'Meus Casos', view: 'dashboard' as View },
+    { label: 'Secretariado', view: 'forSecretariado' as View },
     { label: 'Clientes', view: 'forClients' as View },
     { label: 'Serviços', view: 'services' as View },
   ] : [];
 
   const isActive = (view: View) => {
     if (view === 'search') return currentView === 'search' || currentView === 'profile';
-    if (view === 'dashboard') return ['dashboard', 'login', 'lawyerDashboard', 'internDashboard'].includes(currentView);
     if (view === 'forInterns') return currentView === 'forInterns' || currentView === 'internDashboard';
     if (view === 'forClients') return currentView === 'forClients' || currentView === 'signup';
+    if (view === 'forSecretariado') return currentView === 'forSecretariado' || currentView === 'secretariadoDashboard';
     return currentView === view;
   };
 
