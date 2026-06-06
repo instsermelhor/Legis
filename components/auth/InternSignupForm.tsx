@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { Intern } from '../../types';
+import { BRAZILIAN_STATES } from '../../constants';
 
 export interface InternSignupData extends Partial<Intern> {
     password?: string;
@@ -19,7 +20,18 @@ export const InternSignupForm: React.FC<InternSignupFormProps> = ({ onSignup, on
         university: '',
         semester: '',
         specialtyInterest: '',
-        contact: { phone: '', email: '' }
+        contact: { phone: '', email: '' },
+        isForeigner: false,
+        foreignerDocument: '',
+        countryOfOrigin: '',
+        timeInBrazil: '',
+        cep: '',
+        street: '',
+        number: '',
+        complement: '',
+        neighborhood: '',
+        city: '',
+        state: '',
     });
     const [error, setError] = useState('');
     const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -53,7 +65,17 @@ export const InternSignupForm: React.FC<InternSignupFormProps> = ({ onSignup, on
             return;
         }
 
-        const finalData = { ...formData };
+        // Address validation (required if not empty, but we set them as required in inputs)
+        if (!formData.cep || !formData.street || !formData.number || !formData.neighborhood || !formData.city || !formData.state) {
+            setError('Por favor, preencha todos os campos do endereço residencial.');
+            return;
+        }
+
+        const finalData = { 
+            ...formData,
+            address: `${formData.street}, ${formData.number}${formData.complement ? ` - ${formData.complement}` : ''}, ${formData.neighborhood}, ${formData.city} - ${formData.state}, CEP: ${formData.cep}`
+        };
+
         // Default contact email to top-level email if empty
         if (!finalData.contact?.email) {
             finalData.contact = { ...finalData.contact, email: finalData.email as string } as { phone: string; email: string; };
@@ -88,6 +110,40 @@ export const InternSignupForm: React.FC<InternSignupFormProps> = ({ onSignup, on
                     </div>
                 </div>
 
+                {/* Se Estrangeiro */}
+                <div className="pt-2">
+                    <div className="flex items-center">
+                        <input
+                            id="isForeigner"
+                            name="isForeigner"
+                            type="checkbox"
+                            checked={formData.isForeigner || false}
+                            onChange={(e) => setFormData(prev => ({ ...prev, isForeigner: e.target.checked }))}
+                            className="focus:ring-primary h-4 w-4 text-primary border-gray-300 rounded"
+                        />
+                        <label htmlFor="isForeigner" className="ml-2 block text-sm font-medium text-gray-700">
+                            Se Estrangeiro
+                        </label>
+                    </div>
+
+                    {formData.isForeigner && (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg animate-fade-in">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Documento de Estrangeiro *</label>
+                                <input type="text" name="foreignerDocument" required value={formData.foreignerDocument || ''} onChange={handleChange} placeholder="RNE ou Passaporte" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">País de Origem *</label>
+                                <input type="text" name="countryOfOrigin" required value={formData.countryOfOrigin || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700">Tempo no Brasil *</label>
+                                <input type="text" name="timeInBrazil" required value={formData.timeInBrazil || ''} onChange={handleChange} placeholder="Ex: 2 anos" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                            </div>
+                        </div>
+                    )}
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700">E-mail *</label>
@@ -103,6 +159,48 @@ export const InternSignupForm: React.FC<InternSignupFormProps> = ({ onSignup, on
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Senha *</label>
                         <input type="password" name="password" required value={formData.password || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                    </div>
+                </div>
+
+                {/* Endereço Residencial */}
+                <div className="pt-4 border-t border-gray-200">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">Endereço Residencial</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">CEP *</label>
+                            <input type="text" name="cep" required value={formData.cep || ''} onChange={handleChange} placeholder="00000-000" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                        </div>
+                        <div className="md:col-span-2">
+                            <label className="block text-sm font-medium text-gray-700">Logradouro (Rua, Avenida...) *</label>
+                            <input type="text" name="street" required value={formData.street || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Número *</label>
+                            <input type="text" name="number" required value={formData.number || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Complemento</label>
+                            <input type="text" name="complement" value={formData.complement || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Bairro *</label>
+                            <input type="text" name="neighborhood" required value={formData.neighborhood || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Cidade *</label>
+                            <input type="text" name="city" required value={formData.city || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Estado (UF) *</label>
+                            <select name="state" required value={formData.state || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border">
+                                <option value="">Selecione...</option>
+                                {BRAZILIAN_STATES.map(s => <option key={s.uf} value={s.uf}>{s.uf} - {s.name}</option>)}
+                            </select>
+                        </div>
                     </div>
                 </div>
 
