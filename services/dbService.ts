@@ -17,6 +17,14 @@ export interface AppConfig {
   footerLogoUrl: string | null;
   siteTagline: string;
   footerText: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  customFields?: { id: string; key: string; value: string }[];
+  dbType?: 'local' | 'cloud';
+  dbCloudProvider?: 'firebase' | 'supabase';
+  dbApiKey?: string;
+  dbProjectUrl?: string;
+  dbAuthDomain?: string;
   updatedAt: string;
 }
 
@@ -48,6 +56,14 @@ const DEFAULT_CONFIG: AppConfig = {
   footerLogoUrl: null,
   siteTagline: 'A solução para seus problemas jurídicos.',
   footerText: `© ${new Date().getFullYear()} Legis Connect. Todos os direitos reservados.`,
+  contactEmail: 'contato@legisconnect.com.br',
+  contactPhone: '+55 11 948401620',
+  customFields: [],
+  dbType: 'local',
+  dbCloudProvider: 'firebase',
+  dbApiKey: '',
+  dbProjectUrl: '',
+  dbAuthDomain: '',
   updatedAt: new Date().toISOString(),
 };
 

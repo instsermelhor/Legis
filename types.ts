@@ -30,6 +30,10 @@ export interface Case {
   status: 'Ativo' | 'Concluído' | 'Cancelado';
   stages: CaseStage[];
   reviewSubmitted?: boolean;
+  group?: 'Civil' | 'Penal' | 'Trabalhista' | 'Outro';
+  caseType?: string;
+  clientCpf?: string;
+  clientAddress?: string;
 }
 
 export interface Appointment {
