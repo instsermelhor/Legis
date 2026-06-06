@@ -6,6 +6,10 @@ export interface ClientSignupData {
     password?: string;
     phone: string;
     address: string;
+    isForeigner?: boolean;
+    foreignerDocument?: string;
+    countryOfOrigin?: string;
+    timeInBrazil?: string;
 }
 
 interface ClientSignupFormProps {
@@ -23,6 +27,12 @@ export const ClientSignupForm: React.FC<ClientSignupFormProps> = ({ onSignup, on
     const [termsAccepted, setTermsAccepted] = useState(false);
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+
+    // Foreigner fields
+    const [isForeigner, setIsForeigner] = useState(false);
+    const [foreignerDocument, setForeignerDocument] = useState('');
+    const [countryOfOrigin, setCountryOfOrigin] = useState('');
+    const [timeInBrazil, setTimeInBrazil] = useState('');
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -45,7 +55,17 @@ export const ClientSignupForm: React.FC<ClientSignupFormProps> = ({ onSignup, on
         setIsLoading(true);
         // Simulate API call
         setTimeout(() => {
-            onSignup({ name, email, password, phone, address });
+            onSignup({ 
+                name, 
+                email, 
+                password, 
+                phone, 
+                address,
+                isForeigner,
+                foreignerDocument: isForeigner ? foreignerDocument : undefined,
+                countryOfOrigin: isForeigner ? countryOfOrigin : undefined,
+                timeInBrazil: isForeigner ? timeInBrazil : undefined,
+            });
             setIsLoading(false);
         }, 1000);
     };
@@ -70,6 +90,41 @@ export const ClientSignupForm: React.FC<ClientSignupFormProps> = ({ onSignup, on
                     <label htmlFor="client-address" className="block text-sm font-medium text-gray-700">Endereço Completo</label>
                     <input id="client-address" name="address" type="text" value={address} onChange={e => setAddress(e.target.value)} placeholder="Rua, Número, Bairro, Cidade - Estado" required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm" />
                 </div>
+
+                {/* Se Estrangeiro */}
+                <div className="pt-2">
+                    <div className="flex items-center">
+                        <input
+                            id="isForeigner"
+                            name="isForeigner"
+                            type="checkbox"
+                            checked={isForeigner}
+                            onChange={(e) => setIsForeigner(e.target.checked)}
+                            className="focus:ring-primary h-4 w-4 text-primary border-gray-300 rounded"
+                        />
+                        <label htmlFor="isForeigner" className="ml-2 block text-sm font-medium text-gray-700">
+                            Se Estrangeiro
+                        </label>
+                    </div>
+
+                    {isForeigner && (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg animate-fade-in">
+                            <div>
+                                <label htmlFor="foreigner-document" className="block text-sm font-medium text-gray-700">Documento de Estrangeiro *</label>
+                                <input id="foreigner-document" type="text" required value={foreignerDocument} onChange={e => setForeignerDocument(e.target.value)} placeholder="RNE ou Passaporte" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm" />
+                            </div>
+                            <div>
+                                <label htmlFor="country-of-origin" className="block text-sm font-medium text-gray-700">País de Origem *</label>
+                                <input id="country-of-origin" type="text" required value={countryOfOrigin} onChange={e => setCountryOfOrigin(e.target.value)} className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm" />
+                            </div>
+                            <div>
+                                <label htmlFor="time-in-brazil" className="block text-sm font-medium text-gray-700">Tempo no Brasil *</label>
+                                <input id="time-in-brazil" type="text" required value={timeInBrazil} onChange={e => setTimeInBrazil(e.target.value)} placeholder="Ex: 2 anos" className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm" />
+                            </div>
+                        </div>
+                    )}
+                </div>
+
                 <div>
                     <label htmlFor="client-password" className="block text-sm font-medium text-gray-700">Senha</label>
                     <input id="client-password" name="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm" />

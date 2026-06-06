@@ -10,6 +10,10 @@ export interface User {
   address?: string;
   caseHistory?: Case[];
   appointments?: Appointment[];
+  isForeigner?: boolean;
+  foreignerDocument?: string;
+  countryOfOrigin?: string;
+  timeInBrazil?: string;
 }
 
 export interface CaseStage {
@@ -91,6 +95,16 @@ export interface Lawyer {
   commercialAddress?: string;
   oabUF?: string;
   registrationType?: 'active' | 'intern';
+
+  // Foreigner Fields
+  isForeigner?: boolean;
+  foreignerDocument?: string;
+  countryOfOrigin?: string;
+  timeInBrazil?: string;
+
+  // Specialty groups
+  primarySpecialties?: string[];
+  secondarySpecialties?: string[];
 }
 
 export interface Intern {
@@ -105,6 +119,22 @@ export interface Intern {
   availableHours: number;
   casesStudied?: Case[];
   status: 'active' | 'pending';
+
+  // Address fields
+  address?: string;
+  cep?: string;
+  street?: string;
+  number?: string;
+  complement?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+
+  // Foreigner Fields
+  isForeigner?: boolean;
+  foreignerDocument?: string;
+  countryOfOrigin?: string;
+  timeInBrazil?: string;
 }
 
 export interface CaseAnalysis {

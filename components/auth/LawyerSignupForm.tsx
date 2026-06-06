@@ -22,6 +22,12 @@ export const LawyerSignupForm: React.FC<LawyerSignupFormProps> = ({ onSignup, on
         password: '',
         confirmPassword: '',
         termsAccepted: false,
+        isForeigner: false,
+        foreignerDocument: '',
+        countryOfOrigin: '',
+        timeInBrazil: '',
+        primarySpecialties: [],
+        secondarySpecialties: [],
     });
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -39,10 +45,55 @@ export const LawyerSignupForm: React.FC<LawyerSignupFormProps> = ({ onSignup, on
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.checked }));
     }
 
-    const handleSpecialtyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedOptions = Array.from(e.target.selectedOptions, (option: HTMLOptionElement) => option.value);
-        setFormData(prev => ({ ...prev, specialties: selectedOptions }));
-    }
+    const handleSpecialtyToggle = (area: string) => {
+        const primaries = formData.primarySpecialties || [];
+        const secondaries = formData.secondarySpecialties || [];
+        const isPrimary = primaries.includes(area);
+        const isSecondary = secondaries.includes(area);
+
+        if (isPrimary || isSecondary) {
+            // Uncheck: remove from both
+            setFormData(prev => ({
+                ...prev,
+                primarySpecialties: (prev.primarySpecialties || []).filter(a => a !== area),
+                secondarySpecialties: (prev.secondarySpecialties || []).filter(a => a !== area),
+            }));
+        } else {
+            // Check: add to primary if less than 3, otherwise to secondary
+            if (primaries.length < 3) {
+                setFormData(prev => ({
+                    ...prev,
+                    primarySpecialties: [...(prev.primarySpecialties || []), area],
+                }));
+            } else {
+                setFormData(prev => ({
+                    ...prev,
+                    secondarySpecialties: [...(prev.secondarySpecialties || []), area],
+                }));
+            }
+        }
+    };
+
+    const handleSpecialtyTypeChange = (area: string, type: 'primary' | 'secondary') => {
+        const primaries = formData.primarySpecialties || [];
+        if (type === 'primary') {
+            if (primaries.length >= 3) {
+                alert('Você pode selecionar no máximo 3 especialidades principais.');
+                return;
+            }
+            setFormData(prev => ({
+                ...prev,
+                primarySpecialties: [...(prev.primarySpecialties || []), area],
+                secondarySpecialties: (prev.secondarySpecialties || []).filter(a => a !== area),
+            }));
+        } else {
+            setFormData(prev => ({
+                ...prev,
+                primarySpecialties: (prev.primarySpecialties || []).filter(a => a !== area),
+                secondarySpecialties: [...(prev.secondarySpecialties || []), area],
+            }));
+        }
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -66,6 +117,10 @@ export const LawyerSignupForm: React.FC<LawyerSignupFormProps> = ({ onSignup, on
         setTimeout(() => {
             const lawyerData = {
                 ...formData,
+                specialties: [
+                    ...(formData.primarySpecialties || []),
+                    ...(formData.secondarySpecialties || [])
+                ],
                 oab: `${formData.oabUF}${formData.oab}`,
             };
             const success = onSignup(lawyerData);
@@ -90,6 +145,50 @@ export const LawyerSignupForm: React.FC<LawyerSignupFormProps> = ({ onSignup, on
                         <InputField label="CPF" name="cpf" value={formData.cpf} onChange={handleChange} required />
                         <InputField label="RG" name="rg" value={formData.rg} onChange={handleChange} required />
                     </div>
+
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                        <div className="flex items-center">
+                            <input
+                                id="isForeigner"
+                                name="isForeigner"
+                                type="checkbox"
+                                checked={formData.isForeigner || false}
+                                onChange={handleCheckboxChange}
+                                className="focus:ring-primary h-4 w-4 text-primary border-gray-300 rounded"
+                            />
+                            <label htmlFor="isForeigner" className="ml-2 block text-sm font-medium text-gray-700">
+                                Se Estrangeiro
+                            </label>
+                        </div>
+
+                        {formData.isForeigner && (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg animate-fade-in">
+                                <InputField
+                                    label="Documento de Estrangeiro"
+                                    name="foreignerDocument"
+                                    value={formData.foreignerDocument || ''}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="RNE ou Passaporte"
+                                />
+                                <InputField
+                                    label="País de Origem"
+                                    name="countryOfOrigin"
+                                    value={formData.countryOfOrigin || ''}
+                                    onChange={handleChange}
+                                    required
+                                />
+                                <InputField
+                                    label="Tempo no Brasil"
+                                    name="timeInBrazil"
+                                    value={formData.timeInBrazil || ''}
+                                    onChange={handleChange}
+                                    required
+                                    placeholder="Ex: 2 anos"
+                                />
+                            </div>
+                        )}
+                    </div>
                 </fieldset>
 
                 {/* Professional Info */}
@@ -107,17 +206,56 @@ export const LawyerSignupForm: React.FC<LawyerSignupFormProps> = ({ onSignup, on
                         </div>
                     </div>
                     <div>
-                        <label htmlFor="specialties" className="block text-sm font-medium text-gray-700">Áreas de Especialidade (selecione até 3)</label>
-                        <select
-                            id="specialties"
-                            name="specialties"
-                            multiple
-                            value={formData.specialties}
-                            onChange={handleSpecialtyChange}
-                            className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary focus:border-primary h-32"
-                        >
-                            {AREAS_OF_LAW.map(area => <option key={area} value={area}>{area}</option>)}
-                        </select>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Áreas de Especialidade (Selecione até 3 Principais, as outras serão Secundárias)</label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-96 overflow-y-auto p-4 border rounded-lg bg-gray-50">
+                            {AREAS_OF_LAW.map(area => {
+                                const isPrimary = formData.primarySpecialties?.includes(area) || false;
+                                const isSecondary = formData.secondarySpecialties?.includes(area) || false;
+                                const isChecked = isPrimary || isSecondary;
+
+                                return (
+                                    <div key={area} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 border rounded-lg bg-white hover:bg-gray-50 transition-colors gap-2 shadow-sm">
+                                        <label className="flex items-center gap-3 cursor-pointer text-sm font-medium text-gray-700">
+                                            <input
+                                                type="checkbox"
+                                                checked={isChecked}
+                                                onChange={() => handleSpecialtyToggle(area)}
+                                                className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary"
+                                            />
+                                            {area}
+                                        </label>
+
+                                        {isChecked && (
+                                            <div className="flex gap-1 bg-gray-100 p-0.5 rounded-lg border text-xs">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleSpecialtyTypeChange(area, 'primary')}
+                                                    disabled={!isPrimary && (formData.primarySpecialties?.length || 0) >= 3}
+                                                    className={`px-2 py-0.5 rounded font-medium transition-all ${
+                                                        isPrimary
+                                                            ? 'bg-primary text-white shadow-sm'
+                                                            : 'text-gray-600 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed'
+                                                    }`}
+                                                >
+                                                    Principal
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleSpecialtyTypeChange(area, 'secondary')}
+                                                    className={`px-2 py-0.5 rounded font-medium transition-all ${
+                                                        isSecondary
+                                                            ? 'bg-gray-600 text-white shadow-sm'
+                                                            : 'text-gray-600 hover:text-gray-900'
+                                                    }`}
+                                                >
+                                                    Secundária
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
                     </div>
                 </fieldset>
 
@@ -163,7 +301,7 @@ const InputField: React.FC<{ label: string, name: string, value?: string, onChan
     ({ label, name, value, onChange, type = 'text', required = false, placeholder }) => (
         <div>
             <label htmlFor={name} className="block text-sm font-medium text-gray-700">{label}</label>
-            <input id={name} name={name} type={type} value={value} onChange={onChange} required={required} placeholder={placeholder} className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary focus:border-primary" />
+            <input id={name} name={name} type={type} value={value} onChange={onChange} required={required} placeholder={placeholder} className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary focus:border-primary p-2 border" />
         </div>
     );
 
@@ -171,7 +309,7 @@ const SelectField: React.FC<{ label: string, name: string, value?: string, onCha
     ({ label, name, value, onChange, options }) => (
         <div>
             <label htmlFor={name} className="block text-sm font-medium text-gray-700">{label}</label>
-            <select id={name} name={name} value={value} onChange={onChange} className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary focus:border-primary">
+            <select id={name} name={name} value={value} onChange={onChange} className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary focus:border-primary p-2 border">
                 {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
             </select>
         </div>
