@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { mockLegalDocuments, mockAdminUsers } from '../../services/mockDataService';
+import { mockLegalDocuments, mockAdminUsers, mockEfficiencyServiceGroups } from '../../services/mockDataService';
 import type { LegalDocument, AdminUser } from '../../services/mockDataService';
 import { SectionTitle, IconEdit, IconPlus, IconKey, IconUpload, IconTrash } from './AdminShared';
 import { dbCodes, LegalCode } from '../../services/dbService';
 import { useAppConfig } from '../../context/AppContext';
+import type { EfficiencyServiceGroup } from '../../types';
 
 // ─── Legal Documents ──────────────────────────────────────────────────────────
 const LegalDocuments: React.FC = () => {
@@ -548,8 +549,6 @@ const GeneralSettings: React.FC = () => {
 };
 
 // ─── Service Groups Settings ──────────────────────────────────────────────────
-import { mockEfficiencyServiceGroups } from '../../services/mockDataService';
-import type { EfficiencyServiceGroup } from '../../types';
 
 const ServiceGroupsSettings: React.FC = () => {
   const [groups, setGroups] = useState<EfficiencyServiceGroup[]>(() => {

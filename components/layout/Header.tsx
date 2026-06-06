@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BriefcaseIcon, UserCircleIcon, LogoutIcon } from '../common/IconComponents';
 import type { View, User } from '../../types';
 import { useAppConfig } from '../../context/AppContext';
@@ -12,6 +12,24 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, onLogout }) => {
   const { config } = useAppConfig();
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const navLinks = user?.role !== 'admin' ? [
+    { label: 'Encontrar Advogado', view: 'search' as View },
+    { label: 'Advogados', view: 'forLawyers' as View },
+    { label: 'Estudantes', view: 'forInterns' as View },
+    { label: 'Meus Casos', view: 'dashboard' as View },
+    { label: 'Clientes', view: 'forClients' as View },
+    { label: 'Serviços', view: 'services' as View },
+  ] : [];
+
+  const isActive = (view: View) => {
+    if (view === 'search') return currentView === 'search' || currentView === 'profile';
+    if (view === 'dashboard') return ['dashboard', 'login', 'lawyerDashboard', 'internDashboard'].includes(currentView);
+    if (view === 'forInterns') return currentView === 'forInterns' || currentView === 'internDashboard';
+    if (view === 'forClients') return currentView === 'forClients' || currentView === 'signup';
+    return currentView === view;
+  };
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
@@ -30,22 +48,25 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
               </>
             )}
           </div>
+
+          {/* Desktop nav */}
           <nav className="hidden md:flex items-center">
-            {user?.role !== 'admin' && (
-              <>
-                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('search'); }} className={`transition duration-150 ease-in-out font-medium ml-4 ${currentView === 'search' || currentView === 'profile' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Encontrar Advogado</a>
-                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('forLawyers'); }} className={`transition duration-150 ease-in-out font-medium ml-6 ${currentView === 'forLawyers' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Advogados</a>
-                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('forInterns'); }} className={`transition duration-150 ease-in-out font-medium ml-5 ${currentView === 'forInterns' || currentView === 'internDashboard' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Estudantes</a>
-                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('dashboard'); }} className={`transition duration-150 ease-in-out font-medium ml-7 ${['dashboard', 'login', 'lawyerDashboard', 'internDashboard'].includes(currentView) ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Meus Casos</a>
-                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('forClients'); }} className={`transition duration-150 ease-in-out font-medium ml-5 ${currentView === 'forClients' || currentView === 'signup' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Clientes</a>
-                <a href="#" onClick={(e) => { e.preventDefault(); onNavigate('services'); }} className={`transition duration-150 ease-in-out font-medium ml-5 ${currentView === 'services' ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}>Serviços</a>
-              </>
-            )}
+            {navLinks.map(link => (
+              <a
+                key={link.view}
+                href="#"
+                onClick={(e) => { e.preventDefault(); onNavigate(link.view); }}
+                className={`transition duration-150 ease-in-out font-medium ml-5 ${isActive(link.view) ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}
+              >
+                {link.label}
+              </a>
+            ))}
             {user?.role === 'admin' && (
               <span className="text-gray-600 font-medium">Painel Administrativo</span>
             )}
           </nav>
-          <div className="flex items-center space-x-4">
+
+          <div className="flex items-center space-x-3">
             {user ? (
               <>
                 <span className="hidden sm:inline text-sm text-gray-700">Olá, <span className="font-medium">{user.name || user.email}</span></span>
@@ -74,9 +95,52 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
                 </button>
               </>
             )}
+
+            {/* Mobile hamburger - only show if there are nav links */}
+            {navLinks.length > 0 && (
+              <button
+                className="md:hidden p-2 rounded-md text-gray-600 hover:text-primary hover:bg-gray-100 transition-colors"
+                onClick={() => setMobileOpen(o => !o)}
+                aria-label="Abrir menu"
+              >
+                {mobileOpen ? (
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                ) : (
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Mobile nav drawer */}
+      {mobileOpen && navLinks.length > 0 && (
+        <div className="md:hidden bg-white border-t border-gray-100 shadow-md animate-fade-in">
+          <nav className="container mx-auto px-4 py-3 flex flex-col space-y-1">
+            {navLinks.map(link => (
+              <a
+                key={link.view}
+                href="#"
+                onClick={(e) => { e.preventDefault(); onNavigate(link.view); setMobileOpen(false); }}
+                className={`block px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive(link.view) ? 'bg-primary/10 text-primary' : 'text-gray-700 hover:bg-gray-50 hover:text-primary'}`}
+              >
+                {link.label}
+              </a>
+            ))}
+            {!user && (
+              <a
+                href="#"
+                onClick={(e) => { e.preventDefault(); onNavigate('login'); setMobileOpen(false); }}
+                className="block px-3 py-2.5 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-primary transition-colors sm:hidden"
+              >
+                Entrar
+              </a>
+            )}
+          </nav>
+        </div>
+      )}
     </header>
   );
 };
+
