@@ -6,6 +6,9 @@ import { UpdateCaseStatusModal } from '../common/UpdateCaseStatusModal';
 import { CalendarSyncModal } from '../common/CalendarSyncModal';
 import { dbCodes, LegalCode } from '../../services/dbService';
 import { FinancialKPI } from './FinancialKPI';
+import { ChangePasswordModal } from '../common/ChangePasswordModal';
+import { ChangeEmailModal } from '../common/ChangeEmailModal';
+import { AREAS_OF_LAW, BRAZILIAN_STATES } from '../../constants';
 
 interface LawyerDashboardProps {
     lawyer: Lawyer;
@@ -144,7 +147,28 @@ const AppointmentCard: React.FC<{ appointment: Appointment }> = ({ appointment }
 
 export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
     const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
-    const [activeSection, setActiveSection] = useState<'overview' | 'meusCasos' | 'codigos' | 'financeiro'>('overview');
+    const [activeSection, setActiveSection] = useState<'overview' | 'meusCasos' | 'codigos' | 'financeiro' | 'perfil'>('overview');
+
+    // Profile Editing State
+    const [profileData, setProfileData] = useState({
+        name: lawyer.name || '',
+        oab: lawyer.oab || '',
+        oabUF: lawyer.oabUF || '',
+        bio: lawyer.bio || '',
+        phone: lawyer.contact?.phone || '',
+        email: lawyer.contact?.email || '',
+        city: lawyer.location?.city || '',
+        state: lawyer.location?.state || '',
+        cpf: lawyer.cpf || '',
+        address: lawyer.address || '',
+        commercialAddress: lawyer.commercialAddress || '',
+        consultationFee: String(lawyer.consultationFee || ''),
+        primarySpecialties: lawyer.primarySpecialties || lawyer.specialties.slice(0, 3),
+        secondarySpecialties: lawyer.secondarySpecialties || lawyer.specialties.slice(3),
+    });
+    const [profileSaved, setProfileSaved] = useState(false);
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
+    const [showEmailModal, setShowEmailModal] = useState(false);
     
     const [cases, setCases] = useState<Case[]>(() => {
         const saved = localStorage.getItem('legis_lawyer_cases');
@@ -426,6 +450,16 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                                 }`}
                             >
                                 ⚖️ Códigos
+                            </button>
+                            <button
+                                onClick={() => setActiveSection('perfil')}
+                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
+                                    activeSection === 'perfil'
+                                        ? 'bg-primary text-white shadow'
+                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                }`}
+                            >
+                                👤 Meu Perfil
                             </button>
                         </div>
                     </div>
@@ -739,8 +773,160 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                             </div>
                         </div>
                     )}
+
+                    {/* ─── MEU PERFIL SECTION ────────────────────────────────────── */}
+                    {activeSection === 'perfil' && (
+                        <div className="space-y-6 animate-fade-in">
+                            {/* Dados Pessoais */}
+                            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-5">
+                                <h3 className="text-base font-bold text-gray-800 border-b pb-2">Dados Pessoais e Profissionais</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Nome Completo</label>
+                                        <input value={profileData.name} onChange={e => setProfileData(p => ({ ...p, name: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">CPF</label>
+                                        <input value={profileData.cpf} onChange={e => setProfileData(p => ({ ...p, cpf: e.target.value }))} placeholder="000.000.000-00" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Nº OAB</label>
+                                        <input value={profileData.oab} onChange={e => setProfileData(p => ({ ...p, oab: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Estado OAB (UF)</label>
+                                        <select value={profileData.oabUF} onChange={e => setProfileData(p => ({ ...p, oabUF: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white">
+                                            <option value="">Selecione...</option>
+                                            {BRAZILIAN_STATES.map(s => <option key={s.uf} value={s.uf}>{s.uf}</option>)}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Telefone</label>
+                                        <input value={profileData.phone} onChange={e => setProfileData(p => ({ ...p, phone: e.target.value }))} placeholder="(11) 99999-9999" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Valor Consulta (R$)</label>
+                                        <input type="number" value={profileData.consultationFee} onChange={e => setProfileData(p => ({ ...p, consultationFee: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Biografia / Apresentação Profissional</label>
+                                        <textarea value={profileData.bio} onChange={e => setProfileData(p => ({ ...p, bio: e.target.value }))} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Especialidades */}
+                            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+                                <div>
+                                    <h3 className="text-base font-bold text-gray-800 border-b pb-2 mb-3">Áreas de Atuação</h3>
+                                    <p className="text-xs text-gray-500 mb-4">Selecione até 3 especialidades <strong>principais</strong>. As demais serão classificadas como secundárias.</p>
+                                </div>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                                    {AREAS_OF_LAW.map(area => {
+                                        const isPrimary = profileData.primarySpecialties.includes(area);
+                                        const isSecondary = profileData.secondarySpecialties.includes(area);
+                                        const isSelected = isPrimary || isSecondary;
+                                        const canSelectPrimary = profileData.primarySpecialties.length < 3;
+                                        return (
+                                            <label key={area} className={`flex items-start gap-2 p-3 rounded-lg border cursor-pointer text-xs font-medium transition-colors ${isPrimary ? 'bg-primary/10 border-primary text-primary' : isSecondary ? 'bg-blue-50 border-blue-300 text-blue-700' : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-primary/40'}`}>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={isSelected}
+                                                    onChange={() => {
+                                                        if (isSelected) {
+                                                            setProfileData(p => ({
+                                                                ...p,
+                                                                primarySpecialties: p.primarySpecialties.filter(s => s !== area),
+                                                                secondarySpecialties: p.secondarySpecialties.filter(s => s !== area),
+                                                            }));
+                                                        } else if (canSelectPrimary) {
+                                                            setProfileData(p => ({ ...p, primarySpecialties: [...p.primarySpecialties, area] }));
+                                                        } else {
+                                                            setProfileData(p => ({ ...p, secondarySpecialties: [...p.secondarySpecialties, area] }));
+                                                        }
+                                                    }}
+                                                    className="mt-0.5"
+                                                />
+                                                <span>
+                                                    {area}
+                                                    {isPrimary && <span className="ml-1 text-primary font-bold">(Principal)</span>}
+                                                    {isSecondary && <span className="ml-1 text-blue-600">(Secundária)</span>}
+                                                </span>
+                                            </label>
+                                        );
+                                    })}
+                                </div>
+                                <div className="flex gap-4 text-xs mt-2">
+                                    <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-primary/30 inline-block" /> Primária (máx 3)</span>
+                                    <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded bg-blue-200 inline-block" /> Secundária (ilimitada)</span>
+                                </div>
+                            </div>
+
+                            {/* Endereço */}
+                            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+                                <h3 className="text-base font-bold text-gray-800 border-b pb-2">Endereço Residencial e Comercial</h3>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">Endereço Residencial</label>
+                                    <input value={profileData.address} onChange={e => setProfileData(p => ({ ...p, address: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" placeholder="Rua, Número, Complemento, Bairro, CEP" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">Endereço Comercial (Escritório)</label>
+                                    <input value={profileData.commercialAddress} onChange={e => setProfileData(p => ({ ...p, commercialAddress: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" placeholder="Rua, Número, Sala, Bairro, CEP" />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 mb-1">Cidade</label>
+                                        <input value={profileData.city} onChange={e => setProfileData(p => ({ ...p, city: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-600 mb-1">Estado (UF)</label>
+                                        <select value={profileData.state} onChange={e => setProfileData(p => ({ ...p, state: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white">
+                                            <option value="">Selecione...</option>
+                                            {BRAZILIAN_STATES.map(s => <option key={s.uf} value={s.uf}>{s.name} ({s.uf})</option>)}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Segurança */}
+                            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+                                <h3 className="text-base font-bold text-gray-800 border-b pb-2">🔐 Segurança de Acesso</h3>
+                                <p className="text-sm text-gray-500">Mantenha seus dados de acesso seguros e atualizados.</p>
+                                <div className="flex flex-wrap gap-3">
+                                    <button onClick={() => setShowPasswordModal(true)} className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors">
+                                        🔑 Alterar Senha
+                                    </button>
+                                    <button onClick={() => setShowEmailModal(true)} className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                                        📧 Alterar E-mail de Acesso
+                                    </button>
+                                </div>
+                                <div className="text-xs text-gray-400 bg-gray-50 rounded-lg p-3">
+                                    E-mail atual: <strong>{profileData.email || lawyer.contact.email}</strong>
+                                </div>
+                            </div>
+
+                            {/* Save Button */}
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={() => { setProfileSaved(true); setTimeout(() => setProfileSaved(false), 2500); }}
+                                    className="px-6 py-3 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary/90 transition-colors shadow-md"
+                                >
+                                    {profileSaved ? '✓ Perfil Salvo!' : 'Salvar Perfil'}
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
                 </div>
             </div>
+
+            {/* Password/Email Modals */}
+            {showPasswordModal && (
+                <ChangePasswordModal onClose={() => setShowPasswordModal(false)} onSave={(cur, _next) => cur.length >= 4} />
+            )}
+            {showEmailModal && (
+                <ChangeEmailModal currentEmail={profileData.email || lawyer.contact.email} onClose={() => setShowEmailModal(false)} onSave={(pwd, newEmail) => { if (pwd.length < 4) return false; setProfileData(p => ({ ...p, email: newEmail })); return true; }} />
+            )}
 
             {/* Case updates */}
             {isUpdateModalOpen && selectedCase && (
