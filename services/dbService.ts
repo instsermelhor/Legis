@@ -58,6 +58,7 @@ const KEYS = {
   financialTx: 'legis_financial_tx',
   legalDocs: 'legis_legal_docs',
   adminUsers: 'legis_admin_users',
+  codes: 'legis_legal_codes',
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -138,4 +139,50 @@ export const dbFinancial = {
     const all = dbFinancial.getAll();
     save(KEYS.financialTx, all.map(t => t.id === id ? { ...t, ...changes } : t));
   },
+};
+
+// ─── Legal Codes ──────────────────────────────────────────────────────────────
+export interface LegalCode {
+  id: string;
+  title: string;
+  content: string;
+  lastUpdated: string;
+  fileName?: string;
+}
+
+const DEFAULT_CODES: LegalCode[] = [
+  { id: 'cc', title: 'Código Civil', content: 'Lei nº 10.406 de 10 de Janeiro de 2002...\n[Art. 1º] Toda pessoa é capaz de direitos e deveres na ordem civil.', lastUpdated: '2024-01-01' },
+  { id: 'cp', title: 'Código Penal', content: 'Decreto-Lei nº 2.848 de 7 de Dezembro de 1940...\n[Art. 1º] Não há crime sem lei anterior que o defina, nem pena sem prévia cominação legal.', lastUpdated: '2024-01-01' },
+  { id: 'cpc', title: 'Código de Processo Civil', content: 'Lei nº 13.105 de 16 de Março de 2015...\n[Art. 1º] O processo civil será ordenado, disciplinado e interpretado conforme os valores e as normas fundamentais estabelecidos na Constituição da República Federativa do Brasil.', lastUpdated: '2024-01-01' },
+  { id: 'cpp', title: 'Código de Processo Penal', content: 'Decreto-Lei nº 3.689 de 3 de Outubro de 1941...\n[Art. 1º] O processo penal reger-se-á, em todo o território brasileiro, por este Código, ressalvados os tratados e regras de direito internacional.', lastUpdated: '2024-01-01' },
+  { id: 'clt', title: 'CLT', content: 'Decreto-Lei nº 5.452 de 1º de Maio de 1943...\n[Art. 1º] Esta Consolidação estatui as normas que regulam as relações individuais e coletivas de trabalho.', lastUpdated: '2024-01-01' },
+  { id: 'ctn', title: 'Código Tributário Nacional', content: 'Lei nº 5.172 de 25 de Outubro de 1966...\n[Art. 1º] Este Código regula o sistema tributário nacional e estabelece normas gerais de direito tributário aplicáveis à União, Estados, Distrito Federal e Municípios.', lastUpdated: '2024-01-01' },
+  { id: 'cdc', title: 'Código de Defesa do Consumidor', content: 'Lei nº 8.078 de 11 de Setembro de 1990...\n[Art. 1º] O presente código estabelece normas de proteção e defesa do consumidor, de ordem pública e interesse social.', lastUpdated: '2024-01-01' },
+  { id: 'cf88', title: 'CF/88', content: 'Constituição da República Federativa do Brasil de 1988...\n[Art. 1º] A República Federativa do Brasil, formada pela união indissolúvel dos Estados e Municípios e do Distrito Federal, constitui-se em Estado Democrático de Direito.', lastUpdated: '2024-01-01' },
+  { id: 'eca', title: 'Estatuto da Criança e Adolescente', content: 'Lei nº 8.069 de 13 de Julho de 1990...\n[Art. 1º] Esta Lei dispõe sobre a proteção integral à criança e ao adolescente.', lastUpdated: '2024-01-01' },
+  { id: 'ctb', title: 'Código de Trânsito Brasileiro', content: 'Lei nº 9.503 de 23 de Setembro de 1997...\n[Art. 1º] O trânsito de qualquer natureza nas vias terrestres do território nacional é regido por este Código.', lastUpdated: '2024-01-01' },
+];
+
+export const dbCodes = {
+  getAll(): LegalCode[] {
+    const stored = load<LegalCode[]>(KEYS.codes, []);
+    if (stored.length === 0) {
+      save(KEYS.codes, DEFAULT_CODES);
+      return DEFAULT_CODES;
+    }
+    return stored;
+  },
+  saveAll(codes: LegalCode[]): void {
+    save(KEYS.codes, codes);
+  },
+  update(id: string, content: string, fileName?: string): LegalCode[] {
+    const all = this.getAll();
+    const updated = all.map(c => c.id === id ? { ...c, content, fileName, lastUpdated: new Date().toISOString().split('T')[0] } : c);
+    this.saveAll(updated);
+    return updated;
+  },
+  reset(): LegalCode[] {
+    save(KEYS.codes, DEFAULT_CODES);
+    return DEFAULT_CODES;
+  }
 };
