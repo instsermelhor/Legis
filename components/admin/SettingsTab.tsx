@@ -868,13 +868,15 @@ const DatabaseSettings: React.FC = () => {
             </li>
           </ul>
         </div>
-      </div>
 
-      {testResult && (
-        <div className={`p-3 rounded-lg border text-xs font-medium ${testResult.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
-          {testResult.type === 'success' ? '✓ ' : '✗ '} {testResult.message}
-        </div>
-      )}
+        {testResult && (
+          <div className={`p-3 rounded-lg border text-xs font-medium ${testResult.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
+            {testResult.type === 'success' ? '✓ ' : '✗ '} {testResult.message}
+          </div>
+        )}
+
+
+      </div>{/* end space-y-4 */}
 
       <div className="pt-4 border-t flex flex-wrap gap-3">
         <button
@@ -951,6 +953,16 @@ const APIConnections: React.FC = () => {
     },
   ];
 
+  type ApiField = { key: string; label: string; type: 'text' | 'password' };
+  type ApiEntry = typeof APIS[0] & { custom?: boolean };
+
+  // ── State ──────────────────────────────────────────────────────────────────
+  const [customApis, setCustomApis] = useState<ApiEntry[]>(() => {
+    try { return JSON.parse(localStorage.getItem('legis_custom_apis') || '[]'); } catch { return []; }
+  });
+
+  const allApis: ApiEntry[] = [...APIS, ...customApis];
+
   const [enabledApis, setEnabledApis] = useState<Record<string, boolean>>(() => {
     try { return JSON.parse(localStorage.getItem('legis_api_enabled') || '{}'); } catch { return {}; }
   });
@@ -962,15 +974,56 @@ const APIConnections: React.FC = () => {
   const [testing, setTesting] = useState<string | null>(null);
   const [testResults, setTestResults] = useState<Record<string, { ok: boolean; msg: string }>>({});
 
+  // ── Add new API ────────────────────────────────────────────────────────────
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newApi, setNewApi] = useState({ label: '', icon: '🔌', description: '', endpoint: '', keyLabel: 'API Key' });
+  const ICON_OPTIONS = ['🔌','🌐','📡','📊','📝','💡','🔗','🚀','📦','⚙️','🛡️','🔐','💸','🤝','⚖️','📋','📧','📱','💬','📅','🤖','💳','✍️','🏛️','🇧🇷'];
+
+  const handleAddApi = () => {
+    if (!newApi.label.trim()) return;
+    const entry: ApiEntry = {
+      id: `custom_${Date.now()}`,
+      label: newApi.label.trim(),
+      icon: newApi.icon,
+      description: newApi.description.trim() || 'Integração personalizada.',
+      color: 'bg-gray-50 border-gray-300',
+      badgeColor: 'bg-gray-100 text-gray-800',
+      fields: [
+        { key: 'endpoint', label: newApi.endpoint.trim() || 'Endpoint / URL', type: 'text' as const },
+        { key: 'api_key', label: newApi.keyLabel.trim() || 'API Key', type: 'password' as const },
+      ],
+      custom: true,
+    };
+    const next = [...customApis, entry];
+    setCustomApis(next);
+    localStorage.setItem('legis_custom_apis', JSON.stringify(next));
+    setNewApi({ label: '', icon: '🔌', description: '', endpoint: '', keyLabel: 'API Key' });
+    setShowAddForm(false);
+  };
+
+  // ── Delete API ─────────────────────────────────────────────────────────────
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  const handleDeleteApi = (id: string) => {
+    const next = customApis.filter(a => a.id !== id);
+    setCustomApis(next);
+    localStorage.setItem('legis_custom_apis', JSON.stringify(next));
+    const nextEnabled = { ...enabledApis };
+    delete nextEnabled[id];
+    setEnabledApis(nextEnabled);
+    localStorage.setItem('legis_api_enabled', JSON.stringify(nextEnabled));
+    setDeleteConfirmId(null);
+  };
+
+  // ── Shared helpers ─────────────────────────────────────────────────────────
   const toggleApi = (id: string) => {
     const next = { ...enabledApis, [id]: !enabledApis[id] };
     setEnabledApis(next);
     localStorage.setItem('legis_api_enabled', JSON.stringify(next));
   };
 
-  const setField = (apiId: string, key: string, value: string) => {
+  const setField = (apiId: string, key: string, value: string) =>
     setApiValues(prev => ({ ...prev, [apiId]: { ...prev[apiId], [key]: value } }));
-  };
 
   const handleSaveApi = (id: string) => {
     localStorage.setItem('legis_api_values', JSON.stringify(apiValues));
@@ -984,13 +1037,14 @@ const APIConnections: React.FC = () => {
     setTimeout(() => {
       setTesting(null);
       const vals = apiValues[id] || {};
-      const api = APIS.find(a => a.id === id)!;
-      const allFilled = api.fields.length === 0 || api.fields.every(f => !!vals[f.key]?.trim());
-      if (allFilled) {
-        setTestResults(prev => ({ ...prev, [id]: { ok: true, msg: `Conexão com ${api.label} estabelecida com sucesso!` } }));
-      } else {
-        setTestResults(prev => ({ ...prev, [id]: { ok: false, msg: 'Preencha todos os campos obrigatórios antes de testar.' } }));
-      }
+      const api = allApis.find(a => a.id === id)!;
+      const allFilled = api.fields.length === 0 || api.fields.every((f: ApiField) => !!vals[f.key]?.trim());
+      setTestResults(prev => ({
+        ...prev,
+        [id]: allFilled
+          ? { ok: true, msg: `Conexão com ${api.label} estabelecida com sucesso!` }
+          : { ok: false, msg: 'Preencha todos os campos obrigatórios antes de testar.' },
+      }));
     }, 1500);
   };
 
@@ -998,99 +1052,157 @@ const APIConnections: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      {/* ── Header bar ── */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-base font-bold text-gray-800">Conexão com APIs</h3>
           <p className="text-sm text-gray-500 mt-0.5">Configure e ative integrações externas para expandir as funcionalidades da plataforma.</p>
         </div>
-        <div className="px-3 py-1.5 bg-primary/10 text-primary text-xs font-bold rounded-full">
-          {activeCount} ativa{activeCount !== 1 ? 's' : ''}
+        <div className="flex items-center gap-3">
+          <span className="px-3 py-1.5 bg-primary/10 text-primary text-xs font-bold rounded-full">
+            {activeCount} ativa{activeCount !== 1 ? 's' : ''}
+          </span>
+          <button
+            onClick={() => setShowAddForm(v => !v)}
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${showAddForm ? 'bg-gray-200 text-gray-700' : 'bg-teal-600 text-white hover:bg-teal-700'}`}
+          >
+            {showAddForm ? '✕ Cancelar' : '+ Incluir Nova API'}
+          </button>
         </div>
       </div>
 
+      {/* ── Add New API Form ── */}
+      {showAddForm && (
+        <div className="bg-teal-50 border-2 border-teal-300 rounded-2xl p-5 space-y-4">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-xl">📡</span>
+            <p className="text-sm font-bold text-teal-800">Incluir Nova API</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Nome da API *</label>
+              <input value={newApi.label} onChange={e => setNewApi(p => ({ ...p, label: e.target.value }))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 bg-white"
+                placeholder="Ex: Minha API Personalizada" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Descrição</label>
+              <input value={newApi.description} onChange={e => setNewApi(p => ({ ...p, description: e.target.value }))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 bg-white"
+                placeholder="Para que serve esta integração..." />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Rótulo do Endpoint</label>
+              <input value={newApi.endpoint} onChange={e => setNewApi(p => ({ ...p, endpoint: e.target.value }))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 bg-white"
+                placeholder="Ex: URL Base, Servidor..." />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">Rótulo da Chave de Acesso</label>
+              <input value={newApi.keyLabel} onChange={e => setNewApi(p => ({ ...p, keyLabel: e.target.value }))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 bg-white"
+                placeholder="Ex: API Key, Token..." />
+            </div>
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-gray-700 mb-2">Ícone</label>
+            <div className="flex flex-wrap gap-2">
+              {ICON_OPTIONS.map(ic => (
+                <button key={ic} type="button" onClick={() => setNewApi(p => ({ ...p, icon: ic }))}
+                  className={`text-xl w-10 h-10 rounded-xl border-2 flex items-center justify-center transition-all ${newApi.icon === ic ? 'border-teal-500 bg-teal-100 scale-110 shadow' : 'border-gray-200 bg-white hover:border-teal-300'}`}>
+                  {ic}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="flex gap-3 pt-1">
+            <button onClick={handleAddApi} disabled={!newApi.label.trim()}
+              className="px-5 py-2.5 bg-teal-600 text-white text-sm font-bold rounded-xl hover:bg-teal-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+              ✅ Incluir API
+            </button>
+            <button onClick={() => setShowAddForm(false)}
+              className="px-5 py-2.5 bg-white border border-gray-300 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors">
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── API list ── */}
       <div className="grid grid-cols-1 gap-4">
-        {APIS.map(api => {
+        {allApis.map(api => {
           const isEnabled = !!enabledApis[api.id];
           const isExpanded = expandedId === api.id;
           const vals = apiValues[api.id] || {};
           const testResult = testResults[api.id];
+          const isCustom = !!api.custom;
+          const awaitingDelete = deleteConfirmId === api.id;
 
           return (
             <div key={api.id} className={`rounded-xl border-2 transition-all ${isEnabled ? api.color : 'bg-white border-gray-200'}`}>
-              {/* Header row */}
               <div className="flex items-center gap-4 p-4">
                 <span className="text-2xl shrink-0">{api.icon}</span>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-sm font-bold text-gray-800">{api.label}</p>
                     {isEnabled && <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${api.badgeColor}`}>Ativo</span>}
+                    {isCustom && <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-200">Personalizado</span>}
                   </div>
                   <p className="text-xs text-gray-500 mt-0.5 truncate">{api.description}</p>
                 </div>
-                <div className="flex items-center gap-3 shrink-0">
+                <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
                   {api.fields.length > 0 && (
-                    <button
-                      onClick={() => setExpandedId(isExpanded ? null : api.id)}
-                      className="text-xs text-gray-500 hover:text-primary font-medium transition-colors"
-                    >
+                    <button onClick={() => setExpandedId(isExpanded ? null : api.id)}
+                      className="text-xs text-gray-500 hover:text-primary font-medium transition-colors px-2 py-1 rounded-lg hover:bg-gray-100">
                       {isExpanded ? '▲ Fechar' : '⚙️ Configurar'}
                     </button>
                   )}
-                  {/* Toggle switch */}
-                  <button
-                    onClick={() => toggleApi(api.id)}
-                    className={`relative w-11 h-6 rounded-full transition-colors focus:outline-none shrink-0 ${
-                      isEnabled ? 'bg-primary' : 'bg-gray-300'
-                    }`}
-                    title={isEnabled ? 'Desativar API' : 'Ativar API'}
-                  >
-                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                      isEnabled ? 'translate-x-5' : 'translate-x-0'
-                    }`} />
+                  {isCustom && (
+                    awaitingDelete ? (
+                      <div className="flex items-center gap-1.5 bg-red-50 border border-red-200 rounded-lg px-2 py-1">
+                        <span className="text-xs text-red-700 font-semibold">Confirmar exclusão?</span>
+                        <button onClick={() => handleDeleteApi(api.id)}
+                          className="text-xs text-white bg-red-600 px-2 py-0.5 rounded font-bold hover:bg-red-700">Sim</button>
+                        <button onClick={() => setDeleteConfirmId(null)}
+                          className="text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded font-bold hover:bg-gray-200">Não</button>
+                      </div>
+                    ) : (
+                      <button onClick={() => setDeleteConfirmId(api.id)}
+                        className="text-xs text-red-500 hover:text-red-700 border border-red-200 hover:border-red-400 bg-red-50 hover:bg-red-100 font-semibold px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1">
+                        🗑️ Excluir API
+                      </button>
+                    )
+                  )}
+                  <button onClick={() => toggleApi(api.id)}
+                    className={`relative w-11 h-6 rounded-full transition-colors focus:outline-none shrink-0 ${isEnabled ? 'bg-primary' : 'bg-gray-300'}`}
+                    title={isEnabled ? 'Desativar' : 'Ativar'}>
+                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${isEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
                   </button>
                 </div>
               </div>
-
-              {/* Expanded config area */}
               {isExpanded && api.fields.length > 0 && (
                 <div className="px-4 pb-4 space-y-4 border-t border-gray-200 pt-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {api.fields.map(field => (
+                    {api.fields.map((field: ApiField) => (
                       <div key={field.key}>
                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">{field.label}</label>
-                        <input
-                          type={field.type}
-                          value={vals[field.key] || ''}
-                          onChange={e => setField(api.id, field.key, e.target.value)}
+                        <input type={field.type} value={vals[field.key] || ''} onChange={e => setField(api.id, field.key, e.target.value)}
                           className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white font-mono"
-                          placeholder={field.type === 'password' ? '••••••••••••••••' : `${field.label}...`}
-                        />
+                          placeholder={field.type === 'password' ? '••••••••••••••••' : `${field.label}...`} />
                       </div>
                     ))}
                   </div>
-
                   {testResult && (
-                    <div className={`px-3 py-2 rounded-lg text-xs font-semibold border ${
-                      testResult.ok
-                        ? 'bg-green-50 border-green-200 text-green-700'
-                        : 'bg-red-50 border-red-200 text-red-700'
-                    }`}>
+                    <div className={`px-3 py-2 rounded-lg text-xs font-semibold border ${testResult.ok ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
                       {testResult.ok ? '✅ ' : '❌ '}{testResult.msg}
                     </div>
                   )}
-
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleSaveApi(api.id)}
-                      className="px-4 py-2 text-xs font-semibold text-white bg-primary rounded-lg hover:bg-primary/90"
-                    >
+                  <div className="flex gap-2 flex-wrap">
+                    <button onClick={() => handleSaveApi(api.id)} className="px-4 py-2 text-xs font-semibold text-white bg-primary rounded-lg hover:bg-primary/90">
                       {savedId === api.id ? '✅ Salvo!' : '💾 Salvar Credenciais'}
                     </button>
-                    <button
-                      onClick={() => handleTest(api.id)}
-                      disabled={testing === api.id}
-                      className="px-4 py-2 text-xs font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
-                    >
+                    <button onClick={() => handleTest(api.id)} disabled={testing === api.id}
+                      className="px-4 py-2 text-xs font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50">
                       {testing === api.id ? '⏳ Testando...' : '🔌 Testar Conexão'}
                     </button>
                   </div>
