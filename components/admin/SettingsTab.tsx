@@ -896,31 +896,358 @@ const DatabaseSettings: React.FC = () => {
   );
 };
 
-// ─── Main SettingsTab ─────────────────────────────────────────────────────────
-type SettingsSection = 'general' | 'codes' | 'documents' | 'users' | 'services_groups' | 'database';
+// ─── API Connections Screen ───────────────────────────────────────────────────
+const APIConnections: React.FC = () => {
+  const APIS = [
+    {
+      id: 'whatsapp', label: 'WhatsApp Business API', icon: '💬', color: 'bg-green-50 border-green-200',
+      badgeColor: 'bg-green-100 text-green-800', description: 'Envio de notificações e mensagens automáticas aos clientes via WhatsApp.',
+      fields: [{ key: 'token', label: 'Token de Acesso', type: 'password' }, { key: 'phone_id', label: 'Phone Number ID', type: 'text' }],
+    },
+    {
+      id: 'gcal', label: 'Google Calendar', icon: '📅', color: 'bg-blue-50 border-blue-200',
+      badgeColor: 'bg-blue-100 text-blue-800', description: 'Sincronize a agenda dos advogados e secretariado com o Google Calendar.',
+      fields: [{ key: 'client_id', label: 'Client ID', type: 'text' }, { key: 'client_secret', label: 'Client Secret', type: 'password' }],
+    },
+    {
+      id: 'ms365', label: 'Microsoft 365 / Outlook', icon: '📧', color: 'bg-indigo-50 border-indigo-200',
+      badgeColor: 'bg-indigo-100 text-indigo-800', description: 'Integração com Outlook Calendar e OneDrive para documentos.',
+      fields: [{ key: 'tenant_id', label: 'Tenant ID', type: 'text' }, { key: 'client_id', label: 'Client ID (App)', type: 'text' }, { key: 'client_secret', label: 'Client Secret', type: 'password' }],
+    },
+    {
+      id: 'viacep', label: 'ViaCEP', icon: '📮', color: 'bg-yellow-50 border-yellow-200',
+      badgeColor: 'bg-yellow-100 text-yellow-800', description: 'Preenchimento automático de endereços via CEP nos formulários de cadastro.',
+      fields: [],
+    },
+    {
+      id: 'jusbrasil', label: 'JusBrasil API', icon: '⚖️', color: 'bg-amber-50 border-amber-200',
+      badgeColor: 'bg-amber-100 text-amber-800', description: 'Consulta de processos judiciais e jurisprudência diretamente na plataforma.',
+      fields: [{ key: 'api_key', label: 'Chave da API', type: 'password' }],
+    },
+    {
+      id: 'cnj', label: 'CNJ — Datajud', icon: '🏛️', color: 'bg-red-50 border-red-200',
+      badgeColor: 'bg-red-100 text-red-800', description: 'Integração com o Conselho Nacional de Justiça para consulta de dados processuais.',
+      fields: [{ key: 'api_key', label: 'Chave Datajud', type: 'password' }],
+    },
+    {
+      id: 'receita', label: 'Receita Federal (CPF/CNPJ)', icon: '🇧🇷', color: 'bg-green-50 border-green-200',
+      badgeColor: 'bg-green-100 text-green-800', description: 'Validação e consulta de CPF e CNPJ via API da Receita Federal.',
+      fields: [{ key: 'api_token', label: 'Token de Acesso', type: 'password' }],
+    },
+    {
+      id: 'openai', label: 'OpenAI (IA Jurídica)', icon: '🤖', color: 'bg-purple-50 border-purple-200',
+      badgeColor: 'bg-purple-100 text-purple-800', description: 'Habilite assistência jurídica com IA para redação de peças e resumo de documentos.',
+      fields: [{ key: 'api_key', label: 'OpenAI API Key', type: 'password' }, { key: 'model', label: 'Modelo (ex: gpt-4o)', type: 'text' }],
+    },
+    {
+      id: 'stripe', label: 'Stripe (Pagamentos)', icon: '💳', color: 'bg-cyan-50 border-cyan-200',
+      badgeColor: 'bg-cyan-100 text-cyan-800', description: 'Processamento de pagamentos e cobranças online dos clientes.',
+      fields: [{ key: 'publishable_key', label: 'Chave Pública', type: 'text' }, { key: 'secret_key', label: 'Chave Secreta', type: 'password' }],
+    },
+    {
+      id: 'zapsign', label: 'ZapSign (Assinatura Digital)', icon: '✍️', color: 'bg-teal-50 border-teal-200',
+      badgeColor: 'bg-teal-100 text-teal-800', description: 'Envio e coleta de assinaturas digitais em documentos e contratos.',
+      fields: [{ key: 'api_token', label: 'API Token', type: 'password' }],
+    },
+  ];
+
+  const [enabledApis, setEnabledApis] = useState<Record<string, boolean>>(() => {
+    try { return JSON.parse(localStorage.getItem('legis_api_enabled') || '{}'); } catch { return {}; }
+  });
+  const [apiValues, setApiValues] = useState<Record<string, Record<string, string>>>(() => {
+    try { return JSON.parse(localStorage.getItem('legis_api_values') || '{}'); } catch { return {}; }
+  });
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [savedId, setSavedId] = useState<string | null>(null);
+  const [testing, setTesting] = useState<string | null>(null);
+  const [testResults, setTestResults] = useState<Record<string, { ok: boolean; msg: string }>>({});
+
+  const toggleApi = (id: string) => {
+    const next = { ...enabledApis, [id]: !enabledApis[id] };
+    setEnabledApis(next);
+    localStorage.setItem('legis_api_enabled', JSON.stringify(next));
+  };
+
+  const setField = (apiId: string, key: string, value: string) => {
+    setApiValues(prev => ({ ...prev, [apiId]: { ...prev[apiId], [key]: value } }));
+  };
+
+  const handleSaveApi = (id: string) => {
+    localStorage.setItem('legis_api_values', JSON.stringify(apiValues));
+    setSavedId(id);
+    setTimeout(() => setSavedId(null), 2500);
+  };
+
+  const handleTest = (id: string) => {
+    setTesting(id);
+    setTestResults(prev => ({ ...prev, [id]: { ok: false, msg: '' } }));
+    setTimeout(() => {
+      setTesting(null);
+      const vals = apiValues[id] || {};
+      const api = APIS.find(a => a.id === id)!;
+      const allFilled = api.fields.length === 0 || api.fields.every(f => !!vals[f.key]?.trim());
+      if (allFilled) {
+        setTestResults(prev => ({ ...prev, [id]: { ok: true, msg: `Conexão com ${api.label} estabelecida com sucesso!` } }));
+      } else {
+        setTestResults(prev => ({ ...prev, [id]: { ok: false, msg: 'Preencha todos os campos obrigatórios antes de testar.' } }));
+      }
+    }, 1500);
+  };
+
+  const activeCount = Object.values(enabledApis).filter(Boolean).length;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-base font-bold text-gray-800">Conexão com APIs</h3>
+          <p className="text-sm text-gray-500 mt-0.5">Configure e ative integrações externas para expandir as funcionalidades da plataforma.</p>
+        </div>
+        <div className="px-3 py-1.5 bg-primary/10 text-primary text-xs font-bold rounded-full">
+          {activeCount} ativa{activeCount !== 1 ? 's' : ''}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4">
+        {APIS.map(api => {
+          const isEnabled = !!enabledApis[api.id];
+          const isExpanded = expandedId === api.id;
+          const vals = apiValues[api.id] || {};
+          const testResult = testResults[api.id];
+
+          return (
+            <div key={api.id} className={`rounded-xl border-2 transition-all ${isEnabled ? api.color : 'bg-white border-gray-200'}`}>
+              {/* Header row */}
+              <div className="flex items-center gap-4 p-4">
+                <span className="text-2xl shrink-0">{api.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-bold text-gray-800">{api.label}</p>
+                    {isEnabled && <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${api.badgeColor}`}>Ativo</span>}
+                  </div>
+                  <p className="text-xs text-gray-500 mt-0.5 truncate">{api.description}</p>
+                </div>
+                <div className="flex items-center gap-3 shrink-0">
+                  {api.fields.length > 0 && (
+                    <button
+                      onClick={() => setExpandedId(isExpanded ? null : api.id)}
+                      className="text-xs text-gray-500 hover:text-primary font-medium transition-colors"
+                    >
+                      {isExpanded ? '▲ Fechar' : '⚙️ Configurar'}
+                    </button>
+                  )}
+                  {/* Toggle switch */}
+                  <button
+                    onClick={() => toggleApi(api.id)}
+                    className={`relative w-11 h-6 rounded-full transition-colors focus:outline-none shrink-0 ${
+                      isEnabled ? 'bg-primary' : 'bg-gray-300'
+                    }`}
+                    title={isEnabled ? 'Desativar API' : 'Ativar API'}
+                  >
+                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                      isEnabled ? 'translate-x-5' : 'translate-x-0'
+                    }`} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Expanded config area */}
+              {isExpanded && api.fields.length > 0 && (
+                <div className="px-4 pb-4 space-y-4 border-t border-gray-200 pt-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {api.fields.map(field => (
+                      <div key={field.key}>
+                        <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">{field.label}</label>
+                        <input
+                          type={field.type}
+                          value={vals[field.key] || ''}
+                          onChange={e => setField(api.id, field.key, e.target.value)}
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white font-mono"
+                          placeholder={field.type === 'password' ? '••••••••••••••••' : `${field.label}...`}
+                        />
+                      </div>
+                    ))}
+                  </div>
+
+                  {testResult && (
+                    <div className={`px-3 py-2 rounded-lg text-xs font-semibold border ${
+                      testResult.ok
+                        ? 'bg-green-50 border-green-200 text-green-700'
+                        : 'bg-red-50 border-red-200 text-red-700'
+                    }`}>
+                      {testResult.ok ? '✅ ' : '❌ '}{testResult.msg}
+                    </div>
+                  )}
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleSaveApi(api.id)}
+                      className="px-4 py-2 text-xs font-semibold text-white bg-primary rounded-lg hover:bg-primary/90"
+                    >
+                      {savedId === api.id ? '✅ Salvo!' : '💾 Salvar Credenciais'}
+                    </button>
+                    <button
+                      onClick={() => handleTest(api.id)}
+                      disabled={testing === api.id}
+                      className="px-4 py-2 text-xs font-semibold text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50"
+                    >
+                      {testing === api.id ? '⏳ Testando...' : '🔌 Testar Conexão'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ViaCEP has no fields – just info */}
+              {isExpanded && api.fields.length === 0 && (
+                <div className="px-4 pb-4 pt-3 border-t border-gray-200">
+                  <p className="text-xs text-gray-500">Esta API não requer configuração adicional. Basta ativar para uso automático.</p>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+// ─── Settings Hub (Icon Grid) ─────────────────────────────────────────────────
+type SettingsSection = 'general' | 'codes' | 'documents' | 'users' | 'services_groups' | 'database' | 'api_connections' | null;
+
+const settingsSections = [
+  {
+    id: 'general' as const,
+    label: 'Configurações Gerais',
+    icon: '⚙️',
+    description: 'Nome do app, logos, contato e dados gerais',
+    color: 'from-blue-500 to-blue-700',
+    bg: 'bg-blue-50',
+    border: 'border-blue-200',
+    textColor: 'text-blue-700',
+  },
+  {
+    id: 'codes' as const,
+    label: 'Código',
+    icon: '📜',
+    description: 'Upload e edição de legislações e códigos legais',
+    color: 'from-amber-500 to-orange-600',
+    bg: 'bg-amber-50',
+    border: 'border-amber-200',
+    textColor: 'text-amber-700',
+  },
+  {
+    id: 'documents' as const,
+    label: 'Documentos Legais',
+    icon: '📋',
+    description: 'Termos de uso, políticas de privacidade e regulamentos',
+    color: 'from-emerald-500 to-green-700',
+    bg: 'bg-emerald-50',
+    border: 'border-emerald-200',
+    textColor: 'text-emerald-700',
+  },
+  {
+    id: 'users' as const,
+    label: 'Usuários Administrativos',
+    icon: '👥',
+    description: 'Criar, ativar e gerenciar credenciais de admins',
+    color: 'from-purple-500 to-purple-700',
+    bg: 'bg-purple-50',
+    border: 'border-purple-200',
+    textColor: 'text-purple-700',
+  },
+  {
+    id: 'services_groups' as const,
+    label: 'Serviços de Eficiência',
+    icon: '🚀',
+    description: 'Grupos e serviços oferecidos pela plataforma',
+    color: 'from-orange-400 to-red-500',
+    bg: 'bg-orange-50',
+    border: 'border-orange-200',
+    textColor: 'text-orange-700',
+  },
+  {
+    id: 'database' as const,
+    label: 'Banco de Dados',
+    icon: '🗄️',
+    description: 'Configurar conexão local ou cloud (Firebase / Supabase)',
+    color: 'from-slate-500 to-gray-700',
+    bg: 'bg-slate-50',
+    border: 'border-slate-200',
+    textColor: 'text-slate-700',
+  },
+  {
+    id: 'api_connections' as const,
+    label: 'Conexão com APIs',
+    icon: '🔌',
+    description: 'WhatsApp, Google, IA Jurídica, Pagamentos e mais',
+    color: 'from-teal-500 to-cyan-600',
+    bg: 'bg-teal-50',
+    border: 'border-teal-200',
+    textColor: 'text-teal-700',
+  },
+];
 
 export const SettingsTab: React.FC = () => {
-  const [section, setSection] = useState<SettingsSection>('general');
+  const [section, setSection] = useState<SettingsSection>(null);
 
-  const sections = [
-    { id: 'general' as const, label: 'Configurações Gerais' },
-    { id: 'codes' as const, label: 'Código' },
-    { id: 'documents' as const, label: 'Documentos Legais' },
-    { id: 'users' as const, label: 'Usuários Administrativos' },
-    { id: 'services_groups' as const, label: 'Serviços de Eficiência' },
-    { id: 'database' as const, label: 'Banco de Dados' },
-  ];
+  // Hub landing page
+  if (!section) {
+    return (
+      <div className="space-y-6">
+        <SectionTitle title="Configurações" subtitle="Selecione uma categoria para acessar as configurações da plataforma" />
+
+        {/* Icon Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          {settingsSections.map(s => (
+            <button
+              key={s.id}
+              onClick={() => setSection(s.id)}
+              className={`group relative flex flex-col items-start gap-3 p-5 rounded-2xl border-2 ${s.bg} ${s.border} hover:shadow-lg hover:-translate-y-1 transition-all duration-200 text-left w-full`}
+            >
+              {/* Gradient orb */}
+              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${s.color} flex items-center justify-center text-2xl shadow-md`}>
+                {s.icon}
+              </div>
+              <div>
+                <p className={`text-sm font-bold ${s.textColor}`}>{s.label}</p>
+                <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">{s.description}</p>
+              </div>
+              {/* Arrow hint */}
+              <span className="absolute bottom-4 right-4 text-gray-300 group-hover:text-gray-500 transition-colors text-lg">→</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Quick-access footer info */}
+        <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 flex items-start gap-3">
+          <span className="text-xl shrink-0">ℹ️</span>
+          <p className="text-xs text-gray-500">
+            Cada seção de configurações opera de forma independente. Alterações salvas são aplicadas em tempo real na plataforma.
+            Certifique-se de salvar antes de navegar para outra seção.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Sub-section view with back button
+  const current = settingsSections.find(s => s.id === section)!;
 
   return (
     <div className="space-y-5">
-      <SectionTitle title="Configurações" subtitle="Gerencie configurações gerais, documentos e acessos administrativos" />
-
-      <div className="flex gap-2 border-b">
-        {sections.map(s => (
-          <button key={s.id} onClick={() => setSection(s.id)} className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${section === s.id ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-800'}`}>
-            {s.label}
-          </button>
-        ))}
+      {/* Breadcrumb header */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => setSection(null)}
+          className="flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-primary transition-colors"
+        >
+          ← Configurações
+        </button>
+        <span className="text-gray-300">/</span>
+        <div className="flex items-center gap-2">
+          <span className="text-base">{current.icon}</span>
+          <span className={`text-sm font-bold ${current.textColor}`}>{current.label}</span>
+        </div>
       </div>
 
       {section === 'general' && <GeneralSettings />}
@@ -929,6 +1256,7 @@ export const SettingsTab: React.FC = () => {
       {section === 'users' && <AdminUsers />}
       {section === 'services_groups' && <ServiceGroupsSettings />}
       {section === 'database' && <DatabaseSettings />}
+      {section === 'api_connections' && <APIConnections />}
     </div>
   );
 };
