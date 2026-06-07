@@ -10,6 +10,7 @@ import { ChangePasswordModal } from '../common/ChangePasswordModal';
 import { ChangeEmailModal } from '../common/ChangeEmailModal';
 import { AREAS_OF_LAW, BRAZILIAN_STATES } from '../../constants';
 import { mockInterns, mockSecretaries } from '../../services/mockDataService';
+import { ApiStatusPanel } from '../common/ApiStatusPanel';
 import type { MockIntern, MockSecretary } from '../../services/mockDataService';
 
 interface LawyerDashboardProps {
@@ -149,7 +150,7 @@ const AppointmentCard: React.FC<{ appointment: Appointment }> = ({ appointment }
 
 export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
     const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
-    const [activeSection, setActiveSection] = useState<'overview' | 'meusCasos' | 'codigos' | 'financeiro' | 'perfil' | 'estagiarios' | 'secretariado'>('overview');
+    const [activeSection, setActiveSection] = useState<'overview' | 'meusCasos' | 'codigos' | 'financeiro' | 'perfil' | 'estagiarios' | 'secretariado' | 'apis'>('overview');
 
     // Intern/Secretary selection state
     const [linkedInternId, setLinkedInternId] = useState<number | null>(null);
@@ -513,6 +514,16 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                                 }`}
                             >
                                 🗂️ Secretariado
+                            </button>
+                            <button
+                                onClick={() => setActiveSection('apis')}
+                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
+                                    activeSection === 'apis'
+                                        ? 'bg-teal-600 text-white shadow'
+                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                }`}
+                            >
+                                🔌 APIs
                             </button>
                         </div>
 
@@ -1309,9 +1320,19 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                             )}
                         </div>
                     )}
+                        {/* APIs Section */}
+                        {activeSection === 'apis' && (
+                            <div className="space-y-6 animate-fade-in">
+                                <div>
+                                    <h2 className="text-lg font-bold text-gray-800">🔌 APIs Habilitadas</h2>
+                                    <p className="text-sm text-gray-500 mt-0.5">Integrações ativas configuradas pelo administrador da plataforma.</p>
+                                </div>
+                                <ApiStatusPanel />
+                            </div>
+                        )}
 
+                    </div>
                 </div>
-            </div>
 
             {/* Password/Email Modals */}
             {showPasswordModal && (
