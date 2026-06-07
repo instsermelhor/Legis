@@ -4,7 +4,7 @@ import { mockClients, mockInterns, mockSecretaries, mockMonthlyRevenue, mockEffi
 import { SpecialtyPieChart } from './SpecialtyPieChart';
 import { StatCard, SectionTitle, SearchInput, Badge, IconBriefcase, IconUsers, IconGradCap, IconMoney, IconX, lawyerStatusBadge, clientStatusBadge, internStatusBadge } from './AdminShared';
 
-type KpiModal = { type: 'lawyers' | 'clients' | 'interns' | 'secretaries' } | null;
+type KpiModal = { type: 'lawyers' | 'clients' | 'interns' | 'secretaries' | 'services' } | null;
 
 const BRAZIL_STATES = ['Todos', 'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
 
@@ -179,7 +179,7 @@ export const OverviewTab: React.FC<{
         />
         <MiniKpiCard
           icon={<IconGradCap />}
-          label="Estudantes"
+          label="Bacharelandos"
           value={stats.totalInterns}
           sub={`${stats.activeInterns} ativos`}
           color="bg-indigo-100"
@@ -187,7 +187,7 @@ export const OverviewTab: React.FC<{
         />
         <MiniKpiCard
           icon={<IconSecretariat />}
-          label="Secretariado"
+          label="Secret./Assist Jurídico"
           value={stats.totalSecretaries}
           sub={`${stats.activeSecretaries} ativos`}
           color="bg-purple-100"
@@ -199,6 +199,7 @@ export const OverviewTab: React.FC<{
           value={servicesCount}
           sub="configurados"
           color="bg-orange-100"
+          onClick={() => setModal({ type: 'services' })}
         />
         <MiniKpiCard
           icon={<IconMoney />}
@@ -217,25 +218,25 @@ export const OverviewTab: React.FC<{
           <SpecialtyPieChart data={specialtyDistribution} />
         </div>
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-          <h3 className="text-base font-bold text-gray-800 mb-4">Estudantes por Especialidade</h3>
+          <h3 className="text-base font-bold text-gray-800 mb-4">Bacharelandos por Especialidade</h3>
           <SpecialtyPieChart data={internSpecialtyDistribution} />
         </div>
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-          <h3 className="text-base font-bold text-gray-800 mb-4">Estudantes por Semestre</h3>
+          <h3 className="text-base font-bold text-gray-800 mb-4">Bacharelandos por Semestre</h3>
           <SpecialtyPieChart data={internSemesterDistribution} />
         </div>
-        {/* Secretariado Charts */}
+        {/* Secret./Assist Jurídico Charts */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
           <div className="flex items-center gap-2 mb-4">
             <span className="w-2 h-2 rounded-full bg-purple-500 inline-block" />
-            <h3 className="text-base font-bold text-gray-800">Secretariado por Disponibilidade</h3>
+            <h3 className="text-base font-bold text-gray-800">Secret./Assist Jurídico por Disponibilidade</h3>
           </div>
           <SpecialtyPieChart data={secretaryAvailabilityDistribution} />
         </div>
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
           <div className="flex items-center gap-2 mb-4">
             <span className="w-2 h-2 rounded-full bg-purple-500 inline-block" />
-            <h3 className="text-base font-bold text-gray-800">Secretariado por Área de Conhecimento</h3>
+            <h3 className="text-base font-bold text-gray-800">Secret./Assist Jurídico por Área de Conhecimento</h3>
           </div>
           <SpecialtyPieChart data={secretaryAreaDistribution} />
         </div>
@@ -280,8 +281,9 @@ export const OverviewTab: React.FC<{
                 <h2 className="text-lg font-bold text-gray-900">
                   {modal.type === 'lawyers' && 'KPIs — Advogados'}
                   {modal.type === 'clients' && 'KPIs — Clientes'}
-                  {modal.type === 'interns' && 'KPIs — Estudantes'}
-                  {modal.type === 'secretaries' && 'KPIs — Secretariado'}
+                  {modal.type === 'interns' && 'KPIs — Bacharelandos'}
+                  {modal.type === 'secretaries' && 'KPIs — Secret./Assist Jurídico'}
+                  {modal.type === 'services' && 'Faturamento — Serviços'}
                 </h2>
                 <p className="text-sm text-gray-500">Filtre por estado e veja informações individuais</p>
               </div>
@@ -336,10 +338,49 @@ export const OverviewTab: React.FC<{
                   </tbody>
                 </table>
               )}
+              {modal.type === 'services' && (
+                <div className="space-y-6 p-2">
+                  {/* Services billing summary */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="bg-orange-50 border border-orange-100 rounded-xl p-4 text-center">
+                      <p className="text-xs text-orange-600 font-semibold uppercase mb-1">Serviços Configurados</p>
+                      <p className="text-3xl font-bold text-orange-700">{servicesCount}</p>
+                    </div>
+                    <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 text-center">
+                      <p className="text-xs text-emerald-600 font-semibold uppercase mb-1">Receita Serviços/Mês</p>
+                      <p className="text-3xl font-bold text-emerald-700">R$ {(servicesCount * 850).toLocaleString('pt-BR')}</p>
+                    </div>
+                    <div className="bg-yellow-50 border border-yellow-100 rounded-xl p-4 text-center">
+                      <p className="text-xs text-yellow-600 font-semibold uppercase mb-1">Pendente Serviços</p>
+                      <p className="text-3xl font-bold text-yellow-700">R$ {(servicesCount * 120).toLocaleString('pt-BR')}</p>
+                    </div>
+                  </div>
+                  <div className="bg-white border border-gray-100 rounded-xl p-4">
+                    <h4 className="text-sm font-bold text-gray-700 mb-3">Receita por Mês — Serviços</h4>
+                    <div className="space-y-2">
+                      {mockMonthlyRevenue.map(m => {
+                        const max = Math.max(...mockMonthlyRevenue.map(x => x.revenue));
+                        const serviceRev = Math.round(m.revenue * 0.35);
+                        const pct = Math.round((serviceRev / (max * 0.35)) * 100);
+                        return (
+                          <div key={m.month} className="flex items-center gap-3">
+                            <span className="text-xs text-gray-500 w-14 shrink-0">{m.month}</span>
+                            <div className="flex-1 bg-orange-50 rounded-full h-4 overflow-hidden">
+                              <div className="bg-orange-400 h-4 rounded-full" style={{ width: `${pct}%` }} />
+                            </div>
+                            <span className="text-xs text-gray-700 font-semibold w-24 text-right">R$ {serviceRev.toLocaleString('pt-BR')}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <p className="text-[11px] text-gray-400 mt-3">Estimativa: 35% da receita total atribuída a serviços configurados.</p>
+                  </div>
+                </div>
+              )}
               {modal.type === 'interns' && (
                 <table className="w-full text-sm">
                   <thead className="text-xs text-gray-500 uppercase bg-gray-50">
-                    <tr><th className="px-4 py-2 text-left">Estudante</th><th className="px-4 py-2 text-left">Estado</th><th className="px-4 py-2 text-left">Status</th><th className="px-4 py-2 text-right">Bolsa/Mês</th><th className="px-4 py-2 text-right">Total Recebido</th></tr>
+                    <tr><th className="px-4 py-2 text-left">Bacharelando(a)</th><th className="px-4 py-2 text-left">Estado</th><th className="px-4 py-2 text-left">Status</th><th className="px-4 py-2 text-right">Bolsa/Mês</th><th className="px-4 py-2 text-right">Total Recebido</th></tr>
                   </thead>
                   <tbody>
                     {filteredInterns.map(i => (
@@ -385,8 +426,9 @@ export const OverviewTab: React.FC<{
               <p className="text-xs text-gray-500">
                 {modal.type === 'lawyers' && `${filteredLawyers.length} advogados`}
                 {modal.type === 'clients' && `${filteredClients.length} clientes`}
-                {modal.type === 'interns' && `${filteredInterns.length} estudantes`}
-                {modal.type === 'secretaries' && `${filteredSecretaries.length} secretários`}
+                {modal.type === 'interns' && `${filteredInterns.length} bacharelandos`}
+                {modal.type === 'secretaries' && `${filteredSecretaries.length} secret./assist. jurídicos`}
+                {modal.type === 'services' && `${servicesCount} serviços configurados`}
               </p>
               {onNavigateToFinance && modal.type !== 'secretaries' && (
                 <button onClick={() => { closeModal(); onNavigateToFinance(modal.type); }} className="text-sm text-primary hover:underline font-medium">
@@ -395,6 +437,11 @@ export const OverviewTab: React.FC<{
               )}
               {onNavigateToFinance && modal.type === 'secretaries' && (
                 <button onClick={() => { closeModal(); onNavigateToFinance('secretaries'); }} className="text-sm text-purple-600 hover:underline font-medium">
+                  Ver no Financeiro →
+                </button>
+              )}
+              {onNavigateToFinance && modal.type === 'services' && (
+                <button onClick={() => { closeModal(); onNavigateToFinance('services'); }} className="text-sm text-orange-600 hover:underline font-medium">
                   Ver no Financeiro →
                 </button>
               )}
