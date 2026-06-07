@@ -93,8 +93,8 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
   const tabs: [FilterType, string, React.ReactNode, string][] = [
     ['lawyers', 'Advogados', <IconBriefcase />, ''],
     ['clients', 'Clientes', <IconUsers />, ''],
-    ['interns', 'Estudantes', <IconGradCap />, ''],
-    ['secretaries', 'Secretariado', <IconSecretariat />, 'purple'],
+    ['interns', 'Bacharelandos', <IconGradCap />, ''],
+    ['secretaries', 'Secret./Assist. Jurídico', <IconSecretariat />, 'purple'],
     ['services', 'Serviços', <IconSettings />, ''],
   ];
 
@@ -240,7 +240,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
           {filterType === 'interns' && (
             <table className="w-full text-sm text-left text-gray-600">
               <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                <tr><th className="px-5 py-3">Estudante</th><th className="px-5 py-3">UF</th><th className="px-5 py-3">Horas</th><th className="px-5 py-3">Status</th><th className="px-5 py-3">Bolsa/Mês</th><th className="px-5 py-3">Total Recebido</th></tr>
+                <tr><th className="px-5 py-3">Bacharelando</th><th className="px-5 py-3">UF</th><th className="px-5 py-3">Horas</th><th className="px-5 py-3">Status</th><th className="px-5 py-3">Bolsa/Mês</th><th className="px-5 py-3">Total Recebido</th></tr>
               </thead>
               <tbody>
                 {filteredInterns.map(i => (
