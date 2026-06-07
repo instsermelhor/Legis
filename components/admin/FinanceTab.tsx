@@ -114,14 +114,21 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
         </div>
       </div>
 
-      {/* Top KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
-        <StatCard icon={<span className="text-emerald-600"><IconMoney /></span>} label={`Receita Base (${timeFilter})`} value={`R$ ${totalRevenue.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`} color="bg-emerald-100" />
-        <StatCard icon={<span className="text-orange-600"><IconBriefcase /></span>} label={`Receita Serviços (${timeFilter})`} value={`R$ ${servicesRevenue.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`} color="bg-orange-100" />
-        <StatCard icon={<span className="text-yellow-600"><IconShield /></span>} label="Pendente Advogados" value={`R$ ${totalPending.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`} color="bg-yellow-100" />
-        <StatCard icon={<span className="text-orange-600"><IconShield /></span>} label="Pendente Clientes" value={`R$ ${clientPending.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`} color="bg-orange-100" />
-        <StatCard icon={<span className="text-blue-600"><IconGradCap /></span>} label={`Bolsas (${timeFilter})`} value={`R$ ${internStipends.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`} color="bg-blue-100" />
-        <StatCard icon={<span className="text-purple-600"><IconSecretariat /></span>} label={`Secret. (${timeFilter})`} value={`R$ ${secretaryFees.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`} color="bg-purple-100" />
+      {/* Top KPIs — compact horizontal pills */}
+      <div className="flex flex-wrap gap-2">
+        {[
+          { label: `Receita Base (${timeFilter})`, value: `R$ ${totalRevenue.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`, color: 'border-emerald-200 bg-emerald-50 text-emerald-800' },
+          { label: `Receita Serviços (${timeFilter})`, value: `R$ ${servicesRevenue.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`, color: 'border-orange-200 bg-orange-50 text-orange-800' },
+          { label: 'Pendente Advogados', value: `R$ ${totalPending.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`, color: 'border-yellow-200 bg-yellow-50 text-yellow-800' },
+          { label: 'Pendente Clientes', value: `R$ ${clientPending.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`, color: 'border-red-200 bg-red-50 text-red-800' },
+          { label: `Bolsas (${timeFilter})`, value: `R$ ${internStipends.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`, color: 'border-blue-200 bg-blue-50 text-blue-800' },
+          { label: `Secret. (${timeFilter})`, value: `R$ ${secretaryFees.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`, color: 'border-purple-200 bg-purple-50 text-purple-800' },
+        ].map(({ label, value, color }) => (
+          <div key={label} className={`flex flex-col px-4 py-2.5 rounded-xl border ${color} min-w-[140px]`}>
+            <span className="text-[10px] font-semibold uppercase tracking-wide opacity-70 leading-tight">{label}</span>
+            <span className="text-base font-bold leading-snug mt-0.5">{value}</span>
+          </div>
+        ))}
       </div>
 
       {/* Revenue bar chart */}

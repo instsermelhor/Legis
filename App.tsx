@@ -30,9 +30,9 @@ import type { View, Lawyer, Intern, Secretary, ChatMessage, User, Case, Appointm
 import { mockLawyers } from './services/mockLawyerService';
 
 const ADMIN_EMAIL = 'admin@legisconnect.com.br';
-const ADMIN_PASSWORD = 'legisadmin';
+const ADMIN_PASSWORD = 'admim';
 const TEST_EMAIL = 'teste@legisconnect.com.br';
-const TEST_PASSWORD = 'testelegis';
+const TEST_PASSWORD = 'teste';
 
 
 const App: React.FC = () => {

@@ -1,12 +1,50 @@
 import React, { useState, useMemo } from 'react';
 import type { Lawyer } from '../../types';
-import { mockClients, mockInterns, mockMonthlyRevenue, mockEfficiencyServices } from '../../services/mockDataService';
+import { mockClients, mockInterns, mockSecretaries, mockMonthlyRevenue, mockEfficiencyServices } from '../../services/mockDataService';
 import { SpecialtyPieChart } from './SpecialtyPieChart';
 import { StatCard, SectionTitle, SearchInput, Badge, IconBriefcase, IconUsers, IconGradCap, IconMoney, IconX, lawyerStatusBadge, clientStatusBadge, internStatusBadge } from './AdminShared';
 
-type KpiModal = { type: 'lawyers' | 'clients' | 'interns' } | null;
+type KpiModal = { type: 'lawyers' | 'clients' | 'interns' | 'secretaries' } | null;
 
 const BRAZIL_STATES = ['Todos', 'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+
+// Small KPI card with reduced icon
+const MiniKpiCard: React.FC<{
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+  sub?: string;
+  color?: string;
+  onClick?: () => void;
+}> = ({ icon, label, value, sub, color = 'bg-primary/10', onClick }) => (
+  <div
+    onClick={onClick}
+    className={`bg-white rounded-xl border border-gray-200 shadow-sm flex items-center gap-3 px-4 py-3 ${
+      onClick ? 'cursor-pointer hover:shadow-md hover:border-primary/40 transition-all' : ''
+    }`}
+  >
+    <div className={`${color} p-2 rounded-lg shrink-0`}>
+      <span className="block w-4 h-4">{icon}</span>
+    </div>
+    <div className="min-w-0 flex-1">
+      <p className="text-xs text-gray-500 truncate">{label}</p>
+      <p className="text-xl font-bold text-gray-800 leading-tight">{value}</p>
+      {sub && <p className="text-[10px] text-gray-400 mt-0.5 truncate">{sub}</p>}
+    </div>
+    {onClick && (
+      <svg className="w-3 h-3 text-gray-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+      </svg>
+    )}
+  </div>
+);
+
+// Secretary icon
+const IconSecretariat = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+  </svg>
+);
 
 export const OverviewTab: React.FC<{
   lawyers: Lawyer[];
@@ -30,6 +68,8 @@ export const OverviewTab: React.FC<{
     activeClients: mockClients.filter(c => c.status === 'ativo').length,
     totalInterns: mockInterns.length,
     activeInterns: mockInterns.filter(i => i.status === 'ativo').length,
+    totalSecretaries: mockSecretaries.length,
+    activeSecretaries: mockSecretaries.filter(s => s.status === 'ativo').length,
     lastMonthRevenue: mockMonthlyRevenue[mockMonthlyRevenue.length - 1].revenue,
   }), [lawyers]);
 
@@ -51,15 +91,29 @@ export const OverviewTab: React.FC<{
     return counts;
   }, []);
 
+  const secretaryAvailabilityDistribution = useMemo(() => {
+    const counts: { [key: string]: number } = {};
+    const labels: Record<string, string> = { integral: 'Tempo Integral', 'meio-periodo': 'Meio Período', freelancer: 'Freelancer' };
+    mockSecretaries.forEach(s => {
+      const label = labels[s.availability] || s.availability;
+      counts[label] = (counts[label] || 0) + 1;
+    });
+    return counts;
+  }, []);
+
+  const secretaryAreaDistribution = useMemo(() => {
+    const counts: { [key: string]: number } = {};
+    mockSecretaries.forEach(s => s.areasOfKnowledge.forEach(a => { counts[a] = (counts[a] || 0) + 1; }));
+    return counts;
+  }, []);
+
   const serviceGroupDistribution = useMemo(() => {
     const counts: { [key: string]: number } = {};
     const groupsRaw = localStorage.getItem('legis_serviceGroups');
     const groups: { id: string, name: string }[] = groupsRaw ? JSON.parse(groupsRaw) : [];
     const groupMap = new Map(groups.map(g => [g.id, g.name]));
-    
     const servicesRaw = localStorage.getItem('legis_services');
     const servs: { groupId: string }[] = servicesRaw ? JSON.parse(servicesRaw) : [];
-    
     if (servs.length > 0) {
       servs.forEach(s => {
         const name = groupMap.get(s.groupId) || 'Outros';
@@ -69,17 +123,14 @@ export const OverviewTab: React.FC<{
       counts['Sem Serviços'] = 1;
     }
     return counts;
-  }, [servicesCount]); // recompute if servicesCount changes
+  }, [servicesCount]);
 
-  const clientServiceDistribution = useMemo(() => {
-    // Mock distribution since we don't have real contract links
-    return {
-      'Organização de Pastas': 12,
-      'Acompanhamento de Diários': 8,
-      'Triagem de Atendimentos': 5,
-      'Consultoria Avulsa': 3,
-    };
-  }, []);
+  const clientServiceDistribution = useMemo(() => ({
+    'Organização de Pastas': 12,
+    'Acompanhamento de Diários': 8,
+    'Triagem de Atendimentos': 5,
+    'Consultoria Avulsa': 3,
+  }), []);
 
   // Filtered KPI data
   const filteredLawyers = useMemo(() => lawyers.filter(l =>
@@ -97,19 +148,66 @@ export const OverviewTab: React.FC<{
     i.name.toLowerCase().includes(search.toLowerCase())
   ), [stateFilter, search]);
 
+  const filteredSecretaries = useMemo(() => mockSecretaries.filter(s =>
+    (stateFilter === 'Todos' || s.state === stateFilter) &&
+    s.name.toLowerCase().includes(search.toLowerCase())
+  ), [stateFilter, search]);
+
   const closeModal = () => { setModal(null); setStateFilter('Todos'); setSearch(''); };
 
   return (
     <div className="space-y-8">
       <SectionTitle title="Visão Geral" subtitle="Clique em qualquer KPI para ver detalhes e filtros" />
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
-        <StatCard icon={<span className="text-primary"><IconBriefcase /></span>} label="Advogados Cadastrados" value={stats.totalLawyers} sub={`${stats.verifiedLawyers} verificados · ${stats.pendingLawyers} pendentes`} onClick={() => setModal({ type: 'lawyers' })} />
-        <StatCard icon={<span className="text-blue-600"><IconUsers /></span>} label="Clientes" value={stats.totalClients} sub={`${stats.activeClients} ativos`} color="bg-blue-100" onClick={() => setModal({ type: 'clients' })} />
-        <StatCard icon={<span className="text-purple-600"><IconGradCap /></span>} label="Estudantes" value={stats.totalInterns} sub={`${stats.activeInterns} ativos`} color="bg-purple-100" onClick={() => setModal({ type: 'interns' })} />
-        <StatCard icon={<span className="text-orange-600"><IconBriefcase /></span>} label="Serviços" value={servicesCount} sub="serviços configurados" color="bg-orange-100" />
-        <StatCard icon={<span className="text-emerald-600"><IconMoney /></span>} label="Receita Último Mês" value={`R$ ${stats.lastMonthRevenue.toLocaleString('pt-BR')}`} sub="clique para ver financeiro" color="bg-emerald-100" onClick={() => onNavigateToFinance && onNavigateToFinance()} />
+      {/* KPI Cards — compact grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
+        <MiniKpiCard
+          icon={<IconBriefcase />}
+          label="Advogados"
+          value={stats.totalLawyers}
+          sub={`${stats.verifiedLawyers} verificados`}
+          color="bg-primary/10"
+          onClick={() => setModal({ type: 'lawyers' })}
+        />
+        <MiniKpiCard
+          icon={<IconUsers />}
+          label="Clientes"
+          value={stats.totalClients}
+          sub={`${stats.activeClients} ativos`}
+          color="bg-blue-100"
+          onClick={() => setModal({ type: 'clients' })}
+        />
+        <MiniKpiCard
+          icon={<IconGradCap />}
+          label="Estudantes"
+          value={stats.totalInterns}
+          sub={`${stats.activeInterns} ativos`}
+          color="bg-indigo-100"
+          onClick={() => setModal({ type: 'interns' })}
+        />
+        <MiniKpiCard
+          icon={<IconSecretariat />}
+          label="Secretariado"
+          value={stats.totalSecretaries}
+          sub={`${stats.activeSecretaries} ativos`}
+          color="bg-purple-100"
+          onClick={() => setModal({ type: 'secretaries' })}
+        />
+        <MiniKpiCard
+          icon={<IconBriefcase />}
+          label="Serviços"
+          value={servicesCount}
+          sub="configurados"
+          color="bg-orange-100"
+        />
+        <MiniKpiCard
+          icon={<IconMoney />}
+          label="Receita Último Mês"
+          value={`R$ ${stats.lastMonthRevenue.toLocaleString('pt-BR')}`}
+          sub="ver financeiro"
+          color="bg-emerald-100"
+          onClick={() => onNavigateToFinance && onNavigateToFinance()}
+        />
       </div>
 
       {/* Charts */}
@@ -125,6 +223,21 @@ export const OverviewTab: React.FC<{
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
           <h3 className="text-base font-bold text-gray-800 mb-4">Estudantes por Semestre</h3>
           <SpecialtyPieChart data={internSemesterDistribution} />
+        </div>
+        {/* Secretariado Charts */}
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-2 h-2 rounded-full bg-purple-500 inline-block" />
+            <h3 className="text-base font-bold text-gray-800">Secretariado por Disponibilidade</h3>
+          </div>
+          <SpecialtyPieChart data={secretaryAvailabilityDistribution} />
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="w-2 h-2 rounded-full bg-purple-500 inline-block" />
+            <h3 className="text-base font-bold text-gray-800">Secretariado por Área de Conhecimento</h3>
+          </div>
+          <SpecialtyPieChart data={secretaryAreaDistribution} />
         </div>
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
           <h3 className="text-base font-bold text-gray-800 mb-4">Serviços por Grupo</h3>
@@ -168,8 +281,9 @@ export const OverviewTab: React.FC<{
                   {modal.type === 'lawyers' && 'KPIs — Advogados'}
                   {modal.type === 'clients' && 'KPIs — Clientes'}
                   {modal.type === 'interns' && 'KPIs — Estudantes'}
+                  {modal.type === 'secretaries' && 'KPIs — Secretariado'}
                 </h2>
-                <p className="text-sm text-gray-500">Filtre por estado e veja receita individual</p>
+                <p className="text-sm text-gray-500">Filtre por estado e veja informações individuais</p>
               </div>
               <button onClick={closeModal} className="p-2 rounded-lg hover:bg-gray-100"><IconX /></button>
             </div>
@@ -241,15 +355,46 @@ export const OverviewTab: React.FC<{
                   </tbody>
                 </table>
               )}
+              {modal.type === 'secretaries' && (
+                <table className="w-full text-sm">
+                  <thead className="text-xs text-gray-500 uppercase bg-purple-50">
+                    <tr><th className="px-4 py-2 text-left">Secretário(a)</th><th className="px-4 py-2 text-left">Estado</th><th className="px-4 py-2 text-left">Disponibilidade</th><th className="px-4 py-2 text-left">Status</th><th className="px-4 py-2 text-right">Honorário/Mês</th></tr>
+                  </thead>
+                  <tbody>
+                    {filteredSecretaries.map(s => {
+                      const availLabel = s.availability === 'integral' ? 'Integral' : s.availability === 'meio-periodo' ? 'Meio Período' : 'Freelancer';
+                      return (
+                        <tr key={s.id} className="border-b hover:bg-purple-50/30">
+                          <td className="px-4 py-3 font-medium text-gray-900 flex items-center gap-2">
+                            <div className="w-7 h-7 rounded-full bg-purple-100 text-purple-700 text-xs font-bold flex items-center justify-center shrink-0">{s.name.charAt(0)}</div>
+                            {s.name}
+                          </td>
+                          <td className="px-4 py-3">{s.state}</td>
+                          <td className="px-4 py-3">{availLabel}</td>
+                          <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${ s.status === 'ativo' ? 'bg-green-100 text-green-700' : s.status === 'pendente' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700' }`}>{s.status}</span></td>
+                          <td className="px-4 py-3 text-right font-semibold text-purple-700">{s.monthlyFee ? `R$ ${s.monthlyFee.toLocaleString('pt-BR')}` : '—'}</td>
+                        </tr>
+                      );
+                    })}
+                    {filteredSecretaries.length === 0 && <tr><td colSpan={5} className="text-center py-8 text-gray-400">Nenhum resultado.</td></tr>}
+                  </tbody>
+                </table>
+              )}
             </div>
             <div className="p-4 border-t bg-gray-50 flex justify-between items-center">
               <p className="text-xs text-gray-500">
                 {modal.type === 'lawyers' && `${filteredLawyers.length} advogados`}
                 {modal.type === 'clients' && `${filteredClients.length} clientes`}
                 {modal.type === 'interns' && `${filteredInterns.length} estudantes`}
+                {modal.type === 'secretaries' && `${filteredSecretaries.length} secretários`}
               </p>
-              {onNavigateToFinance && (
+              {onNavigateToFinance && modal.type !== 'secretaries' && (
                 <button onClick={() => { closeModal(); onNavigateToFinance(modal.type); }} className="text-sm text-primary hover:underline font-medium">
+                  Ver no Financeiro →
+                </button>
+              )}
+              {onNavigateToFinance && modal.type === 'secretaries' && (
+                <button onClick={() => { closeModal(); onNavigateToFinance('secretaries'); }} className="text-sm text-purple-600 hover:underline font-medium">
                   Ver no Financeiro →
                 </button>
               )}
