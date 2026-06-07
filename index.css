@@ -174,3 +174,52 @@ img { image-rendering: -webkit-optimize-contrast; }
 
 /* ── No tap highlight on mobile ──────────────────────── */
 button, a { -webkit-tap-highlight-color: transparent; }
+
+/* ── input-dark: classe para campos natively dark ────── */
+/* Usar em formulários com fundo escuro (login, signup   */
+/* em dark, dashboards) independente do toggle de tema   */
+.input-dark {
+  color: #F1F0FF !important;
+  background-color: rgba(255,255,255,0.06) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  caret-color: #A855F7;
+}
+.input-dark::placeholder {
+  color: rgba(255,255,255,0.30) !important;
+  opacity: 1;
+}
+.input-dark:focus {
+  border-color: #7C3AED !important;
+  background-color: rgba(255,255,255,0.09) !important;
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.18) !important;
+  outline: none;
+}
+.input-dark:-webkit-autofill,
+.input-dark:-webkit-autofill:focus {
+  -webkit-text-fill-color: #F1F0FF !important;
+  -webkit-box-shadow: 0 0 0 1000px #1A1730 inset !important;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* ── Cobertura de inputs sem text-* explícito ─────────── */
+/* Garante que qualquer input dentro de bg escuro         */
+/* mostre texto claro (login, signup, dashboards dark)    */
+.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]) {
+  color: #F1F0FF !important;
+}
+.dark textarea { color: #F1F0FF !important; }
+.dark select   { color: #F1F0FF !important; }
+
+/* Inputs dentro de containers de auth (dark por natureza) */
+[style*="background: rgba(26, 23"] input,
+[style*="background: rgba(26,23"]  input,
+[style*="0F0D1A"] input,
+[style*="1A1130"] input {
+  color: #F1F0FF !important;
+  caret-color: #A855F7;
+}
+[style*="background: rgba(26, 23"] input::placeholder,
+[style*="0F0D1A"] input::placeholder,
+[style*="1A1130"] input::placeholder {
+  color: rgba(255,255,255,0.30) !important;
+}
