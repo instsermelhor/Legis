@@ -76,6 +76,10 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
     });
     const [selectedDetailSemester, setSelectedDetailSemester] = useState(DETAILED_SEMESTERS[0]);
     const [profileSaved, setProfileSaved] = useState(false);
+    // OAB State
+    const [hasOab, setHasOab] = useState(false);
+    const [oabNumber, setOabNumber] = useState('');
+    const [oabUF, setOabUF] = useState('');
 
     // Modal state
     const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -258,6 +262,59 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                                         <option value="">Selecione uma área...</option>
                                         {AREAS_OF_LAW.map(a => <option key={a}>{a}</option>)}
                                     </select>
+                                </div>
+
+                                {/* OAB checkbox */}
+                                <div className="md:col-span-2">
+                                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3">
+                                        <div className="flex items-center gap-4">
+                                            <p className="text-sm font-semibold text-gray-700">⚖️ Possui OAB?</p>
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name="hasOab"
+                                                    checked={hasOab === true}
+                                                    onChange={() => setHasOab(true)}
+                                                    className="accent-primary"
+                                                />
+                                                <span className="text-sm font-medium text-gray-700">Sim</span>
+                                            </label>
+                                            <label className="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    name="hasOab"
+                                                    checked={hasOab === false}
+                                                    onChange={() => setHasOab(false)}
+                                                    className="accent-primary"
+                                                />
+                                                <span className="text-sm font-medium text-gray-700">Não</span>
+                                            </label>
+                                        </div>
+                                        {hasOab && (
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-amber-200">
+                                                <div>
+                                                    <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Número OAB</label>
+                                                    <input
+                                                        value={oabNumber}
+                                                        onChange={e => setOabNumber(e.target.value)}
+                                                        placeholder="Ex: 123456"
+                                                        className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">UF da Ordem</label>
+                                                    <select
+                                                        value={oabUF}
+                                                        onChange={e => setOabUF(e.target.value)}
+                                                        className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white"
+                                                    >
+                                                        <option value="">Selecione...</option>
+                                                        {BRAZILIAN_STATES.map(s => <option key={s.uf} value={s.uf}>{s.name} ({s.uf})</option>)}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 

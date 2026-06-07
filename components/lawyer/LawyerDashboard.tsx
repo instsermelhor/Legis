@@ -171,12 +171,34 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
         city: lawyer.location?.city || '',
         state: lawyer.location?.state || '',
         cpf: lawyer.cpf || '',
+        rg: (lawyer as any).rg || '',
+        dataNasc: (lawyer as any).dataNasc || '',
+        estadoCivil: (lawyer as any).estadoCivil || '',
+        naturalidade: (lawyer as any).naturalidade || '',
+        // Residential address (structured)
+        resCep: '',
+        resStreet: lawyer.address || '',
+        resNumber: '',
+        resComplement: '',
+        resNeighborhood: '',
+        resCity: lawyer.location?.city || '',
+        resState: lawyer.location?.state || '',
+        // Commercial address (structured)
+        comSameAsRes: false,
+        comCep: '',
+        comStreet: lawyer.commercialAddress || '',
+        comNumber: '',
+        comComplement: '',
+        comNeighborhood: '',
+        comCity: '',
+        comState: '',
         address: lawyer.address || '',
         commercialAddress: lawyer.commercialAddress || '',
         consultationFee: String(lawyer.consultationFee || ''),
         primarySpecialties: lawyer.primarySpecialties || lawyer.specialties.slice(0, 3),
         secondarySpecialties: lawyer.secondarySpecialties || lawyer.specialties.slice(3),
     });
+    const [sameAddress, setSameAddress] = useState(false);
     const [profileSaved, setProfileSaved] = useState(false);
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [showEmailModal, setShowEmailModal] = useState(false);
@@ -809,7 +831,6 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                     {/* ─── MEU PERFIL SECTION ────────────────────────────────────── */}
                     {activeSection === 'perfil' && (
                         <div className="space-y-6 animate-fade-in">
-                            {/* Dados Pessoais */}
                             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-5">
                                 <h3 className="text-base font-bold text-gray-800 border-b pb-2">Dados Pessoais e Profissionais</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -820,6 +841,25 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">CPF</label>
                                         <input value={profileData.cpf} onChange={e => setProfileData(p => ({ ...p, cpf: e.target.value }))} placeholder="000.000.000-00" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">RG</label>
+                                        <input value={profileData.rg} onChange={e => setProfileData(p => ({ ...p, rg: e.target.value }))} placeholder="00.000.000-0" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Data de Nascimento</label>
+                                        <input type="date" value={profileData.dataNasc} onChange={e => setProfileData(p => ({ ...p, dataNasc: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Estado Civil</label>
+                                        <select value={profileData.estadoCivil} onChange={e => setProfileData(p => ({ ...p, estadoCivil: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white">
+                                            <option value="">Selecione...</option>
+                                            {['Solteiro(a)', 'Casado(a)', 'Divorciado(a)', 'Viúvo(a)', 'União Estável'].map(v => <option key={v}>{v}</option>)}
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Naturalidade</label>
+                                        <input value={profileData.naturalidade} onChange={e => setProfileData(p => ({ ...p, naturalidade: e.target.value }))} placeholder="Cidade - UF" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Nº OAB</label>
@@ -895,27 +935,108 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                             </div>
 
                             {/* Endereço */}
-                            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
-                                <h3 className="text-base font-bold text-gray-800 border-b pb-2">Endereço Residencial e Comercial</h3>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-600 mb-1">Endereço Residencial</label>
-                                    <input value={profileData.address} onChange={e => setProfileData(p => ({ ...p, address: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" placeholder="Rua, Número, Complemento, Bairro, CEP" />
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-600 mb-1">Endereço Comercial (Escritório)</label>
-                                    <input value={profileData.commercialAddress} onChange={e => setProfileData(p => ({ ...p, commercialAddress: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" placeholder="Rua, Número, Sala, Bairro, CEP" />
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 mb-1">Cidade</label>
-                                        <input value={profileData.city} onChange={e => setProfileData(p => ({ ...p, city: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6">
+                                <h3 className="text-base font-bold text-gray-800 border-b pb-2">Endereços</h3>
+
+                                {/* Residencial */}
+                                <div className="space-y-3">
+                                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">🏠 Endereço Residencial</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">CEP</label>
+                                            <input value={profileData.resCep} onChange={e => setProfileData(p => ({ ...p, resCep: e.target.value }))} placeholder="00000-000" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">Rua / Logradouro</label>
+                                            <input value={profileData.resStreet} onChange={e => setProfileData(p => ({ ...p, resStreet: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">Número</label>
+                                            <input value={profileData.resNumber} onChange={e => setProfileData(p => ({ ...p, resNumber: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">Complemento</label>
+                                            <input value={profileData.resComplement} onChange={e => setProfileData(p => ({ ...p, resComplement: e.target.value }))} placeholder="Apto, Bloco..." className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">Bairro</label>
+                                            <input value={profileData.resNeighborhood} onChange={e => setProfileData(p => ({ ...p, resNeighborhood: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">Cidade</label>
+                                            <input value={profileData.resCity} onChange={e => setProfileData(p => ({ ...p, resCity: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">Estado (UF)</label>
+                                            <select value={profileData.resState} onChange={e => setProfileData(p => ({ ...p, resState: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white">
+                                                <option value="">Selecione...</option>
+                                                {BRAZILIAN_STATES.map(s => <option key={s.uf} value={s.uf}>{s.name} ({s.uf})</option>)}
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 mb-1">Estado (UF)</label>
-                                        <select value={profileData.state} onChange={e => setProfileData(p => ({ ...p, state: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white">
-                                            <option value="">Selecione...</option>
-                                            {BRAZILIAN_STATES.map(s => <option key={s.uf} value={s.uf}>{s.name} ({s.uf})</option>)}
-                                        </select>
+                                </div>
+
+                                {/* Comercial */}
+                                <div className="space-y-3 pt-4 border-t">
+                                    <div className="flex items-center justify-between">
+                                        <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">🏢 Endereço Comercial (Escritório)</h4>
+                                        <label className="flex items-center gap-2 text-xs font-semibold text-primary cursor-pointer select-none">
+                                            <input
+                                                type="checkbox"
+                                                checked={sameAddress}
+                                                onChange={e => {
+                                                    const v = e.target.checked;
+                                                    setSameAddress(v);
+                                                    if (v) {
+                                                        setProfileData(p => ({
+                                                            ...p,
+                                                            comCep: p.resCep,
+                                                            comStreet: p.resStreet,
+                                                            comNumber: p.resNumber,
+                                                            comComplement: p.resComplement,
+                                                            comNeighborhood: p.resNeighborhood,
+                                                            comCity: p.resCity,
+                                                            comState: p.resState,
+                                                        }));
+                                                    }
+                                                }}
+                                                className="rounded"
+                                            />
+                                            Mesmo endereço residencial
+                                        </label>
+                                    </div>
+                                    <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 transition-opacity ${sameAddress ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">CEP</label>
+                                            <input value={profileData.comCep} onChange={e => setProfileData(p => ({ ...p, comCep: e.target.value }))} placeholder="00000-000" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                        </div>
+                                        <div className="md:col-span-2">
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">Rua / Logradouro</label>
+                                            <input value={profileData.comStreet} onChange={e => setProfileData(p => ({ ...p, comStreet: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">Número</label>
+                                            <input value={profileData.comNumber} onChange={e => setProfileData(p => ({ ...p, comNumber: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">Complemento / Sala</label>
+                                            <input value={profileData.comComplement} onChange={e => setProfileData(p => ({ ...p, comComplement: e.target.value }))} placeholder="Sala, Andar..." className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">Bairro</label>
+                                            <input value={profileData.comNeighborhood} onChange={e => setProfileData(p => ({ ...p, comNeighborhood: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">Cidade</label>
+                                            <input value={profileData.comCity} onChange={e => setProfileData(p => ({ ...p, comCity: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">Estado (UF)</label>
+                                            <select value={profileData.comState} onChange={e => setProfileData(p => ({ ...p, comState: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white">
+                                                <option value="">Selecione...</option>
+                                                {BRAZILIAN_STATES.map(s => <option key={s.uf} value={s.uf}>{s.name} ({s.uf})</option>)}
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
