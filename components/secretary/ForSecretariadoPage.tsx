@@ -98,7 +98,7 @@ export const ForSecretariadoPage: React.FC<ForSecretariadoPageProps> = ({ onLogi
               </div>
               {loginError && <p className="text-xs text-red-600 font-semibold bg-red-50 border border-red-200 rounded-lg px-3 py-2">{loginError}</p>}
               <p className="text-xs text-gray-500 bg-purple-50 border border-purple-100 rounded-lg p-2">
-                💡 <strong>Teste:</strong> teste@legisconnect.com.br / testelegis
+                💡 <strong>Teste:</strong> teste@legisconnect.com.br / teste
               </p>
               <button type="submit" className="w-full py-2.5 text-sm font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700 transition-colors">
                 Entrar
