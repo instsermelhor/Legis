@@ -297,12 +297,26 @@ const AdminUsers: React.FC = () => {
     return saved ? JSON.parse(saved) : mockAdminUsers;
   });
   const [showForm, setShowForm] = useState(false);
-  const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'viewer' as AdminUser['role'] });
+  const [newUser, setNewUser] = useState({
+    name: '',
+    email: '',
+    confirmSecondaryEmail: '',
+    secondaryEmail: '',
+    phone: '',
+    password: '',
+    role: 'viewer' as AdminUser['role'],
+  });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [saved, setSaved] = useState(false);
 
   // Permission manager modal
   const [permUser, setPermUser] = useState<AdminUser | null>(null);
   const [permDraft, setPermDraft] = useState<string[]>([]);
+
+  // Password reset modal
+  const [resetUser, setResetUser] = useState<AdminUser | null>(null);
+  const [resetMethod, setResetMethod] = useState<'email' | 'secondary' | 'sms' | 'whatsapp'>('email');
+  const [resetSent, setResetSent] = useState(false);
 
   // Role default permissions modal
   const [showRoleDefaults, setShowRoleDefaults] = useState(false);
@@ -311,25 +325,45 @@ const AdminUsers: React.FC = () => {
     return saved ? JSON.parse(saved) : { ...DEFAULT_PERMISSIONS };
   });
   const [editingRole, setEditingRole] = useState<AdminUser['role']>('admin');
+  const [superAdminTab, setSuperAdminTab] = useState<'permissions' | 'users'>('permissions');
 
   const saveUsers = (newUsers: AdminUser[]) => {
     setUsers(newUsers);
     localStorage.setItem('legis_admin_users', JSON.stringify(newUsers));
   };
 
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+    if (!newUser.name.trim()) errors.name = 'Nome obrigatório';
+    if (!newUser.email.trim()) errors.email = 'E-mail obrigatório';
+    if (!newUser.password.trim()) errors.password = 'Senha obrigatória';
+    if (newUser.secondaryEmail && newUser.secondaryEmail !== newUser.confirmSecondaryEmail)
+      errors.confirmSecondaryEmail = 'E-mails secundários não coincidem';
+    if (newUser.phone && !/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/.test(newUser.phone.replace(/\s/g, '')))
+      errors.phone = 'Número inválido (ex: (11) 99999-9999)';
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleCreate = () => {
-    if (!newUser.name || !newUser.email || !newUser.password) return;
+    if (!validateForm()) return;
     const savedDefaults = localStorage.getItem('legis_role_defaults');
     const defaults = savedDefaults ? JSON.parse(savedDefaults) : DEFAULT_PERMISSIONS;
     const user: AdminUser = {
       id: Date.now(),
-      ...newUser,
+      name: newUser.name.trim(),
+      email: newUser.email.trim(),
+      secondaryEmail: newUser.secondaryEmail.trim() || undefined,
+      phone: newUser.phone.trim() || undefined,
+      password: newUser.password,
+      role: newUser.role,
       createdAt: new Date().toISOString().split('T')[0],
       active: true,
       permissions: defaults[newUser.role] || [],
     };
     saveUsers([...users, user]);
-    setNewUser({ name: '', email: '', password: '', role: 'viewer' });
+    setNewUser({ name: '', email: '', confirmSecondaryEmail: '', secondaryEmail: '', phone: '', password: '', role: 'viewer' });
+    setFormErrors({});
     setShowForm(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
@@ -345,7 +379,29 @@ const AdminUsers: React.FC = () => {
     }
   };
 
-  // Open permission manager for a user
+  // ── Password reset ────────────────────────────────────────────────────────
+  const openReset = (u: AdminUser) => {
+    setResetUser(u);
+    setResetMethod('email');
+    setResetSent(false);
+  };
+
+  const handleSendReset = () => {
+    setResetSent(true);
+    setTimeout(() => {
+      setResetUser(null);
+      setResetSent(false);
+    }, 2500);
+  };
+
+  const resetMethodLabel = (u: AdminUser) => ({
+    email: u.email,
+    secondary: u.secondaryEmail || '(sem e-mail secundário)',
+    sms: u.phone || '(sem telefone)',
+    whatsapp: u.phone || '(sem WhatsApp)',
+  });
+
+  // ── Permission manager ────────────────────────────────────────────────────
   const openPermManager = (u: AdminUser) => {
     const savedDefaults = localStorage.getItem('legis_role_defaults');
     const defaults = savedDefaults ? JSON.parse(savedDefaults) : DEFAULT_PERMISSIONS;
@@ -376,7 +432,7 @@ const AdminUsers: React.FC = () => {
     setPermDraft(defaults[permUser.role] || []);
   };
 
-  // Role defaults editor
+  // ── Role defaults editor ──────────────────────────────────────────────────
   const toggleRoleDefault = (role: AdminUser['role'], permId: string) => {
     setRoleDefaultsDraft(prev => {
       const current = prev[role] || [];
@@ -394,6 +450,15 @@ const AdminUsers: React.FC = () => {
 
   const allFunctionIds = APP_FUNCTIONS.flatMap(g => g.items.map(i => i.id));
 
+  // Helper for form field
+  const Field = ({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) => (
+    <div>
+      <label className="block text-xs font-semibold text-gray-600 mb-1">{label}</label>
+      {children}
+      {error && <p className="text-[10px] text-red-500 mt-0.5 font-medium">{error}</p>}
+    </div>
+  );
+
   return (
     <div className="space-y-6">
       {/* ── Header ── */}
@@ -410,7 +475,7 @@ const AdminUsers: React.FC = () => {
             🛡️ Permissões Padrão por Nível
           </button>
           <button
-            onClick={() => setShowForm(f => !f)}
+            onClick={() => { setShowForm(f => !f); setFormErrors({}); }}
             className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90"
           >
             <IconPlus /> Novo Admin
@@ -424,27 +489,15 @@ const AdminUsers: React.FC = () => {
       {showForm && (
         <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 space-y-4 animate-fade-in">
           <h4 className="text-sm font-bold text-blue-900 flex items-center gap-2"><IconKey /> Criar Novo Usuário Admin</h4>
+
+          {/* Row 1: Name + Role */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1">Nome *</label>
+            <Field label="Nome *" error={formErrors.name}>
               <input value={newUser.name} onChange={e => setNewUser(u => ({ ...u, name: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white"
+                className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white ${formErrors.name ? 'border-red-400' : 'border-gray-300'}`}
                 placeholder="Nome completo" />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1">E-mail *</label>
-              <input type="email" value={newUser.email} onChange={e => setNewUser(u => ({ ...u, email: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white"
-                placeholder="email@exemplo.com" />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1">Senha *</label>
-              <input type="password" value={newUser.password} onChange={e => setNewUser(u => ({ ...u, password: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white"
-                placeholder="Senha de acesso" />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-600 mb-1">Nível de Acesso *</label>
+            </Field>
+            <Field label="Nível de Acesso *">
               <select value={newUser.role} onChange={e => setNewUser(u => ({ ...u, role: e.target.value as AdminUser['role'] }))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white">
                 <option value="collaborator">Colaborador</option>
@@ -453,15 +506,57 @@ const AdminUsers: React.FC = () => {
                 <option value="admin">Administrador</option>
                 <option value="super">Super Admin</option>
               </select>
-              <p className="text-[10px] text-gray-400 mt-1">As permissões padrão do nível serão aplicadas automaticamente. Você pode personalizá-las depois.</p>
+              <p className="text-[10px] text-gray-400 mt-1">Permissões padrão do nível serão aplicadas. Personalize depois.</p>
+            </Field>
+          </div>
+
+          {/* Row 2: Password */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Field label="Senha *" error={formErrors.password}>
+              <input type="password" value={newUser.password} onChange={e => setNewUser(u => ({ ...u, password: e.target.value }))}
+                className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white ${formErrors.password ? 'border-red-400' : 'border-gray-300'}`}
+                placeholder="Senha de acesso" />
+            </Field>
+            <Field label="Celular / WhatsApp" error={formErrors.phone}>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base">📱</span>
+                <input value={newUser.phone} onChange={e => setNewUser(u => ({ ...u, phone: e.target.value }))}
+                  className={`w-full border rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white ${formErrors.phone ? 'border-red-400' : 'border-gray-300'}`}
+                  placeholder="(11) 99999-9999" />
+              </div>
+            </Field>
+          </div>
+
+          {/* Row 3: Primary email */}
+          <Field label="E-mail Principal *" error={formErrors.email}>
+            <input type="email" value={newUser.email} onChange={e => setNewUser(u => ({ ...u, email: e.target.value }))}
+              className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white ${formErrors.email ? 'border-red-400' : 'border-gray-300'}`}
+              placeholder="email@exemplo.com" />
+          </Field>
+
+          {/* Row 4: Secondary email */}
+          <div className="bg-white border border-dashed border-blue-300 rounded-xl p-3 space-y-3">
+            <p className="text-xs font-bold text-blue-800 flex items-center gap-1.5">✉️ E-mail Secundário <span className="font-normal text-gray-400">(opcional — usado para reset de senha)</span></p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Field label="E-mail Secundário" error={formErrors.secondaryEmail}>
+                <input type="email" value={newUser.secondaryEmail} onChange={e => setNewUser(u => ({ ...u, secondaryEmail: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white"
+                  placeholder="email.secundario@exemplo.com" />
+              </Field>
+              <Field label="Confirmar E-mail Secundário" error={formErrors.confirmSecondaryEmail}>
+                <input type="email" value={newUser.confirmSecondaryEmail} onChange={e => setNewUser(u => ({ ...u, confirmSecondaryEmail: e.target.value }))}
+                  className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white ${formErrors.confirmSecondaryEmail ? 'border-red-400' : 'border-gray-300'}`}
+                  placeholder="Confirmar e-mail secundário" />
+              </Field>
             </div>
           </div>
-          <div className="flex gap-2">
-            <button onClick={handleCreate} disabled={!newUser.name || !newUser.email || !newUser.password}
-              className="px-4 py-2 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90 disabled:opacity-40">
-              Criar Usuário
+
+          <div className="flex gap-2 pt-1">
+            <button onClick={handleCreate}
+              className="px-4 py-2 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90">
+              ✅ Criar Usuário
             </button>
-            <button onClick={() => setShowForm(false)}
+            <button onClick={() => { setShowForm(false); setFormErrors({}); }}
               className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
               Cancelar
             </button>
@@ -475,7 +570,7 @@ const AdminUsers: React.FC = () => {
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
             <tr>
               <th className="px-4 py-3">Nome</th>
-              <th className="px-4 py-3">E-mail</th>
+              <th className="px-4 py-3">Contatos</th>
               <th className="px-4 py-3">Nível</th>
               <th className="px-4 py-3">Funções</th>
               <th className="px-4 py-3">Cadastro</th>
@@ -493,8 +588,14 @@ const AdminUsers: React.FC = () => {
               const isCustomized = u.permissions !== undefined && u.permissions.length !== defaultCount;
               return (
                 <tr key={u.id} className={`border-b hover:bg-gray-50 transition-colors ${!u.active ? 'opacity-60' : ''}`}>
-                  <td className="px-4 py-3 font-semibold text-gray-900">{u.name}</td>
-                  <td className="px-4 py-3 text-gray-500 text-xs">{u.email}</td>
+                  <td className="px-4 py-3 font-semibold text-gray-900 whitespace-nowrap">{u.name}</td>
+                  <td className="px-4 py-3">
+                    <div className="space-y-0.5">
+                      <p className="text-xs text-gray-600">📧 {u.email}</p>
+                      {u.secondaryEmail && <p className="text-xs text-gray-400">✉️ {u.secondaryEmail}</p>}
+                      {u.phone && <p className="text-xs text-green-600">📱 {u.phone}</p>}
+                    </div>
+                  </td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${roleColors[u.role]}`}>{roleLabels[u.role]}</span>
                   </td>
@@ -503,11 +604,11 @@ const AdminUsers: React.FC = () => {
                       onClick={() => openPermManager(u)}
                       className="text-xs text-primary hover:underline font-semibold flex items-center gap-1"
                     >
-                      🔑 {customCount}/{allFunctionIds.length} funções
-                      {isCustomized && <span className="px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded text-[9px] font-bold">Personalizado</span>}
+                      🔑 {customCount}/{allFunctionIds.length}
+                      {isCustomized && <span className="px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded text-[9px] font-bold">Custom</span>}
                     </button>
                   </td>
-                  <td className="px-4 py-3 text-xs text-gray-400">{new Date(u.createdAt).toLocaleDateString('pt-BR')}</td>
+                  <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">{new Date(u.createdAt).toLocaleDateString('pt-BR')}</td>
                   <td className="px-4 py-3">
                     <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${u.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'}`}>
                       {u.active ? '● Ativo' : '○ Inativo'}
@@ -515,22 +616,28 @@ const AdminUsers: React.FC = () => {
                   </td>
                   <td className="px-4 py-3">
                     {u.role !== 'super' ? (
-                      <div className="flex gap-2 justify-center flex-wrap">
+                      <div className="flex gap-1.5 justify-center flex-wrap">
                         <button
                           onClick={() => toggleActive(u.id)}
-                          className={`text-xs font-semibold px-2.5 py-1 rounded-lg border transition-colors ${u.active ? 'text-amber-700 bg-amber-50 border-amber-200 hover:bg-amber-100' : 'text-green-700 bg-green-50 border-green-200 hover:bg-green-100'}`}
+                          className={`text-xs font-semibold px-2 py-1 rounded-lg border transition-colors ${u.active ? 'text-amber-700 bg-amber-50 border-amber-200 hover:bg-amber-100' : 'text-green-700 bg-green-50 border-green-200 hover:bg-green-100'}`}
                         >
                           {u.active ? 'Desativar' : 'Ativar'}
                         </button>
                         <button
                           onClick={() => openPermManager(u)}
-                          className="text-xs font-semibold px-2.5 py-1 rounded-lg border border-primary/30 text-primary bg-primary/5 hover:bg-primary/10 transition-colors"
+                          className="text-xs font-semibold px-2 py-1 rounded-lg border border-primary/30 text-primary bg-primary/5 hover:bg-primary/10 transition-colors"
                         >
                           Permissões
                         </button>
                         <button
+                          onClick={() => openReset(u)}
+                          className="text-xs font-semibold px-2 py-1 rounded-lg border border-orange-200 text-orange-700 bg-orange-50 hover:bg-orange-100 transition-colors"
+                        >
+                          🔒 Reset Senha
+                        </button>
+                        <button
                           onClick={() => handleDelete(u.id)}
-                          className="text-xs font-semibold px-2.5 py-1 rounded-lg border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition-colors"
+                          className="text-xs font-semibold px-2 py-1 rounded-lg border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition-colors"
                         >
                           Excluir
                         </button>
@@ -545,6 +652,95 @@ const AdminUsers: React.FC = () => {
           </tbody>
         </table>
       </div>
+
+      {/* ────────────────────────────────────────────────────────────────────────
+          MODAL: Password Reset
+      ──────────────────────────────────────────────────────────────────────── */}
+      {resetUser && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setResetUser(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+              <div>
+                <h2 className="text-base font-bold text-gray-900">🔒 Resetar Senha</h2>
+                <p className="text-xs text-gray-500 mt-0.5">Usuário: <strong>{resetUser.name}</strong></p>
+              </div>
+              <button onClick={() => setResetUser(null)} className="text-gray-400 hover:text-gray-700 text-xl leading-none">×</button>
+            </div>
+
+            {!resetSent ? (
+              <div className="px-6 py-5 space-y-4">
+                <p className="text-sm text-gray-600">Selecione como enviar o link de redefinição de senha:</p>
+
+                <div className="space-y-2">
+                  {/* E-mail Principal */}
+                  <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all ${resetMethod === 'email' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'}`}>
+                    <input type="radio" name="resetMethod" value="email" checked={resetMethod === 'email'} onChange={() => setResetMethod('email')} className="accent-primary" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-800">📧 E-mail Principal</p>
+                      <p className="text-xs text-gray-500 truncate">{resetUser.email}</p>
+                    </div>
+                  </label>
+
+                  {/* E-mail Secundário */}
+                  <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all ${!resetUser.secondaryEmail ? 'opacity-40 cursor-not-allowed' : resetMethod === 'secondary' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'}`}>
+                    <input type="radio" name="resetMethod" value="secondary" disabled={!resetUser.secondaryEmail}
+                      checked={resetMethod === 'secondary'} onChange={() => setResetMethod('secondary')} className="accent-primary" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-800">✉️ E-mail Secundário</p>
+                      <p className="text-xs text-gray-500 truncate">{resetUser.secondaryEmail || 'Não cadastrado'}</p>
+                    </div>
+                  </label>
+
+                  {/* SMS */}
+                  <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all ${!resetUser.phone ? 'opacity-40 cursor-not-allowed' : resetMethod === 'sms' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'}`}>
+                    <input type="radio" name="resetMethod" value="sms" disabled={!resetUser.phone}
+                      checked={resetMethod === 'sms'} onChange={() => setResetMethod('sms')} className="accent-primary" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-800">💬 SMS</p>
+                      <p className="text-xs text-gray-500 truncate">{resetUser.phone || 'Não cadastrado'}</p>
+                    </div>
+                  </label>
+
+                  {/* WhatsApp */}
+                  <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all ${!resetUser.phone ? 'opacity-40 cursor-not-allowed' : resetMethod === 'whatsapp' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-200'}`}>
+                    <input type="radio" name="resetMethod" value="whatsapp" disabled={!resetUser.phone}
+                      checked={resetMethod === 'whatsapp'} onChange={() => setResetMethod('whatsapp')} className="accent-green-600" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-800">📱 WhatsApp</p>
+                      <p className="text-xs text-gray-500 truncate">{resetUser.phone || 'Não cadastrado'}</p>
+                    </div>
+                  </label>
+                </div>
+
+                <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
+                  <p className="text-xs text-amber-800 font-medium">
+                    ⚠️ Um link seguro de redefinição de senha será enviado para: <strong>{resetMethodLabel(resetUser)[resetMethod]}</strong>
+                  </p>
+                </div>
+
+                <div className="flex gap-2 pt-1">
+                  <button onClick={handleSendReset}
+                    className="flex-1 py-2.5 text-sm font-bold text-white bg-orange-500 rounded-xl hover:bg-orange-600 transition-colors shadow">
+                    🔗 Enviar Link de Redefinição
+                  </button>
+                  <button onClick={() => setResetUser(null)}
+                    className="px-4 py-2.5 text-sm text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 font-semibold">
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="px-6 py-10 text-center space-y-3">
+                <div className="text-5xl">✅</div>
+                <p className="text-base font-bold text-gray-800">Link enviado com sucesso!</p>
+                <p className="text-sm text-gray-500">O link de redefinição foi enviado para <strong>{resetMethodLabel(resetUser)[resetMethod]}</strong>.</p>
+                <p className="text-xs text-gray-400">O link expira em 24 horas por segurança.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ────────────────────────────────────────────────────────────────────────
           MODAL: Per-user permission manager
@@ -648,47 +844,102 @@ const AdminUsers: React.FC = () => {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0 bg-gradient-to-r from-purple-600 to-primary rounded-t-2xl">
               <div>
-                <h2 className="text-base font-bold text-white">🛡️ Painel do Super Admin — Funções Padrão por Nível</h2>
-                <p className="text-xs text-purple-200 mt-0.5">Configure quais funções cada nível de acesso terá por padrão ao ser criado.</p>
+                <h2 className="text-base font-bold text-white">🛡️ Painel do Super Admin</h2>
+                <p className="text-xs text-purple-200 mt-0.5">Configure permissões padrão por nível e gerencie usuários ativos/inativos.</p>
               </div>
               <button onClick={() => setShowRoleDefaults(false)} className="text-white/70 hover:text-white text-2xl leading-none">×</button>
             </div>
 
-            {/* Role tabs */}
-            <div className="flex gap-1 px-6 pt-4 shrink-0 flex-wrap">
-              {(['admin', 'manager', 'collaborator', 'viewer'] as AdminUser['role'][]).map(role => (
-                <button key={role} onClick={() => setEditingRole(role)}
-                  className={`px-4 py-2 text-sm font-semibold rounded-t-lg border-b-2 transition-colors ${editingRole === role ? 'border-primary text-primary bg-primary/5' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}>
-                  <span className={`inline-block w-2 h-2 rounded-full mr-1.5 ${roleColors[role].split(' ')[0]}`} />
-                  {roleLabels[role]}
-                  <span className="ml-1.5 text-xs text-gray-400">({(roleDefaultsDraft[role] || []).length})</span>
-                </button>
-              ))}
+            {/* Main tabs: Permissions / Users */}
+            <div className="flex border-b border-gray-200 px-6 pt-3 gap-1 shrink-0 bg-white">
+              <button onClick={() => setSuperAdminTab('permissions')}
+                className={`px-4 py-2 text-sm font-bold rounded-t-lg border-b-2 transition-colors ${superAdminTab === 'permissions' ? 'border-purple-600 text-purple-700' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+                🔑 Permissões por Nível
+              </button>
+              <button onClick={() => setSuperAdminTab('users')}
+                className={`px-4 py-2 text-sm font-bold rounded-t-lg border-b-2 transition-colors ${superAdminTab === 'users' ? 'border-purple-600 text-purple-700' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+                👤 Usuários ({users.filter(u => u.role !== 'super').length})
+              </button>
             </div>
 
             {/* Body */}
             <div className="overflow-y-auto flex-1 px-6 py-4 space-y-4">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-sm text-gray-600">
-                  Editando permissões padrão para: <span className={`px-2 py-0.5 rounded font-bold text-xs ${roleColors[editingRole]}`}>{roleLabels[editingRole]}</span>
-                </p>
-                <div className="flex gap-2">
-                  <button onClick={() => setRoleDefaultsDraft(prev => ({ ...prev, [editingRole]: [...allFunctionIds] }))}
-                    className="text-xs text-teal-700 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg font-semibold hover:bg-teal-100">
-                    ✓ Todas
-                  </button>
-                  <button onClick={() => setRoleDefaultsDraft(prev => ({ ...prev, [editingRole]: [] }))}
-                    className="text-xs text-gray-600 bg-gray-100 px-2.5 py-1 rounded-lg font-semibold hover:bg-gray-200">
-                    ✕ Nenhuma
-                  </button>
-                  <button onClick={() => setRoleDefaultsDraft(prev => ({ ...prev, [editingRole]: [...DEFAULT_PERMISSIONS[editingRole]] }))}
-                    className="text-xs text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg font-semibold hover:bg-amber-100">
-                    ↺ Restaurar Original
-                  </button>
-                </div>
-              </div>
 
-              {APP_FUNCTIONS.map(group => {
+              {/* ── Tab: Users ── */}
+              {superAdminTab === 'users' && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold text-gray-700">Ativar ou desativar usuários administrativos via checkbox:</p>
+                    <span className="text-xs text-gray-400">{users.filter(u => u.role !== 'super' && u.active).length} ativos de {users.filter(u => u.role !== 'super').length}</span>
+                  </div>
+                  <div className="space-y-2">
+                    {users.filter(u => u.role !== 'super').map(u => (
+                      <label key={u.id}
+                        className={`flex items-center gap-4 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all ${u.active ? 'border-green-300 bg-green-50' : 'border-gray-200 bg-gray-50 opacity-70'}`}>
+                        <input
+                          type="checkbox"
+                          checked={u.active}
+                          onChange={() => toggleActive(u.id)}
+                          className="w-5 h-5 accent-green-600 shrink-0 cursor-pointer"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <p className="text-sm font-bold text-gray-800">{u.name}</p>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${roleColors[u.role]}`}>{roleLabels[u.role]}</span>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${u.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'}`}>
+                              {u.active ? '● Ativo' : '○ Inativo'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500 mt-0.5 truncate">📧 {u.email}{u.phone ? ` · 📱 ${u.phone}` : ''}</p>
+                        </div>
+                        <div className="shrink-0 text-right">
+                          <p className="text-xs text-gray-400">Desde {new Date(u.createdAt).toLocaleDateString('pt-BR')}</p>
+                        </div>
+                      </label>
+                    ))}
+                    {users.filter(u => u.role !== 'super').length === 0 && (
+                      <p className="text-sm text-gray-400 text-center py-8">Nenhum usuário administrativo cadastrado.</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* ── Tab: Permissions ── */}
+              {superAdminTab === 'permissions' && (<>
+                {/* Role sub-tabs */}
+                <div className="flex gap-1 flex-wrap border-b border-gray-200 pb-2 mb-4">
+                  {(['admin', 'manager', 'collaborator', 'viewer'] as AdminUser['role'][]).map(role => (
+                    <button key={role} onClick={() => setEditingRole(role)}
+                      className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors ${editingRole === role ? 'border-primary text-primary bg-primary/5' : 'border-gray-200 text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}>
+                      <span className={`inline-block w-2 h-2 rounded-full mr-1 ${roleColors[role].split(' ')[0]}`} />
+                      {roleLabels[role]}
+                      <span className="ml-1 text-gray-400">({(roleDefaultsDraft[role] || []).length})</span>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm text-gray-600">
+                    Editando permissões padrão para: <span className={`px-2 py-0.5 rounded font-bold text-xs ${roleColors[editingRole]}`}>{roleLabels[editingRole]}</span>
+                  </p>
+                  <div className="flex gap-2">
+                    <button onClick={() => setRoleDefaultsDraft(prev => ({ ...prev, [editingRole]: [...allFunctionIds] }))}
+                      className="text-xs text-teal-700 bg-teal-50 border border-teal-200 px-2.5 py-1 rounded-lg font-semibold hover:bg-teal-100">
+                      ✓ Todas
+                    </button>
+                    <button onClick={() => setRoleDefaultsDraft(prev => ({ ...prev, [editingRole]: [] }))}
+                      className="text-xs text-gray-600 bg-gray-100 px-2.5 py-1 rounded-lg font-semibold hover:bg-gray-200">
+                      ✕ Nenhuma
+                    </button>
+                    <button onClick={() => setRoleDefaultsDraft(prev => ({ ...prev, [editingRole]: [...DEFAULT_PERMISSIONS[editingRole]] }))}
+                      className="text-xs text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-lg font-semibold hover:bg-amber-100">
+                      ↺ Restaurar Original
+                    </button>
+                  </div>
+                </div>
+              </>)}
+
+              {superAdminTab === 'permissions' && APP_FUNCTIONS.map(group => {
                 const roleDraft = roleDefaultsDraft[editingRole] || [];
                 const allOn = group.items.every(i => roleDraft.includes(i.id));
                 return (

@@ -45,6 +45,8 @@ export interface AdminUser {
   id: number;
   name: string;
   email: string;
+  secondaryEmail?: string;
+  phone?: string; // WhatsApp number
   password: string;
   role: 'super' | 'admin' | 'manager' | 'collaborator' | 'viewer';
   createdAt: string;
