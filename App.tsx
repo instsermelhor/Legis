@@ -251,7 +251,7 @@ const App: React.FC = () => {
     if (lowerEmail === TEST_EMAIL && credentials.password === TEST_PASSWORD) {
       const testIntern: Intern = {
         id: 9999,
-        name: 'Estudante Teste',
+        name: 'Bacharelando Teste',
         cpf: '000.000.000-00',
         university: 'Universidade Legis Connect',
         semester: '5º ao 7º semestre',
@@ -380,7 +380,7 @@ const App: React.FC = () => {
   const handleInternSignup = (data: InternSignupData) => {
     const newIntern: Intern = {
       id: Math.floor(Math.random() * 10000),
-      name: data.name || 'Estudante',
+      name: data.name || 'Bacharelando',
       cpf: data.cpf || '000.000.000-00',
       university: data.university || 'Universidade',
       semester: data.semester || '1º ao 3º semestre',

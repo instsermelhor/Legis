@@ -513,7 +513,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                                         : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
                                 }`}
                             >
-                                🗂️ Secretariado
+                                🗂️ Secret./Assist. Jurídico
                             </button>
                             <button
                                 onClick={() => setActiveSection('apis')}
@@ -1087,7 +1087,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h3 className="text-lg font-bold text-gray-800">🎓 Escolher Estagiário</h3>
-                                    <p className="text-sm text-gray-500 mt-0.5">Selecione um estudante para atuar como estagiário vinculado ao seu escritório.</p>
+                                    <p className="text-sm text-gray-500 mt-0.5">Selecione um bacharelando para atuar como estagiário vinculado ao seu escritório.</p>
                                 </div>
                                 {linkedInternId && (
                                     <div className="bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-2 text-xs font-semibold text-indigo-700">
@@ -1175,7 +1175,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                                             <p><strong>Área de Interesse:</strong> {confirmLinkIntern.specialtyInterest}</p>
                                             <p><strong>Cidade:</strong> {confirmLinkIntern.city || '—'}</p>
                                         </div>
-                                        <p className="text-xs text-gray-500">O estudante receberá uma notificação com suas informações de contato.</p>
+                                        <p className="text-xs text-gray-500">O bacharelando receberá uma notificação com suas informações de contato.</p>
                                         <div className="flex gap-3">
                                             <button onClick={() => setConfirmLinkIntern(null)} className="flex-1 py-2.5 text-sm font-semibold text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200">Cancelar</button>
                                             <button
@@ -1201,8 +1201,8 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                         <div className="space-y-5 animate-fade-in">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h3 className="text-lg font-bold text-gray-800">🗂️ Secretariado</h3>
-                                    <p className="text-sm text-gray-500 mt-0.5">Encontre e contrate profissionais de secretariado para o seu escritório.</p>
+                                    <h3 className="text-lg font-bold text-gray-800">🗂️ Secret./Assist. Jurídico</h3>
+                                    <p className="text-sm text-gray-500 mt-0.5">Encontre e contrate profissionais de Secret./Assist. Jurídico para o seu escritório.</p>
                                 </div>
                                 {linkedSecretaryId && (
                                     <div className="bg-purple-50 border border-purple-200 rounded-xl px-4 py-2 text-xs font-semibold text-purple-700">

@@ -119,7 +119,7 @@ export const SecretariadoSignupForm: React.FC<SecretariadoSignupFormProps> = ({ 
     <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
       {/* Progress */}
       <div className="bg-gradient-to-r from-purple-600 to-purple-500 p-5">
-        <h2 className="text-lg font-bold text-white mb-3">Cadastro de Secretariado Jurídico</h2>
+        <h2 className="text-lg font-bold text-white mb-3">Cadastro de Secret./Assist. Jurídico</h2>
         <div className="flex items-center gap-2">
           {progressBars.map((label, i) => (
             <React.Fragment key={label}>
