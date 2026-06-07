@@ -18,7 +18,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
     { label: 'Encontrar Advogado', view: 'search' as View },
     { label: 'Advogados', view: 'forLawyers' as View },
     { label: 'Bacharelandos', view: 'forInterns' as View },
-    { label: 'Secretariado', view: 'forSecretariado' as View },
+    { label: 'Secret./Assist. Juru00eddico', view: 'forSecretariado' as View },
     { label: 'Clientes', view: 'forClients' as View },
     { label: 'Serviços', view: 'services' as View },
   ] : [];

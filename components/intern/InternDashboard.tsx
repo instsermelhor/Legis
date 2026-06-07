@@ -5,6 +5,7 @@ import { AREAS_OF_LAW, BRAZILIAN_STATES } from '../../constants';
 import { ChangePasswordModal } from '../common/ChangePasswordModal';
 import { ChangeEmailModal } from '../common/ChangeEmailModal';
 import { LawyerInfoPopup } from '../common/LawyerInfoPopup';
+import { ApiStatusPanel } from '../common/ApiStatusPanel';
 import { mockLawyers } from '../../services/mockLawyerService';
 import { mockInterns } from '../../services/mockDataService';
 
@@ -419,7 +420,7 @@ const SemesterGradeCard: React.FC<SemesterGradeCardProps> = ({
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 
 export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEmail, onUpdateIntern, onUpdateEmail }) => {
-    const [activeTab, setActiveTab] = useState<'overview' | 'perfil' | 'studies' | 'hours' | 'casos'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'perfil' | 'studies' | 'hours' | 'casos' | 'apis'>('overview');
     const [showLawyerPopup, setShowLawyerPopup] = useState(false);
 
     const mockInternData = mockInterns.find(i => i.name === intern.name);
@@ -543,7 +544,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                         {intern.name.charAt(0)}
                     </div>
                     <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Painel do Estudante</h1>
+                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Painel do Bacharelando</h1>
                         <p className="text-gray-600">Bem-vindo(a), {intern.name}! ({intern.semester} — {intern.university})</p>
                         {supervisorLawyer && (
                             <button onClick={() => setShowLawyerPopup(true)}
@@ -577,6 +578,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                         {tabBtn('casos', '📋 Meus Casos')}
                         {tabBtn('studies', '📖 Mural de Estudos')}
                         {tabBtn('hours', 'Mentorias e Clínicas')}
+                        {tabBtn('apis', '🔌 APIs')}
                     </nav>
                 </div>
 
@@ -882,12 +884,29 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                         )}
                     </div>
                 )}
+                {activeTab === 'apis' && (
+                    <div className="space-y-6 animate-fade-in">
+                        <div>
+                            <h2 className="text-lg font-bold text-gray-800">🔌 APIs Habilitadas</h2>
+                            <p className="text-sm text-gray-500 mt-0.5">Veja quais integrações estão ativas na plataforma para seu perfil.</p>
+                        </div>
+                        <ApiStatusPanel />
+                    </div>
+                )}
             </div>
 
             {/* ─── Modals ─── */}
             {showPasswordModal && <ChangePasswordModal onClose={() => setShowPasswordModal(false)} onSave={cur => cur.length >= 4} />}
             {showEmailModal && <ChangeEmailModal currentEmail={userEmail || intern.contact?.email || ''} onClose={() => setShowEmailModal(false)} onSave={(pwd, email) => { if (pwd.length < 4) return false; if (onUpdateEmail) onUpdateEmail(email); return true; }} />}
-            {showLawyerPopup && supervisorLawyer && <LawyerInfoPopup lawyer={supervisorLawyer} message="Você foi escolhido como estagiário deste advogado!" onClose={() => setShowLawyerPopup(false)} />}
+            {showLawyerPopup && supervisorLawyer && (
+              <LawyerInfoPopup
+                lawyer={supervisorLawyer}
+                message="Você foi escolhido como Bacharelando deste advogado!"
+                onClose={() => setShowLawyerPopup(false)}
+                onAccept={() => { /* persiste aceitação */ }}
+                onReject={() => { /* persiste recusa */ }}
+              />
+            )}
             {showPersonalDocModal && <PersonalDocModal onClose={() => setShowPersonalDocModal(false)} onConfirm={doc => setPersonalDocs(prev => [...prev, doc])} />}
             {uploadModalSemester && (
                 <CourseDocModal

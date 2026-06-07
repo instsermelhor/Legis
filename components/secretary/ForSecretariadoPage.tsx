@@ -52,7 +52,7 @@ export const ForSecretariadoPage: React.FC<ForSecretariadoPageProps> = ({ onLogi
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 relative">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 px-4 py-1.5 rounded-full text-sm font-semibold mb-6 backdrop-blur-sm">
-              🏛️ Secretariado Jurídico
+              🏛️ Secret./Assist. Jurídico
             </div>
             <h1 className="text-4xl sm:text-5xl font-extrabold leading-tight mb-6">
               Impulsione sua carreira no
@@ -84,7 +84,7 @@ export const ForSecretariadoPage: React.FC<ForSecretariadoPageProps> = ({ onLogi
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setShowLogin(false)}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-bold text-gray-900">Entrar — Secretariado</h2>
+              <h2 className="text-lg font-bold text-gray-900">Entrar — Secret./Assist. Jurídico</h2>
               <button onClick={() => setShowLogin(false)} className="text-gray-400 hover:text-gray-600 text-2xl font-bold leading-none">&times;</button>
             </div>
             <form onSubmit={handleLogin} className="space-y-4">

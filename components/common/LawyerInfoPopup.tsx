@@ -1,13 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Lawyer } from '../../types';
 
 interface LawyerInfoPopupProps {
   lawyer: Lawyer;
-  message: string; // e.g., "Você foi escolhido como estagiário!" or "Você foi selecionado como secretário!"
+  message: string;
   onClose: () => void;
+  /** If provided, shows "Aceitar" and "Recusar" action buttons */
+  onAccept?: () => void;
+  onReject?: () => void;
 }
 
-export const LawyerInfoPopup: React.FC<LawyerInfoPopupProps> = ({ lawyer, message, onClose }) => {
+export const LawyerInfoPopup: React.FC<LawyerInfoPopupProps> = ({ lawyer, message, onClose, onAccept, onReject }) => {
+  const [confirmed, setConfirmed] = useState<'accept' | 'reject' | null>(null);
+
+  const handleAccept = () => {
+    setConfirmed('accept');
+    if (onAccept) onAccept();
+    setTimeout(() => { onClose(); }, 1200);
+  };
+
+  const handleReject = () => {
+    setConfirmed('reject');
+    if (onReject) onReject();
+    setTimeout(() => { onClose(); }, 1200);
+  };
+
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fade-in" onClick={onClose}>
       <div
@@ -59,12 +76,44 @@ export const LawyerInfoPopup: React.FC<LawyerInfoPopupProps> = ({ lawyer, messag
             💡 Entre em contato pelo telefone ou e-mail para combinar os detalhes da colaboração.
           </p>
 
-          <button
-            onClick={onClose}
-            className="w-full py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary/90 transition-colors"
-          >
-            Entendido — Fechar
-          </button>
+          {/* Confirmation feedback */}
+          {confirmed === 'accept' && (
+            <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-center">
+              <p className="text-sm font-bold text-green-700">✅ Proposta aceita! O advogado será notificado.</p>
+            </div>
+          )}
+          {confirmed === 'reject' && (
+            <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-center">
+              <p className="text-sm font-bold text-red-700">❌ Proposta recusada. O advogado será notificado.</p>
+            </div>
+          )}
+
+          {/* Action buttons */}
+          {onAccept && onReject && !confirmed ? (
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                onClick={handleReject}
+                className="py-2.5 text-sm font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-colors"
+              >
+                ✕ Recusar
+              </button>
+              <button
+                onClick={handleAccept}
+                className="py-2.5 text-sm font-semibold text-white bg-green-600 rounded-xl hover:bg-green-700 transition-colors"
+              >
+                ✓ Aceitar
+              </button>
+            </div>
+          ) : (
+            !confirmed && (
+              <button
+                onClick={onClose}
+                className="w-full py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary/90 transition-colors"
+              >
+                Entendido — Fechar
+              </button>
+            )
+          )}
         </div>
       </div>
     </div>

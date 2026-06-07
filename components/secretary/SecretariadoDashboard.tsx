@@ -4,6 +4,7 @@ import type { Lawyer } from '../../types';
 import { ChangePasswordModal } from '../common/ChangePasswordModal';
 import { ChangeEmailModal } from '../common/ChangeEmailModal';
 import { LawyerInfoPopup } from '../common/LawyerInfoPopup';
+import { ApiStatusPanel } from '../common/ApiStatusPanel';
 import { mockLawyers } from '../../services/mockLawyerService';
 import { XIcon } from '../common/IconComponents';
 
@@ -14,7 +15,7 @@ interface SecretariadoDashboardProps {
   onUpdateEmail?: (newEmail: string) => void;
 }
 
-type ActiveTab = 'overview' | 'perfil' | 'agenda' | 'documentos';
+type ActiveTab = 'overview' | 'perfil' | 'agenda' | 'documentos' | 'apis';
 
 const AREAS_CONHECIMENTO = [
   'Atendimento ao Cliente', 'Gestão de Agenda', 'Protocolo Judicial',
@@ -408,7 +409,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
             {secretary.name.charAt(0)}
           </div>
           <div className="text-center sm:text-left">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Painel do Secretariado</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Painel do Secret./Assist. Jurídico</h1>
             <p className="text-gray-600">Bem-vindo(a), {profile.name || secretary.name}!</p>
             {assignedLawyer && (
               <button onClick={() => setShowLawyerPopup(true)}
@@ -441,6 +442,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
             {tabBtn('perfil', '👤 Meu Perfil')}
             {tabBtn('agenda', '📅 Agenda')}
             {tabBtn('documentos', '📂 Documentos')}
+            {tabBtn('apis', '🔌 APIs')}
           </nav>
         </div>
 
@@ -825,6 +827,17 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
             )}
           </div>
         )}
+
+        {/* ─── APIs Tab ─── */}
+        {activeTab === 'apis' && (
+          <div className="space-y-6 animate-fade-in">
+            <div>
+              <h2 className="text-lg font-bold text-gray-800">🔌 APIs Habilitadas</h2>
+              <p className="text-sm text-gray-500 mt-0.5">Veja quais integrações estão ativas na plataforma para seu perfil.</p>
+            </div>
+            <ApiStatusPanel />
+          </div>
+        )}
       </div>
 
       {/* ─── Modals ─── */}
@@ -849,7 +862,13 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
         />
       )}
       {showLawyerPopup && assignedLawyer && (
-        <LawyerInfoPopup lawyer={assignedLawyer} message="Você foi selecionado como secretário(a) deste advogado!" onClose={() => setShowLawyerPopup(false)} />
+        <LawyerInfoPopup
+          lawyer={assignedLawyer}
+          message="Você foi selecionado(a) como Secret./Assist. Jurídico deste advogado!"
+          onClose={() => setShowLawyerPopup(false)}
+          onAccept={() => { /* persiste aceitação */ }}
+          onReject={() => { /* persiste recusa */ }}
+        />
       )}
     </div>
   );
