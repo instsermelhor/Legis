@@ -9,124 +9,186 @@ body {
   color: #111827;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
-.dark body {
+html.dark body {
   background-color: #0F0D1A;
   color: #F1F0FF;
 }
 
 /* ── Admin / inner panels dark mode ─────────────────── */
-.dark .bg-white       { background-color: #1A1730 !important; }
-.dark .bg-gray-50     { background-color: #17142C !important; }
-.dark .bg-gray-100    { background-color: #1F1C36 !important; }
-.dark .border-gray-200{ border-color: #2A2545 !important; }
-.dark .border-gray-300{ border-color: #332E55 !important; }
-.dark .text-gray-900  { color: #F1F0FF !important; }
-.dark .text-gray-800  { color: #E5E3FF !important; }
-.dark .text-gray-700  { color: #C8C5F0 !important; }
-.dark .text-gray-600  { color: #A09CC4 !important; }
-.dark .text-gray-500  { color: #7A77A0 !important; }
-.dark .shadow-sm      { box-shadow: 0 2px 8px rgba(0,0,0,0.35) !important; }
-.dark .shadow-md      { box-shadow: 0 4px 16px rgba(0,0,0,0.45) !important; }
-
-/* ── Dark mode: campos de digitação ─────────────────── */
-/* Todos os inputs, textareas e selects em dark mode     */
-.dark input,
-.dark input[type="text"],
-.dark input[type="email"],
-.dark input[type="password"],
-.dark input[type="search"],
-.dark input[type="number"],
-.dark input[type="tel"],
-.dark input[type="url"],
-.dark input[type="date"],
-.dark input[type="time"],
-.dark input[type="datetime-local"],
-.dark textarea,
-.dark select {
-  color: #F1F0FF !important;
-  background-color: #1A1730 !important;
-  border-color: #2A2545 !important;
-  caret-color: #A855F7;
-}
-
-/* Placeholder em dark mode */
-.dark input::placeholder,
-.dark textarea::placeholder {
-  color: #5A5680 !important;
-  opacity: 1;
-}
-
-/* Autofill override — evita fundo branco do browser */
-.dark input:-webkit-autofill,
-.dark input:-webkit-autofill:hover,
-.dark input:-webkit-autofill:focus,
-.dark textarea:-webkit-autofill,
-.dark select:-webkit-autofill {
-  -webkit-text-fill-color: #F1F0FF !important;
-  -webkit-box-shadow: 0 0 0 1000px #1A1730 inset !important;
-  box-shadow: 0 0 0 1000px #1A1730 inset !important;
-  border-color: #2A2545 !important;
-  caret-color: #A855F7;
-  transition: background-color 9999s ease-in-out 0s;
-}
-
-/* Opções do select em dark mode */
-.dark select option {
-  background-color: #1A1730;
-  color: #F1F0FF;
-}
-
-/* Focus dos campos em dark mode */
-.dark input:focus,
-.dark textarea:focus,
-.dark select:focus {
-  border-color: #7C3AED !important;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.20) !important;
-  background-color: #1F1C36 !important;
-}
-
-/* Campos desabilitados em dark mode */
-.dark input:disabled,
-.dark textarea:disabled,
-.dark select:disabled {
-  color: #4A4670 !important;
-  background-color: #13112A !important;
-  border-color: #1E1B38 !important;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-/* Readonly */
-.dark input:read-only,
-.dark textarea:read-only {
-  color: #8A88B0 !important;
-  background-color: #16132A !important;
-}
-
-/* Checkbox e radio em dark mode */
-.dark input[type="checkbox"],
-.dark input[type="radio"] {
-  background-color: #1A1730 !important;
-  border-color: #4A4670 !important;
-  color: #7C3AED !important;
-}
-
-/* Labels em dark mode */
-.dark label {
-  color: #C8C5F0;
-}
+html.dark .bg-white       { background-color: #1A1730 !important; }
+html.dark .bg-gray-50     { background-color: #17142C !important; }
+html.dark .bg-gray-100    { background-color: #1F1C36 !important; }
+html.dark .bg-neutral-light { background-color: #13112A !important; }
+html.dark .border-gray-200  { border-color: #2A2545 !important; }
+html.dark .border-gray-300  { border-color: #332E55 !important; }
+html.dark .text-gray-900  { color: #F1F0FF !important; }
+html.dark .text-gray-800  { color: #E5E3FF !important; }
+html.dark .text-gray-700  { color: #C8C5F0 !important; }
+html.dark .text-gray-600  { color: #A09CC4 !important; }
+html.dark .text-gray-500  { color: #7A77A0 !important; }
+html.dark .shadow-sm      { box-shadow: 0 2px 8px rgba(0,0,0,0.35) !important; }
+html.dark .shadow-md      { box-shadow: 0 4px 16px rgba(0,0,0,0.45) !important; }
+html.dark .shadow-lg      { box-shadow: 0 8px 24px rgba(0,0,0,0.50) !important; }
 
 /* Badges, pills e tags com bg-white em dark */
-.dark .bg-white.rounded-full,
-.dark .bg-white.rounded-lg,
-.dark .bg-white.rounded-xl {
+html.dark .bg-white.rounded-full,
+html.dark .bg-white.rounded-lg,
+html.dark .bg-white.rounded-xl {
   background-color: #1F1C36 !important;
   color: #E5E3FF !important;
 }
 
+/* ═══════════════════════════════════════════════════════
+   CAMPOS DE DIGITAÇÃO — DARK MODE
+   Usa html.dark (maior especificidade) +
+   -webkit-text-fill-color (prevalece sobre color no Chrome)
+═══════════════════════════════════════════════════════ */
 
-/* ── Typography: apply Montserrat to h1–h3 ───────────── */
+/* ── Base: todos os inputs/textareas/selects ─────────── */
+html.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+html.dark textarea,
+html.dark select {
+  color: #F1F0FF !important;
+  -webkit-text-fill-color: #F1F0FF !important;
+  background-color: #1A1730 !important;
+  border-color: #2A2545 !important;
+  caret-color: #A855F7 !important;
+}
+
+/* ── Placeholder ─────────────────────────────────────── */
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #6B6890 !important;
+  -webkit-text-fill-color: #6B6890 !important;
+  opacity: 1 !important;
+}
+
+/* ── Focus state ─────────────────────────────────────── */
+html.dark input:focus,
+html.dark textarea:focus,
+html.dark select:focus {
+  color: #F1F0FF !important;
+  -webkit-text-fill-color: #F1F0FF !important;
+  border-color: #7C3AED !important;
+  background-color: #1F1C36 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.22) !important;
+}
+
+/* ── Autofill override (Chrome/Safari injetam fundo branco) */
+html.dark input:-webkit-autofill,
+html.dark input:-webkit-autofill:hover,
+html.dark input:-webkit-autofill:focus,
+html.dark input:-webkit-autofill:active,
+html.dark textarea:-webkit-autofill,
+html.dark select:-webkit-autofill {
+  -webkit-text-fill-color: #F1F0FF !important;
+  -webkit-box-shadow: 0 0 0 1000px #1A1730 inset !important;
+  box-shadow: 0 0 0 1000px #1A1730 inset !important;
+  border-color: #2A2545 !important;
+  caret-color: #A855F7 !important;
+  transition: background-color 9999s ease-in-out 0s !important;
+}
+
+/* ── Select options (dropdown nativo) ────────────────── */
+html.dark select option,
+html.dark select optgroup {
+  background-color: #1A1730 !important;
+  color: #F1F0FF !important;
+}
+
+/* ── Disabled ────────────────────────────────────────── */
+html.dark input:disabled,
+html.dark textarea:disabled,
+html.dark select:disabled {
+  color: #4A4670 !important;
+  -webkit-text-fill-color: #4A4670 !important;
+  background-color: #13112A !important;
+  border-color: #1E1B38 !important;
+  cursor: not-allowed !important;
+  opacity: 0.55 !important;
+}
+
+/* ── Read-only ───────────────────────────────────────── */
+html.dark input:read-only:not([type="checkbox"]),
+html.dark textarea:read-only {
+  color: #8A88B0 !important;
+  -webkit-text-fill-color: #8A88B0 !important;
+  background-color: #16132A !important;
+}
+
+/* ── Checkbox / Radio em dark ────────────────────────── */
+html.dark input[type="checkbox"],
+html.dark input[type="radio"] {
+  background-color: #1A1730 !important;
+  border-color: #4A4670 !important;
+  accent-color: #7C3AED;
+}
+
+/* ── Labels em dark ──────────────────────────────────── */
+html.dark label {
+  color: #C8C5F0;
+}
+
+/* ── SearchInput (componente AdminShared) ────────────── */
+html.dark .search-input,
+html.dark [class*="SearchInput"] input {
+  color: #F1F0FF !important;
+  -webkit-text-fill-color: #F1F0FF !important;
+  background-color: #1A1730 !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   CAMPOS DARK-NATIVE (contextos sem toggle de dark mode)
+   Ex: Login, Signup, painéis com fundo escuro fixo
+═══════════════════════════════════════════════════════ */
+
+/* Classe utilitária .input-dark ─────────────────────── */
+.input-dark {
+  color: #F1F0FF !important;
+  -webkit-text-fill-color: #F1F0FF !important;
+  background-color: rgba(255,255,255,0.07) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+  caret-color: #A855F7 !important;
+}
+.input-dark::placeholder {
+  color: rgba(255,255,255,0.30) !important;
+  -webkit-text-fill-color: rgba(255,255,255,0.30) !important;
+  opacity: 1 !important;
+}
+.input-dark:focus {
+  color: #F1F0FF !important;
+  -webkit-text-fill-color: #F1F0FF !important;
+  border-color: #7C3AED !important;
+  background-color: rgba(255,255,255,0.10) !important;
+  box-shadow: 0 0 0 3px rgba(124,58,237,0.20) !important;
+  outline: none !important;
+}
+.input-dark:-webkit-autofill,
+.input-dark:-webkit-autofill:focus {
+  -webkit-text-fill-color: #F1F0FF !important;
+  -webkit-box-shadow: 0 0 0 1000px #1A1730 inset !important;
+  transition: background-color 9999s ease-in-out 0s !important;
+}
+
+/* Inputs dentro de containers auth escuros (seletores de atributo style) */
+[style*="0F0D1A"] input:not([type="checkbox"]):not([type="radio"]),
+[style*="1A1130"] input:not([type="checkbox"]):not([type="radio"]),
+[style*="1A1730"] input:not([type="checkbox"]):not([type="radio"]),
+[style*="rgba(26"] input:not([type="checkbox"]):not([type="radio"]) {
+  color: #F1F0FF !important;
+  -webkit-text-fill-color: #F1F0FF !important;
+  caret-color: #A855F7 !important;
+}
+[style*="0F0D1A"] input::placeholder,
+[style*="1A1130"] input::placeholder,
+[style*="1A1730"] input::placeholder,
+[style*="rgba(26"] input::placeholder {
+  color: rgba(255,255,255,0.32) !important;
+  -webkit-text-fill-color: rgba(255,255,255,0.32) !important;
+}
+
+/* ── Typography: apply Montserrat to h1–h4 ───────────── */
 h1, h2 {
   font-family: 'Montserrat', sans-serif;
   font-weight: 700;
@@ -141,15 +203,11 @@ h5, h6 {
   font-weight: 600;
 }
 
-/* ── Cinzel utility ──────────────────────────────────── */
-.font-cinzel {
-  font-family: 'Cinzel', serif !important;
-}
-.font-montserrat {
-  font-family: 'Montserrat', sans-serif !important;
-}
+/* ── Cinzel / Montserrat utilities ───────────────────── */
+.font-cinzel      { font-family: 'Cinzel', serif !important; }
+.font-montserrat  { font-family: 'Montserrat', sans-serif !important; }
 
-/* ── Scrollbar ───────────────────────────────────────── */
+/* ── Scrollbar refinada ──────────────────────────────── */
 * { scrollbar-width: thin; scrollbar-color: rgba(124,58,237,0.3) transparent; }
 ::-webkit-scrollbar       { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -174,52 +232,3 @@ img { image-rendering: -webkit-optimize-contrast; }
 
 /* ── No tap highlight on mobile ──────────────────────── */
 button, a { -webkit-tap-highlight-color: transparent; }
-
-/* ── input-dark: classe para campos natively dark ────── */
-/* Usar em formulários com fundo escuro (login, signup   */
-/* em dark, dashboards) independente do toggle de tema   */
-.input-dark {
-  color: #F1F0FF !important;
-  background-color: rgba(255,255,255,0.06) !important;
-  border-color: rgba(255,255,255,0.12) !important;
-  caret-color: #A855F7;
-}
-.input-dark::placeholder {
-  color: rgba(255,255,255,0.30) !important;
-  opacity: 1;
-}
-.input-dark:focus {
-  border-color: #7C3AED !important;
-  background-color: rgba(255,255,255,0.09) !important;
-  box-shadow: 0 0 0 3px rgba(124,58,237,0.18) !important;
-  outline: none;
-}
-.input-dark:-webkit-autofill,
-.input-dark:-webkit-autofill:focus {
-  -webkit-text-fill-color: #F1F0FF !important;
-  -webkit-box-shadow: 0 0 0 1000px #1A1730 inset !important;
-  transition: background-color 9999s ease-in-out 0s;
-}
-
-/* ── Cobertura de inputs sem text-* explícito ─────────── */
-/* Garante que qualquer input dentro de bg escuro         */
-/* mostre texto claro (login, signup, dashboards dark)    */
-.dark input:not([type="checkbox"]):not([type="radio"]):not([type="range"]) {
-  color: #F1F0FF !important;
-}
-.dark textarea { color: #F1F0FF !important; }
-.dark select   { color: #F1F0FF !important; }
-
-/* Inputs dentro de containers de auth (dark por natureza) */
-[style*="background: rgba(26, 23"] input,
-[style*="background: rgba(26,23"]  input,
-[style*="0F0D1A"] input,
-[style*="1A1130"] input {
-  color: #F1F0FF !important;
-  caret-color: #A855F7;
-}
-[style*="background: rgba(26, 23"] input::placeholder,
-[style*="0F0D1A"] input::placeholder,
-[style*="1A1130"] input::placeholder {
-  color: rgba(255,255,255,0.30) !important;
-}
