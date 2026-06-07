@@ -18,7 +18,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
     { label: 'Encontrar Advogado', view: 'search' as View },
     { label: 'Advogados', view: 'forLawyers' as View },
     { label: 'Bacharelandos', view: 'forInterns' as View },
-    { label: 'Secret./Assist. Juru00eddico', view: 'forSecretariado' as View },
+    { label: 'Secret/Assist Jurídico', view: 'forSecretariado' as View },
     { label: 'Clientes', view: 'forClients' as View },
     { label: 'Serviços', view: 'services' as View },
   ] : [];
@@ -50,13 +50,13 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
           </div>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center">
+          <nav className="hidden md:flex items-center gap-6">
             {navLinks.map(link => (
               <a
                 key={link.view}
                 href="#"
                 onClick={(e) => { e.preventDefault(); onNavigate(link.view); }}
-                className={`transition duration-150 ease-in-out font-medium ml-5 ${isActive(link.view) ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}
+                className={`transition duration-150 ease-in-out font-medium text-sm whitespace-nowrap ${isActive(link.view) ? 'text-primary border-b-2 border-primary py-1' : 'text-gray-600 hover:text-primary py-1 border-b-2 border-transparent'}`}
               >
                 {link.label}
               </a>
