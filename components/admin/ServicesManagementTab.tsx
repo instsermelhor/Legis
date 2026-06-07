@@ -93,16 +93,16 @@ export const ServicesManagementTab: React.FC = () => {
       </div>
 
       {showForm && (
-        <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-6 space-y-4">
+        <div className="bg-white border border-gray-200 shadow-sm rounded-xl p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
           <h3 className="font-bold text-gray-800 border-b pb-3 mb-3">{editingId ? 'Editar Serviço' : 'Cadastrar Novo Serviço'}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Serviço *</label>
-              <input value={formName} onChange={e => setFormName(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" placeholder="Ex: Triagem Documental" />
+              <input value={formName} onChange={e => setFormName(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" placeholder="Ex: Triagem Documental" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Grupo do Serviço *</label>
-              <select value={formGroupId} onChange={e => setFormGroupId(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+              <select value={formGroupId} onChange={e => setFormGroupId(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                 <option value="" disabled>Selecione um Grupo</option>
                 {groups.map(g => (
                   <option key={g.id} value={g.id}>{g.name}</option>
@@ -111,11 +111,11 @@ export const ServicesManagementTab: React.FC = () => {
             </div>
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
-              <textarea value={formDescription} onChange={e => setFormDescription(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" rows={2} placeholder="Descreva os detalhes do serviço..."></textarea>
+              <textarea value={formDescription} onChange={e => setFormDescription(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" rows={2} placeholder="Descreva os detalhes do serviço..."></textarea>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Preço (R$) *</label>
-              <input type="number" step="0.01" value={formPrice} onChange={e => setFormPrice(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" placeholder="0.00" />
+              <input type="number" step="0.01" value={formPrice} onChange={e => setFormPrice(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" placeholder="0.00" />
             </div>
           </div>
           <div className="flex gap-2 pt-4">
@@ -134,8 +134,8 @@ export const ServicesManagementTab: React.FC = () => {
           {groups.map(group => {
             const groupServices = services.filter(s => s.groupId === group.id);
             return (
-              <div key={group.id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                <div className="bg-gray-50 border-b border-gray-200 px-6 py-4">
+              <div key={group.id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                <div className="bg-gray-50 border-b border-gray-200 px-6 py-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                   <h3 className="font-bold text-gray-800 text-lg">{group.name}</h3>
                 </div>
                 {groupServices.length === 0 ? (

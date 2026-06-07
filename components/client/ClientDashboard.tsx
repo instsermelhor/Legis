@@ -64,7 +64,7 @@ function parseFiles(files: FileList | null, onDoc: (d: UploadedDoc) => void) {
 
 /** Chip showing an uploaded document with a remove button */
 const DocChip: React.FC<{ doc: UploadedDoc; onRemove: () => void }> = ({ doc, onRemove }) => (
-    <div className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 gap-3">
+    <div className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 gap-3 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
         <div className="flex items-center gap-3 min-w-0">
             <span className="text-xl shrink-0">{doc.type === 'PDF' ? '📄' : '🖼️'}</span>
             <div className="min-w-0">
@@ -88,7 +88,7 @@ const DocChip: React.FC<{ doc: UploadedDoc; onRemove: () => void }> = ({ doc, on
 const UploadZone: React.FC<{ onUpload: () => void }> = ({ onUpload }) => (
     <button
         onClick={onUpload}
-        className="w-full border-2 border-dashed border-gray-200 rounded-xl py-6 text-center text-gray-400 hover:border-primary/50 hover:bg-primary/5 transition-colors"
+        className="w-full border-2 border-dashed border-gray-200 rounded-xl py-6 text-center text-gray-400 hover:border-primary/50 hover:bg-primary/5 transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
     >
         <p className="text-3xl mb-1">📁</p>
         <p className="text-sm font-medium">Clique para enviar documentos</p>
@@ -112,7 +112,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ caseToReview, onClose, onSubm
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4" onClick={onClose}>
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md relative" onClick={e => e.stopPropagation()}>
+            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md relative dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
                 <form onSubmit={handleSubmit}>
                     <div className="p-6">
                         <div className="flex items-start justify-between">
@@ -131,7 +131,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ caseToReview, onClose, onSubm
                         <div className="mt-4">
                             <label htmlFor="rev-comment" className="block text-sm font-medium text-gray-700">Comentário (opcional)</label>
                             <textarea id="rev-comment" rows={4} value={comment} onChange={e => setComment(e.target.value)}
-                                className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary focus:border-primary"
+                                className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary focus:border-primary dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                                 placeholder="Descreva sua experiência..." />
                         </div>
                     </div>
@@ -180,7 +180,7 @@ const UploadToLawyerModal: React.FC<UploadToLawyerModalProps> = ({ cases, onClos
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4" onClick={onClose}>
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative" onClick={e => e.stopPropagation()}>
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
                 {/* Header */}
                 <div className="flex items-center justify-between p-6 border-b">
                     <div>
@@ -252,7 +252,7 @@ const UploadToLawyerModal: React.FC<UploadToLawyerModalProps> = ({ cases, onClos
 
                 {/* Footer */}
                 <div className="flex gap-3 px-6 py-4 border-t bg-gray-50 rounded-b-2xl">
-                    <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100">
+                    <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                         Cancelar
                     </button>
                     <button
@@ -350,7 +350,7 @@ const ActionCard: React.FC<{
             <p className="font-bold text-sm leading-tight">{title}</p>
             <p className="text-xs opacity-75 mt-0.5 truncate">{subtitle}</p>
         </div>
-        {badge && <span className="shrink-0 px-2 py-0.5 text-[10px] font-bold rounded-full bg-white/40">{badge}</span>}
+        {badge && <span className="shrink-0 px-2 py-0.5 text-[10px] font-bold rounded-full bg-white/40 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">{badge}</span>}
         <svg className="w-4 h-4 opacity-50 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
         </svg>
@@ -459,7 +459,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                 </div>
 
                 {/* Tabs */}
-                <div className="border-b border-gray-200 mb-6">
+                <div className="border-b border-gray-200 mb-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                     <nav className="-mb-px flex overflow-x-auto">
                         {tabBtn('advogado', 'Meu Advogado', '⚖️')}
                         {tabBtn('casos', 'Meus Casos', '📋')}
@@ -480,7 +480,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                                     <p className="text-sm text-white/80 mt-0.5">OAB {lawyer.oab} · {lawyer.location.city}/{lawyer.location.state}</p>
                                     <div className="flex flex-wrap gap-2 mt-2 justify-center sm:justify-start">
                                         {lawyer.specialties.slice(0, 2).map(s => (
-                                            <span key={s} className="px-2 py-0.5 bg-white/20 rounded-full text-xs">{s}</span>
+                                            <span key={s} className="px-2 py-0.5 bg-white/20 rounded-full text-xs dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">{s}</span>
                                         ))}
                                     </div>
                                 </div>
@@ -538,7 +538,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
 
                         {/* Docs sent to lawyer list */}
                         {lawyerDocs.length > 0 && (
-                            <div className="bg-white rounded-2xl border border-violet-200 shadow-sm p-6 space-y-3">
+                            <div className="bg-white rounded-2xl border border-violet-200 shadow-sm p-6 space-y-3 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                                 <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">📤 Documentos Enviados ao Advogado</h3>
                                 {lawyerDocs.map((d, i) => (
                                     <DocChip key={i} doc={d} onRemove={() => setLawyerDocs(prev => prev.filter((_, idx) => idx !== i))} />
@@ -548,7 +548,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
 
                         {/* Upcoming appointment detail */}
                         {upcomingAppointment && activeCase && (
-                            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+                            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                                 <h3 className="text-base font-bold text-gray-800 mb-4 flex items-center gap-2"><span>📋</span> Detalhes da Próxima Consulta</h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                                     <div className="bg-gray-50 rounded-xl p-4"><p className="text-xs text-gray-500 uppercase font-semibold">Advogado</p><p className="font-bold text-gray-800 mt-1">{activeCase.lawyerName}</p></div>
@@ -564,7 +564,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
 
                         {/* Chat panel */}
                         {showChat && (
-                            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col h-[60vh]">
+                            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col h-[60vh] dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                                 <div className="flex items-center justify-between px-5 py-4 border-b">
                                     <h3 className="font-bold text-gray-800 flex items-center gap-2">
                                         <img src={lawyer.photoUrl} className="w-8 h-8 rounded-full" alt="" />
@@ -588,7 +588,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                                 <div className="p-4 border-t">
                                     <form onSubmit={handleSendMessage} className="flex items-center gap-3">
                                         <textarea value={newMessage} onChange={e => setNewMessage(e.target.value)} placeholder="Digite sua mensagem..." rows={2}
-                                            className="flex-grow p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-transparent resize-none text-sm" />
+                                            className="flex-grow p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary/30 focus:border-transparent resize-none text-sm dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                         <button type="submit" disabled={!newMessage.trim()} className="p-3 bg-primary text-white rounded-xl hover:bg-primary-dark transition-colors disabled:bg-primary/40">
                                             <PaperAirplaneIcon className="w-5 h-5" />
                                         </button>
@@ -599,7 +599,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
 
                         {/* No active case */}
                         {!activeCase && (
-                            <div className="bg-white rounded-2xl border border-dashed border-gray-300 p-10 text-center">
+                            <div className="bg-white rounded-2xl border border-dashed border-gray-300 p-10 text-center dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                                 <BriefcaseIcon className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                                 <h3 className="font-bold text-gray-600">Nenhum caso ativo</h3>
                                 <p className="text-sm text-gray-400 mt-1">Quando você contratar um advogado, o perfil dele aparecerá aqui.</p>
@@ -612,21 +612,21 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                 {activeTab === 'casos' && (
                     <div className="space-y-6 animate-fade-in">
                         {user.caseHistory && user.caseHistory.length > 0 ? (
-                            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+                            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                                 <h2 className="text-xl font-bold text-gray-800 mb-4">Meus Casos</h2>
                                 {/* Filters */}
-                                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-5">
+                                <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 mb-5 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                                     <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Filtros</h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Número do Processo</label>
                                             <input type="text" value={filterProcesso} onChange={e => setFilterProcesso(e.target.value)} placeholder="Ex: case001"
-                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" />
+                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Nome do Advogado</label>
                                             <input type="text" value={filterOABCliente} onChange={e => setFilterOABCliente(e.target.value)} placeholder="Ex: Dr. Carlos"
-                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary" />
+                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                         </div>
                                     </div>
                                     <div className="mt-2 flex justify-end">
@@ -676,7 +676,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                                                             <div className="mb-3 space-y-2">
                                                                 <p className="text-xs font-semibold text-gray-500 uppercase">📎 Documentos enviados</p>
                                                                 {cDocs.map((d, i) => (
-                                                                    <div key={i} className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5">
+                                                                    <div key={i} className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                                                                         <span className="text-lg">{d.type === 'PDF' ? '📄' : '🖼️'}</span>
                                                                         <div>
                                                                             <p className="text-sm font-semibold text-gray-700 truncate">{d.name}</p>
@@ -712,7 +712,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                                 </div>
                             </div>
                         ) : (
-                            <div className="bg-white rounded-2xl border border-dashed border-gray-300 p-10 text-center">
+                            <div className="bg-white rounded-2xl border border-dashed border-gray-300 p-10 text-center dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                                 <BriefcaseIcon className="w-14 h-14 text-primary mx-auto mb-4" />
                                 <h2 className="text-xl font-bold text-gray-800">Nenhum caso ativo</h2>
                                 <p className="text-gray-500 mt-2 max-w-md mx-auto">Você ainda não tem nenhum caso na plataforma.</p>
@@ -725,7 +725,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                 {activeTab === 'perfil' && (
                     <div className="space-y-6 animate-fade-in">
                         {/* Dados Cadastrais */}
-                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-5">
+                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-5 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                             <h3 className="text-base font-bold text-gray-800 border-b pb-2">📋 Dados Cadastrais</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {([
@@ -737,18 +737,18 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                                     <div key={f.key}>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">{f.label}</label>
                                         <input value={profileForm[f.key]} onChange={e => setProfileForm(p => ({ ...p, [f.key]: e.target.value }))}
-                                            placeholder={f.placeholder} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                            placeholder={f.placeholder} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                     </div>
                                 ))}
                                 <div>
                                     <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Data de Nascimento</label>
                                     <input type="date" value={profileForm.dataNasc} onChange={e => setProfileForm(p => ({ ...p, dataNasc: e.target.value }))}
-                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                 </div>
                                 <div>
                                     <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Estado Civil</label>
                                     <select value={profileForm.estadoCivil} onChange={e => setProfileForm(p => ({ ...p, estadoCivil: e.target.value }))}
-                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white">
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                                         <option value="">Selecione...</option>
                                         {['Solteiro(a)', 'Casado(a)', 'Divorciado(a)', 'Viúvo(a)', 'União Estável'].map(v => <option key={v}>{v}</option>)}
                                     </select>
@@ -759,15 +759,15 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                             <div className="pt-4 border-t space-y-3">
                                 <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">🏠 Endereço</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">CEP</label><input value={profileForm.cep} onChange={e => setProfileForm(p => ({ ...p, cep: e.target.value }))} placeholder="00000-000" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" /></div>
-                                    <div className="md:col-span-2"><label className="block text-xs font-medium text-gray-600 mb-1">Rua / Logradouro</label><input value={profileForm.street} onChange={e => setProfileForm(p => ({ ...p, street: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" /></div>
-                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Número</label><input value={profileForm.number} onChange={e => setProfileForm(p => ({ ...p, number: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" /></div>
-                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Complemento</label><input value={profileForm.complement} onChange={e => setProfileForm(p => ({ ...p, complement: e.target.value }))} placeholder="Apto, Bloco..." className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" /></div>
-                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Bairro</label><input value={profileForm.neighborhood} onChange={e => setProfileForm(p => ({ ...p, neighborhood: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" /></div>
-                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Cidade</label><input value={profileForm.city} onChange={e => setProfileForm(p => ({ ...p, city: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" /></div>
+                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">CEP</label><input value={profileForm.cep} onChange={e => setProfileForm(p => ({ ...p, cep: e.target.value }))} placeholder="00000-000" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" /></div>
+                                    <div className="md:col-span-2"><label className="block text-xs font-medium text-gray-600 mb-1">Rua / Logradouro</label><input value={profileForm.street} onChange={e => setProfileForm(p => ({ ...p, street: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" /></div>
+                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Número</label><input value={profileForm.number} onChange={e => setProfileForm(p => ({ ...p, number: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" /></div>
+                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Complemento</label><input value={profileForm.complement} onChange={e => setProfileForm(p => ({ ...p, complement: e.target.value }))} placeholder="Apto, Bloco..." className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" /></div>
+                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Bairro</label><input value={profileForm.neighborhood} onChange={e => setProfileForm(p => ({ ...p, neighborhood: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" /></div>
+                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Cidade</label><input value={profileForm.city} onChange={e => setProfileForm(p => ({ ...p, city: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" /></div>
                                     <div>
                                         <label className="block text-xs font-medium text-gray-600 mb-1">Estado (UF)</label>
-                                        <select value={profileForm.state} onChange={e => setProfileForm(p => ({ ...p, state: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white">
+                                        <select value={profileForm.state} onChange={e => setProfileForm(p => ({ ...p, state: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                                             <option value="">Selecione...</option>
                                             {BRAZILIAN_STATES.map(s => <option key={s.uf} value={s.uf}>{s.name} ({s.uf})</option>)}
                                         </select>
@@ -782,7 +782,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                         </div>
 
                         {/* Upload de Documentos Pessoais */}
-                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-base font-bold text-gray-800">📎 Documentos Pessoais</h3>
                                 <button onClick={() => profileFileRef.current?.click()}
@@ -805,7 +805,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                         </div>
 
                         {/* Segurança */}
-                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4">
+                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                             <h3 className="text-base font-bold text-gray-800">🔐 Segurança de Acesso</h3>
                             <div className="flex flex-wrap gap-3">
                                 <button onClick={() => setShowPasswordModal(true)} className="px-4 py-2.5 text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200 rounded-lg hover:bg-amber-100">🔑 Alterar Senha</button>

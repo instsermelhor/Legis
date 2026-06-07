@@ -305,6 +305,58 @@
     </style>
 
     <link rel="stylesheet" href="/index.css">
+
+    <!-- ══ DARK MODE OVERRIDE — carregado APÓS o Tailwind CDN ══
+         Garante texto claro em TODOS os inputs/textareas/selects.
+         Usar html.dark (especificidade 1,1,1) + !important.
+         -webkit-text-fill-color prevalece sobre 'color' no Chrome.  -->
+    <style id="dark-override">
+      html.dark input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),
+      html.dark textarea,
+      html.dark select {
+        color: #F1F0FF !important;
+        -webkit-text-fill-color: #F1F0FF !important;
+        background-color: #1C1A32 !important;
+        border-color: #2E2A4A !important;
+        caret-color: #A855F7 !important;
+      }
+      html.dark input::placeholder,
+      html.dark textarea::placeholder { color: #6B6890 !important; -webkit-text-fill-color: #6B6890 !important; opacity:1!important; }
+      html.dark input:focus, html.dark textarea:focus, html.dark select:focus {
+        -webkit-text-fill-color: #F1F0FF !important;
+        border-color: #7C3AED !important;
+        background-color: #211E3A !important;
+        box-shadow: 0 0 0 3px rgba(124,58,237,.22) !important;
+        outline: none !important;
+      }
+      html.dark input:-webkit-autofill,
+      html.dark input:-webkit-autofill:hover,
+      html.dark input:-webkit-autofill:focus,
+      html.dark input:-webkit-autofill:active,
+      html.dark textarea:-webkit-autofill,
+      html.dark select:-webkit-autofill {
+        -webkit-text-fill-color: #F1F0FF !important;
+        -webkit-box-shadow: 0 0 0 1000px #1C1A32 inset !important;
+        box-shadow: 0 0 0 1000px #1C1A32 inset !important;
+        caret-color: #A855F7 !important;
+        transition: background-color 9999s ease-in-out 0s !important;
+      }
+      html.dark select option, html.dark select optgroup {
+        background-color: #1A1730 !important;
+        color: #F1F0FF !important;
+      }
+      html.dark input:disabled, html.dark textarea:disabled, html.dark select:disabled {
+        -webkit-text-fill-color: #4A4670 !important;
+        background-color: #13112A !important;
+        opacity: .55 !important;
+      }
+      html.dark label { color: #C8C5F0 !important; }
+      html.dark .bg-white { background-color: #1A1730 !important; }
+      html.dark .bg-gray-50  { background-color: #17142C !important; }
+      html.dark .bg-gray-100 { background-color: #1F1C36 !important; }
+      html.dark .border-gray-200 { border-color: #2A2545 !important; }
+      html.dark .border-gray-300 { border-color: #332E55 !important; }
+    </style>
   </head>
   <body class="bg-white text-gray-900">
     <div id="root"></div>

@@ -29,7 +29,7 @@ export const UpdateCaseStatusModal: React.FC<UpdateCaseStatusModalProps> = ({ ca
             onClick={onClose}
         >
             <div 
-                className="bg-white rounded-2xl shadow-xl w-full max-w-md relative animate-slide-up"
+                className="bg-white rounded-2xl shadow-xl w-full max-w-md relative animate-slide-up dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="p-6">
@@ -61,7 +61,7 @@ export const UpdateCaseStatusModal: React.FC<UpdateCaseStatusModalProps> = ({ ca
                                         value={stage.name}
                                         checked={selectedStageName === stage.name}
                                         onChange={() => setSelectedStageName(stage.name)}
-                                        className="h-4 w-4 text-primary border-gray-300 focus:ring-primary"
+                                        className="h-4 w-4 text-primary border-gray-300 focus:ring-primary dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                                     />
                                     <span className="ml-3 text-sm font-medium text-gray-800">{stage.name}</span>
                                 </label>
@@ -74,7 +74,7 @@ export const UpdateCaseStatusModal: React.FC<UpdateCaseStatusModalProps> = ({ ca
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                     >
                         Cancelar
                     </button>

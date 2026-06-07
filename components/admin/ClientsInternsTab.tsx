@@ -22,7 +22,7 @@ export const ClientsTab: React.FC<{ onEditClient?: (c: MockClient) => void }> = 
 
   if (selected) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 max-w-2xl">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 max-w-2xl dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
         <button onClick={() => setSelected(null)} className="text-sm text-primary hover:underline mb-5">← Voltar</button>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-gray-900">{selected.name}</h2>
@@ -69,13 +69,13 @@ export const ClientsTab: React.FC<{ onEditClient?: (c: MockClient) => void }> = 
       <SectionTitle title="Clientes" subtitle="Gerencie e visualize todos os clientes cadastrados" />
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1"><SearchInput value={search} onChange={setSearch} placeholder="Buscar por nome..." /></div>
-        <select value={filter} onChange={e => setFilter(e.target.value as typeof filter)} className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30">
+        <select value={filter} onChange={e => setFilter(e.target.value as typeof filter)} className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
           <option value="todos">Todos</option>
           <option value="ativo">Ativos</option>
           <option value="inativo">Inativos</option>
         </select>
       </div>
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
         <table className="w-full text-sm text-left text-gray-600">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
             <tr>
@@ -134,7 +134,7 @@ export const InternsTab: React.FC<{ onEditIntern?: (i: MockIntern) => void }> = 
 
   if (selected) {
     return (
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 max-w-2xl">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 max-w-2xl dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
         <button onClick={() => setSelected(null)} className="text-sm text-primary hover:underline mb-5">← Voltar</button>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-gray-900">{selected.name}</h2>
@@ -181,14 +181,14 @@ export const InternsTab: React.FC<{ onEditIntern?: (i: MockIntern) => void }> = 
       <SectionTitle title="Estudantes" subtitle="Gerencie os estudantes e estagiários cadastrados" />
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="flex-1"><SearchInput value={search} onChange={setSearch} placeholder="Buscar por nome ou universidade..." /></div>
-        <select value={filter} onChange={e => setFilter(e.target.value as typeof filter)} className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30">
+        <select value={filter} onChange={e => setFilter(e.target.value as typeof filter)} className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
           <option value="todos">Todos</option>
           <option value="ativo">Ativos</option>
           <option value="pendente">Pendentes</option>
           <option value="inativo">Inativos</option>
         </select>
       </div>
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
         <table className="w-full text-sm text-left text-gray-600">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
             <tr>
