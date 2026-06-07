@@ -1,20 +1,30 @@
 import React, { useState, useMemo } from 'react';
 import type { Lawyer } from '../../types';
-import { mockClients, mockInterns, mockMonthlyRevenue, mockEfficiencyServices, mockEfficiencyServiceGroups } from '../../services/mockDataService';
+import { mockClients, mockInterns, mockSecretaries, mockMonthlyRevenue, mockEfficiencyServices, mockEfficiencyServiceGroups } from '../../services/mockDataService';
 import type { EfficiencyService, EfficiencyServiceGroup } from '../../types';
 import { StatCard, SectionTitle, SearchInput, IconMoney, IconShield, IconChart, IconBriefcase, IconUsers, IconGradCap, IconSettings } from './AdminShared';
 
+// ─── Secretary Icon ───────────────────────────────────────────────────────────
+const IconSecretariat = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+  </svg>
+);
+
 const BRAZIL_STATES = ['Todos', 'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
-type FilterType = 'lawyers' | 'clients' | 'interns' | 'services';
+type FilterType = 'lawyers' | 'clients' | 'interns' | 'secretaries' | 'services';
 
 export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }> = ({ lawyers, initialFilter }) => {
   const [filterType, setFilterType] = useState<FilterType>(
-    initialFilter === 'clients' ? 'clients' : initialFilter === 'interns' ? 'interns' : 'lawyers'
+    initialFilter === 'clients' ? 'clients'
+    : initialFilter === 'interns' ? 'interns'
+    : initialFilter === 'secretaries' ? 'secretaries'
+    : 'lawyers'
   );
   const [stateFilter, setStateFilter] = useState('Todos');
   const [search, setSearch] = useState('');
   const [timeFilter, setTimeFilter] = useState('Mensal');
-  
+
   const [services, setServices] = useState<EfficiencyService[]>(mockEfficiencyServices);
   const [groups, setGroups] = useState<EfficiencyServiceGroup[]>(mockEfficiencyServiceGroups);
 
@@ -41,7 +51,9 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
   const baseTotalPending = lawyers.reduce((a, l) => a + (l.pendingPayments || 0), 0);
   const baseClientPending = mockClients.reduce((a, c) => a + c.pendingAmount, 0);
   const baseInternStipends = mockInterns.filter(i => i.status === 'ativo').reduce((a, i) => a + (i.stipend || 0), 0);
-  
+  const baseSecretaryFees = mockSecretaries.filter(s => s.status === 'ativo').reduce((a, s) => a + (s.monthlyFee || 0), 0);
+  const baseSecretaryPending = mockSecretaries.reduce((a, s) => a + (s.pendingFee || 0), 0);
+
   // Simulated Services Revenue Base (Mensal)
   const baseServicesRevenue = services.reduce((a, s, idx) => a + (s.price * ((idx + 1) * 3)), 0);
 
@@ -49,6 +61,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
   const totalPending = baseTotalPending * scale;
   const clientPending = baseClientPending * scale;
   const internStipends = baseInternStipends * scale;
+  const secretaryFees = baseSecretaryFees * scale;
   const servicesRevenue = baseServicesRevenue * scale;
 
   const maxRev = Math.max(...mockMonthlyRevenue.map(m => m.revenue));
@@ -68,14 +81,27 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
     i.name.toLowerCase().includes(search.toLowerCase())
   ), [stateFilter, search]);
 
+  const filteredSecretaries = useMemo(() => mockSecretaries.filter(s =>
+    (stateFilter === 'Todos' || s.state === stateFilter) &&
+    s.name.toLowerCase().includes(search.toLowerCase())
+  ), [stateFilter, search]);
+
   const filteredServices = useMemo(() => services.filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase())
   ), [services, search]);
 
+  const tabs: [FilterType, string, React.ReactNode, string][] = [
+    ['lawyers', 'Advogados', <IconBriefcase />, ''],
+    ['clients', 'Clientes', <IconUsers />, ''],
+    ['interns', 'Estudantes', <IconGradCap />, ''],
+    ['secretaries', 'Secretariado', <IconSecretariat />, 'purple'],
+    ['services', 'Serviços', <IconSettings />, ''],
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <SectionTitle title="Gestão Financeira" subtitle="Receita e pagamentos individualizados por perfil" />
+        <SectionTitle title="Gestão Financeira" subtitle="Receita, pagamentos e remunerações individualizadas por perfil" />
         <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border shadow-sm">
           <span className="text-sm font-medium text-gray-700">Período do Relatório:</span>
           <select value={timeFilter} onChange={e => setTimeFilter(e.target.value)} className="text-sm border-none bg-transparent font-bold text-primary focus:outline-none cursor-pointer">
@@ -89,12 +115,13 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
       </div>
 
       {/* Top KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
         <StatCard icon={<span className="text-emerald-600"><IconMoney /></span>} label={`Receita Base (${timeFilter})`} value={`R$ ${totalRevenue.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`} color="bg-emerald-100" />
         <StatCard icon={<span className="text-orange-600"><IconBriefcase /></span>} label={`Receita Serviços (${timeFilter})`} value={`R$ ${servicesRevenue.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`} color="bg-orange-100" />
-        <StatCard icon={<span className="text-yellow-600"><IconShield /></span>} label={`Pendente Advogados`} value={`R$ ${totalPending.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`} color="bg-yellow-100" />
-        <StatCard icon={<span className="text-orange-600"><IconShield /></span>} label={`Pendente Clientes`} value={`R$ ${clientPending.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`} color="bg-orange-100" />
+        <StatCard icon={<span className="text-yellow-600"><IconShield /></span>} label="Pendente Advogados" value={`R$ ${totalPending.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`} color="bg-yellow-100" />
+        <StatCard icon={<span className="text-orange-600"><IconShield /></span>} label="Pendente Clientes" value={`R$ ${clientPending.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`} color="bg-orange-100" />
         <StatCard icon={<span className="text-blue-600"><IconGradCap /></span>} label={`Bolsas (${timeFilter})`} value={`R$ ${internStipends.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`} color="bg-blue-100" />
+        <StatCard icon={<span className="text-purple-600"><IconSecretariat /></span>} label={`Secret. (${timeFilter})`} value={`R$ ${secretaryFees.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`} color="bg-purple-100" />
       </div>
 
       {/* Revenue bar chart */}
@@ -119,15 +146,25 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
         <div className="p-5 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex gap-2 flex-wrap">
-            {([['lawyers', 'Advogados', <IconBriefcase />], ['clients', 'Clientes', <IconUsers />], ['interns', 'Estudantes', <IconGradCap />], ['services', 'Serviços', <IconSettings />]] as [FilterType, string, React.ReactNode][]).map(([t, label, icon]) => (
-              <button key={t} onClick={() => { setFilterType(t); setSearch(''); setStateFilter('Todos'); }} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${filterType === t ? 'bg-primary text-white border-primary' : 'bg-white text-gray-600 border-gray-200 hover:border-primary/40'}`}>
+            {tabs.map(([t, label, icon, color]) => (
+              <button
+                key={t}
+                onClick={() => { setFilterType(t); setSearch(''); setStateFilter('Todos'); }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
+                  filterType === t
+                    ? color === 'purple'
+                      ? 'bg-purple-600 text-white border-purple-600'
+                      : 'bg-primary text-white border-primary'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-primary/40'
+                }`}
+              >
                 <span className="w-4 h-4">{icon}</span>{label}
               </button>
             ))}
           </div>
           <div className="flex gap-2">
             <SearchInput value={search} onChange={setSearch} placeholder="Buscar..." />
-            <select value={stateFilter} onChange={e => setStateFilter(e.target.value)} className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30">
+            <select value={stateFilter} onChange={e => setStateFilter(e.target.value)} className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white">
               {BRAZIL_STATES.map(s => <option key={s}>{s}</option>)}
             </select>
           </div>
@@ -221,6 +258,87 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
             </table>
           )}
 
+          {/* ─── Secretaries ─────────────────────────────────────────────────── */}
+          {filterType === 'secretaries' && (
+            <table className="w-full text-sm text-left text-gray-600">
+              <thead className="text-xs text-gray-700 uppercase bg-purple-50 border-b border-purple-100">
+                <tr>
+                  <th className="px-5 py-3">Secretário(a)</th>
+                  <th className="px-5 py-3">UF</th>
+                  <th className="px-5 py-3">Experiência</th>
+                  <th className="px-5 py-3">Disponibilidade</th>
+                  <th className="px-5 py-3">Status</th>
+                  <th className="px-5 py-3">Honorário/Mês</th>
+                  <th className="px-5 py-3">Pendente</th>
+                  <th className="px-5 py-3">Total Recebido</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredSecretaries.map(s => {
+                  const availLabel = s.availability === 'integral' ? 'Integral' : s.availability === 'meio-periodo' ? 'Meio Período' : 'Freelancer';
+                  return (
+                    <tr key={s.id} className="border-b hover:bg-purple-50/40">
+                      <td className="px-5 py-3 font-medium text-gray-900">
+                        <div className="flex items-center gap-2">
+                          <div className="w-7 h-7 rounded-full bg-purple-100 text-purple-700 text-xs font-bold flex items-center justify-center shrink-0">
+                            {s.name.charAt(0)}
+                          </div>
+                          {s.name}
+                        </div>
+                      </td>
+                      <td className="px-5 py-3">{s.state}</td>
+                      <td className="px-5 py-3">{s.experience} anos</td>
+                      <td className="px-5 py-3">
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                          s.availability === 'integral' ? 'bg-blue-50 text-blue-700' :
+                          s.availability === 'meio-periodo' ? 'bg-indigo-50 text-indigo-700' :
+                          'bg-gray-100 text-gray-600'
+                        }`}>
+                          {availLabel}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3">
+                        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                          s.status === 'ativo' ? 'bg-green-100 text-green-700' :
+                          s.status === 'pendente' ? 'bg-yellow-100 text-yellow-700' :
+                          'bg-red-100 text-red-700'
+                        }`}>
+                          {s.status}
+                        </span>
+                      </td>
+                      <td className="px-5 py-3 font-semibold text-purple-700">
+                        {s.monthlyFee ? `R$ ${s.monthlyFee.toLocaleString('pt-BR')}` : '—'}
+                      </td>
+                      <td className="px-5 py-3 text-yellow-700">
+                        {s.pendingFee && s.pendingFee > 0 ? `R$ ${s.pendingFee.toLocaleString('pt-BR')}` : '—'}
+                      </td>
+                      <td className="px-5 py-3 text-emerald-700">
+                        {s.totalEarned ? `R$ ${s.totalEarned.toLocaleString('pt-BR')}` : '—'}
+                      </td>
+                    </tr>
+                  );
+                })}
+                {filteredSecretaries.length === 0 && (
+                  <tr><td colSpan={8} className="text-center py-8 text-gray-400">Nenhum resultado.</td></tr>
+                )}
+              </tbody>
+              <tfoot className="bg-purple-50 font-semibold text-sm border-t border-purple-100">
+                <tr>
+                  <td colSpan={5} className="px-5 py-3 text-gray-600">Totais</td>
+                  <td className="px-5 py-3 text-purple-700">
+                    R$ {filteredSecretaries.reduce((a, s) => a + (s.monthlyFee || 0), 0).toLocaleString('pt-BR')}/mês
+                  </td>
+                  <td className="px-5 py-3 text-yellow-700">
+                    R$ {filteredSecretaries.reduce((a, s) => a + (s.pendingFee || 0), 0).toLocaleString('pt-BR')}
+                  </td>
+                  <td className="px-5 py-3 text-emerald-700">
+                    R$ {filteredSecretaries.reduce((a, s) => a + (s.totalEarned || 0), 0).toLocaleString('pt-BR')}
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          )}
+
           {/* Services */}
           {filterType === 'services' && (
             <table className="w-full text-sm text-left text-gray-600">
@@ -230,7 +348,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
               <tbody>
                 {filteredServices.map((s, idx) => {
                   const group = groups.find(g => g.id === s.groupId);
-                  const simulatedContracts = (idx + 1) * 3; // Mocking some contracts based on index
+                  const simulatedContracts = (idx + 1) * 3;
                   const estimatedRev = s.price * simulatedContracts;
                   return (
                     <tr key={s.id} className="border-b hover:bg-gray-50">

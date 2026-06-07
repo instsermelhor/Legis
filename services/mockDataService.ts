@@ -157,6 +157,9 @@ export interface MockSecretary {
   assignedLawyerId?: number;
   joinedDate: string;
   notes?: string;
+  monthlyFee?: number;   // honorário/remuneração mensal (R$)
+  totalEarned?: number;  // total acumulado recebido (R$)
+  pendingFee?: number;   // valor pendente (R$)
 }
 
 export let mockSecretaries: MockSecretary[] = [
@@ -175,6 +178,9 @@ export let mockSecretaries: MockSecretary[] = [
     bio: 'Secretária com 5 anos de experiência em escritórios de advocacia de médio porte. Especializada em gestão de processos e atendimento ao cliente.',
     status: 'ativo',
     joinedDate: '2024-01-10',
+    monthlyFee: 3800,
+    totalEarned: 22800,
+    pendingFee: 0,
   },
   {
     id: 2,
@@ -190,6 +196,9 @@ export let mockSecretaries: MockSecretary[] = [
     bio: 'Profissional com formação em Administração e experiência em suporte a advogados. Conhecimento em softwares de gestão jurídica.',
     status: 'ativo',
     joinedDate: '2024-03-15',
+    monthlyFee: 2200,
+    totalEarned: 8800,
+    pendingFee: 2200,
   },
   {
     id: 3,
@@ -206,6 +215,9 @@ export let mockSecretaries: MockSecretary[] = [
     status: 'ativo',
     joinedDate: '2023-08-20',
     assignedLawyerId: 2,
+    monthlyFee: 4500,
+    totalEarned: 58500,
+    pendingFee: 0,
   },
   {
     id: 4,
@@ -219,6 +231,9 @@ export let mockSecretaries: MockSecretary[] = [
     availability: 'freelancer',
     status: 'pendente',
     joinedDate: '2024-05-01',
+    monthlyFee: 0,
+    totalEarned: 0,
+    pendingFee: 0,
   },
   {
     id: 5,
@@ -234,5 +249,8 @@ export let mockSecretaries: MockSecretary[] = [
     bio: 'Secretária jurídica com sólida experiência. Domínio de sistemas de acompanhamento processual eletrônico (PJe, e-SAJ).',
     status: 'ativo',
     joinedDate: '2023-11-12',
+    monthlyFee: 3200,
+    totalEarned: 41600,
+    pendingFee: 3200,
   },
 ];
