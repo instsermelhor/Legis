@@ -28,6 +28,104 @@ body {
 .dark .shadow-sm      { box-shadow: 0 2px 8px rgba(0,0,0,0.35) !important; }
 .dark .shadow-md      { box-shadow: 0 4px 16px rgba(0,0,0,0.45) !important; }
 
+/* ── Dark mode: campos de digitação ─────────────────── */
+/* Todos os inputs, textareas e selects em dark mode     */
+.dark input,
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="search"],
+.dark input[type="number"],
+.dark input[type="tel"],
+.dark input[type="url"],
+.dark input[type="date"],
+.dark input[type="time"],
+.dark input[type="datetime-local"],
+.dark textarea,
+.dark select {
+  color: #F1F0FF !important;
+  background-color: #1A1730 !important;
+  border-color: #2A2545 !important;
+  caret-color: #A855F7;
+}
+
+/* Placeholder em dark mode */
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #5A5680 !important;
+  opacity: 1;
+}
+
+/* Autofill override — evita fundo branco do browser */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus,
+.dark textarea:-webkit-autofill,
+.dark select:-webkit-autofill {
+  -webkit-text-fill-color: #F1F0FF !important;
+  -webkit-box-shadow: 0 0 0 1000px #1A1730 inset !important;
+  box-shadow: 0 0 0 1000px #1A1730 inset !important;
+  border-color: #2A2545 !important;
+  caret-color: #A855F7;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* Opções do select em dark mode */
+.dark select option {
+  background-color: #1A1730;
+  color: #F1F0FF;
+}
+
+/* Focus dos campos em dark mode */
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  border-color: #7C3AED !important;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.20) !important;
+  background-color: #1F1C36 !important;
+}
+
+/* Campos desabilitados em dark mode */
+.dark input:disabled,
+.dark textarea:disabled,
+.dark select:disabled {
+  color: #4A4670 !important;
+  background-color: #13112A !important;
+  border-color: #1E1B38 !important;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Readonly */
+.dark input:read-only,
+.dark textarea:read-only {
+  color: #8A88B0 !important;
+  background-color: #16132A !important;
+}
+
+/* Checkbox e radio em dark mode */
+.dark input[type="checkbox"],
+.dark input[type="radio"] {
+  background-color: #1A1730 !important;
+  border-color: #4A4670 !important;
+  color: #7C3AED !important;
+}
+
+/* Labels em dark mode */
+.dark label {
+  color: #C8C5F0;
+}
+
+/* Badges, pills e tags com bg-white em dark */
+.dark .bg-white.rounded-full,
+.dark .bg-white.rounded-lg,
+.dark .bg-white.rounded-xl {
+  background-color: #1F1C36 !important;
+  color: #E5E3FF !important;
+}
+
+
 /* ── Typography: apply Montserrat to h1–h3 ───────────── */
 h1, h2 {
   font-family: 'Montserrat', sans-serif;
