@@ -1,1 +1,78 @@
-/* Estilizações globais */
+/* ═══════════════════════════════════════════════════════
+   LEGIS CONNECT — Global CSS
+   Design System: Proporção Áurea 1.618 | Modular scale
+═══════════════════════════════════════════════════════ */
+
+/* ── Dark mode body backgrounds ──────────────────────── */
+body {
+  background-color: #ffffff;
+  color: #111827;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+.dark body {
+  background-color: #0F0D1A;
+  color: #F1F0FF;
+}
+
+/* ── Admin / inner panels dark mode ─────────────────── */
+.dark .bg-white       { background-color: #1A1730 !important; }
+.dark .bg-gray-50     { background-color: #17142C !important; }
+.dark .bg-gray-100    { background-color: #1F1C36 !important; }
+.dark .border-gray-200{ border-color: #2A2545 !important; }
+.dark .border-gray-300{ border-color: #332E55 !important; }
+.dark .text-gray-900  { color: #F1F0FF !important; }
+.dark .text-gray-800  { color: #E5E3FF !important; }
+.dark .text-gray-700  { color: #C8C5F0 !important; }
+.dark .text-gray-600  { color: #A09CC4 !important; }
+.dark .text-gray-500  { color: #7A77A0 !important; }
+.dark .shadow-sm      { box-shadow: 0 2px 8px rgba(0,0,0,0.35) !important; }
+.dark .shadow-md      { box-shadow: 0 4px 16px rgba(0,0,0,0.45) !important; }
+
+/* ── Typography: apply Montserrat to h1–h3 ───────────── */
+h1, h2 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+h3, h4 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+}
+h5, h6 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+}
+
+/* ── Cinzel utility ──────────────────────────────────── */
+.font-cinzel {
+  font-family: 'Cinzel', serif !important;
+}
+.font-montserrat {
+  font-family: 'Montserrat', sans-serif !important;
+}
+
+/* ── Scrollbar ───────────────────────────────────────── */
+* { scrollbar-width: thin; scrollbar-color: rgba(124,58,237,0.3) transparent; }
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(124,58,237,0.3); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(124,58,237,0.6); }
+
+/* ── Focus visible (a11y) ────────────────────────────── */
+:focus-visible {
+  outline: 2px solid #7C3AED;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Selection color ─────────────────────────────────── */
+::selection {
+  background: rgba(124, 58, 237, 0.25);
+  color: inherit;
+}
+
+/* ── Smooth image rendering ──────────────────────────── */
+img { image-rendering: -webkit-optimize-contrast; }
+
+/* ── No tap highlight on mobile ──────────────────────── */
+button, a { -webkit-tap-highlight-color: transparent; }
