@@ -23,7 +23,7 @@ export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ lawyer, on
             onClick={onClose}
         >
             <div 
-                className="bg-white rounded-2xl shadow-xl w-full max-w-lg relative animate-slide-up"
+                className="bg-white rounded-2xl shadow-xl w-full max-w-lg relative animate-slide-up dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="p-6">
@@ -48,7 +48,7 @@ export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ lawyer, on
                                 type="text"
                                 readOnly
                                 value={syncUrl}
-                                className="flex-grow bg-gray-100 border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600 focus:outline-none"
+                                className="flex-grow bg-gray-100 border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600 focus:outline-none dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                              />
                              <button
                                 onClick={handleCopy}

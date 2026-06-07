@@ -86,11 +86,11 @@ const LegalDocuments: React.FC = () => {
           <div className="space-y-3">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Título do Documento *</label>
-              <input value={newTitle} onChange={e => setNewTitle(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white" placeholder="Ex: Política de Cookies" />
+              <input value={newTitle} onChange={e => setNewTitle(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" placeholder="Ex: Política de Cookies" />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Conteúdo do Documento *</label>
-              <textarea value={newContent} onChange={e => setNewContent(e.target.value)} rows={5} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-y bg-white" placeholder="Escreva o conteúdo do documento..." />
+              <textarea value={newContent} onChange={e => setNewContent(e.target.value)} rows={5} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-y bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" placeholder="Escreva o conteúdo do documento..." />
             </div>
           </div>
           <div className="flex gap-2">
@@ -102,14 +102,14 @@ const LegalDocuments: React.FC = () => {
 
       <div className="space-y-4">
         {docs.map(doc => (
-          <div key={doc.id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div key={doc.id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
             <div className="flex items-center justify-between p-4 border-b bg-gray-50">
               <div>
                 <p className="font-semibold text-gray-800 text-sm">{doc.title}</p>
                 <p className="text-xs text-gray-400">Atualizado em: {new Date(doc.lastUpdated).toLocaleDateString('pt-BR')}</p>
               </div>
               <div className="flex gap-2">
-                <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:border-primary/50 cursor-pointer transition-colors">
+                <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:border-primary/50 cursor-pointer transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                   <IconUpload /> Upload
                   <input type="file" accept=".txt,.pdf,.doc,.docx" className="hidden" onChange={e => handleFileUpload(doc.id, e)} />
                 </label>
@@ -129,7 +129,7 @@ const LegalDocuments: React.FC = () => {
                   value={doc.content}
                   onChange={e => handleContentChange(doc.id, e.target.value)}
                   rows={10}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-y font-mono"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-y font-mono dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                 />
                 <div className="mt-3 flex gap-2">
                   <button onClick={() => handleSave(doc.id)} className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90">
@@ -499,7 +499,7 @@ const AdminUsers: React.FC = () => {
             </Field>
             <Field label="Nível de Acesso *">
               <select value={newUser.role} onChange={e => setNewUser(u => ({ ...u, role: e.target.value as AdminUser['role'] }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white">
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                 <option value="collaborator">Colaborador</option>
                 <option value="viewer">Visualizador</option>
                 <option value="manager">Gerente</option>
@@ -535,12 +535,12 @@ const AdminUsers: React.FC = () => {
           </Field>
 
           {/* Row 4: Secondary email */}
-          <div className="bg-white border border-dashed border-blue-300 rounded-xl p-3 space-y-3">
+          <div className="bg-white border border-dashed border-blue-300 rounded-xl p-3 space-y-3 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
             <p className="text-xs font-bold text-blue-800 flex items-center gap-1.5">✉️ E-mail Secundário <span className="font-normal text-gray-400">(opcional — usado para reset de senha)</span></p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="E-mail Secundário" error={formErrors.secondaryEmail}>
                 <input type="email" value={newUser.secondaryEmail} onChange={e => setNewUser(u => ({ ...u, secondaryEmail: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                   placeholder="email.secundario@exemplo.com" />
               </Field>
               <Field label="Confirmar E-mail Secundário" error={formErrors.confirmSecondaryEmail}>
@@ -565,7 +565,7 @@ const AdminUsers: React.FC = () => {
       )}
 
       {/* ── Users table ── */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
         <table className="w-full text-sm text-left text-gray-600">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
             <tr>
@@ -658,9 +658,9 @@ const AdminUsers: React.FC = () => {
       ──────────────────────────────────────────────────────────────────────── */}
       {resetUser && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setResetUser(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <div>
                 <h2 className="text-base font-bold text-gray-900">🔒 Resetar Senha</h2>
                 <p className="text-xs text-gray-500 mt-0.5">Usuário: <strong>{resetUser.name}</strong></p>
@@ -747,9 +747,9 @@ const AdminUsers: React.FC = () => {
       ──────────────────────────────────────────────────────────────────────── */}
       {permUser && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setPermUser(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
             {/* Modal header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <div>
                 <h2 className="text-base font-bold text-gray-900">🔑 Permissões — {permUser.name}</h2>
                 <p className="text-xs text-gray-500 mt-0.5">
@@ -780,7 +780,7 @@ const AdminUsers: React.FC = () => {
                 const allOn = group.items.every(i => permDraft.includes(i.id));
                 const someOn = group.items.some(i => permDraft.includes(i.id));
                 return (
-                  <div key={group.category} className="bg-gray-50 rounded-xl border border-gray-200 p-4">
+                  <div key={group.category} className="bg-gray-50 rounded-xl border border-gray-200 p-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
                         <span>{group.icon}</span> {group.category}
@@ -818,11 +818,11 @@ const AdminUsers: React.FC = () => {
             </div>
 
             {/* Modal footer */}
-            <div className="px-6 py-4 border-t border-gray-200 shrink-0 flex justify-between items-center bg-gray-50 rounded-b-2xl">
+            <div className="px-6 py-4 border-t border-gray-200 shrink-0 flex justify-between items-center bg-gray-50 rounded-b-2xl dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <p className="text-xs text-gray-500">{permDraft.length} função{permDraft.length !== 1 ? 'ões' : ''} habilitada{permDraft.length !== 1 ? 's' : ''}</p>
               <div className="flex gap-2">
                 <button onClick={() => setPermUser(null)}
-                  className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 font-semibold">
+                  className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 font-semibold dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                   Cancelar
                 </button>
                 <button onClick={savePermissions}
@@ -840,9 +840,9 @@ const AdminUsers: React.FC = () => {
       ──────────────────────────────────────────────────────────────────────── */}
       {showRoleDefaults && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setShowRoleDefaults(false)}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col" onClick={e => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0 bg-gradient-to-r from-purple-600 to-primary rounded-t-2xl">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0 bg-gradient-to-r from-purple-600 to-primary rounded-t-2xl dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <div>
                 <h2 className="text-base font-bold text-white">🛡️ Painel do Super Admin</h2>
                 <p className="text-xs text-purple-200 mt-0.5">Configure permissões padrão por nível e gerencie usuários ativos/inativos.</p>
@@ -851,7 +851,7 @@ const AdminUsers: React.FC = () => {
             </div>
 
             {/* Main tabs: Permissions / Users */}
-            <div className="flex border-b border-gray-200 px-6 pt-3 gap-1 shrink-0 bg-white">
+            <div className="flex border-b border-gray-200 px-6 pt-3 gap-1 shrink-0 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <button onClick={() => setSuperAdminTab('permissions')}
                 className={`px-4 py-2 text-sm font-bold rounded-t-lg border-b-2 transition-colors ${superAdminTab === 'permissions' ? 'border-purple-600 text-purple-700' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
                 🔑 Permissões por Nível
@@ -907,7 +907,7 @@ const AdminUsers: React.FC = () => {
               {/* ── Tab: Permissions ── */}
               {superAdminTab === 'permissions' && (<>
                 {/* Role sub-tabs */}
-                <div className="flex gap-1 flex-wrap border-b border-gray-200 pb-2 mb-4">
+                <div className="flex gap-1 flex-wrap border-b border-gray-200 pb-2 mb-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                   {(['admin', 'manager', 'collaborator', 'viewer'] as AdminUser['role'][]).map(role => (
                     <button key={role} onClick={() => setEditingRole(role)}
                       className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors ${editingRole === role ? 'border-primary text-primary bg-primary/5' : 'border-gray-200 text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}>
@@ -943,7 +943,7 @@ const AdminUsers: React.FC = () => {
                 const roleDraft = roleDefaultsDraft[editingRole] || [];
                 const allOn = group.items.every(i => roleDraft.includes(i.id));
                 return (
-                  <div key={group.category} className="bg-gray-50 rounded-xl border border-gray-200 p-4">
+                  <div key={group.category} className="bg-gray-50 rounded-xl border border-gray-200 p-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
                         {group.icon} {group.category}
@@ -982,13 +982,13 @@ const AdminUsers: React.FC = () => {
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-4 border-t border-gray-200 shrink-0 flex justify-between items-center bg-gray-50 rounded-b-2xl">
+            <div className="px-6 py-4 border-t border-gray-200 shrink-0 flex justify-between items-center bg-gray-50 rounded-b-2xl dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <p className="text-xs text-gray-500">
                 ⚠️ As alterações afetam apenas novos usuários. Clique em "Salvar" para aplicar.
               </p>
               <div className="flex gap-2">
                 <button onClick={() => setShowRoleDefaults(false)}
-                  className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 font-semibold">
+                  className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 font-semibold dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                   Cancelar
                 </button>
                 <button onClick={saveRoleDefaults}
@@ -1072,7 +1072,7 @@ const GeneralSettings: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6">
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-bold text-gray-800">Configurações Gerais</h3>
         <span className="text-xs text-gray-400">Última atualização: {config.updatedAt ? new Date(config.updatedAt).toLocaleString('pt-BR') : 'Sem dados'}</span>
@@ -1088,21 +1088,21 @@ const GeneralSettings: React.FC = () => {
               <button type="button" onClick={() => setAppName('Legis Connect')} className="text-[10px] font-bold text-primary hover:underline">Restaurar Padrão</button>
             </div>
           </div>
-          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white" value={appName} onChange={e => setAppName(e.target.value)} placeholder="Ex: Legis Connect" />
+          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" value={appName} onChange={e => setAppName(e.target.value)} placeholder="Ex: Legis Connect" />
         </div>
         <div>
           <div className="flex justify-between items-center mb-1">
             <label className="block text-xs font-semibold text-gray-600 uppercase">Slogan Principal</label>
             <button type="button" onClick={() => setSiteTagline('')} className="text-[10px] font-bold text-red-600 hover:underline">Excluir Slogan</button>
           </div>
-          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white" value={siteTagline} onChange={e => setSiteTagline(e.target.value)} placeholder="Slogan do aplicativo" />
+          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" value={siteTagline} onChange={e => setSiteTagline(e.target.value)} placeholder="Slogan do aplicativo" />
         </div>
         <div>
           <div className="flex justify-between items-center mb-1">
             <label className="block text-xs font-semibold text-gray-600 uppercase">Texto do Rodapé</label>
             <button type="button" onClick={() => setFooterText('')} className="text-[10px] font-bold text-red-600 hover:underline">Excluir Copyright</button>
           </div>
-          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white" value={footerText} onChange={e => setFooterText(e.target.value)} placeholder="Ex: © 2026 Legis Connect. Todos os direitos reservados." />
+          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" value={footerText} onChange={e => setFooterText(e.target.value)} placeholder="Ex: © 2026 Legis Connect. Todos os direitos reservados." />
         </div>
       </div>
 
@@ -1115,14 +1115,14 @@ const GeneralSettings: React.FC = () => {
               <label className="block text-xs font-medium text-gray-600">E-mail de Contato</label>
               {contactEmail && <button type="button" onClick={() => setContactEmail('')} className="text-[10px] font-bold text-red-600 hover:underline">Excluir</button>}
             </div>
-            <input type="email" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white" value={contactEmail} onChange={e => setContactEmail(e.target.value)} placeholder="contato@empresa.com" />
+            <input type="email" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" value={contactEmail} onChange={e => setContactEmail(e.target.value)} placeholder="contato@empresa.com" />
           </div>
           <div>
             <div className="flex justify-between items-center mb-1">
               <label className="block text-xs font-medium text-gray-600">Telefone de Contato</label>
               {contactPhone && <button type="button" onClick={() => setContactPhone('')} className="text-[10px] font-bold text-red-600 hover:underline">Excluir</button>}
             </div>
-            <input type="tel" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white" value={contactPhone} onChange={e => setContactPhone(e.target.value)} placeholder="+55 11 99999-9999" />
+            <input type="tel" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" value={contactPhone} onChange={e => setContactPhone(e.target.value)} placeholder="+55 11 99999-9999" />
           </div>
         </div>
       </div>
@@ -1135,19 +1135,19 @@ const GeneralSettings: React.FC = () => {
         {customFields.length > 0 && (
           <div className="space-y-3">
             {customFields.map(field => (
-              <div key={field.id} className="flex gap-3 items-center bg-gray-50 p-3 rounded-lg border border-gray-200">
+              <div key={field.id} className="flex gap-3 items-center bg-gray-50 p-3 rounded-lg border border-gray-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                 <input
                   type="text"
                   value={field.key}
                   onChange={e => handleEditCustomField(field.id, e.target.value, field.value)}
-                  className="w-1/3 border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none bg-white p-1"
+                  className="w-1/3 border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                   placeholder="Nome do Campo"
                 />
                 <input
                   type="text"
                   value={field.value}
                   onChange={e => handleEditCustomField(field.id, field.key, e.target.value)}
-                  className="flex-grow border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none bg-white p-1"
+                  className="flex-grow border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                   placeholder="Valor"
                 />
                 <button
@@ -1170,7 +1170,7 @@ const GeneralSettings: React.FC = () => {
               type="text"
               value={newKey}
               onChange={e => setNewKey(e.target.value)}
-              className="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:outline-none bg-white p-1"
+              className="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:outline-none bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
               placeholder="Ex: Endereço Comercial"
             />
           </div>
@@ -1180,7 +1180,7 @@ const GeneralSettings: React.FC = () => {
               type="text"
               value={newValue}
               onChange={e => setNewValue(e.target.value)}
-              className="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:outline-none bg-white p-1"
+              className="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:outline-none bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
               placeholder="Ex: Av. Paulista, 1000 - SP"
             />
           </div>
@@ -1217,7 +1217,7 @@ const GeneralSettings: React.FC = () => {
               </div>
             )}
             <div>
-              <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:border-primary/50 cursor-pointer transition-colors">
+              <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:border-primary/50 cursor-pointer transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                 <IconUpload /> Enviar/Editar Logo
                 <input type="file" accept="image/*" className="hidden" onChange={handleHeaderLogoUpload} />
               </label>
@@ -1254,7 +1254,7 @@ const GeneralSettings: React.FC = () => {
               </div>
             )}
             <div>
-              <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:border-primary/50 cursor-pointer transition-colors">
+              <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:border-primary/50 cursor-pointer transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                 <IconUpload /> Enviar/Editar Logo
                 <input type="file" accept="image/*" className="hidden" onChange={handleFooterLogoUpload} />
               </label>
@@ -1333,9 +1333,9 @@ const ServiceGroupsSettings: React.FC = () => {
       </div>
       
       {showForm && (
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3">
+        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
           <label className="block text-xs font-medium text-gray-600 mb-1">{editingId ? 'Editar Nome do Grupo' : 'Nome do Novo Grupo'}</label>
-          <input value={formName} onChange={e => setFormName(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" placeholder="Ex: Gestão Documental" />
+          <input value={formName} onChange={e => setFormName(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" placeholder="Ex: Gestão Documental" />
           <div className="flex gap-2">
             <button onClick={handleSave} className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90">Salvar Grupo</button>
             <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300">Cancelar</button>
@@ -1343,7 +1343,7 @@ const ServiceGroupsSettings: React.FC = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
         <table className="w-full text-sm text-left text-gray-600">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
             <tr><th className="px-5 py-3">Nome do Grupo</th><th className="px-5 py-3 text-right">Ações</th></tr>
@@ -1407,7 +1407,7 @@ const LegalCodesSettings: React.FC = () => {
 
       <div className="space-y-4">
         {codes.map(code => (
-          <div key={code.id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+          <div key={code.id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
             <div className="flex items-center justify-between p-4 border-b bg-gray-50">
               <div>
                 <p className="font-semibold text-gray-800 text-sm">{code.title}</p>
@@ -1415,7 +1415,7 @@ const LegalCodesSettings: React.FC = () => {
                 <p className="text-xs text-gray-400">Atualizado em: {new Date(code.lastUpdated).toLocaleDateString('pt-BR')}</p>
               </div>
               <div className="flex gap-2">
-                <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:border-primary/50 cursor-pointer transition-colors">
+                <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:border-primary/50 cursor-pointer transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                   <IconUpload /> Upload
                   <input type="file" accept=".txt,.pdf,.doc,.docx" className="hidden" onChange={e => handleFileUpload(code.id, e)} />
                 </label>
@@ -1432,7 +1432,7 @@ const LegalCodesSettings: React.FC = () => {
                   value={code.content}
                   onChange={e => handleContentChange(code.id, e.target.value)}
                   rows={10}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-y font-mono"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-y font-mono dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                 />
                 <div className="mt-3 flex gap-2">
                   <button onClick={() => handleSave(code.id)} className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90">
@@ -1506,7 +1506,7 @@ const DatabaseSettings: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6">
+    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
       <div>
         <h3 className="text-base font-bold text-gray-800">Conexão de Banco de Dados</h3>
         <p className="text-sm text-gray-500">Configure as conexões locais ou em nuvem para sincronização em tempo real de dados jurídicos.</p>
@@ -1518,7 +1518,7 @@ const DatabaseSettings: React.FC = () => {
           <select
             value={dbType}
             onChange={e => { setDbType(e.target.value as any); setTestResult(null); }}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white p-2 border"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
           >
             <option value="local">Banco de Dados Local (localStorage - Offline Primeiro)</option>
             <option value="cloud">Banco de Dados em Nuvem (Firebase / Supabase)</option>
@@ -1535,7 +1535,7 @@ const DatabaseSettings: React.FC = () => {
                 <select
                   value={dbCloudProvider}
                   onChange={e => setDbCloudProvider(e.target.value as any)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white p-1"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                 >
                   <option value="firebase">Firebase Firestore</option>
                   <option value="supabase">Supabase PostgreSQL</option>
@@ -1547,7 +1547,7 @@ const DatabaseSettings: React.FC = () => {
                   type="password"
                   value={dbApiKey}
                   onChange={e => setDbApiKey(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white p-1"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                   placeholder="AIzaSy..."
                 />
               </div>
@@ -1557,7 +1557,7 @@ const DatabaseSettings: React.FC = () => {
                   type="text"
                   value={dbProjectUrl}
                   onChange={e => setDbProjectUrl(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white p-1"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                   placeholder="https://sua-app.supabase.co ou project-id"
                 />
               </div>
@@ -1567,7 +1567,7 @@ const DatabaseSettings: React.FC = () => {
                   type="text"
                   value={dbAuthDomain}
                   onChange={e => setDbAuthDomain(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white p-1"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                   placeholder="sua-app.firebaseapp.com"
                 />
               </div>
@@ -1815,25 +1815,25 @@ const APIConnections: React.FC = () => {
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">Nome da API *</label>
               <input value={newApi.label} onChange={e => setNewApi(p => ({ ...p, label: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 bg-white"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                 placeholder="Ex: Minha API Personalizada" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">Descrição</label>
               <input value={newApi.description} onChange={e => setNewApi(p => ({ ...p, description: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 bg-white"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                 placeholder="Para que serve esta integração..." />
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">Rótulo do Endpoint</label>
               <input value={newApi.endpoint} onChange={e => setNewApi(p => ({ ...p, endpoint: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 bg-white"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                 placeholder="Ex: URL Base, Servidor..." />
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">Rótulo da Chave de Acesso</label>
               <input value={newApi.keyLabel} onChange={e => setNewApi(p => ({ ...p, keyLabel: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 bg-white"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                 placeholder="Ex: API Key, Token..." />
             </div>
           </div>
@@ -1854,7 +1854,7 @@ const APIConnections: React.FC = () => {
               ✅ Incluir API
             </button>
             <button onClick={() => setShowAddForm(false)}
-              className="px-5 py-2.5 bg-white border border-gray-300 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors">
+              className="px-5 py-2.5 bg-white border border-gray-300 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               Cancelar
             </button>
           </div>
@@ -1879,7 +1879,7 @@ const APIConnections: React.FC = () => {
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-sm font-bold text-gray-800">{api.label}</p>
                     {isEnabled && <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${api.badgeColor}`}>Ativo</span>}
-                    {isCustom && <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-200">Personalizado</span>}
+                    {isCustom && <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">Personalizado</span>}
                   </div>
                   <p className="text-xs text-gray-500 mt-0.5 truncate">{api.description}</p>
                 </div>
@@ -1914,13 +1914,13 @@ const APIConnections: React.FC = () => {
                 </div>
               </div>
               {isExpanded && api.fields.length > 0 && (
-                <div className="px-4 pb-4 space-y-4 border-t border-gray-200 pt-4">
+                <div className="px-4 pb-4 space-y-4 border-t border-gray-200 pt-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {api.fields.map((field: ApiField) => (
                       <div key={field.key}>
                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">{field.label}</label>
                         <input type={field.type} value={vals[field.key] || ''} onChange={e => setField(api.id, field.key, e.target.value)}
-                          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white font-mono"
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white font-mono dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                           placeholder={field.type === 'password' ? '••••••••••••••••' : `${field.label}...`} />
                       </div>
                     ))}
@@ -1944,7 +1944,7 @@ const APIConnections: React.FC = () => {
 
               {/* ViaCEP has no fields – just info */}
               {isExpanded && api.fields.length === 0 && (
-                <div className="px-4 pb-4 pt-3 border-t border-gray-200">
+                <div className="px-4 pb-4 pt-3 border-t border-gray-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                   <p className="text-xs text-gray-500">Esta API não requer configuração adicional. Basta ativar para uso automático.</p>
                 </div>
               )}

@@ -89,7 +89,7 @@ const PersonalDocModal: React.FC<PersonalDocModalProps> = ({ onClose, onConfirm 
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between p-5 border-b">
           <div>
             <h2 className="text-base font-bold text-gray-800">📎 Upload de Documento Pessoal</h2>
@@ -102,14 +102,14 @@ const PersonalDocModal: React.FC<PersonalDocModalProps> = ({ onClose, onConfirm 
           <div>
             <label className="block text-xs font-bold text-gray-600 uppercase mb-2">1. Tipo de Documento</label>
             <select value={docType} onChange={e => setDocType(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white">
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <option value="">Selecione o tipo...</option>
               {DOC_TYPES_PERSONAL.map(t => <option key={t}>{t}</option>)}
             </select>
             {docType === 'Outro' && (
               <input value={customDocType} onChange={e => setCustomDocType(e.target.value)}
                 placeholder="Descreva o tipo de documento"
-                className="mt-2 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300" />
+                className="mt-2 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
             )}
           </div>
           {/* Step 2: file */}
@@ -137,7 +137,7 @@ const PersonalDocModal: React.FC<PersonalDocModalProps> = ({ onClose, onConfirm 
           {sent && <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-2 text-green-800 text-sm font-semibold">✅ Documento enviado com sucesso!</div>}
         </div>
         <div className="flex gap-3 px-5 py-4 border-t bg-gray-50 rounded-b-2xl">
-          <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100">Cancelar</button>
+          <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">Cancelar</button>
           <button onClick={handleSend} disabled={!canSend || sent}
             className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
             {sent ? '✅ Enviado!' : '📤 Confirmar Envio'}
@@ -186,7 +186,7 @@ const ProcessDocModal: React.FC<ProcessDocModalProps> = ({ onClose, onConfirm })
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between p-5 border-b">
           <div>
             <h2 className="text-base font-bold text-gray-800">📂 Enviar Documento de Processo</h2>
@@ -248,7 +248,7 @@ const ProcessDocModal: React.FC<ProcessDocModalProps> = ({ onClose, onConfirm })
           {sent && <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-2 text-green-800 text-sm font-semibold">✅ Documento enviado e vinculado ao processo!</div>}
         </div>
         <div className="flex gap-3 px-5 py-4 border-t bg-gray-50 rounded-b-2xl">
-          <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100">Cancelar</button>
+          <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">Cancelar</button>
           <button onClick={handleSend} disabled={!canSend || sent}
             className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
             {sent ? '✅ Enviado!' : '📤 Confirmar e Enviar'}
@@ -429,14 +429,14 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
                 <p className="text-xs text-white/85">Dr(a). {assignedLawyer.name} — OAB {assignedLawyer.oab}</p>
               </div>
             </div>
-            <button onClick={() => setShowLawyerPopup(true)} className="shrink-0 px-4 py-2 bg-white/20 rounded-lg text-xs font-semibold hover:bg-white/30 transition-colors">
+            <button onClick={() => setShowLawyerPopup(true)} className="shrink-0 px-4 py-2 bg-white/20 rounded-lg text-xs font-semibold hover:bg-white/30 transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               Ver Detalhes
             </button>
           </div>
         )}
 
         {/* Tab Nav */}
-        <div className="border-b border-gray-200 mb-6">
+        <div className="border-b border-gray-200 mb-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
           <nav className="-mb-px flex flex-wrap gap-2 sm:space-x-4">
             {tabBtn('overview', '📊 Visão Geral')}
             {tabBtn('perfil', '👤 Meu Perfil')}
@@ -460,7 +460,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
 
             {/* Phone & address summary */}
             {(profile.phone || profile.address) && (
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                 <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">📌 Informações de Contato</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
                   {profile.phone && <div className="flex items-center gap-2"><span className="text-base">📞</span> {profile.phone}</div>}
@@ -471,7 +471,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
             )}
 
             {/* Areas of Knowledge */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <h3 className="text-base font-bold text-gray-800 mb-4">🎯 Áreas de Conhecimento</h3>
               <div className="flex flex-wrap gap-2">
                 {overviewAreas.map(area => (
@@ -483,14 +483,14 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
 
             {/* Bio */}
             {overviewBio && (
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                 <h3 className="text-base font-bold text-gray-800 mb-2">📝 Apresentação Profissional</h3>
                 <p className="text-sm text-gray-600 leading-relaxed">{overviewBio}</p>
               </div>
             )}
 
             {/* Sync status chips */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <h3 className="text-sm font-bold text-gray-700 mb-3">🔗 Status de Sincronização de Agenda</h3>
               <div className="flex flex-wrap gap-2 text-xs">
                 {Object.entries(calendarSynced).map(([key, synced]) => {
@@ -522,32 +522,32 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
         {/* ─── PERFIL ─── */}
         {activeTab === 'perfil' && (
           <div className="space-y-6 animate-fade-in">
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-5">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-5 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <h3 className="text-base font-bold text-gray-800 border-b pb-2">Dados Pessoais e Profissionais</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Nome Completo</label>
-                  <input value={profile.name} onChange={e => setProfile(p => ({ ...p, name: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input value={profile.name} onChange={e => setProfile(p => ({ ...p, name: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Telefone</label>
-                  <input value={profile.phone} onChange={e => setProfile(p => ({ ...p, phone: e.target.value }))} placeholder="(11) 99999-9999" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input value={profile.phone} onChange={e => setProfile(p => ({ ...p, phone: e.target.value }))} placeholder="(11) 99999-9999" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Cidade</label>
-                  <input value={profile.city} onChange={e => setProfile(p => ({ ...p, city: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input value={profile.city} onChange={e => setProfile(p => ({ ...p, city: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Estado (UF)</label>
-                  <input value={profile.state} onChange={e => setProfile(p => ({ ...p, state: e.target.value }))} maxLength={2} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 uppercase" />
+                  <input value={profile.state} onChange={e => setProfile(p => ({ ...p, state: e.target.value }))} maxLength={2} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 uppercase dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Experiência (anos)</label>
-                  <input type="number" min="0" value={profile.experience} onChange={e => setProfile(p => ({ ...p, experience: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input type="number" min="0" value={profile.experience} onChange={e => setProfile(p => ({ ...p, experience: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Disponibilidade</label>
-                  <select value={profile.availability} onChange={e => setProfile(p => ({ ...p, availability: e.target.value as Secretary['availability'] }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white">
+                  <select value={profile.availability} onChange={e => setProfile(p => ({ ...p, availability: e.target.value as Secretary['availability'] }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                     <option value="integral">Tempo Integral</option>
                     <option value="meio-periodo">Meio Período</option>
                     <option value="freelancer">Freelancer</option>
@@ -555,17 +555,17 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Endereço</label>
-                  <input value={profile.address} onChange={e => setProfile(p => ({ ...p, address: e.target.value }))} placeholder="Rua, Número, Bairro, CEP" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <input value={profile.address} onChange={e => setProfile(p => ({ ...p, address: e.target.value }))} placeholder="Rua, Número, Bairro, CEP" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Apresentação / Bio</label>
-                  <textarea value={profile.bio} onChange={e => setProfile(p => ({ ...p, bio: e.target.value }))} rows={3} placeholder="Descreva sua experiência e diferenciais..." className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                  <textarea value={profile.bio} onChange={e => setProfile(p => ({ ...p, bio: e.target.value }))} rows={3} placeholder="Descreva sua experiência e diferenciais..." className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                 </div>
               </div>
             </div>
 
             {/* Areas of Knowledge */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <h3 className="text-base font-bold text-gray-800 border-b pb-2">🎯 Áreas de Conhecimento</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {AREAS_CONHECIMENTO.map(area => {
@@ -581,7 +581,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
             </div>
 
             {/* Personal documents upload — with type identification */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-base font-bold text-gray-800">📎 Documentos Pessoais</h3>
@@ -620,7 +620,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
             </div>
 
             {/* Security */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <h3 className="text-base font-bold text-gray-800">🔐 Segurança de Acesso</h3>
               <div className="flex flex-wrap gap-3">
                 <button onClick={() => setShowPasswordModal(true)} className="px-4 py-2.5 text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200 rounded-lg hover:bg-amber-100">🔑 Alterar Senha</button>
@@ -653,7 +653,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
             )}
 
             {/* Professional calendar */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <div>
                 <h3 className="text-base font-bold text-gray-800">💼 Agenda Profissional</h3>
                 <p className="text-xs text-gray-500 mt-0.5">Sincronize compromissos profissionais, reuniões e atendimentos do escritório.</p>
@@ -703,7 +703,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
             </div>
 
             {/* Personal calendar */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <div>
                 <h3 className="text-base font-bold text-gray-800">🏠 Agenda Pessoal</h3>
                 <p className="text-xs text-gray-500 mt-0.5">Sincronize sua agenda pessoal para gerenciar compromissos particulares.</p>
@@ -753,7 +753,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
             </div>
 
             {/* Placeholder agenda */}
-            <div className="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-10 text-center">
+            <div className="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-10 text-center dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <p className="text-3xl mb-2">📅</p>
               <h3 className="text-lg font-bold text-gray-700">Agenda em construção</h3>
               <p className="text-sm text-gray-500 mt-1">Aqui você poderá visualizar compromissos agendados pelo advogado vinculado.</p>
@@ -765,7 +765,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
         {activeTab === 'documentos' && (
           <div className="space-y-6 animate-fade-in">
             {/* Process Documents */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-base font-bold text-gray-800">📂 Documentos de Processos</h3>
@@ -811,7 +811,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
 
             {/* Personal docs (read-only cross-reference from Meu Perfil) */}
             {personalDocs.length > 0 && (
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-3">
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-3 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                 <h3 className="text-sm font-bold text-gray-700">📎 Documentos Pessoais <span className="text-xs text-gray-400 font-normal">(gerenciados em Meu Perfil)</span></h3>
                 {personalDocs.map((d, i) => (
                   <div key={i} className="flex items-center gap-3 bg-purple-50 border border-purple-100 rounded-xl px-4 py-3">

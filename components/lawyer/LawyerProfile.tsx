@@ -16,7 +16,7 @@ export const LawyerProfile: React.FC<LawyerProfileProps> = ({ lawyer, onBack, on
 
   return (
     <>
-      <div className="bg-white">
+      <div className="bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <button onClick={onBack} className="flex items-center text-sm font-medium text-gray-600 hover:text-primary mb-6">
               <ChevronLeftIcon className="h-5 w-5 mr-1" />
@@ -25,7 +25,7 @@ export const LawyerProfile: React.FC<LawyerProfileProps> = ({ lawyer, onBack, on
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
             {/* Left Column - Profile Summary */}
             <div className="lg:col-span-1">
-              <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-100 sticky top-28">
+              <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-100 sticky top-28 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                 <img className="h-40 w-40 rounded-full object-cover mx-auto ring-4 ring-primary/30" src={lawyer.photoUrl} alt={lawyer.name} />
                 <h1 className="text-3xl font-bold text-center mt-4 text-gray-900 flex items-center justify-center">
                   {lawyer.name}
@@ -60,7 +60,7 @@ export const LawyerProfile: React.FC<LawyerProfileProps> = ({ lawyer, onBack, on
 
             {/* Right Column - Detailed Info */}
             <div className="lg:col-span-2">
-              <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-100">
+              <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-100 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                 <h2 className="text-2xl font-bold text-gray-800 border-b pb-4">Sobre</h2>
                 <p className="mt-4 text-gray-600 leading-relaxed">{lawyer.bio}</p>
 
@@ -115,7 +115,7 @@ export const LawyerProfile: React.FC<LawyerProfileProps> = ({ lawyer, onBack, on
             onClick={() => setIsBookingOpen(false)}
         >
             <div 
-                className="bg-white rounded-2xl shadow-xl w-full max-w-lg relative animate-slide-up"
+                className="bg-white rounded-2xl shadow-xl w-full max-w-lg relative animate-slide-up dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                 onClick={(e) => e.stopPropagation()}
             >
                 <BookingCalendar lawyer={lawyer} onClose={() => setIsBookingOpen(false)} onNavigate={onNavigate} />

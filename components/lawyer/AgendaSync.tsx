@@ -64,7 +64,7 @@ const ConnectModal: React.FC<{ option: SyncOption; onClose: () => void }> = ({ o
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 animate-fade-in">
+      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 animate-fade-in dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
         <div className="flex items-center gap-3">
           <span className="text-4xl">{option.icon}</span>
           <div>
@@ -155,7 +155,7 @@ export const AgendaSync: React.FC = () => {
       </div>
 
       {/* Event list */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
         <div className="flex items-center justify-between p-4 border-b bg-gray-50">
           <p className="font-semibold text-gray-800 text-sm">Próximos Eventos</p>
           <button onClick={() => setShowAddForm(f => !f)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary rounded-lg hover:bg-primary/90">
@@ -180,13 +180,13 @@ export const AgendaSync: React.FC = () => {
                     value={(newEvent as any)[f.key]}
                     onChange={e => setNewEvent(prev => ({ ...prev, [f.key]: e.target.value }))}
                     placeholder={f.placeholder}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                   />
                 </div>
               ))}
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Tipo</label>
-                <select value={newEvent.type} onChange={e => setNewEvent(p => ({ ...p, type: e.target.value as AgendaEvent['type'] }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+                <select value={newEvent.type} onChange={e => setNewEvent(p => ({ ...p, type: e.target.value as AgendaEvent['type'] }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                   <option value="consulta">Consulta</option>
                   <option value="reuniao">Reunião</option>
                   <option value="audiencia">Audiência</option>
@@ -195,7 +195,7 @@ export const AgendaSync: React.FC = () => {
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Plataforma</label>
-                <select value={newEvent.platform} onChange={e => setNewEvent(p => ({ ...p, platform: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30">
+                <select value={newEvent.platform} onChange={e => setNewEvent(p => ({ ...p, platform: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                   <option>Google Meet</option>
                   <option>Microsoft Teams</option>
                   <option>Zoom</option>

@@ -102,7 +102,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <SectionTitle title="Gestão Financeira" subtitle="Receita, pagamentos e remunerações individualizadas por perfil" />
-        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border shadow-sm">
+        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border shadow-sm dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
           <span className="text-sm font-medium text-gray-700">Período do Relatório:</span>
           <select value={timeFilter} onChange={e => setTimeFilter(e.target.value)} className="text-sm border-none bg-transparent font-bold text-primary focus:outline-none cursor-pointer">
             <option>Diário</option>
@@ -132,7 +132,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
       </div>
 
       {/* Revenue bar chart */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
         <h3 className="text-base font-bold text-gray-800 mb-5">Evolução de Receita Mensal</h3>
         <div className="flex items-end gap-3 h-40">
           {mockMonthlyRevenue.map(m => {
@@ -150,7 +150,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
       </div>
 
       {/* Individualized table */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm">
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
         <div className="p-5 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex gap-2 flex-wrap">
             {tabs.map(([t, label, icon, color]) => (
@@ -171,7 +171,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
           </div>
           <div className="flex gap-2">
             <SearchInput value={search} onChange={setSearch} placeholder="Buscar..." />
-            <select value={stateFilter} onChange={e => setStateFilter(e.target.value)} className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white">
+            <select value={stateFilter} onChange={e => setStateFilter(e.target.value)} className="text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               {BRAZIL_STATES.map(s => <option key={s}>{s}</option>)}
             </select>
           </div>
