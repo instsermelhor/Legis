@@ -46,9 +46,10 @@ export interface AdminUser {
   name: string;
   email: string;
   password: string;
-  role: 'super' | 'manager' | 'viewer';
+  role: 'super' | 'admin' | 'manager' | 'collaborator' | 'viewer';
   createdAt: string;
   active: boolean;
+  permissions?: string[]; // custom per-user overrides
 }
 
 export const mockClients: MockClient[] = [
