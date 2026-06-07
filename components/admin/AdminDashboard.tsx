@@ -3,15 +3,24 @@ import type { Lawyer } from '../../types';
 import { mockLawyers } from '../../services/mockLawyerService';
 import { OverviewTab } from './OverviewTab';
 import { RegistrationsTab } from './RegistrationsTab';
-import { ClientsTab, InternsTab } from './ClientsInternsTab';
 import { FinanceTab } from './FinanceTab';
 import { SettingsTab } from './SettingsTab';
 import { ServicesManagementTab } from './ServicesManagementTab';
 import {
-  IconBriefcase, IconUsers, IconGradCap, IconMoney,
-  IconSettings, IconChart, IconEdit,
+  IconMoney, IconSettings, IconChart, IconEdit,
   SearchInput, SectionTitle, lawyerStatusBadge,
 } from './AdminShared';
+// Inline icons for sidebar
+const IconGrid = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+  </svg>
+);
+const IconShopBag = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 11H4L5 9z" />
+  </svg>
+);
 
 // ─── Lawyers Tab (kept local) ────────────────────────────────────────────────
 const LawyersTab: React.FC<{
@@ -118,16 +127,13 @@ const LawyersTab: React.FC<{
 };
 
 // ─── Tab definitions ──────────────────────────────────────────────────────────
-type Tab = 'overview' | 'registrations' | 'lawyers' | 'clients' | 'interns' | 'finance' | 'settings' | 'services';
+type Tab = 'overview' | 'registrations' | 'finance' | 'settings' | 'services';
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: 'overview',       label: 'Visão Geral',         icon: <IconChart /> },
   { id: 'registrations',  label: 'Gestão de Cadastros', icon: <IconEdit /> },
-  { id: 'lawyers',        label: 'Advogados',            icon: <IconBriefcase /> },
-  { id: 'clients',        label: 'Clientes',             icon: <IconUsers /> },
-  { id: 'interns',        label: 'Estudantes',           icon: <IconGradCap /> },
   { id: 'finance',        label: 'Financeiro',           icon: <IconMoney /> },
-  { id: 'services',       label: 'Serviços / Eficiência',icon: <IconBriefcase /> },
+  { id: 'services',       label: 'Serviços / Eficiência', icon: <IconShopBag /> },
   { id: 'settings',       label: 'Configurações',        icon: <IconSettings /> },
 ];
 
@@ -174,22 +180,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === tab.id ? 'bg-primary text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'}`}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
+                  activeTab === tab.id
+                    ? 'bg-purple-600 text-white shadow-sm shadow-purple-200'
+                    : 'text-gray-600 hover:bg-purple-50 hover:text-purple-700'
+                }`}
               >
                 <span className="w-5 h-5 shrink-0">{tab.icon}</span>
                 {tab.label}
               </button>
             ))}
           </nav>
+
+          {/* Sidebar footer */}
+          <div className="p-3 mt-4 border-t">
+            <div className="px-3 py-2 rounded-lg bg-purple-50 border border-purple-100">
+              <p className="text-[10px] font-bold text-purple-700 uppercase tracking-widest mb-1">Legis Connect</p>
+              <p className="text-xs text-purple-500">Plataforma Jurídica</p>
+            </div>
+          </div>
         </aside>
 
         {/* Content */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
           {activeTab === 'overview'      && <OverviewTab lawyers={lawyers} onNavigateToFinance={navigateToFinance} />}
           {activeTab === 'registrations' && <RegistrationsTab lawyers={lawyers} onLawyerUpdate={handleLawyerUpdate} />}
-          {activeTab === 'lawyers'       && <LawyersTab lawyers={lawyers} onStatusChange={handleStatusChange} />}
-          {activeTab === 'clients'       && <ClientsTab />}
-          {activeTab === 'interns'       && <InternsTab />}
           {activeTab === 'finance'       && <FinanceTab lawyers={lawyers} initialFilter={financeFilter} />}
           {activeTab === 'services'      && <ServicesManagementTab />}
           {activeTab === 'settings'      && <SettingsTab />}
