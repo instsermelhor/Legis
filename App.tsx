@@ -30,7 +30,7 @@ import type { View, Lawyer, Intern, Secretary, ChatMessage, User, Case, Appointm
 import { mockLawyers } from './services/mockLawyerService';
 
 const ADMIN_EMAIL = 'admin@legisconnect.com.br';
-const ADMIN_PASSWORD = 'admim';
+const ADMIN_PASSWORD = 'admin';
 const TEST_EMAIL = 'teste@legisconnect.com.br';
 const TEST_PASSWORD = 'teste';
 
