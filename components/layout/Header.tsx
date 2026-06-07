@@ -17,7 +17,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
   const navLinks = user?.role !== 'admin' ? [
     { label: 'Encontrar Advogado', view: 'search' as View },
     { label: 'Advogados', view: 'forLawyers' as View },
-    { label: 'Estudantes', view: 'forInterns' as View },
+    { label: 'Bacharelandos', view: 'forInterns' as View },
     { label: 'Secretariado', view: 'forSecretariado' as View },
     { label: 'Clientes', view: 'forClients' as View },
     { label: 'Serviços', view: 'services' as View },

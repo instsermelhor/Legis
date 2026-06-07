@@ -66,9 +66,9 @@ export const SignupPage: React.FC<SignupPageProps> = ({ onClientSignup, onNaviga
                         className="p-8 border-2 border-gray-200 rounded-lg text-center cursor-pointer hover:border-primary hover:bg-primary/5 transition-all duration-300 transform hover:scale-105"
                     >
                         <AcademicCapIcon className="h-16 w-16 text-primary mx-auto" />
-                        <h2 className="mt-4 text-2xl font-bold text-gray-800">Sou Estudante</h2>
+                        <h2 className="mt-4 text-2xl font-bold text-gray-800">Sou Bacharelando</h2>
                         <p className="mt-2 text-gray-500">
-                            Estudante de Direito ou estagiário buscando desenvolver sua grade educacional.
+                            Bacharelando de Direito ou estagiário buscando desenvolver sua grade educacional.
                         </p>
                     </div>
                 </div>

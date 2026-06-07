@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import type { Lawyer } from '../../types';
 import { mockClients, mockInterns, mockSecretaries } from '../../services/mockDataService';
 import type { MockClient, MockIntern, MockSecretary } from '../../services/mockDataService';
@@ -7,7 +7,178 @@ import { ConfirmSaveModal, ConfirmSaveField } from '../common/ConfirmSaveModal';
 
 type RecordType = 'lawyers' | 'clients' | 'interns' | 'secretaries';
 
-// Generic field editor row
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface AdminDoc {
+  name: string;
+  fileType: 'PDF' | 'Imagem';
+  size: string;
+  date: string;
+  docType: string;
+}
+
+const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+const ALLOWED_LABEL = 'PDF, JPG, JPEG ou PNG';
+
+const ADMIN_DOC_TYPES = [
+  'RG', 'CPF', 'CNH', 'OAB', 'Diploma', 'Carteira de Trabalho',
+  'Comprovante de Residência', 'Certidão de Nascimento', 'Passaporte',
+  'Contrato de Trabalho', 'Termo de Estágio', 'Relatório de Estágio',
+  'Documentação Processual', 'Declaração', 'Outro',
+];
+
+// ─── Doc Upload Modal ─────────────────────────────────────────────────────────
+
+interface DocUploadModalProps {
+  onClose: () => void;
+  onConfirm: (doc: AdminDoc) => void;
+}
+
+const DocUploadModal: React.FC<DocUploadModalProps> = ({ onClose, onConfirm }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [pendingFile, setPendingFile] = useState<{ name: string; fileType: 'PDF' | 'Imagem'; size: string } | null>(null);
+  const [docType, setDocType] = useState('');
+  const [customDocType, setCustomDocType] = useState('');
+  const [sent, setSent] = useState(false);
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (!ALLOWED_TYPES.includes(f.type)) { alert(`Formato não permitido. Use ${ALLOWED_LABEL}.`); return; }
+    setPendingFile({ name: f.name, fileType: f.type.includes('pdf') ? 'PDF' : 'Imagem', size: `${(f.size / (1024 * 1024)).toFixed(2)} MB` });
+    e.target.value = '';
+  };
+
+  const finalDocType = docType === 'Outro' ? customDocType : docType;
+  const canSend = !!pendingFile && !!finalDocType.trim();
+
+  const handleSend = () => {
+    if (!pendingFile || !finalDocType.trim()) return;
+    setSent(true);
+    setTimeout(() => {
+      onConfirm({ ...pendingFile, date: new Date().toLocaleDateString('pt-BR'), docType: finalDocType.trim() });
+      onClose();
+    }, 900);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center justify-between p-5 border-b">
+          <div>
+            <h2 className="text-base font-bold text-gray-800">📎 Upload de Documento</h2>
+            <p className="text-xs text-gray-500 mt-0.5">Identifique o tipo de documento antes de enviar</p>
+          </div>
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 text-gray-500 text-lg font-bold">✕</button>
+        </div>
+        <div className="p-5 space-y-4">
+          {/* Step 1 */}
+          <div>
+            <label className="block text-xs font-bold text-gray-600 uppercase mb-2">1. Tipo de Documento *</label>
+            <select value={docType} onChange={e => setDocType(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white">
+              <option value="">Selecione o tipo...</option>
+              {ADMIN_DOC_TYPES.map(t => <option key={t}>{t}</option>)}
+            </select>
+            {docType === 'Outro' && (
+              <input value={customDocType} onChange={e => setCustomDocType(e.target.value)}
+                placeholder="Descreva o tipo de documento"
+                className="mt-2 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+            )}
+          </div>
+          {/* Step 2 */}
+          <div>
+            <label className="block text-xs font-bold text-gray-600 uppercase mb-2">2. Selecionar Arquivo *</label>
+            <input ref={fileInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={handleFile} />
+            {!pendingFile ? (
+              <button onClick={() => fileInputRef.current?.click()}
+                className="w-full border-2 border-dashed border-primary/30 rounded-xl py-6 text-center hover:bg-primary/5 hover:border-primary/50 transition-colors">
+                <p className="text-2xl mb-1">📁</p>
+                <p className="text-sm font-medium text-gray-600">Clique para selecionar o arquivo</p>
+                <p className="text-xs text-gray-400 mt-0.5">{ALLOWED_LABEL}</p>
+              </button>
+            ) : (
+              <div className="flex items-center gap-3 bg-primary/5 border border-primary/20 rounded-xl px-4 py-3">
+                <span className="text-xl shrink-0">{pendingFile.fileType === 'PDF' ? '📄' : '🖼️'}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-800 truncate">{pendingFile.name}</p>
+                  <p className="text-xs text-gray-400">{pendingFile.fileType} · {pendingFile.size}</p>
+                </div>
+                <button onClick={() => setPendingFile(null)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+              </div>
+            )}
+          </div>
+          {sent && <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-2 text-green-800 text-sm font-semibold">✅ Documento enviado com sucesso!</div>}
+        </div>
+        <div className="flex gap-3 px-5 py-4 border-t bg-gray-50 rounded-b-2xl">
+          <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100">Cancelar</button>
+          <button onClick={handleSend} disabled={!canSend || sent}
+            className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            {sent ? '✅ Enviado!' : '📤 Confirmar Envio'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// ─── Admin Doc Upload Panel ───────────────────────────────────────────────────
+
+const AdminDocUploadPanel: React.FC = () => {
+  const [docs, setDocs] = useState<AdminDoc[]>([]);
+  const [showModal, setShowModal] = useState(false);
+
+  return (
+    <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs font-bold text-blue-800 uppercase tracking-wider">📎 Documentos do Cadastro</p>
+          <p className="text-xs text-blue-600 mt-0.5">Adicione documentos vinculados a este cadastro (PDF, JPG, JPEG, PNG)</p>
+        </div>
+        <button onClick={() => setShowModal(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-700 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors shrink-0">
+          ➕ Adicionar
+        </button>
+      </div>
+
+      {docs.length === 0 ? (
+        <button onClick={() => setShowModal(true)}
+          className="w-full border-2 border-dashed border-blue-200 rounded-xl py-5 text-center hover:bg-blue-100/30 transition-colors">
+          <p className="text-2xl mb-1">📂</p>
+          <p className="text-xs font-medium text-blue-600">Clique para adicionar um documento</p>
+          <p className="text-[11px] text-blue-400 mt-0.5">{ALLOWED_LABEL} · Identifique o tipo ao enviar</p>
+        </button>
+      ) : (
+        <div className="space-y-2">
+          {docs.map((d, i) => (
+            <div key={i} className="flex items-center justify-between bg-white border border-blue-100 rounded-xl px-4 py-2.5 gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="text-lg shrink-0">{d.fileType === 'PDF' ? '📄' : '🖼️'}</span>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-gray-800 truncate">{d.name}</p>
+                  <p className="text-[10px] text-gray-400">{d.fileType} · {d.size} · {d.date}</p>
+                </div>
+              </div>
+              <span className="shrink-0 px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-full whitespace-nowrap">{d.docType}</span>
+              <button onClick={() => setDocs(prev => prev.filter((_, idx) => idx !== i))} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold ml-1">✕</button>
+            </div>
+          ))}
+          <button onClick={() => setShowModal(true)} className="text-xs text-blue-600 hover:underline font-semibold py-1">+ Adicionar mais documentos</button>
+        </div>
+      )}
+
+      {showModal && (
+        <DocUploadModal
+          onClose={() => setShowModal(false)}
+          onConfirm={doc => setDocs(prev => [...prev, doc])}
+        />
+      )}
+    </div>
+  );
+};
+
+// ─── Generic field helpers ────────────────────────────────────────────────────
+
 const FieldRow: React.FC<{ label: string; value: string; onChange: (v: string) => void; type?: string }> = ({ label, value, onChange, type = 'text' }) => (
   <div>
     <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">{label}</label>
@@ -24,7 +195,8 @@ const SelectRow: React.FC<{ label: string; value: string; onChange: (v: string) 
   </div>
 );
 
-// Password Reset Simulation Button
+// ─── Password Reset ───────────────────────────────────────────────────────────
+
 const ResetPasswordButton: React.FC<{ email: string; name: string }> = ({ email, name }) => {
   const [sent, setSent] = useState(false);
   const [confirm, setConfirm] = useState(false);
@@ -34,19 +206,12 @@ const ResetPasswordButton: React.FC<{ email: string; name: string }> = ({ email,
       <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 space-y-3">
         <p className="text-sm font-semibold text-orange-800">⚠️ Confirmar Reset de Senha</p>
         <p className="text-xs text-orange-700">
-          Será enviado um link de redefinição de senha para o e-mail:<br />
+          Será enviado um link de redefinição para:<br />
           <strong>{email}</strong> ({name})
         </p>
         <div className="flex gap-2">
-          <button
-            onClick={() => { setSent(true); setConfirm(false); setTimeout(() => setSent(false), 5000); }}
-            className="px-4 py-2 text-xs font-semibold text-white bg-orange-600 rounded-lg hover:bg-orange-700"
-          >
-            ✉️ Confirmar Envio
-          </button>
-          <button onClick={() => setConfirm(false)} className="px-4 py-2 text-xs font-semibold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
-            Cancelar
-          </button>
+          <button onClick={() => { setSent(true); setConfirm(false); setTimeout(() => setSent(false), 5000); }} className="px-4 py-2 text-xs font-semibold text-white bg-orange-600 rounded-lg hover:bg-orange-700">✉️ Confirmar Envio</button>
+          <button onClick={() => setConfirm(false)} className="px-4 py-2 text-xs font-semibold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">Cancelar</button>
         </div>
       </div>
     );
@@ -54,36 +219,34 @@ const ResetPasswordButton: React.FC<{ email: string; name: string }> = ({ email,
 
   return (
     <div className="space-y-2">
-      {sent && (
-        <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2 font-semibold">
-          ✅ Link de redefinição enviado para {email}
-        </div>
-      )}
-      <button
-        onClick={() => setConfirm(true)}
-        className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-orange-700 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors"
-      >
+      {sent && <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2 font-semibold">✅ Link enviado para {email}</div>}
+      <button onClick={() => setConfirm(true)} className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-orange-700 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors">
         🔑 Resetar Senha (enviar link por e-mail)
       </button>
     </div>
   );
 };
 
-// ─── Secretary Status Badge ────────────────────────────────────────────────────
+// ─── Status badges ────────────────────────────────────────────────────────────
+
 const secretaryStatusBadge = (status: MockSecretary['status']) => {
-  const map: Record<MockSecretary['status'], string> = {
-    ativo: 'bg-green-100 text-green-700',
-    pendente: 'bg-yellow-100 text-yellow-700',
-    inativo: 'bg-red-100 text-red-700',
-  };
+  const map: Record<MockSecretary['status'], string> = { ativo: 'bg-green-100 text-green-700', pendente: 'bg-yellow-100 text-yellow-700', inativo: 'bg-red-100 text-red-700' };
   return <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${map[status]}`}>{status}</span>;
 };
 
+// ─── Icon ─────────────────────────────────────────────────────────────────────
+
+const IconSecretariat = () => (
+  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+  </svg>
+);
+
 // ─── Lawyer Editor ────────────────────────────────────────────────────────────
+
 const LawyerEditor: React.FC<{ lawyer: Lawyer; onSave: (l: Lawyer) => void; onBack: () => void }> = ({ lawyer, onSave, onBack }) => {
   const [data, setData] = useState({ ...lawyer, adminNotes: (lawyer as any).adminNotes || '' });
   const [showConfirm, setShowConfirm] = useState(false);
-
   const f = (field: keyof Lawyer) => (v: string) => setData(d => ({ ...d, [field]: v }));
 
   const buildFields = (): ConfirmSaveField[] => [
@@ -99,11 +262,6 @@ const LawyerEditor: React.FC<{ lawyer: Lawyer; onSave: (l: Lawyer) => void; onBa
     { label: 'Bio', oldValue: lawyer.bio, newValue: data.bio },
     { label: 'Notas do Admin', oldValue: (lawyer as any).adminNotes || '', newValue: data.adminNotes },
   ];
-
-  const handleConfirmedSave = () => {
-    onSave(data as Lawyer);
-    setShowConfirm(false);
-  };
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 max-w-2xl space-y-6">
@@ -130,16 +288,13 @@ const LawyerEditor: React.FC<{ lawyer: Lawyer; onSave: (l: Lawyer) => void; onBa
         <textarea value={data.bio} onChange={e => setData(d => ({ ...d, bio: e.target.value }))} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
       </div>
 
+      {/* Document Upload */}
+      <AdminDocUploadPanel />
+
       {/* Admin Notes */}
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
         <label className="block text-xs font-bold text-amber-700 uppercase tracking-wider">📋 Informações Adicionais do Administrador</label>
-        <textarea
-          value={data.adminNotes}
-          onChange={e => setData(d => ({ ...d, adminNotes: e.target.value }))}
-          rows={3}
-          placeholder="Adicione notas internas, observações administrativas, histórico de ocorrências..."
-          className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white"
-        />
+        <textarea value={data.adminNotes} onChange={e => setData(d => ({ ...d, adminNotes: e.target.value }))} rows={3} placeholder="Notas internas, observações administrativas, histórico..." className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white" />
       </div>
 
       {/* Password Reset */}
@@ -148,28 +303,17 @@ const LawyerEditor: React.FC<{ lawyer: Lawyer; onSave: (l: Lawyer) => void; onBa
         <ResetPasswordButton email={data.contact.email} name={data.name} />
       </div>
 
-      <button
-        onClick={() => setShowConfirm(true)}
-        className="px-6 py-2.5 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90"
-      >
-        Revisar e Salvar Alterações
-      </button>
+      <button onClick={() => setShowConfirm(true)} className="px-6 py-2.5 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90">Revisar e Salvar Alterações</button>
 
       {showConfirm && (
-        <ConfirmSaveModal
-          title="Editar Cadastro de Advogado"
-          userName={data.name}
-          userEmail={data.contact.email}
-          fields={buildFields()}
-          onConfirm={handleConfirmedSave}
-          onCancel={() => setShowConfirm(false)}
-        />
+        <ConfirmSaveModal title="Editar Cadastro de Advogado" userName={data.name} userEmail={data.contact.email} fields={buildFields()} onConfirm={() => { onSave(data as Lawyer); setShowConfirm(false); }} onCancel={() => setShowConfirm(false)} />
       )}
     </div>
   );
 };
 
 // ─── Client Editor ────────────────────────────────────────────────────────────
+
 const ClientEditor: React.FC<{ client: MockClient; onSave: (c: MockClient) => void; onBack: () => void }> = ({ client, onSave, onBack }) => {
   const [data, setData] = useState({ ...client, adminNotes: (client as any).adminNotes || '' });
   const [showConfirm, setShowConfirm] = useState(false);
@@ -210,16 +354,13 @@ const ClientEditor: React.FC<{ client: MockClient; onSave: (c: MockClient) => vo
         <textarea value={data.notes || ''} onChange={e => setData(d => ({ ...d, notes: e.target.value }))} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
       </div>
 
+      {/* Document Upload */}
+      <AdminDocUploadPanel />
+
       {/* Admin Notes */}
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
         <label className="block text-xs font-bold text-amber-700 uppercase tracking-wider">📋 Informações Adicionais do Administrador</label>
-        <textarea
-          value={data.adminNotes}
-          onChange={e => setData(d => ({ ...d, adminNotes: e.target.value }))}
-          rows={3}
-          placeholder="Adicione notas internas, observações administrativas, histórico..."
-          className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white"
-        />
+        <textarea value={data.adminNotes} onChange={e => setData(d => ({ ...d, adminNotes: e.target.value }))} rows={3} placeholder="Notas internas, histórico..." className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white" />
       </div>
 
       {/* Password Reset */}
@@ -228,28 +369,17 @@ const ClientEditor: React.FC<{ client: MockClient; onSave: (c: MockClient) => vo
         <ResetPasswordButton email={data.email} name={data.name} />
       </div>
 
-      <button
-        onClick={() => setShowConfirm(true)}
-        className="px-6 py-2.5 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90"
-      >
-        Revisar e Salvar Alterações
-      </button>
+      <button onClick={() => setShowConfirm(true)} className="px-6 py-2.5 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90">Revisar e Salvar Alterações</button>
 
       {showConfirm && (
-        <ConfirmSaveModal
-          title="Editar Cadastro de Cliente"
-          userName={data.name}
-          userEmail={data.email}
-          fields={buildFields()}
-          onConfirm={() => { onSave(data as MockClient); setShowConfirm(false); }}
-          onCancel={() => setShowConfirm(false)}
-        />
+        <ConfirmSaveModal title="Editar Cadastro de Cliente" userName={data.name} userEmail={data.email} fields={buildFields()} onConfirm={() => { onSave(data as MockClient); setShowConfirm(false); }} onCancel={() => setShowConfirm(false)} />
       )}
     </div>
   );
 };
 
-// ─── Intern Editor ────────────────────────────────────────────────────────────
+// ─── Bacharelando Editor (ex-Intern) ──────────────────────────────────────────
+
 const InternEditor: React.FC<{ intern: MockIntern; onSave: (i: MockIntern) => void; onBack: () => void }> = ({ intern, onSave, onBack }) => {
   const [data, setData] = useState({ ...intern, adminNotes: (intern as any).adminNotes || '' });
   const [showConfirm, setShowConfirm] = useState(false);
@@ -273,7 +403,7 @@ const InternEditor: React.FC<{ intern: MockIntern; onSave: (i: MockIntern) => vo
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 max-w-2xl space-y-6">
       <button onClick={onBack} className="text-sm text-primary hover:underline">← Voltar</button>
-      <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2"><IconEdit /> Editar Estudante</h2>
+      <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2"><IconEdit /> Editar Bacharelando(a)</h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FieldRow label="Nome Completo" value={data.name} onChange={f('name')} />
@@ -294,16 +424,13 @@ const InternEditor: React.FC<{ intern: MockIntern; onSave: (i: MockIntern) => vo
         <textarea value={data.notes || ''} onChange={e => setData(d => ({ ...d, notes: e.target.value }))} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
       </div>
 
+      {/* Document Upload */}
+      <AdminDocUploadPanel />
+
       {/* Admin Notes */}
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
         <label className="block text-xs font-bold text-amber-700 uppercase tracking-wider">📋 Informações Adicionais do Administrador</label>
-        <textarea
-          value={data.adminNotes}
-          onChange={e => setData(d => ({ ...d, adminNotes: e.target.value }))}
-          rows={3}
-          placeholder="Adicione notas internas, histórico de estágio, ocorrências, recomendações..."
-          className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white"
-        />
+        <textarea value={data.adminNotes} onChange={e => setData(d => ({ ...d, adminNotes: e.target.value }))} rows={3} placeholder="Histórico de estágio, recomendações, ocorrências..." className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white" />
       </div>
 
       {/* Password Reset */}
@@ -312,28 +439,17 @@ const InternEditor: React.FC<{ intern: MockIntern; onSave: (i: MockIntern) => vo
         <ResetPasswordButton email={data.email} name={data.name} />
       </div>
 
-      <button
-        onClick={() => setShowConfirm(true)}
-        className="px-6 py-2.5 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90"
-      >
-        Revisar e Salvar Alterações
-      </button>
+      <button onClick={() => setShowConfirm(true)} className="px-6 py-2.5 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90">Revisar e Salvar Alterações</button>
 
       {showConfirm && (
-        <ConfirmSaveModal
-          title="Editar Cadastro de Estudante"
-          userName={data.name}
-          userEmail={data.email}
-          fields={buildFields()}
-          onConfirm={() => { onSave(data as MockIntern); setShowConfirm(false); }}
-          onCancel={() => setShowConfirm(false)}
-        />
+        <ConfirmSaveModal title="Editar Cadastro de Bacharelando(a)" userName={data.name} userEmail={data.email} fields={buildFields()} onConfirm={() => { onSave(data as MockIntern); setShowConfirm(false); }} onCancel={() => setShowConfirm(false)} />
       )}
     </div>
   );
 };
 
-// ─── Secretary Editor ─────────────────────────────────────────────────────────
+// ─── Secret./Assist Jurídico Editor ──────────────────────────────────────────
+
 const SecretaryEditor: React.FC<{ secretary: MockSecretary; onSave: (s: MockSecretary) => void; onBack: () => void }> = ({ secretary, onSave, onBack }) => {
   const [data, setData] = useState({ ...secretary, adminNotes: (secretary as any).adminNotes || '' });
   const [showConfirm, setShowConfirm] = useState(false);
@@ -357,7 +473,7 @@ const SecretaryEditor: React.FC<{ secretary: MockSecretary; onSave: (s: MockSecr
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 max-w-2xl space-y-6">
       <button onClick={onBack} className="text-sm text-primary hover:underline">← Voltar</button>
       <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-        <IconEdit /> Editar Secretário(a)
+        <IconEdit /> Editar Secret./Assist. Jurídico(a)
       </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -367,27 +483,10 @@ const SecretaryEditor: React.FC<{ secretary: MockSecretary; onSave: (s: MockSecr
         <FieldRow label="Telefone" value={data.phone} onChange={f('phone')} />
         <FieldRow label="Cidade" value={data.city} onChange={f('city')} />
         <FieldRow label="Estado (UF)" value={data.state} onChange={f('state')} />
-        <FieldRow
-          label="Experiência (anos)"
-          value={String(data.experience)}
-          onChange={v => setData(d => ({ ...d, experience: Number(v) }))}
-          type="number"
-        />
-        <SelectRow
-          label="Disponibilidade"
-          value={data.availability}
-          onChange={v => setData(d => ({ ...d, availability: v as MockSecretary['availability'] }))}
-          options={['integral', 'meio-periodo', 'freelancer']}
-        />
-        <SelectRow
-          label="Status"
-          value={data.status}
-          onChange={v => setData(d => ({ ...d, status: v as MockSecretary['status'] }))}
-          options={['ativo', 'pendente', 'inativo']}
-        />
-        <div className="sm:col-span-2">
-          <FieldRow label="Endereço Completo" value={data.address || ''} onChange={f('address')} />
-        </div>
+        <FieldRow label="Experiência (anos)" value={String(data.experience)} onChange={v => setData(d => ({ ...d, experience: Number(v) }))} type="number" />
+        <SelectRow label="Disponibilidade" value={data.availability} onChange={v => setData(d => ({ ...d, availability: v as MockSecretary['availability'] }))} options={['integral', 'meio-periodo', 'freelancer']} />
+        <SelectRow label="Status" value={data.status} onChange={v => setData(d => ({ ...d, status: v as MockSecretary['status'] }))} options={['ativo', 'pendente', 'inativo']} />
+        <div className="sm:col-span-2"><FieldRow label="Endereço Completo" value={data.address || ''} onChange={f('address')} /></div>
       </div>
 
       <div>
@@ -401,24 +500,16 @@ const SecretaryEditor: React.FC<{ secretary: MockSecretary; onSave: (s: MockSecr
 
       <div>
         <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Bio / Apresentação</label>
-        <textarea
-          value={data.bio || ''}
-          onChange={e => setData(d => ({ ...d, bio: e.target.value }))}
-          rows={3}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-        />
+        <textarea value={data.bio || ''} onChange={e => setData(d => ({ ...d, bio: e.target.value }))} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
       </div>
+
+      {/* Document Upload */}
+      <AdminDocUploadPanel />
 
       {/* Admin Notes */}
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
         <label className="block text-xs font-bold text-amber-700 uppercase tracking-wider">📋 Informações Adicionais do Administrador</label>
-        <textarea
-          value={data.adminNotes}
-          onChange={e => setData(d => ({ ...d, adminNotes: e.target.value }))}
-          rows={3}
-          placeholder="Notas internas sobre o secretário(a), histórico de vinculações, ocorrências..."
-          className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white"
-        />
+        <textarea value={data.adminNotes} onChange={e => setData(d => ({ ...d, adminNotes: e.target.value }))} rows={3} placeholder="Notas sobre o(a) Secret./Assist. Jurídico(a), histórico de vinculações..." className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white" />
       </div>
 
       {/* Password Reset */}
@@ -427,39 +518,18 @@ const SecretaryEditor: React.FC<{ secretary: MockSecretary; onSave: (s: MockSecr
         <ResetPasswordButton email={data.email} name={data.name} />
       </div>
 
-      <button
-        onClick={() => setShowConfirm(true)}
-        className="px-6 py-2.5 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90"
-      >
-        Revisar e Salvar Alterações
-      </button>
+      <button onClick={() => setShowConfirm(true)} className="px-6 py-2.5 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90">Revisar e Salvar Alterações</button>
 
       {showConfirm && (
-        <ConfirmSaveModal
-          title="Editar Cadastro de Secretário(a)"
-          userName={data.name}
-          userEmail={data.email}
-          fields={buildFields()}
-          onConfirm={() => { onSave(data as MockSecretary); setShowConfirm(false); }}
-          onCancel={() => setShowConfirm(false)}
-        />
+        <ConfirmSaveModal title="Editar Secret./Assist. Jurídico(a)" userName={data.name} userEmail={data.email} fields={buildFields()} onConfirm={() => { onSave(data as MockSecretary); setShowConfirm(false); }} onCancel={() => setShowConfirm(false)} />
       )}
     </div>
   );
 };
 
-// ─── Icon Secretariado ─────────────────────────────────────────────────────────
-const IconSecretariat = () => (
-  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-  </svg>
-);
-
 // ─── Main RegistrationsTab ────────────────────────────────────────────────────
-export const RegistrationsTab: React.FC<{
-  lawyers: Lawyer[];
-  onLawyerUpdate: (l: Lawyer) => void;
-}> = ({ lawyers, onLawyerUpdate }) => {
+
+export const RegistrationsTab: React.FC<{ lawyers: Lawyer[]; onLawyerUpdate: (l: Lawyer) => void }> = ({ lawyers, onLawyerUpdate }) => {
   const [recordType, setRecordType] = useState<RecordType>('lawyers');
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<{ type: RecordType; id: number } | null>(null);
@@ -475,27 +545,27 @@ export const RegistrationsTab: React.FC<{
   if (editing) {
     if (editing.type === 'lawyers') {
       const l = lawyers.find(x => x.id === editing.id)!;
-      return <LawyerEditor lawyer={l} onSave={updated => { onLawyerUpdate(updated); setEditing(null); }} onBack={() => setEditing(null)} />;
+      return <LawyerEditor lawyer={l} onSave={u => { onLawyerUpdate(u); setEditing(null); }} onBack={() => setEditing(null)} />;
     }
     if (editing.type === 'clients') {
       const c = clients.find(x => x.id === editing.id)!;
-      return <ClientEditor client={c} onSave={updated => { setClients(prev => prev.map(x => x.id === updated.id ? updated : x)); setEditing(null); }} onBack={() => setEditing(null)} />;
+      return <ClientEditor client={c} onSave={u => { setClients(prev => prev.map(x => x.id === u.id ? u : x)); setEditing(null); }} onBack={() => setEditing(null)} />;
     }
     if (editing.type === 'interns') {
       const i = interns.find(x => x.id === editing.id)!;
-      return <InternEditor intern={i} onSave={updated => { setInterns(prev => prev.map(x => x.id === updated.id ? updated : x)); setEditing(null); }} onBack={() => setEditing(null)} />;
+      return <InternEditor intern={i} onSave={u => { setInterns(prev => prev.map(x => x.id === u.id ? u : x)); setEditing(null); }} onBack={() => setEditing(null)} />;
     }
     if (editing.type === 'secretaries') {
       const s = secretaries.find(x => x.id === editing.id)!;
-      return <SecretaryEditor secretary={s} onSave={updated => { setSecretaries(prev => prev.map(x => x.id === updated.id ? updated : x)); setEditing(null); }} onBack={() => setEditing(null)} />;
+      return <SecretaryEditor secretary={s} onSave={u => { setSecretaries(prev => prev.map(x => x.id === u.id ? u : x)); setEditing(null); }} onBack={() => setEditing(null)} />;
     }
   }
 
   const tabs: [RecordType, string, React.ReactNode][] = [
     ['lawyers', 'Advogados', <IconBriefcase />],
     ['clients', 'Clientes', <IconUsers />],
-    ['interns', 'Estudantes', <IconGradCap />],
-    ['secretaries', 'Secretariado', <IconSecretariat />],
+    ['interns', 'Bacharelandos', <IconGradCap />],
+    ['secretaries', 'Secret./Assist Jurídico', <IconSecretariat />],
   ];
 
   return (
@@ -505,15 +575,10 @@ export const RegistrationsTab: React.FC<{
       {/* Type selector */}
       <div className="flex gap-2 flex-wrap">
         {tabs.map(([t, label, icon]) => (
-          <button
-            key={t}
-            onClick={() => { setRecordType(t); setSearch(''); }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
-              recordType === t
-                ? t === 'secretaries' ? 'bg-purple-600 text-white border-purple-600' : 'bg-primary text-white border-primary'
-                : 'bg-white text-gray-600 border-gray-200 hover:border-primary/40'
-            }`}
-          >
+          <button key={t} onClick={() => { setRecordType(t); setSearch(''); }}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${recordType === t
+              ? t === 'secretaries' ? 'bg-purple-600 text-white border-purple-600' : 'bg-primary text-white border-primary'
+              : 'bg-white text-gray-600 border-gray-200 hover:border-primary/40'}`}>
             <span className="w-4 h-4">{icon}</span>{label}
           </button>
         ))}
@@ -521,7 +586,7 @@ export const RegistrationsTab: React.FC<{
 
       <SearchInput value={search} onChange={setSearch} placeholder="Buscar por nome..." />
 
-      {/* Lawyers list */}
+      {/* Lawyers */}
       {recordType === 'lawyers' && (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
           <table className="w-full text-sm text-left text-gray-600">
@@ -544,7 +609,7 @@ export const RegistrationsTab: React.FC<{
         </div>
       )}
 
-      {/* Clients list */}
+      {/* Clients */}
       {recordType === 'clients' && (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
           <table className="w-full text-sm text-left text-gray-600">
@@ -567,7 +632,7 @@ export const RegistrationsTab: React.FC<{
         </div>
       )}
 
-      {/* Interns list */}
+      {/* Bacharelandos */}
       {recordType === 'interns' && (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
           <table className="w-full text-sm text-left text-gray-600">
@@ -590,12 +655,12 @@ export const RegistrationsTab: React.FC<{
         </div>
       )}
 
-      {/* Secretaries list */}
+      {/* Secret./Assist Jurídico */}
       {recordType === 'secretaries' && (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
           <div className="px-5 py-3 bg-purple-50 border-b border-purple-100 flex items-center gap-2">
             <span className="text-purple-700">🗂️</span>
-            <span className="text-xs font-bold text-purple-800 uppercase tracking-wider">Gestão de Secretariado — {secretaries.length} cadastro(s)</span>
+            <span className="text-xs font-bold text-purple-800 uppercase tracking-wider">Gestão de Secret./Assist. Jurídico — {secretaries.length} cadastro(s)</span>
           </div>
           <table className="w-full text-sm text-left text-gray-600">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
@@ -616,9 +681,7 @@ export const RegistrationsTab: React.FC<{
                   <tr key={s.id} className="border-b hover:bg-gray-50">
                     <td className="px-5 py-3 font-medium text-gray-900">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 text-xs font-bold flex items-center justify-center shrink-0">
-                          {s.name.charAt(0)}
-                        </div>
+                        <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 text-xs font-bold flex items-center justify-center shrink-0">{s.name.charAt(0)}</div>
                         {s.name}
                       </div>
                     </td>
@@ -626,20 +689,13 @@ export const RegistrationsTab: React.FC<{
                     <td className="px-5 py-3">{s.city}/{s.state}</td>
                     <td className="px-5 py-3">{s.experience} anos</td>
                     <td className="px-5 py-3">
-                      <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                        s.availability === 'integral' ? 'bg-blue-50 text-blue-700' :
-                        s.availability === 'meio-periodo' ? 'bg-indigo-50 text-indigo-700' :
-                        'bg-gray-100 text-gray-600'
-                      }`}>
+                      <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${s.availability === 'integral' ? 'bg-blue-50 text-blue-700' : s.availability === 'meio-periodo' ? 'bg-indigo-50 text-indigo-700' : 'bg-gray-100 text-gray-600'}`}>
                         {availLabel}
                       </span>
                     </td>
                     <td className="px-5 py-3">{secretaryStatusBadge(s.status)}</td>
                     <td className="px-5 py-3 text-center">
-                      <button
-                        onClick={() => setEditing({ type: 'secretaries', id: s.id })}
-                        className="flex items-center gap-1 text-purple-600 text-xs font-medium hover:underline mx-auto"
-                      >
+                      <button onClick={() => setEditing({ type: 'secretaries', id: s.id })} className="flex items-center gap-1 text-purple-600 text-xs font-medium hover:underline mx-auto">
                         <IconEdit /> Editar
                       </button>
                     </td>

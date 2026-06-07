@@ -38,7 +38,7 @@ export const ForInternsPage: React.FC<ForInternsPageProps> = ({ onLogin, onSignu
                             Desenvolva sua Carreira Jurídica na Prática
                         </h1>
                         <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
-                            A Legis Connect oferece aos Estudantes de Direito e Estagiários o ambiente perfeito para acessar casos reais simulados, gerenciar sua grade educacional e conectar-se com profissionais experientes.
+                            A Legis Connect oferece aos Bacharelandos de Direito e Estagiários o ambiente perfeito para acessar casos reais simulados, gerenciar sua grade educacional e conectar-se com profissionais experientes.
                         </p>
                         <div className="mt-10 flex flex-col sm:flex-row justify-center items-center gap-4">
                             <button
@@ -71,7 +71,7 @@ export const ForInternsPage: React.FC<ForInternsPageProps> = ({ onLogin, onSignu
             {mode === 'landing' && (
                 <div className="bg-neutral-light py-20">
                     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-                        <h2 className="text-3xl font-bold text-center text-gray-900">Vantagens para Estudantes e Estagiários</h2>
+                        <h2 className="text-3xl font-bold text-center text-gray-900">Vantagens para Bacharelandos e Estagiários</h2>
                         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-10">
                             <div className="text-center p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
                                 <AcademicCapIcon className="h-12 w-12 text-primary mx-auto" />
