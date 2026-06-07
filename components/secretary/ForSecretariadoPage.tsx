@@ -55,11 +55,11 @@ export const ForSecretariadoPage: React.FC<ForSecretariadoPageProps> = ({ onLogi
               🏛️ Secret./Assist. Jurídico
             </div>
             <h1 className="text-4xl sm:text-5xl font-extrabold leading-tight mb-6">
-              Impulsione sua carreira no
-              <span className="text-purple-200"> Direito</span>
+              Sua carreira como
+              <span className="text-purple-200"> Secret./Assist. Jurídico</span>
             </h1>
             <p className="text-lg text-purple-100 mb-8 max-w-2xl">
-              Conecte-se com escritórios de advocacia que precisam de profissionais qualificados para secretariar. Gerencie sua carreira, encontre oportunidades e colabore com advogados de todo o Brasil.
+              Conecte-se com escritórios de advocacia que precisam de Secretários e Assistentes Jurídicos qualificados. Gerencie sua carreira, encontre oportunidades e colabore com advogados de todo o Brasil.
             </p>
             <div className="flex flex-wrap gap-4">
               <button
@@ -112,7 +112,7 @@ export const ForSecretariadoPage: React.FC<ForSecretariadoPageProps> = ({ onLogi
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold text-gray-900 text-center mb-3">O que você pode fazer na plataforma</h2>
-          <p className="text-gray-500 text-center mb-10 max-w-xl mx-auto">Profissionais de secretariado jurídico são essenciais para o bom funcionamento de escritórios de advocacia.</p>
+          <p className="text-gray-500 text-center mb-10 max-w-xl mx-auto">Secretários e Assistentes Jurídicos são essenciais para o bom funcionamento de escritórios de advocacia.</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((f) => (
               <div key={f.title} className="bg-gray-50 rounded-xl p-5 border border-gray-100 hover:shadow-md transition-shadow">
