@@ -13,6 +13,7 @@ interface SecretariadoDashboardProps {
   userEmail?: string;
   onUpdateSecretary?: (updates: Partial<Secretary>) => void;
   onUpdateEmail?: (newEmail: string) => void;
+  onLogout?: () => void;
 }
 
 type ActiveTab = 'overview' | 'perfil' | 'agenda' | 'documentos' | 'apis';
@@ -312,7 +313,7 @@ const SyncCard: React.FC<SyncCardProps> = ({ title, subtitle, icon, synced, sync
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 
 export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
-  secretary, userEmail, onUpdateSecretary, onUpdateEmail
+  secretary, userEmail, onUpdateSecretary, onUpdateEmail, onLogout
 }) => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('overview');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -443,6 +444,12 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
             {tabBtn('agenda', '📅 Agenda')}
             {tabBtn('documentos', '📂 Documentos')}
             {tabBtn('apis', '🔌 APIs')}
+            {onLogout && (
+              <button onClick={onLogout}
+                className="py-3 px-2 border-b-2 border-transparent font-medium text-sm text-red-500 hover:text-red-700 hover:border-red-300 transition-colors ml-auto">
+                🚪 Sair
+              </button>
+            )}
           </nav>
         </div>
 
@@ -853,7 +860,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
           onConfirm={doc => setProcessDocs(prev => [...prev, doc])}
         />
       )}
-      {showPasswordModal && <ChangePasswordModal onClose={() => setShowPasswordModal(false)} onSave={cur => cur.length >= 4} />}
+      {showPasswordModal && <ChangePasswordModal onClose={() => setShowPasswordModal(false)} onSave={(pwd, newPwd) => { if (newPwd.length < 4) return false; alert("Senha alterada com sucesso!"); return true; }} />}
       {showEmailModal && (
         <ChangeEmailModal
           currentEmail={userEmail || secretary.email}
@@ -866,8 +873,16 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
           lawyer={assignedLawyer}
           message="Você foi selecionado(a) como Secret./Assist. Jurídico deste advogado!"
           onClose={() => setShowLawyerPopup(false)}
-          onAccept={() => { /* persiste aceitação */ }}
-          onReject={() => { /* persiste recusa */ }}
+          onAccept={() => {
+            if (onUpdateSecretary) onUpdateSecretary({ assignedLawyerId: assignedLawyer.id });
+            setShowLawyerPopup(false);
+            alert("Você aceitou o vínculo com Dr(a). " + assignedLawyer.name + "!");
+          }}
+          onReject={() => {
+            if (onUpdateSecretary) onUpdateSecretary({ assignedLawyerId: undefined });
+            setShowLawyerPopup(false);
+            alert("Você recusou o vínculo.");
+          }}
         />
       )}
     </div>

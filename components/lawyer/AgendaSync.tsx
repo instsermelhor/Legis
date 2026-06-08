@@ -128,8 +128,9 @@ export const AgendaSync: React.FC = () => {
     setShowAddForm(false);
   };
 
-  const handleModalClose = () => {
-    if (syncOption) setConnected(prev => [...prev.filter(c => c !== syncOption.id), syncOption.id]);
+  const handleModalClose = (success?: boolean) => {
+    // Only mark as connected when the modal reports success (not on cancel)
+    if (success && syncOption) setConnected(prev => [...prev.filter(c => c !== syncOption.id), syncOption.id]);
     setSyncOption(null);
   };
 
@@ -225,7 +226,13 @@ export const AgendaSync: React.FC = () => {
                 {ev.type.charAt(0).toUpperCase() + ev.type.slice(1)}
               </span>
               {ev.confirmed && ev.platform !== 'Presencial' && (
-                <button className="text-xs text-primary font-medium hover:underline whitespace-nowrap">Entrar</button>
+                <button
+                  onClick={() => {
+                    const meetLink = 'https://meet.google.com/new';
+                    window.open(meetLink, '_blank');
+                  }}
+                  className="text-xs text-primary font-medium hover:underline whitespace-nowrap"
+                >Entrar</button>
               )}
             </div>
           ))}

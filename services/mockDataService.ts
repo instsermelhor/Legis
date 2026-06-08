@@ -1,5 +1,12 @@
 // Mock data for Admin Panel
 
+export function hashPassword(password: string): string {
+  if (!password) return '';
+  if (password.startsWith('$scrambled$')) return password;
+  const salted = "legis_salt_" + password.split('').reverse().join('');
+  return '$scrambled$' + btoa(unescape(encodeURIComponent(salted)));
+}
+
 export interface MockClient {
   id: number;
   name: string;

@@ -14,6 +14,7 @@ interface InternDashboardProps {
     userEmail?: string;
     onUpdateIntern?: (updated: Partial<Intern>) => void;
     onUpdateEmail?: (newEmail: string) => void;
+    onLogout?: () => void;
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -419,12 +420,12 @@ const SemesterGradeCard: React.FC<SemesterGradeCardProps> = ({
 
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 
-export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEmail, onUpdateIntern, onUpdateEmail }) => {
+export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEmail, onUpdateIntern, onUpdateEmail, onLogout }) => {
     const [activeTab, setActiveTab] = useState<'overview' | 'perfil' | 'studies' | 'hours' | 'casos' | 'apis'>('overview');
     const [showLawyerPopup, setShowLawyerPopup] = useState(false);
 
     const mockInternData = mockInterns.find(i => i.name === intern.name);
-    const supervisorLawyerId = mockInternData?.supervisorLawyerId;
+    const supervisorLawyerId = intern.supervisorLawyerId !== undefined ? intern.supervisorLawyerId : mockInternData?.supervisorLawyerId;
     const supervisorLawyer = supervisorLawyerId ? mockLawyers.find(l => l.id === supervisorLawyerId) || null : null;
 
     // Profile
@@ -579,6 +580,12 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                         {tabBtn('studies', '📖 Mural de Estudos')}
                         {tabBtn('hours', 'Mentorias e Clínicas')}
                         {tabBtn('apis', '🔌 APIs')}
+                        {onLogout && (
+                            <button onClick={onLogout}
+                                className="py-3 px-1 border-b-2 border-transparent font-medium text-sm text-red-500 hover:text-red-700 hover:border-red-300 transition-colors ml-auto">
+                                🚪 Sair
+                            </button>
+                        )}
                     </nav>
                 </div>
 
@@ -896,15 +903,23 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
             </div>
 
             {/* ─── Modals ─── */}
-            {showPasswordModal && <ChangePasswordModal onClose={() => setShowPasswordModal(false)} onSave={cur => cur.length >= 4} />}
+            {showPasswordModal && <ChangePasswordModal onClose={() => setShowPasswordModal(false)} onSave={(pwd, newPwd) => { if (newPwd.length < 4) return false; alert("Senha alterada com sucesso!"); return true; }} />}
             {showEmailModal && <ChangeEmailModal currentEmail={userEmail || intern.contact?.email || ''} onClose={() => setShowEmailModal(false)} onSave={(pwd, email) => { if (pwd.length < 4) return false; if (onUpdateEmail) onUpdateEmail(email); return true; }} />}
             {showLawyerPopup && supervisorLawyer && (
               <LawyerInfoPopup
                 lawyer={supervisorLawyer}
                 message="Você foi escolhido como Bacharelando deste advogado!"
                 onClose={() => setShowLawyerPopup(false)}
-                onAccept={() => { /* persiste aceitação */ }}
-                onReject={() => { /* persiste recusa */ }}
+                onAccept={() => {
+                  if (onUpdateIntern) onUpdateIntern({ supervisorLawyerId });
+                  setShowLawyerPopup(false);
+                  alert("Você aceitou a supervisão do advogado Dr(a). " + supervisorLawyer.name + "!");
+                }}
+                onReject={() => {
+                  if (onUpdateIntern) onUpdateIntern({ supervisorLawyerId: undefined });
+                  setShowLawyerPopup(false);
+                  alert("Você recusou a supervisão.");
+                }}
               />
             )}
             {showPersonalDocModal && <PersonalDocModal onClose={() => setShowPersonalDocModal(false)} onConfirm={doc => setPersonalDocs(prev => [...prev, doc])} />}

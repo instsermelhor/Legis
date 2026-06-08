@@ -15,6 +15,7 @@ import type { MockIntern, MockSecretary } from '../../services/mockDataService';
 
 interface LawyerDashboardProps {
     lawyer: Lawyer;
+    onLogout?: () => void;
 }
 
 const CPC_STAGES: CaseStage[] = [
@@ -148,7 +149,7 @@ const AppointmentCard: React.FC<{ appointment: Appointment }> = ({ appointment }
     );
 }
 
-export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
+export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogout }) => {
     const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
     const [activeSection, setActiveSection] = useState<'overview' | 'meusCasos' | 'codigos' | 'financeiro' | 'perfil' | 'estagiarios' | 'secretariado' | 'apis'>('overview');
 
@@ -525,6 +526,14 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                             >
                                 🔌 APIs
                             </button>
+                            {onLogout && (
+                                <button
+                                    onClick={onLogout}
+                                    className="px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 ml-auto"
+                                >
+                                    🚪 Sair
+                                </button>
+                            )}
                         </div>
 
                     </div>
@@ -1320,7 +1329,9 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                             )}
                         </div>
                     )}
-                        {/* APIs Section */}
+                    </div>
+                </div>
+                        {/* APIs Section — fora do bloco secretariado */}
                         {activeSection === 'apis' && (
                             <div className="space-y-6 animate-fade-in">
                                 <div>
@@ -1330,9 +1341,6 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer }) => {
                                 <ApiStatusPanel />
                             </div>
                         )}
-
-                    </div>
-                </div>
 
             {/* Password/Email Modals */}
             {showPasswordModal && (

@@ -533,9 +533,18 @@ export const RegistrationsTab: React.FC<{ lawyers: Lawyer[]; onLawyerUpdate: (l:
   const [recordType, setRecordType] = useState<RecordType>('lawyers');
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<{ type: RecordType; id: number } | null>(null);
-  const [clients, setClients] = useState(mockClients);
-  const [interns, setInterns] = useState(mockInterns);
-  const [secretaries, setSecretaries] = useState(mockSecretaries);
+  const [clients, setClients] = useState(() => {
+    const stored = localStorage.getItem('legis_clients');
+    return stored ? JSON.parse(stored) : mockClients;
+  });
+  const [interns, setInterns] = useState(() => {
+    const stored = localStorage.getItem('legis_interns');
+    return stored ? JSON.parse(stored) : mockInterns;
+  });
+  const [secretaries, setSecretaries] = useState(() => {
+    const stored = localStorage.getItem('legis_secretaries');
+    return stored ? JSON.parse(stored) : mockSecretaries;
+  });
 
   const filteredLawyers = useMemo(() => lawyers.filter(l => l.name.toLowerCase().includes(search.toLowerCase())), [lawyers, search]);
   const filteredClients = useMemo(() => clients.filter(c => c.name.toLowerCase().includes(search.toLowerCase())), [clients, search]);
@@ -549,15 +558,30 @@ export const RegistrationsTab: React.FC<{ lawyers: Lawyer[]; onLawyerUpdate: (l:
     }
     if (editing.type === 'clients') {
       const c = clients.find(x => x.id === editing.id)!;
-      return <ClientEditor client={c} onSave={u => { setClients(prev => prev.map(x => x.id === u.id ? u : x)); setEditing(null); }} onBack={() => setEditing(null)} />;
+      return <ClientEditor client={c} onSave={u => {
+        const next = clients.map(x => x.id === u.id ? u : x);
+        setClients(next);
+        localStorage.setItem('legis_clients', JSON.stringify(next));
+        setEditing(null);
+      }} onBack={() => setEditing(null)} />;
     }
     if (editing.type === 'interns') {
       const i = interns.find(x => x.id === editing.id)!;
-      return <InternEditor intern={i} onSave={u => { setInterns(prev => prev.map(x => x.id === u.id ? u : x)); setEditing(null); }} onBack={() => setEditing(null)} />;
+      return <InternEditor intern={i} onSave={u => {
+        const next = interns.map(x => x.id === u.id ? u : x);
+        setInterns(next);
+        localStorage.setItem('legis_interns', JSON.stringify(next));
+        setEditing(null);
+      }} onBack={() => setEditing(null)} />;
     }
     if (editing.type === 'secretaries') {
       const s = secretaries.find(x => x.id === editing.id)!;
-      return <SecretaryEditor secretary={s} onSave={u => { setSecretaries(prev => prev.map(x => x.id === u.id ? u : x)); setEditing(null); }} onBack={() => setEditing(null)} />;
+      return <SecretaryEditor secretary={s} onSave={u => {
+        const next = secretaries.map(x => x.id === u.id ? u : x);
+        setSecretaries(next);
+        localStorage.setItem('legis_secretaries', JSON.stringify(next));
+        setEditing(null);
+      }} onBack={() => setEditing(null)} />;
     }
   }
 

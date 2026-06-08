@@ -33,7 +33,8 @@ function groupByMonth(txs: FinancialTransaction[]) {
 function exportCSV(txs: FinancialTransaction[]) {
   const header = 'Data,Cliente,Descrição,Valor,Status';
   const rows = txs.map(t =>
-    `${t.date},${t.clientName},"${t.description}",${t.amount},${t.status}`
+    // Escape comma-containing fields and properly format
+    `${t.date},"${t.clientName.replace(/"/g, '""')}","${t.description.replace(/"/g, '""')}",${t.amount},${t.status}`
   );
   const csv = [header, ...rows].join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -41,7 +42,9 @@ function exportCSV(txs: FinancialTransaction[]) {
   const a = document.createElement('a');
   a.href = url;
   a.download = `relatorio_financeiro_${new Date().toISOString().split('T')[0]}.csv`;
+  document.body.appendChild(a); // required for Firefox
   a.click();
+  document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
 

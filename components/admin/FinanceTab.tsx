@@ -19,6 +19,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
     initialFilter === 'clients' ? 'clients'
     : initialFilter === 'interns' ? 'interns'
     : initialFilter === 'secretaries' ? 'secretaries'
+    : initialFilter === 'services' ? 'services'
     : 'lawyers'
   );
   const [stateFilter, setStateFilter] = useState('Todos');
@@ -27,12 +28,26 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
 
   const [services, setServices] = useState<EfficiencyService[]>(mockEfficiencyServices);
   const [groups, setGroups] = useState<EfficiencyServiceGroup[]>(mockEfficiencyServiceGroups);
+  const [contractedServicesCounts, setContractedServicesCounts] = useState<Record<string, number>>({});
 
   React.useEffect(() => {
     const savedS = localStorage.getItem('legis_services');
     if (savedS) setServices(JSON.parse(savedS));
     const savedG = localStorage.getItem('legis_serviceGroups');
     if (savedG) setGroups(JSON.parse(savedG));
+
+    const savedCounts = localStorage.getItem('legis_contracted_services');
+    if (savedCounts) {
+      setContractedServicesCounts(JSON.parse(savedCounts));
+    } else {
+      const initialCounts: Record<string, number> = {};
+      const currentServices = savedS ? JSON.parse(savedS) : mockEfficiencyServices;
+      currentServices.forEach((s: any, idx: number) => {
+        initialCounts[s.id] = (idx + 1) * 3;
+      });
+      localStorage.setItem('legis_contracted_services', JSON.stringify(initialCounts));
+      setContractedServicesCounts(initialCounts);
+    }
   }, []);
 
   const getScale = (tf: string) => {
@@ -55,7 +70,10 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
   const baseSecretaryPending = mockSecretaries.reduce((a, s) => a + (s.pendingFee || 0), 0);
 
   // Simulated Services Revenue Base (Mensal)
-  const baseServicesRevenue = services.reduce((a, s, idx) => a + (s.price * ((idx + 1) * 3)), 0);
+  const baseServicesRevenue = services.reduce((sum, s) => {
+    const count = contractedServicesCounts[s.id] ?? 0;
+    return sum + (s.price * count);
+  }, 0);
 
   const totalRevenue = baseTotalRevenue * scale;
   const totalPending = baseTotalPending * scale;
@@ -350,12 +368,12 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
           {filterType === 'services' && (
             <table className="w-full text-sm text-left text-gray-600">
               <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                <tr><th className="px-5 py-3">Serviço</th><th className="px-5 py-3">Grupo</th><th className="px-5 py-3 text-right">Valor Padrão</th><th className="px-5 py-3 text-right">Contratos (Simulado)</th><th className="px-5 py-3 text-right">Receita Estimada</th></tr>
+                <tr><th className="px-5 py-3">Serviço</th><th className="px-5 py-3">Grupo</th><th className="px-5 py-3 text-right">Valor Padrão</th><th className="px-5 py-3 text-right">Contratos (Real/Simulado)</th><th className="px-5 py-3 text-right">Receita Estimada</th></tr>
               </thead>
               <tbody>
-                {filteredServices.map((s, idx) => {
+                {filteredServices.map((s) => {
                   const group = groups.find(g => g.id === s.groupId);
-                  const simulatedContracts = (idx + 1) * 3;
+                  const simulatedContracts = contractedServicesCounts[s.id] ?? 0;
                   const estimatedRev = s.price * simulatedContracts;
                   return (
                     <tr key={s.id} className="border-b hover:bg-gray-50">
@@ -373,7 +391,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                 <tr>
                   <td colSpan={4} className="px-5 py-3 text-gray-600">Receita Total Estimada (Serviços)</td>
                   <td className="px-5 py-3 text-emerald-700 text-right">
-                    R$ {filteredServices.reduce((a, s, idx) => a + (s.price * ((idx + 1) * 3)), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    R$ {filteredServices.reduce((a, s) => a + (s.price * (contractedServicesCounts[s.id] ?? 0)), 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                   </td>
                 </tr>
               </tfoot>
