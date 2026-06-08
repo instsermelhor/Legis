@@ -1,10 +1,33 @@
 import React, { useState } from 'react';
-import { mockLegalDocuments, mockAdminUsers, mockEfficiencyServiceGroups } from '../../services/mockDataService';
+import { mockLegalDocuments, mockAdminUsers, mockEfficiencyServiceGroups, hashPassword } from '../../services/mockDataService';
 import type { LegalDocument, AdminUser } from '../../services/mockDataService';
 import { SectionTitle, IconEdit, IconPlus, IconKey, IconUpload, IconTrash } from './AdminShared';
 import { dbCodes, LegalCode } from '../../services/dbService';
 import { useAppConfig } from '../../context/AppContext';
 import type { EfficiencyServiceGroup } from '../../types';
+
+// Helper to extract printable ASCII text from binary files (e.g. PDF/DOCX) to prevent garbled text
+const extractPrintableText = (arrayBuffer: ArrayBuffer, limit: number = 2000): string => {
+  const view = new DataView(arrayBuffer);
+  let result = '';
+  let currentWord = '';
+  for (let i = 0; i < view.byteLength && result.length < limit; i++) {
+    const charCode = view.getUint8(i);
+    if ((charCode >= 32 && charCode <= 126) || charCode === 10 || charCode === 13 || charCode === 9) {
+      const char = String.fromCharCode(charCode);
+      currentWord += char;
+    } else {
+      if (currentWord.trim().length > 4) {
+        result += currentWord.trim() + '\n';
+      }
+      currentWord = '';
+    }
+  }
+  if (currentWord.trim().length > 4) {
+    result += currentWord.trim();
+  }
+  return result.replace(/\n+/g, '\n').substring(0, limit);
+};
 
 // ─── Legal Documents ──────────────────────────────────────────────────────────
 const LegalDocuments: React.FC = () => {
@@ -37,13 +60,26 @@ const LegalDocuments: React.FC = () => {
   const handleFileUpload = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const isTextFile = file.name.endsWith('.txt') || file.name.endsWith('.csv') || file.name.endsWith('.json') || file.name.endsWith('.md') || file.type === 'text/plain';
     const reader = new FileReader();
-    reader.onload = (ev) => {
-      const content = ev.target?.result as string;
-      const updated = docs.map(d => d.id === id ? { ...d, content: `[Arquivo: ${file.name}]\n${content.substring(0, 500)}...`, lastUpdated: new Date().toISOString().split('T')[0] } : d);
-      saveDocs(updated);
-    };
-    reader.readAsText(file);
+
+    if (isTextFile) {
+      reader.onload = (ev) => {
+        const content = ev.target?.result as string;
+        const updated = docs.map(d => d.id === id ? { ...d, content: `[Arquivo: ${file.name}]\n${content.substring(0, 500)}...`, lastUpdated: new Date().toISOString().split('T')[0] } : d);
+        saveDocs(updated);
+      };
+      reader.readAsText(file);
+    } else {
+      reader.onload = (ev) => {
+        const arrayBuffer = ev.target?.result as ArrayBuffer;
+        const extracted = extractPrintableText(arrayBuffer);
+        const content = `[Conteúdo extraído do arquivo binário ${file.name}]\n\n` + (extracted || 'Nenhum texto legível encontrado no arquivo.');
+        const updated = docs.map(d => d.id === id ? { ...d, content: content.substring(0, 2000), lastUpdated: new Date().toISOString().split('T')[0] } : d);
+        saveDocs(updated);
+      };
+      reader.readAsArrayBuffer(file);
+    }
   };
 
   const handleAdd = () => {
@@ -294,7 +330,19 @@ const DEFAULT_PERMISSIONS: Record<AdminUser['role'], string[]> = {
 const AdminUsers: React.FC = () => {
   const [users, setUsers] = useState<AdminUser[]>(() => {
     const saved = localStorage.getItem('legis_admin_users');
-    return saved ? JSON.parse(saved) : mockAdminUsers;
+    let loaded: AdminUser[] = saved ? JSON.parse(saved) : mockAdminUsers;
+    let needsSave = false;
+    loaded = loaded.map(u => {
+      if (!u.password.startsWith('$scrambled$')) {
+        needsSave = true;
+        return { ...u, password: hashPassword(u.password) };
+      }
+      return u;
+    });
+    if (needsSave) {
+      localStorage.setItem('legis_admin_users', JSON.stringify(loaded));
+    }
+    return loaded;
   });
   const [showForm, setShowForm] = useState(false);
   const [newUser, setNewUser] = useState({
@@ -355,7 +403,7 @@ const AdminUsers: React.FC = () => {
       email: newUser.email.trim(),
       secondaryEmail: newUser.secondaryEmail.trim() || undefined,
       phone: newUser.phone.trim() || undefined,
-      password: newUser.password,
+      password: hashPassword(newUser.password),
       role: newUser.role,
       createdAt: new Date().toISOString().split('T')[0],
       active: true,
@@ -1389,15 +1437,30 @@ const LegalCodesSettings: React.FC = () => {
   const handleFileUpload = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    const isTextFile = file.name.endsWith('.txt') || file.name.endsWith('.csv') || file.name.endsWith('.json') || file.name.endsWith('.md') || file.type === 'text/plain';
     const reader = new FileReader();
-    reader.onload = (ev) => {
-      const content = ev.target?.result as string;
-      const updated = dbCodes.update(id, content, file.name);
-      setCodes(updated);
-      setSaved(id);
-      setTimeout(() => setSaved(null), 2500);
-    };
-    reader.readAsText(file);
+
+    if (isTextFile) {
+      reader.onload = (ev) => {
+        const content = ev.target?.result as string;
+        const updated = dbCodes.update(id, content, file.name);
+        setCodes(updated);
+        setSaved(id);
+        setTimeout(() => setSaved(null), 2500);
+      };
+      reader.readAsText(file);
+    } else {
+      reader.onload = (ev) => {
+        const arrayBuffer = ev.target?.result as ArrayBuffer;
+        const extracted = extractPrintableText(arrayBuffer);
+        const content = `[Conteúdo extraído do arquivo binário ${file.name}]\n\n` + (extracted || 'Nenhum texto legível encontrado no arquivo.');
+        const updated = dbCodes.update(id, content, file.name);
+        setCodes(updated);
+        setSaved(id);
+        setTimeout(() => setSaved(null), 2500);
+      };
+      reader.readAsArrayBuffer(file);
+    }
   };
 
   return (

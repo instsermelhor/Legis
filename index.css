@@ -232,3 +232,131 @@ img { image-rendering: -webkit-optimize-contrast; }
 
 /* ── No tap highlight on mobile ──────────────────────── */
 button, a { -webkit-tap-highlight-color: transparent; }
+
+/* ────────────────────────────────────────────────────────────────────────
+   THEMING SCOPES FOR PERSONA PANELS IN DARK MODE
+   ──────────────────────────────────────────────────────────────────────── */
+
+/* 1. theme-prelogin (General / Landing) */
+html.dark .theme-prelogin {
+  --theme-bg-main: #0B0B0B;
+  --theme-bg-elevated: #111111;
+  --theme-bg-input: #111111;
+  --theme-border: #222222;
+  --theme-color-focus: #C5A059;
+  --theme-color-placeholder: #8E8E8E;
+  --theme-color-text: #FFFFFF;
+}
+
+/* 2. theme-lawyer */
+html.dark .theme-lawyer {
+  --theme-bg-main: #0A0A0A;
+  --theme-bg-elevated: #121212;
+  --theme-bg-input: #121212;
+  --theme-border: #222222;
+  --theme-color-focus: #B8962E;
+  --theme-color-placeholder: #8E8E8E;
+  --theme-color-text: #FFFFFF;
+}
+
+/* 3. theme-intern */
+html.dark .theme-intern {
+  --theme-bg-main: #0F1C2E;
+  --theme-bg-elevated: #13243A;
+  --theme-bg-input: #13243A;
+  --theme-border: #1B2F4A;
+  --theme-color-focus: #1C73E8;
+  --theme-color-placeholder: #7A8DA6;
+  --theme-color-text: #FFFFFF;
+}
+
+/* 4. theme-secretary */
+html.dark .theme-secretary {
+  --theme-bg-main: #121212;
+  --theme-bg-elevated: #1A1A1A;
+  --theme-bg-input: #1A1A1A;
+  --theme-border: #2A2A2A;
+  --theme-color-focus: #1F7A6D;
+  --theme-color-placeholder: #8A9A96;
+  --theme-color-text: #FFFFFF;
+}
+
+/* 5. theme-client */
+html.dark .theme-client {
+  --theme-bg-main: #1B263B;
+  --theme-bg-elevated: #22344F;
+  --theme-bg-input: #22344F;
+  --theme-border: #2D3F5E;
+  --theme-color-focus: #3C5A91;
+  --theme-color-placeholder: #AAB4C3;
+  --theme-color-text: #FFFFFF;
+}
+
+/* Specific overrides for background and border classes in themed scopes (Dark Mode) */
+html.dark .theme-prelogin.min-h-screen, html.dark .theme-prelogin .bg-neutral-light, html.dark .theme-prelogin .bg-gray-50, html.dark .theme-prelogin .bg-gray-100,
+html.dark .theme-lawyer.min-h-screen, html.dark .theme-lawyer .bg-neutral-light, html.dark .theme-lawyer .bg-gray-50, html.dark .theme-lawyer .bg-gray-100,
+html.dark .theme-intern.min-h-screen, html.dark .theme-intern .bg-neutral-light, html.dark .theme-intern .bg-gray-50, html.dark .theme-intern .bg-gray-100,
+html.dark .theme-secretary.min-h-screen, html.dark .theme-secretary .bg-neutral-light, html.dark .theme-secretary .bg-gray-50, html.dark .theme-secretary .bg-gray-100,
+html.dark .theme-client.min-h-screen, html.dark .theme-client .bg-neutral-light, html.dark .theme-client .bg-gray-50, html.dark .theme-client .bg-gray-100 {
+  background-color: var(--theme-bg-main) !important;
+}
+
+html.dark .theme-prelogin .bg-white,
+html.dark .theme-lawyer .bg-white,
+html.dark .theme-intern .bg-white,
+html.dark .theme-secretary .bg-white,
+html.dark .theme-client .bg-white {
+  background-color: var(--theme-bg-elevated) !important;
+}
+
+/* Border overrides */
+html.dark .theme-prelogin .border-gray-200, html.dark .theme-prelogin .border-gray-300,
+html.dark .theme-lawyer .border-gray-200, html.dark .theme-lawyer .border-gray-300,
+html.dark .theme-intern .border-gray-200, html.dark .theme-intern .border-gray-300,
+html.dark .theme-secretary .border-gray-200, html.dark .theme-secretary .border-gray-300,
+html.dark .theme-client .border-gray-200, html.dark .theme-client .border-gray-300 {
+  border-color: var(--theme-border) !important;
+}
+
+/* High contrast inputs and textareas */
+html.dark [class*="theme-"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+html.dark [class*="theme-"] textarea,
+html.dark [class*="theme-"] select {
+  color: var(--theme-color-text) !important;
+  -webkit-text-fill-color: var(--theme-color-text) !important;
+  background-color: var(--theme-bg-input) !important;
+  border: 1px solid var(--theme-border) !important;
+  caret-color: var(--theme-color-focus) !important;
+  font-family: 'Inter', 'Open Sans', sans-serif !important;
+  font-weight: 500 !important;
+  opacity: 1 !important;
+}
+
+/* Placeholder contrast styling */
+html.dark [class*="theme-"] input::placeholder,
+html.dark [class*="theme-"] textarea::placeholder {
+  color: var(--theme-color-placeholder) !important;
+  -webkit-text-fill-color: var(--theme-color-placeholder) !important;
+  opacity: 0.65 !important;
+}
+
+/* High-contrast focus state */
+html.dark [class*="theme-"] input:focus,
+html.dark [class*="theme-"] textarea:focus,
+html.dark [class*="theme-"] select:focus {
+  border-color: var(--theme-color-focus) !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.05), 0 0 0 4px var(--theme-color-focus)40 !important;
+  outline: none !important;
+}
+
+/* Label visual styling */
+html.dark [class*="theme-"] label {
+  color: rgba(255, 255, 255, 0.85) !important;
+  font-weight: 600 !important;
+}
+
+/* Button style adjustments for contrast */
+.btn-primary, .theme-prelogin .btn-primary {
+  color: #FFFFFF !important;
+  font-weight: bold;
+}

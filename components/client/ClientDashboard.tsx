@@ -11,14 +11,19 @@ import { BRAZILIAN_STATES } from '../../constants';
 interface ClientDashboardProps {
   user: User;
   onUpdateLawyerReview: (lawyerId: number, caseId: string, rating: number, comment: string) => void;
+  onNavigate?: (view: any) => void;
+  onLogout?: () => void;
 }
 
-const lawyer = mockLawyers[0];
+// lawyer is resolved dynamically inside the component based on user's active case
+// const lawyer = mockLawyers[0]; // REMOVED — was hardcoded, see resolvedLawyer below
+
+const FALLBACK_LAWYER = mockLawyers[0];
 
 const initialMessages: Message[] = [
-    { id: 1, sender: 'lawyer', text: 'Olá! Recebi os detalhes do seu caso. Para começarmos, poderia me enviar a documentação que mencionei?', timestamp: '10:30', avatarUrl: lawyer.photoUrl },
+    { id: 1, sender: 'lawyer', text: 'Olá! Recebi os detalhes do seu caso. Para começarmos, poderia me enviar a documentação que mencionei?', timestamp: '10:30', avatarUrl: FALLBACK_LAWYER.photoUrl },
     { id: 2, sender: 'client', text: 'Bom dia, Dr. Carlos. Sim, já estou com os documentos. Enviando em anexo.', timestamp: '10:32', avatarUrl: 'https://i.pravatar.cc/40?u=client' },
-    { id: 3, sender: 'lawyer', text: 'Perfeito, recebi aqui. Vou analisar e te retorno em breve com os próximos passos.', timestamp: '10:35', avatarUrl: lawyer.photoUrl },
+    { id: 3, sender: 'lawyer', text: 'Perfeito, recebi aqui. Vou analisar e te retorno em breve com os próximos passos.', timestamp: '10:35', avatarUrl: FALLBACK_LAWYER.photoUrl },
 ];
 
 // ─── Interfaces ───────────────────────────────────────────────────────────────
@@ -359,7 +364,7 @@ const ActionCard: React.FC<{
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdateLawyerReview }) => {
+export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdateLawyerReview, onNavigate, onLogout }) => {
     const [activeTab, setActiveTab] = useState<'perfil' | 'advogado' | 'casos'>('advogado');
     const [messages, setMessages] = useState<Message[]>(initialMessages);
     const [newMessage, setNewMessage] = useState('');
@@ -409,6 +414,14 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
             .filter(apt => apt.status === 'Confirmado' && new Date(apt.date) >= today)
             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())[0];
     }, [user.appointments]);
+
+    // Resolve the actual assigned lawyer from user's active case (instead of hardcoded index)
+    const resolvedLawyer = useMemo(() => {
+        if (activeCase?.lawyerId) {
+            return mockLawyers.find(l => l.id === activeCase.lawyerId) || FALLBACK_LAWYER;
+        }
+        return FALLBACK_LAWYER;
+    }, [activeCase]);
 
     useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
@@ -464,6 +477,12 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                         {tabBtn('advogado', 'Meu Advogado', '⚖️')}
                         {tabBtn('casos', 'Meus Casos', '📋')}
                         {tabBtn('perfil', 'Meu Perfil', '👤')}
+                        {onLogout && (
+                            <button onClick={onLogout}
+                                className="flex items-center gap-2 py-3 px-4 border-b-2 border-transparent font-semibold text-sm text-red-500 hover:text-red-700 hover:border-red-300 transition-colors ml-auto">
+                                <span>🚪</span> Sair
+                            </button>
+                        )}
                     </nav>
                 </div>
 
@@ -473,20 +492,20 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                         {/* Lawyer card */}
                         {activeCase && (
                             <div className="bg-gradient-to-r from-primary to-primary-dark rounded-2xl p-6 text-white flex flex-col sm:flex-row items-center sm:items-start gap-5 shadow-lg">
-                                <img src={lawyer.photoUrl} alt={lawyer.name} className="w-20 h-20 rounded-full object-cover border-4 border-white/30 shrink-0" />
+                                <img src={resolvedLawyer.photoUrl} alt={resolvedLawyer.name} className="w-20 h-20 rounded-full object-cover border-4 border-white/30 shrink-0" />
                                 <div className="text-center sm:text-left flex-1">
                                     <p className="text-xs font-semibold uppercase tracking-wider text-white/70">Seu Advogado</p>
-                                    <h2 className="text-xl font-bold mt-1">{lawyer.name}</h2>
-                                    <p className="text-sm text-white/80 mt-0.5">OAB {lawyer.oab} · {lawyer.location.city}/{lawyer.location.state}</p>
+                                    <h2 className="text-xl font-bold mt-1">{resolvedLawyer.name}</h2>
+                                    <p className="text-sm text-white/80 mt-0.5">OAB {resolvedLawyer.oab} · {resolvedLawyer.location.city}/{resolvedLawyer.location.state}</p>
                                     <div className="flex flex-wrap gap-2 mt-2 justify-center sm:justify-start">
-                                        {lawyer.specialties.slice(0, 2).map(s => (
+                                        {resolvedLawyer.specialties.slice(0, 2).map(s => (
                                             <span key={s} className="px-2 py-0.5 bg-white/20 rounded-full text-xs dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">{s}</span>
                                         ))}
                                     </div>
                                 </div>
                                 <div className="flex flex-col items-center gap-1">
-                                    <div className="flex">{[1,2,3,4,5].map(i => <span key={i} className={i <= Math.round(lawyer.rating) ? 'text-yellow-300' : 'text-white/30'}>★</span>)}</div>
-                                    <span className="text-xs text-white/70">{lawyer.reviewCount} avaliações</span>
+                                    <div className="flex">{[1,2,3,4,5].map(i => <span key={i} className={i <= Math.round(resolvedLawyer.rating) ? 'text-yellow-300' : 'text-white/30'}>★</span>)}</div>
+                                    <span className="text-xs text-white/70">{resolvedLawyer.reviewCount} avaliações</span>
                                 </div>
                             </div>
                         )}
@@ -496,7 +515,11 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                             <ActionCard icon="📹" title="Entrar na Videochamada"
                                 subtitle={upcomingAppointment ? `${new Date(upcomingAppointment.date).toLocaleDateString('pt-BR', { timeZone: 'UTC', day: '2-digit', month: 'short' })} às ${upcomingAppointment.time}` : 'Nenhuma consulta agendada'}
                                 color="border-blue-200 bg-blue-50 text-blue-900 hover:bg-blue-100"
-                                onClick={() => upcomingAppointment ? alert(`🎥 Abrindo videochamada:\n${upcomingAppointment.consultationLink || 'https://meet.legisconnect.com.br/consulta'}`) : alert('Nenhuma consulta agendada.')}
+                                onClick={() => {
+                                    const link = upcomingAppointment?.consultationLink || 'https://meet.legisconnect.com.br/consulta';
+                                    if (upcomingAppointment) window.open(link, '_blank');
+                                    else alert('Nenhuma consulta agendada.');
+                                }}
                                 badge={upcomingAppointment ? 'Confirmada' : undefined}
                             />
                             <ActionCard icon="💬" title="Mensagem para o Advogado"
@@ -505,11 +528,11 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                                 onClick={() => setShowChat(v => !v)}
                             />
                             <ActionCard icon="💚" title="WhatsApp do Advogado"
-                                subtitle={lawyer.contact.phone || '(11) 99999-0000'}
+                                subtitle={resolvedLawyer.contact.phone || '(11) 99999-0000'}
                                 color="border-green-200 bg-green-50 text-green-900 hover:bg-green-100"
                                 onClick={() => {
-                                    const phone = lawyer.contact.phone?.replace(/\D/g, '') || '5511999990000';
-                                    const msg = encodeURIComponent(`Olá, Dr(a). ${lawyer.name}! Sou cliente na plataforma Legis Connect.`);
+                                    const phone = resolvedLawyer.contact.phone?.replace(/\D/g, '') || '5511999990000';
+                                    const msg = encodeURIComponent(`Olá, Dr(a). ${resolvedLawyer.name}! Sou cliente na plataforma Legis Connect.`);
                                     window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
                                 }}
                             />
@@ -555,7 +578,10 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                                     <div className="bg-gray-50 rounded-xl p-4"><p className="text-xs text-gray-500 uppercase font-semibold">Data</p><p className="font-bold text-gray-800 mt-1">{new Date(upcomingAppointment.date).toLocaleDateString('pt-BR', { timeZone: 'UTC', day: '2-digit', month: 'long', year: 'numeric' })}</p></div>
                                     <div className="bg-gray-50 rounded-xl p-4"><p className="text-xs text-gray-500 uppercase font-semibold">Horário</p><p className="font-bold text-gray-800 mt-1">{upcomingAppointment.time}</p></div>
                                 </div>
-                                <button onClick={() => alert(`🎥 Abrindo videochamada: ${upcomingAppointment.consultationLink || 'https://meet.legisconnect.com.br/consulta'}`)}
+                                <button onClick={() => {
+                                    const link = upcomingAppointment?.consultationLink || 'https://meet.legisconnect.com.br/consulta';
+                                    if (upcomingAppointment) window.open(link, '_blank');
+                                }}
                                     className="mt-4 w-full bg-primary text-white font-bold py-3 px-4 rounded-xl hover:bg-primary-dark transition-colors flex items-center justify-center gap-2 shadow-md">
                                     <VideoCameraIcon className="w-5 h-5" /> Entrar na Videochamada
                                 </button>
@@ -567,8 +593,8 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col h-[60vh] dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                                 <div className="flex items-center justify-between px-5 py-4 border-b">
                                     <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                                        <img src={lawyer.photoUrl} className="w-8 h-8 rounded-full" alt="" />
-                                        Chat com {lawyer.name}
+                                        <img src={resolvedLawyer.photoUrl} className="w-8 h-8 rounded-full" alt="" />
+                                        Chat com {resolvedLawyer.name}
                                     </h3>
                                     <button onClick={() => setShowChat(false)} className="p-1 rounded-lg hover:bg-gray-100"><XIcon className="w-5 h-5 text-gray-500" /></button>
                                 </div>
@@ -775,7 +801,23 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                                 </div>
                             </div>
 
-                            <button onClick={() => { setProfileSaved(true); setTimeout(() => setProfileSaved(false), 2500); }}
+                            <button onClick={() => {
+                                // Persist profile form to localStorage
+                                try {
+                                    const saved = localStorage.getItem('legis_user');
+                                    if (saved) {
+                                        const u = JSON.parse(saved);
+                                        localStorage.setItem('legis_user', JSON.stringify({
+                                            ...u,
+                                            name: profileForm.name || u.name,
+                                            phone: profileForm.phone || u.phone,
+                                            address: profileForm.street || u.address,
+                                        }));
+                                    }
+                                } catch {}
+                                setProfileSaved(true);
+                                setTimeout(() => setProfileSaved(false), 2500);
+                            }}
                                 className="px-6 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary/90 transition-colors shadow">
                                 {profileSaved ? '✓ Salvo!' : '💾 Salvar Alterações'}
                             </button>

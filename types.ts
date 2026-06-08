@@ -123,6 +123,7 @@ export interface Intern {
   availableHours: number;
   casesStudied?: Case[];
   status: 'active' | 'pending';
+  supervisorLawyerId?: number;
 
   // Address fields
   address?: string;

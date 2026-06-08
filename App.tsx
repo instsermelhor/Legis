@@ -28,6 +28,7 @@ import { EticaOABModal } from './components/common/EticaOABModal';
 import { chatWithGemini } from './services/geminiService';
 import type { View, Lawyer, Intern, Secretary, ChatMessage, User, Case, Appointment, Review, MapsSearchResult } from './types';
 import { mockLawyers } from './services/mockLawyerService';
+import { hashPassword } from './services/mockDataService';
 
 const ADMIN_EMAIL = 'admin@legisconnect.com.br';
 const ADMIN_PASSWORD = 'admin';
@@ -88,38 +89,39 @@ const App: React.FC = () => {
     return !!(user.name && user.phone && user.address);
   };
 
-  const handleNavigate = useCallback((view: View) => {
+  const handleNavigate = useCallback((view: View, overrideUser?: User | null) => {
+    const activeUser = overrideUser !== undefined ? overrideUser : user;
     // Protected routes
-    if (view === 'adminDashboard' && user?.role !== 'admin') {
+    if (view === 'adminDashboard' && activeUser?.role !== 'admin') {
       setCurrentView('login');
       return;
     }
     if (view === 'dashboard') {
-      if (!user) {
+      if (!activeUser) {
         setCurrentView('login');
         return;
-      } else if (user.role === 'lawyer') {
+      } else if (activeUser.role === 'lawyer') {
         setCurrentView('lawyerDashboard');
-      } else if (user.role === 'intern') {
+      } else if (activeUser.role === 'intern') {
         setCurrentView('internDashboard');
-      } else if (user.role === 'secretary') {
+      } else if (activeUser.role === 'secretary') {
         setCurrentView('secretariadoDashboard');
-      } else if (user.role === 'client') {
+      } else if (activeUser.role === 'client') {
         setCurrentView('dashboard');
       } else {
         setCurrentView('login');
       }
       return;
     }
-    if (view === 'lawyerDashboard' && user?.role !== 'lawyer') {
+    if (view === 'lawyerDashboard' && activeUser?.role !== 'lawyer') {
       setCurrentView('forLawyers');
       return;
     }
-    if (view === 'internDashboard' && user?.role !== 'intern') {
+    if (view === 'internDashboard' && activeUser?.role !== 'intern') {
       setCurrentView('forInterns');
       return;
     }
-    if (view === 'secretariadoDashboard' && user?.role !== 'secretary') {
+    if (view === 'secretariadoDashboard' && activeUser?.role !== 'secretary') {
       setCurrentView('forSecretariado');
       return;
     }
@@ -131,11 +133,25 @@ const App: React.FC = () => {
     const { email, password } = credentials;
     const lowerEmail = email.toLowerCase();
 
-    // Admin login
-    if (lowerEmail === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-      setUser({ email: lowerEmail, role: 'admin', name: 'Administrador' });
-      handleNavigate('adminDashboard');
-      return true;
+    // Admin login using localStorage list
+    const savedAdminUsersRaw = localStorage.getItem('legis_admin_users');
+    const adminUsersList = savedAdminUsersRaw ? JSON.parse(savedAdminUsersRaw) : [
+      { id: 1, name: 'Super Admin', email: 'admin@legisconnect.com.br', password: hashPassword('admin'), role: 'super', createdAt: '2024-01-01', active: true }
+    ];
+
+    const matchedAdmin = adminUsersList.find((u: any) => u.email.toLowerCase() === lowerEmail);
+    if (matchedAdmin) {
+      if (matchedAdmin.password === hashPassword(password || '')) {
+        if (!matchedAdmin.active) {
+          // User is inactive, login fails
+          return false;
+        }
+        const adminUser: User = { email: lowerEmail, role: 'admin', name: matchedAdmin.name };
+        setUser(adminUser);
+        handleNavigate('adminDashboard', adminUser);
+        return true;
+      }
+      return false;
     }
 
     // Lawyer login
@@ -143,8 +159,9 @@ const App: React.FC = () => {
     if (lawyer) {
       // Dummy password check for mock data
       if (password) {
-        setUser({ email: lowerEmail, role: 'lawyer', data: lawyer, name: lawyer.name });
-        handleNavigate('lawyerDashboard');
+        const lawyerUser: User = { email: lowerEmail, role: 'lawyer', data: lawyer, name: lawyer.name };
+        setUser(lawyerUser);
+        handleNavigate('lawyerDashboard', lawyerUser);
         return true;
       }
       return false;
@@ -152,13 +169,14 @@ const App: React.FC = () => {
 
     // Test user with incomplete profile
     if (lowerEmail === 'incomplete@legisconnect.com' && password === 'password') {
-      setUser({
+      const incompleteUser: User = {
         email: lowerEmail,
         role: 'client',
         name: 'Cliente Incompleto',
         // Phone and address are missing
-      });
-      handleNavigate('dashboard');
+      };
+      setUser(incompleteUser);
+      handleNavigate('dashboard', incompleteUser);
       return true;
     }
 
@@ -217,7 +235,7 @@ const App: React.FC = () => {
           modality: 'Videochamada',
         }
       ];
-      setUser({
+      const clientUser: User = {
         email: lowerEmail,
         role: 'client',
         name: 'Cliente Exemplo',
@@ -225,8 +243,9 @@ const App: React.FC = () => {
         address: 'Rua das Amostras, 123, São Paulo, SP',
         caseHistory: mockCases,
         appointments: mockAppointments
-      });
-      handleNavigate('dashboard');
+      };
+      setUser(clientUser);
+      handleNavigate('dashboard', clientUser);
       return true;
     }
 
@@ -238,8 +257,9 @@ const App: React.FC = () => {
     const lowerEmail = credentials.email.toLowerCase();
     if (lowerEmail === TEST_EMAIL && credentials.password === TEST_PASSWORD) {
       const testLawyer = { ...mockLawyers[0], contact: { ...mockLawyers[0].contact, email: TEST_EMAIL }, name: 'Advogado Teste' };
-      setUser({ email: TEST_EMAIL, role: 'lawyer', data: testLawyer, name: testLawyer.name });
-      handleNavigate('lawyerDashboard');
+      const lawyerUser: User = { email: TEST_EMAIL, role: 'lawyer', data: testLawyer, name: testLawyer.name };
+      setUser(lawyerUser);
+      handleNavigate('lawyerDashboard', lawyerUser);
       return true;
     }
     return handleLogin(credentials);
@@ -262,8 +282,9 @@ const App: React.FC = () => {
         casesStudied: [],
         status: 'active',
       };
-      setUser({ email: TEST_EMAIL, role: 'intern', data: testIntern, name: testIntern.name });
-      handleNavigate('internDashboard');
+      const internUser: User = { email: TEST_EMAIL, role: 'intern', data: testIntern, name: testIntern.name };
+      setUser(internUser);
+      handleNavigate('internDashboard', internUser);
       return true;
     }
     return handleLogin(credentials);
@@ -302,7 +323,7 @@ const App: React.FC = () => {
           consultationLink: 'https://meet.legisconnect.com/call/teste123',
         },
       ];
-      setUser({
+      const clientUser: User = {
         email: TEST_EMAIL,
         role: 'client',
         name: 'Cliente Teste',
@@ -310,8 +331,9 @@ const App: React.FC = () => {
         address: 'Av. Legis Connect, 1000, São Paulo, SP',
         caseHistory: mockCases,
         appointments: mockAppointments,
-      });
-      handleNavigate('dashboard');
+      };
+      setUser(clientUser);
+      handleNavigate('dashboard', clientUser);
       return true;
     }
     return handleLogin(credentials);
@@ -340,15 +362,16 @@ const App: React.FC = () => {
 
   const handleClientSignup = (data: ClientSignupData) => {
     console.log("New client signup:", data);
-    setUser({
+    const clientUser: User = {
       email: data.email,
       role: 'client',
       name: data.name,
       phone: data.phone,
       address: data.address,
       caseHistory: [],
-    });
-    handleNavigate('dashboard');
+    };
+    setUser(clientUser);
+    handleNavigate('dashboard', clientUser);
   }
 
   const handleLawyerSignup = (data: Partial<Lawyer>) => {
@@ -372,8 +395,9 @@ const App: React.FC = () => {
     };
     setAllLawyers(prev => [...prev, newLawyer]);
     console.log("New lawyer signup:", newLawyer);
-    setUser({ email: newLawyer.contact.email, role: 'lawyer', data: newLawyer, name: newLawyer.name });
-    handleNavigate('lawyerDashboard');
+    const lawyerUser: User = { email: newLawyer.contact.email, role: 'lawyer', data: newLawyer, name: newLawyer.name };
+    setUser(lawyerUser);
+    handleNavigate('lawyerDashboard', lawyerUser);
     return true;
   }
 
@@ -406,8 +430,9 @@ const App: React.FC = () => {
       timeInBrazil: data.timeInBrazil,
     };
     console.log('New intern signup:', newIntern);
-    setUser({ email: newIntern.contact.email, role: 'intern', data: newIntern, name: newIntern.name });
-    handleNavigate('internDashboard');
+    const internUser: User = { email: newIntern.contact.email, role: 'intern', data: newIntern, name: newIntern.name };
+    setUser(internUser);
+    handleNavigate('internDashboard', internUser);
     return true;
   }
 
@@ -430,8 +455,9 @@ const App: React.FC = () => {
         joinedDate: new Date().toISOString().split('T')[0],
         assignedLawyerId: 1, // assigned to first mock lawyer
       };
-      setUser({ email: TEST_EMAIL, role: 'secretary', data: testSecretary, name: testSecretary.name });
-      handleNavigate('secretariadoDashboard');
+      const secretaryUser: User = { email: TEST_EMAIL, role: 'secretary', data: testSecretary, name: testSecretary.name };
+      setUser(secretaryUser);
+      handleNavigate('secretariadoDashboard', secretaryUser);
       return true;
     }
     return handleLogin(credentials);
@@ -461,14 +487,16 @@ const App: React.FC = () => {
       timeInBrazil: data.timeInBrazil,
     };
     console.log('New secretary signup:', newSecretary);
-    setUser({ email: newSecretary.email, role: 'secretary', data: newSecretary, name: newSecretary.name });
-    handleNavigate('secretariadoDashboard');
+    const secretaryUser: User = { email: newSecretary.email, role: 'secretary', data: newSecretary, name: newSecretary.name };
+    setUser(secretaryUser);
+    handleNavigate('secretariadoDashboard', secretaryUser);
   };
 
   const handleUpdateProfile = (data: { name: string; phone: string; address: string; }) => {
     if (user) {
-      setUser(prevUser => prevUser ? { ...prevUser, ...data } : null);
-      handleNavigate('dashboard'); // Navigate to dashboard after update
+      const updatedUser = { ...user, ...data };
+      setUser(updatedUser);
+      handleNavigate('dashboard', updatedUser); // Navigate to dashboard after update
     }
   }
 
@@ -544,11 +572,11 @@ const App: React.FC = () => {
         if (user && user.role === 'client' && !isClientProfileComplete(user)) {
           return <CompleteProfilePage user={user} onUpdateProfile={handleUpdateProfile} />;
         }
-        return user ? <ClientDashboard user={user} onUpdateLawyerReview={handleUpdateLawyerReview} /> : <LoginForm onLogin={handleLogin} />;
+        return user ? <ClientDashboard user={user} onUpdateLawyerReview={handleUpdateLawyerReview} onNavigate={handleNavigate} onLogout={handleLogout} /> : <LoginForm onLogin={handleLogin} />;
       case 'lawyerDashboard':
-        return user?.data ? <LawyerDashboard lawyer={user.data as import('./types').Lawyer} /> : <ForLawyersPage onLogin={handleLawyerPageLogin} onSignup={handleLawyerSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
+        return user?.data ? <LawyerDashboard lawyer={user.data as import('./types').Lawyer} onLogout={handleLogout} /> : <ForLawyersPage onLogin={handleLawyerPageLogin} onSignup={handleLawyerSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
       case 'adminDashboard':
-        return <AdminDashboard onNavigate={handleNavigate} />;
+        return <AdminDashboard onNavigate={handleNavigate} onLogout={handleLogout} />;
       case 'login':
         return <LoginForm onLogin={handleLogin} />;
       case 'signup':
@@ -566,6 +594,7 @@ const App: React.FC = () => {
             userEmail={user.email}
             onUpdateIntern={(updates) => setUser(prev => prev ? { ...prev, data: { ...prev.data as Intern, ...updates } } : prev)}
             onUpdateEmail={(newEmail) => setUser(prev => prev ? { ...prev, email: newEmail } : prev)}
+            onLogout={handleLogout}
           />
         ) : <ForInternsPage onLogin={handleInternPageLogin} onSignup={handleInternSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
       case 'forSecretariado':
@@ -577,6 +606,7 @@ const App: React.FC = () => {
             userEmail={user.email}
             onUpdateSecretary={(updates) => setUser(prev => prev ? { ...prev, data: { ...prev.data as Secretary, ...updates } } : prev)}
             onUpdateEmail={(newEmail) => setUser(prev => prev ? { ...prev, email: newEmail } : prev)}
+            onLogout={handleLogout}
           />
         ) : <ForSecretariadoPage onLogin={handleSecretaryPageLogin} onSignup={handleSecretarySignup} />;
       case 'services':
@@ -587,8 +617,23 @@ const App: React.FC = () => {
     }
   };
 
+  const getThemeClass = () => {
+    switch (currentView) {
+      case 'lawyerDashboard':
+        return 'theme-lawyer';
+      case 'internDashboard':
+        return 'theme-intern';
+      case 'secretariadoDashboard':
+        return 'theme-secretary';
+      case 'dashboard':
+        return 'theme-client';
+      default:
+        return 'theme-prelogin';
+    }
+  };
+
   return (
-    <div className="flex flex-col min-h-screen bg-neutral-light font-sans">
+    <div className={`flex flex-col min-h-screen bg-neutral-light font-sans ${getThemeClass()}`}>
       <Header currentView={currentView} onNavigate={handleNavigate} user={user} onLogout={handleLogout} />
       <main className="flex-grow">
         {renderView()}

@@ -54,24 +54,33 @@ export const OverviewTab: React.FC<{
   const [stateFilter, setStateFilter] = useState('Todos');
   const [search, setSearch] = useState('');
   const [servicesCount, setServicesCount] = useState(mockEfficiencyServices.length);
+  const [clients, setClients] = useState<typeof mockClients>(mockClients);
+  const [interns, setInterns] = useState<typeof mockInterns>(mockInterns);
+  const [secretaries, setSecretaries] = useState<typeof mockSecretaries>(mockSecretaries);
 
   React.useEffect(() => {
     const saved = localStorage.getItem('legis_services');
     if (saved) setServicesCount(JSON.parse(saved).length);
+    const savedClients = localStorage.getItem('legis_clients');
+    if (savedClients) setClients(JSON.parse(savedClients));
+    const savedInterns = localStorage.getItem('legis_interns');
+    if (savedInterns) setInterns(JSON.parse(savedInterns));
+    const savedSecs = localStorage.getItem('legis_secretaries');
+    if (savedSecs) setSecretaries(JSON.parse(savedSecs));
   }, []);
 
   const stats = useMemo(() => ({
     totalLawyers: lawyers.length,
     verifiedLawyers: lawyers.filter(l => l.status === 'verificado').length,
     pendingLawyers: lawyers.filter(l => l.status === 'pendente').length,
-    totalClients: mockClients.length,
-    activeClients: mockClients.filter(c => c.status === 'ativo').length,
-    totalInterns: mockInterns.length,
-    activeInterns: mockInterns.filter(i => i.status === 'ativo').length,
-    totalSecretaries: mockSecretaries.length,
-    activeSecretaries: mockSecretaries.filter(s => s.status === 'ativo').length,
+    totalClients: clients.length,
+    activeClients: clients.filter(c => c.status === 'ativo').length,
+    totalInterns: interns.length,
+    activeInterns: interns.filter(i => i.status === 'ativo').length,
+    totalSecretaries: secretaries.length,
+    activeSecretaries: secretaries.filter(s => s.status === 'ativo').length,
     lastMonthRevenue: mockMonthlyRevenue[mockMonthlyRevenue.length - 1].revenue,
-  }), [lawyers]);
+  }), [lawyers, clients, interns, secretaries]);
 
   const specialtyDistribution = useMemo(() => {
     const counts: { [key: string]: number } = { 'Direito Internacional': 1 };
@@ -81,31 +90,31 @@ export const OverviewTab: React.FC<{
 
   const internSemesterDistribution = useMemo(() => {
     const counts: { [key: string]: number } = {};
-    mockInterns.forEach(i => { counts[i.semester] = (counts[i.semester] || 0) + 1; });
+    interns.forEach(i => { counts[i.semester] = (counts[i.semester] || 0) + 1; });
     return counts;
-  }, []);
+  }, [interns]);
 
   const internSpecialtyDistribution = useMemo(() => {
     const counts: { [key: string]: number } = {};
-    mockInterns.forEach(i => { counts[i.specialtyInterest] = (counts[i.specialtyInterest] || 0) + 1; });
+    interns.forEach(i => { counts[i.specialtyInterest] = (counts[i.specialtyInterest] || 0) + 1; });
     return counts;
-  }, []);
+  }, [interns]);
 
   const secretaryAvailabilityDistribution = useMemo(() => {
     const counts: { [key: string]: number } = {};
     const labels: Record<string, string> = { integral: 'Tempo Integral', 'meio-periodo': 'Meio Período', freelancer: 'Freelancer' };
-    mockSecretaries.forEach(s => {
+    secretaries.forEach(s => {
       const label = labels[s.availability] || s.availability;
       counts[label] = (counts[label] || 0) + 1;
     });
     return counts;
-  }, []);
+  }, [secretaries]);
 
   const secretaryAreaDistribution = useMemo(() => {
     const counts: { [key: string]: number } = {};
-    mockSecretaries.forEach(s => s.areasOfKnowledge.forEach(a => { counts[a] = (counts[a] || 0) + 1; }));
+    secretaries.forEach(s => s.areasOfKnowledge.forEach(a => { counts[a] = (counts[a] || 0) + 1; }));
     return counts;
-  }, []);
+  }, [secretaries]);
 
   const serviceGroupDistribution = useMemo(() => {
     const counts: { [key: string]: number } = {};
@@ -138,20 +147,20 @@ export const OverviewTab: React.FC<{
     l.name.toLowerCase().includes(search.toLowerCase())
   ), [lawyers, stateFilter, search]);
 
-  const filteredClients = useMemo(() => mockClients.filter(c =>
+  const filteredClients = useMemo(() => clients.filter(c =>
     (stateFilter === 'Todos' || c.state === stateFilter) &&
     c.name.toLowerCase().includes(search.toLowerCase())
-  ), [stateFilter, search]);
+  ), [clients, stateFilter, search]);
 
-  const filteredInterns = useMemo(() => mockInterns.filter(i =>
+  const filteredInterns = useMemo(() => interns.filter(i =>
     (stateFilter === 'Todos' || i.state === stateFilter) &&
     i.name.toLowerCase().includes(search.toLowerCase())
-  ), [stateFilter, search]);
+  ), [interns, stateFilter, search]);
 
-  const filteredSecretaries = useMemo(() => mockSecretaries.filter(s =>
+  const filteredSecretaries = useMemo(() => secretaries.filter(s =>
     (stateFilter === 'Todos' || s.state === stateFilter) &&
     s.name.toLowerCase().includes(search.toLowerCase())
-  ), [stateFilter, search]);
+  ), [secretaries, stateFilter, search]);
 
   const closeModal = () => { setModal(null); setStateFilter('Todos'); setSearch(''); };
 
