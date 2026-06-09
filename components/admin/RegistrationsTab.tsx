@@ -422,20 +422,46 @@ const LawyerEditor: React.FC<{ lawyer: Lawyer; onSave: (l: Lawyer) => void; onBa
 const ClientEditor: React.FC<{ client: MockClient; onSave: (c: MockClient) => void; onBack: () => void }> = ({ client, onSave, onBack }) => {
   const [data, setData] = useState({ ...client, adminNotes: (client as { adminNotes?: string }).adminNotes || '' });
   const [showConfirm, setShowConfirm] = useState(false);
+
+  // 3 Slots for social links (active state, provider, url)
+  const [socialSlots, setSocialSlots] = useState<{ checked: boolean; provider: string; url: string }[]>(() => {
+    const links = client.socialLinks || [];
+    const slots = [];
+    for (let i = 0; i < 3; i++) {
+      if (links[i]) {
+        slots.push({ checked: true, provider: links[i].provider, url: links[i].url });
+      } else {
+        slots.push({ checked: false, provider: 'LinkedIn', url: '' });
+      }
+    }
+    return slots;
+  });
+
   const f = (field: keyof MockClient) => (v: string) => setData(d => ({ ...d, [field]: v }));
 
-  const buildFields = (): ConfirmSaveField[] => [
-    { label: 'Nome', oldValue: client.name, newValue: data.name },
-    { label: 'CPF', oldValue: client.cpf, newValue: data.cpf },
-    { label: 'E-mail', oldValue: client.email, newValue: data.email },
-    { label: 'Telefone', oldValue: client.phone, newValue: data.phone },
-    { label: 'Endereço', oldValue: client.address, newValue: data.address },
-    { label: 'Cidade', oldValue: client.city, newValue: data.city },
-    { label: 'Estado', oldValue: client.state, newValue: data.state },
-    { label: 'Status', oldValue: client.status, newValue: data.status },
-    { label: 'Área do Caso', oldValue: client.lastCaseArea || '', newValue: data.lastCaseArea || '' },
-    { label: 'Notas Admin', oldValue: (client as { adminNotes?: string }).adminNotes || '', newValue: data.adminNotes },
-  ];
+  const buildFields = (): ConfirmSaveField[] => {
+    const oldLinksStr = (client.socialLinks || [])
+      .map(s => `${s.provider}: ${s.url}`)
+      .join(', ') || 'Nenhuma';
+    const newLinksStr = socialSlots
+      .filter(s => s.checked && s.provider.trim() && s.url.trim())
+      .map(s => `${s.provider}: ${s.url}`)
+      .join(', ') || 'Nenhuma';
+
+    return [
+      { label: 'Nome', oldValue: client.name, newValue: data.name },
+      { label: 'CPF', oldValue: client.cpf, newValue: data.cpf },
+      { label: 'E-mail', oldValue: client.email, newValue: data.email },
+      { label: 'Telefone', oldValue: client.phone, newValue: data.phone },
+      { label: 'Endereço', oldValue: client.address, newValue: data.address },
+      { label: 'Cidade', oldValue: client.city, newValue: data.city },
+      { label: 'Estado', oldValue: client.state, newValue: data.state },
+      { label: 'Status', oldValue: client.status, newValue: data.status },
+      { label: 'Área do Caso', oldValue: client.lastCaseArea || '', newValue: data.lastCaseArea || '' },
+      { label: 'Redes Sociais', oldValue: oldLinksStr, newValue: newLinksStr },
+      { label: 'Notas Admin', oldValue: (client as { adminNotes?: string }).adminNotes || '', newValue: data.adminNotes },
+    ];
+  };
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 max-w-2xl space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
@@ -459,6 +485,72 @@ const ClientEditor: React.FC<{ client: MockClient; onSave: (c: MockClient) => vo
         <textarea value={data.notes || ''} onChange={e => setData(d => ({ ...d, notes: e.target.value }))} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
       </div>
 
+      {/* Redes Sociais */}
+      <div className="bg-gray-50 dark:bg-[#1E1B38] border border-gray-200 dark:border-[#2A2545] rounded-xl p-4 space-y-3">
+        <div>
+          <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">🌐 Redes Sociais (Máx. 3)</label>
+          <p className="text-[11px] text-gray-500 mt-0.5">Ative a caixa de seleção para incluir o link da respectiva rede social no cadastro.</p>
+        </div>
+
+        <div className="space-y-2.5">
+          {socialSlots.map((slot, index) => (
+            <div key={index} className="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-xl p-3 shadow-sm">
+              <label className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300 cursor-pointer shrink-0">
+                <input
+                  type="checkbox"
+                  checked={slot.checked}
+                  onChange={e => {
+                    const next = [...socialSlots];
+                    next[index].checked = e.target.checked;
+                    setSocialSlots(next);
+                  }}
+                  className="rounded text-primary focus:ring-primary/30 h-4 w-4 border-gray-300 dark:border-[#2A2545] dark:bg-[#1A1730]"
+                />
+                <span className="text-xs uppercase text-gray-500 dark:text-gray-400 font-bold">Link {index + 1}</span>
+              </label>
+
+              {slot.checked ? (
+                <div className="flex-1 w-full grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="sm:col-span-1">
+                    <select
+                      value={slot.provider}
+                      onChange={e => {
+                        const next = [...socialSlots];
+                        next[index].provider = e.target.value;
+                        setSocialSlots(next);
+                      }}
+                      className="w-full border border-gray-300 dark:border-[#2A2545] dark:bg-[#1A1730] dark:text-white rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    >
+                      <option value="LinkedIn">LinkedIn</option>
+                      <option value="Instagram">Instagram</option>
+                      <option value="Facebook">Facebook</option>
+                      <option value="Twitter">Twitter/X</option>
+                      <option value="YouTube">YouTube</option>
+                      <option value="Outro">Outro</option>
+                    </select>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <input
+                      type="url"
+                      placeholder="URL do Perfil (ex: https://...)"
+                      value={slot.url}
+                      onChange={e => {
+                        const next = [...socialSlots];
+                        next[index].url = e.target.value;
+                        setSocialSlots(next);
+                      }}
+                      className="w-full border border-gray-300 dark:border-[#2A2545] dark:bg-[#1A1730] dark:text-white rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary/30"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="flex-1 text-xs text-gray-400 italic">Link desativado</div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Document Upload */}
       <AdminDocUploadPanel />
 
@@ -477,7 +569,20 @@ const ClientEditor: React.FC<{ client: MockClient; onSave: (c: MockClient) => vo
       <button onClick={() => setShowConfirm(true)} className="px-6 py-2.5 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90">Revisar e Salvar Alterações</button>
 
       {showConfirm && (
-        <ConfirmSaveModal title="Editar Cadastro de Cliente" userName={data.name} userEmail={data.email} fields={buildFields()} onConfirm={() => { onSave(data as MockClient); setShowConfirm(false); }} onCancel={() => setShowConfirm(false)} />
+        <ConfirmSaveModal
+          title="Editar Cadastro de Cliente"
+          userName={data.name}
+          userEmail={data.email}
+          fields={buildFields()}
+          onConfirm={() => {
+            const activeLinks = socialSlots
+              .filter(s => s.checked && s.provider.trim() && s.url.trim())
+              .map(s => ({ provider: s.provider.trim(), url: s.url.trim() }));
+            onSave({ ...data, socialLinks: activeLinks } as MockClient);
+            setShowConfirm(false);
+          }}
+          onCancel={() => setShowConfirm(false)}
+        />
       )}
     </div>
   );

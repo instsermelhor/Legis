@@ -26,6 +26,7 @@ export interface MockClient {
   lastCaseArea: string;
   assignedLawyerId?: number;
   notes?: string;
+  socialLinks?: { provider: string; url: string }[];
 }
 
 export interface MockIntern {
