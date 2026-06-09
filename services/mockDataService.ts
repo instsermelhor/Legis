@@ -281,6 +281,7 @@ export interface MockSecretary {
   monthlyFee?: number;   // honorário/remuneração mensal (R$)
   totalEarned?: number;  // total acumulado recebido (R$)
   pendingFee?: number;   // valor pendente (R$)
+  socialLinks?: { provider: string; url: string }[];
 }
 
 export const mockSecretaries: MockSecretary[] = [
