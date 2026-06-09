@@ -48,6 +48,7 @@ export interface MockIntern {
   totalEarned?: number;
   supervisorLawyerId?: number;
   notes?: string;
+  socialLinks?: { provider: string; url: string }[];
 }
 
 export interface AdminUser {
