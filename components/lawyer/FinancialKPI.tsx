@@ -8,6 +8,7 @@ import React, { useState, useMemo } from 'react';
 import { dbFinancial } from '../../services/dbService';
 import type { FinancialTransaction } from '../../services/dbService';
 import { mockProcessosService } from '../../services/mockProcessosService';
+import type { Processo } from '../../services/mockProcessosService';
 import { mockLawyers } from '../../services/mockLawyerService';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -121,11 +122,83 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
   const [search, setSearch] = useState('');
   const [processSearch, setProcessSearch] = useState('');
 
+  const [processList, setProcessList] = useState<Processo[]>(() => mockProcessosService.getProcessos());
+  const [unlockedProcessIds, setUnlockedProcessIds] = useState<number[]>([]);
+  
+  // Validation States
+  const [validatingProcess, setValidatingProcess] = useState<Processo | null>(null);
+  const [validationOab, setValidationOab] = useState('');
+  const [validationCpf, setValidationCpf] = useState('');
+  const [validationError, setValidationError] = useState('');
+
+  // Management States
+  const [managingProcess, setManagingProcess] = useState<Processo | null>(null);
+  const [manageValor, setManageValor] = useState(0);
+  const [manageStatus, setManageStatus] = useState<Processo['status']>('Em Andamento');
+  const [manageDataConclusao, setManageDataConclusao] = useState('');
+
+  const lawyerOab = lawyerId ? mockLawyers.find(l => l.id === lawyerId)?.oab : undefined;
+
+  const handleStartUnlock = (p: Processo) => {
+    setValidatingProcess(p);
+    setValidationOab('');
+    setValidationCpf('');
+    setValidationError('');
+  };
+
+  const handleValidationSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validatingProcess) return;
+    
+    const inputOabClean = validationOab.trim().toLowerCase();
+    const systemOabClean = (lawyerOab || '').trim().toLowerCase();
+    
+    const inputCpfClean = validationCpf.replace(/\D/g, '');
+    const processCpfClean = (validatingProcess.clientCpf || '').replace(/\D/g, '');
+
+    if (!systemOabClean) {
+      setValidationError('OAB do advogado não configurada no sistema.');
+      return;
+    }
+    if (inputOabClean !== systemOabClean) {
+      setValidationError('Número da OAB incorreto.');
+      return;
+    }
+    if (inputCpfClean !== processCpfClean) {
+      setValidationError('CPF do cliente incorreto para este processo.');
+      return;
+    }
+
+    setUnlockedProcessIds(prev => [...prev, validatingProcess.id_processo]);
+    setValidatingProcess(null);
+  };
+
+  const handleManageFinancials = (p: Processo) => {
+    setManagingProcess(p);
+    setManageValor(p.valor);
+    setManageStatus(p.status);
+    setManageDataConclusao(p.data_conclusao || new Date().toISOString().split('T')[0]);
+  };
+
+  const handleManagementSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!managingProcess) return;
+
+    const conclusaoDate = manageStatus === 'Concluído' ? manageDataConclusao : null;
+    mockProcessosService.updateProcesso(managingProcess.id_processo, {
+      valor: Number(manageValor),
+      status: manageStatus,
+      data_conclusao: conclusaoDate
+    });
+
+    setProcessList(mockProcessosService.getProcessos());
+    setManagingProcess(null);
+  };
+
   // Query processes data
   const lawyerName = lawyerId ? mockLawyers.find(l => l.id === lawyerId)?.name : undefined;
   const procKpis = useMemo(() => {
-    const allProcs = mockProcessosService.getProcessos();
-    const list = lawyerName ? allProcs.filter(p => p.advogado === lawyerName) : allProcs;
+    const list = lawyerName ? processList.filter(p => p.advogado === lawyerName) : processList;
     const count = list.length;
     const totalVal = list.reduce((acc, p) => acc + p.valor, 0);
     const concluidoVal = list.filter(p => p.status === 'Concluído').reduce((acc, p) => acc + p.valor, 0);
@@ -136,7 +209,7 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
     const aguardandoCount = list.filter(p => p.status === 'Aguardando Documentação').length;
 
     return { list, count, totalVal, concluidoVal, concluidoCount, andamentoVal, andamentoCount, aguardandoVal, aguardandoCount };
-  }, [lawyerName]);
+  }, [lawyerName, processList]);
 
   const filtered = useMemo(() => {
     const now = new Date();
@@ -331,18 +404,21 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
               <thead className="bg-gray-50 dark:bg-black/10 border-b text-gray-700 dark:text-gray-300 uppercase">
                 <tr>
                   <th className="px-4 py-2.5">ID Processo</th>
+                  <th className="px-4 py-2.5">Cliente</th>
                   <th className="px-4 py-2.5">Departamento</th>
                   <th className="px-4 py-2.5">Gestor</th>
                   <th className="px-4 py-2.5">Data Entrada</th>
                   <th className="px-4 py-2.5">Status</th>
                   <th className="px-4 py-2.5 text-right">Valor do Caso</th>
                   <th className="px-4 py-2.5 text-right">Duração</th>
+                  <th className="px-4 py-2.5 text-center">Ações</th>
                 </tr>
               </thead>
               <tbody>
                 {procKpis.list.map(p => (
                   <tr key={p.id_processo} className="border-b hover:bg-gray-50 dark:hover:bg-black/10">
                     <td className="px-4 py-2.5 font-bold text-gray-900 dark:text-white">#{p.id_processo}</td>
+                    <td className="px-4 py-2.5">{p.clientName || '—'}</td>
                     <td className="px-4 py-2.5">{p.departamento}</td>
                     <td className="px-4 py-2.5">{p.gestor}</td>
                     <td className="px-4 py-2.5">{new Date(p.data_entrada).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
@@ -350,23 +426,162 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
                         p.status === 'Concluído' ? 'bg-green-100 text-green-800' :
                         p.status === 'Em Andamento' ? 'bg-blue-100 text-blue-800' :
-                        'bg-amber-100 text-amber-800 animate-pulse'
+                        'bg-amber-100 text-amber-800'
                       }`}>
                         {p.status}
                       </span>
                     </td>
-                    <td className="px-4 py-2.5 text-right font-bold text-gray-950 dark:text-white">{fmt(p.valor)}</td>
+                    <td className="px-4 py-2.5 text-right font-bold text-gray-950 dark:text-white">
+                      {unlockedProcessIds.includes(p.id_processo) ? fmt(p.valor) : '🔒 Restrito'}
+                    </td>
                     <td className="px-4 py-2.5 text-right">{p.status === 'Concluído' ? `${p.tempo} dias` : '—'}</td>
+                    <td className="px-4 py-2.5 text-center">
+                      {unlockedProcessIds.includes(p.id_processo) ? (
+                        <button
+                          onClick={() => handleManageFinancials(p)}
+                          className="px-2 py-1 bg-primary text-white text-[10px] font-bold rounded hover:bg-primary/90 transition-colors"
+                        >
+                          ⚙️ Gerenciar
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => handleStartUnlock(p)}
+                          className="px-2 py-1 bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-bold rounded transition-colors"
+                        >
+                          🔑 Desbloquear
+                        </button>
+                      )}
+                    </td>
                   </tr>
                 ))}
                 {procKpis.list.length === 0 && (
-                  <tr><td colSpan={7} className="px-4 py-6 text-center text-gray-400">Nenhum processo da Gestão Jurídica vinculado.</td></tr>
+                  <tr><td colSpan={9} className="px-4 py-6 text-center text-gray-400">Nenhum processo da Gestão Jurídica vinculado.</td></tr>
                 )}
               </tbody>
             </table>
           </div>
         </div>
       </div>
+
+      {/* Modal de Validação OAB / CPF */}
+      {validatingProcess && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setValidatingProcess(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  🔒 Confirmar Identidade
+                </h2>
+                <button onClick={() => setValidatingProcess(null)} className="text-gray-450 hover:text-gray-600 text-2xl font-bold leading-none dark:text-gray-400">&times;</button>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                Para acessar a gestão e administração financeira do processo <strong>#{validatingProcess.id_processo}</strong> ({validatingProcess.clientName}), confirme os dados abaixo.
+              </p>
+              <form onSubmit={handleValidationSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase mb-1">OAB do Advogado *</label>
+                  <input
+                    type="text"
+                    value={validationOab}
+                    onChange={e => setValidationOab(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545]"
+                    placeholder="Digite sua OAB (Ex: SP123456)"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase mb-1">CPF do Cliente *</label>
+                  <input
+                    type="text"
+                    value={validationCpf}
+                    onChange={e => setValidationCpf(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545]"
+                    placeholder="Digite o CPF do cliente (apenas números ou formatado)"
+                    required
+                  />
+                </div>
+                {validationError && (
+                  <p className="text-xs text-red-650 font-semibold bg-red-50 border border-red-200 rounded-lg px-3 py-2 dark:bg-red-950/20 dark:border-red-900/30 dark:text-red-400">
+                    ⚠️ {validationError}
+                  </p>
+                )}
+                <div className="flex gap-3 pt-2">
+                  <button type="button" onClick={() => setValidatingProcess(null)} className="flex-1 py-2 text-sm font-semibold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                    Cancelar
+                  </button>
+                  <button type="submit" className="flex-1 py-2 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90">
+                    Confirmar
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Gestão e Administração Financeira */}
+      {managingProcess && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setManagingProcess(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                  ⚙️ Gestão Financeira — Processo #{managingProcess.id_processo}
+                </h2>
+                <button onClick={() => setManagingProcess(null)} className="text-gray-450 hover:text-gray-600 text-2xl font-bold leading-none dark:text-gray-400">&times;</button>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                Administre as informações de faturamento e status para o cliente <strong>{managingProcess.clientName}</strong>.
+              </p>
+              <form onSubmit={handleManagementSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase mb-1">Valor do Caso (R$) *</label>
+                  <input
+                    type="number"
+                    value={manageValor}
+                    onChange={e => setManageValor(Number(e.target.value))}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545]"
+                    placeholder="Valor em Reais"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase mb-1">Status do Processo *</label>
+                  <select
+                    value={manageStatus}
+                    onChange={e => setManageStatus(e.target.value as Processo['status'])}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545]"
+                  >
+                    <option value="Em Andamento">Em Andamento</option>
+                    <option value="Concluído">Concluído</option>
+                    <option value="Aguardando Documentação">Aguardando Documentação</option>
+                  </select>
+                </div>
+                {manageStatus === 'Concluído' && (
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase mb-1">Data de Conclusão *</label>
+                    <input
+                      type="date"
+                      value={manageDataConclusao}
+                      onChange={e => setManageDataConclusao(e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545]"
+                      required
+                    />
+                  </div>
+                )}
+                <div className="flex gap-3 pt-2">
+                  <button type="button" onClick={() => setManagingProcess(null)} className="flex-1 py-2 text-sm font-semibold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700">
+                    Cancelar
+                  </button>
+                  <button type="submit" className="flex-1 py-2 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary/90">
+                    Salvar Alterações
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
