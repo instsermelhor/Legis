@@ -5,6 +5,8 @@ import { SectionTitle, IconEdit, IconPlus, IconKey, IconUpload, IconTrash } from
 import { dbCodes, LegalCode } from '../../services/dbService';
 import { useAppConfig } from '../../context/AppContext';
 import type { EfficiencyServiceGroup } from '../../types';
+import { LegalAiTools } from '../common/LegalAiTools';
+
 
 // Helper to extract printable ASCII text from binary files (e.g. PDF/DOCX) to prevent garbled text
 const extractPrintableText = (arrayBuffer: ArrayBuffer, limit: number = 2000): string => {
@@ -2037,7 +2039,7 @@ const APIConnections: React.FC = () => {
 };
 
 // ─── Settings Hub (Icon Grid) ─────────────────────────────────────────────────
-type SettingsSection = 'general' | 'codes' | 'documents' | 'users' | 'services_groups' | 'database' | 'api_connections' | null;
+type SettingsSection = 'general' | 'codes' | 'documents' | 'users' | 'services_groups' | 'database' | 'api_connections' | 'ia_tools' | null;
 
 const settingsSections = [
   {
@@ -2110,7 +2112,18 @@ const settingsSections = [
     border: 'border-teal-200',
     textColor: 'text-teal-700',
   },
+  {
+    id: 'ia_tools' as const,
+    label: 'IA Jurídica',
+    icon: '⚡',
+    description: 'Acesse e teste as ferramentas de Inteligência Artificial Generativa',
+    color: 'from-amber-400 to-yellow-500',
+    bg: 'bg-amber-50/50',
+    border: 'border-amber-100',
+    textColor: 'text-amber-700',
+  },
 ];
+
 
 export const SettingsTab: React.FC = () => {
   const [section, setSection] = useState<SettingsSection>(null);
@@ -2182,6 +2195,12 @@ export const SettingsTab: React.FC = () => {
       {section === 'services_groups' && <ServiceGroupsSettings />}
       {section === 'database' && <DatabaseSettings />}
       {section === 'api_connections' && <APIConnections />}
+      {section === 'ia_tools' && (
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 dark:bg-[#1A1730] dark:border-[#2A2545]">
+          <LegalAiTools role="lawyer" allowedTools={['pecas', 'pesquisas', 'audios', 'transcricao', 'fundamentacoes', 'revisao', 'jurisprudencia', 'manifestacao']} />
+        </div>
+      )}
+
     </div>
   );
 };
