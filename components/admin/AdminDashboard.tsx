@@ -26,13 +26,28 @@ const IconLock = () => (
 // ─── Tab definitions ──────────────────────────────────────────────────────────
 type Tab = 'overview' | 'admin_commands' | 'registrations' | 'finance' | 'services' | 'settings';
 
-const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
-  { id: 'overview',       label: 'Visão Geral',             icon: <IconChart /> },
-  { id: 'registrations',  label: 'Gestão de Cadastros',     icon: <IconEdit /> },
-  { id: 'finance',        label: 'Financeiro',               icon: <IconMoney /> },
-  { id: 'services',       label: 'Serviços / Eficiência',     icon: <IconShopBag /> },
-  { id: 'admin_commands', label: 'Configurações Admin',      icon: <IconLock /> },
-  { id: 'settings',       label: 'Configurações',            icon: <IconSettings /> },
+const TAB_GROUPS = [
+  {
+    title: 'Monitoramento & Finanças',
+    items: [
+      { id: 'overview' as const,      label: 'Visão Geral',             icon: <IconChart /> },
+      { id: 'finance' as const,       label: 'Financeiro',               icon: <IconMoney /> },
+    ]
+  },
+  {
+    title: 'Operação & Cadastros',
+    items: [
+      { id: 'registrations' as const, label: 'Gestão de Cadastros',     icon: <IconEdit /> },
+      { id: 'services' as const,      label: 'Serviços / Eficiência',     icon: <IconShopBag /> },
+    ]
+  },
+  {
+    title: 'Controle & Sistema',
+    items: [
+      { id: 'admin_commands' as const,label: 'Configurações Admin',      icon: <IconLock /> },
+      { id: 'settings' as const,      label: 'Configurações',            icon: <IconSettings /> },
+    ]
+  }
 ];
 
 interface AdminDashboardProps {
@@ -44,6 +59,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState<Tab>('overview');
   const [lawyers, setLawyers] = useState<Lawyer[]>(mockLawyers);
   const [financeFilter, setFinanceFilter] = useState<string | undefined>(undefined);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const handleLawyerUpdate = (updated: Lawyer) => {
     setLawyers(prev => prev.map(l => l.id === updated.id ? updated : l));
@@ -62,39 +78,56 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
           <h1 className="text-xl font-bold text-gray-900">Painel Administrativo</h1>
           <p className="text-xs text-gray-500">Legis Connect — Gestão da Plataforma</p>
         </div>
-        <span className="hidden sm:flex items-center gap-2 text-sm text-gray-500">
-          <span className="w-2 h-2 rounded-full bg-green-500 inline-block" /> Sistema online
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="hidden sm:flex items-center gap-2 text-sm text-gray-500">
+            <span className="w-2 h-2 rounded-full bg-green-500 inline-block" /> Sistema online
+          </span>
+          <button
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            className="md:hidden px-3 py-1.5 bg-purple-600 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow"
+          >
+            <span>{showMobileMenu ? '✕ Fechar' : '☰ Menu'}</span>
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-col md:flex-row">
         {/* Sidebar nav */}
-        <aside className="md:w-60 shrink-0 bg-white border-r md:min-h-screen">
-          <nav className="p-3 space-y-1">
-            {TABS.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
-                  activeTab === tab.id
-                    ? 'bg-purple-600 text-white shadow-sm shadow-purple-200'
-                    : 'text-gray-600 hover:bg-purple-50 hover:text-purple-700'
-                }`}
-              >
-                <span className="w-5 h-5 shrink-0">{tab.icon}</span>
-                {tab.label}
-              </button>
+        <aside className={`w-full md:w-60 shrink-0 bg-white border-r md:min-h-screen ${showMobileMenu ? 'block' : 'hidden md:block'}`}>
+          <nav className="p-3 space-y-4">
+            {TAB_GROUPS.map((group, groupIdx) => (
+              <div key={groupIdx} className="space-y-1">
+                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest px-2.5 mb-1.5">
+                  {group.title}
+                </p>
+                {group.items.map(tab => (
+                  <button
+                    key={tab.id}
+                    onClick={() => { setActiveTab(tab.id); setShowMobileMenu(false); }}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
+                      activeTab === tab.id
+                        ? 'bg-purple-600 text-white shadow-sm shadow-purple-200'
+                        : 'text-gray-600 hover:bg-purple-50 hover:text-purple-700'
+                    }`}
+                  >
+                    <span className="w-5 h-5 shrink-0">{tab.icon}</span>
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
             ))}
             {onLogout && (
-              <button
-                onClick={onLogout}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-150 mt-4 border border-dashed border-red-200"
-              >
-                <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-                Sair do Painel
-              </button>
+              <div className="pt-2 border-t border-gray-150">
+                <button
+                  onClick={onLogout}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 hover:text-red-700 transition-all duration-150 border border-dashed border-red-200"
+                >
+                  <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  Sair do Painel
+                </button>
+              </div>
             )}
           </nav>
 
