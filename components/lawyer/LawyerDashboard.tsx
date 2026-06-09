@@ -167,6 +167,7 @@ const AppointmentCard: React.FC<{ appointment: Appointment }> = ({ appointment }
 export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogout }) => {
     const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
     const [activeSection, setActiveSection] = useState<'overview' | 'meusCasos' | 'gestaoJuridica' | 'codigos' | 'financeiro' | 'perfil' | 'estagiarios' | 'secretariado' | 'apis' | 'iaTools' | 'efficiency_services'>('overview');
+    const [showMobileMenu, setShowMobileMenu] = useState(false);
 
     // Intern/Secretary selection state
     const [linkedInternId, setLinkedInternId] = useState<number | null>(() => {
@@ -514,139 +515,179 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
     return (
         <>
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="bg-neutral-light p-6 sm:p-8 rounded-lg animate-fade-in">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4">
-                        <div className="flex items-center space-x-4">
-                            <img src={lawyer.photoUrl} alt={lawyer.name} className="w-16 h-16 rounded-full object-cover ring-2 ring-primary" />
-                            <div>
-                                <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Painel do Advogado</h1>
-                                <p className="text-gray-600">Bem-vindo(a) de volta, {lawyer.name}!</p>
+                
+                {/* Mobile Header Bar */}
+                <div className="md:hidden flex items-center justify-between bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-xl p-3.5 shadow-sm mb-4">
+                    <div className="flex items-center gap-2.5">
+                        <img src={lawyer.photoUrl} alt={lawyer.name} className="w-8 h-8 rounded-full object-cover ring-2 ring-primary" />
+                        <div>
+                            <span className="block text-xs font-bold text-gray-800 dark:text-white truncate">{lawyer.name}</span>
+                            <span className="block text-[9px] text-gray-400">Painel do Advogado</span>
+                        </div>
+                    </div>
+                    <button
+                        onClick={() => setShowMobileMenu(!showMobileMenu)}
+                        className="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow"
+                    >
+                        <span>{showMobileMenu ? '✕ Fechar' : '☰ Menu'}</span>
+                    </button>
+                </div>
+
+                <div className="flex flex-col md:flex-row gap-6 items-start animate-fade-in">
+                    {/* Left Sidebar Panel */}
+                    <aside className={`w-full md:w-64 shrink-0 bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-xl p-4 shadow-sm h-fit ${showMobileMenu ? 'block' : 'hidden md:block'}`}>
+                        {/* Header info */}
+                        <div className="hidden md:flex items-center gap-3 border-b border-gray-150 dark:border-[#2A2545] pb-4 mb-4">
+                            <img src={lawyer.photoUrl} alt={lawyer.name} className="w-10 h-10 rounded-full object-cover ring-2 ring-primary" />
+                            <div className="min-w-0">
+                                <h3 className="text-xs font-bold text-gray-800 dark:text-white truncate">{lawyer.name}</h3>
+                                <p className="text-[9px] text-gray-400 font-medium">Painel do Advogado</p>
                             </div>
                         </div>
-                        {/* Section Tabs */}
-                        <div className="flex gap-2 flex-wrap">
-                            <button
-                                onClick={() => setActiveSection('overview')}
-                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
-                                    activeSection === 'overview'
-                                        ? 'bg-primary text-white shadow'
-                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-                                }`}
-                            >
-                                Visão Geral
-                            </button>
-                            <button
-                                onClick={() => setActiveSection('meusCasos')}
-                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
-                                    activeSection === 'meusCasos'
-                                        ? 'bg-primary text-white shadow'
-                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-                                }`}
-                            >
-                                Meus Casos
-                            </button>
-                            <button
-                                onClick={() => setActiveSection('gestaoJuridica')}
-                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
-                                    activeSection === 'gestaoJuridica'
-                                        ? 'bg-primary text-white shadow'
-                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-                                }`}
-                            >
-                                ⚖️ Gestão Jurídica
-                            </button>
-                            <button
-                                onClick={() => setActiveSection('financeiro')}
-                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
-                                    activeSection === 'financeiro'
-                                        ? 'bg-primary text-white shadow'
-                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-                                }`}
-                            >
-                                📊 Financeiro
-                            </button>
-                            <button
-                                onClick={handleActivateCodes}
-                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
-                                    activeSection === 'codigos'
-                                        ? 'bg-primary text-white shadow'
-                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-                                }`}
-                            >
-                                ⚖️ Códigos
-                            </button>
-                            <button
-                                onClick={() => setActiveSection('perfil')}
-                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
-                                    activeSection === 'perfil'
-                                        ? 'bg-primary text-white shadow'
-                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-                                }`}
-                            >
-                                👤 Meu Perfil
-                            </button>
-                            <button
-                                onClick={() => setActiveSection('estagiarios')}
-                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
-                                    activeSection === 'estagiarios'
-                                        ? 'bg-indigo-600 text-white shadow'
-                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-                                }`}
-                            >
-                                🎓 Estagiários
-                            </button>
-                            <button
-                                onClick={() => setActiveSection('secretariado')}
-                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
-                                    activeSection === 'secretariado'
-                                        ? 'bg-purple-600 text-white shadow'
-                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-                                }`}
-                            >
-                                🗂️ Secret./Assist. Jurídico
-                            </button>
-                            <button
-                                onClick={() => setActiveSection('apis')}
-                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
-                                    activeSection === 'apis'
-                                        ? 'bg-teal-600 text-white shadow'
-                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-                                }`}
-                            >
-                                🔌 APIs
-                            </button>
-                            <button
-                                onClick={() => setActiveSection('iaTools')}
-                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
-                                    activeSection === 'iaTools'
-                                        ? 'bg-primary text-white shadow'
-                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-                                }`}
-                            >
-                                ⚡ IA Jurídica
-                            </button>
-                            <button
-                                onClick={() => setActiveSection('efficiency_services')}
-                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
-                                    activeSection === 'efficiency_services'
-                                        ? 'bg-primary text-white shadow'
-                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
-                                }`}
-                            >
-                                💼 Serviços de Eficiência
-                            </button>
 
-                            {onLogout && (
+                        {/* Sidebar navigation */}
+                        <nav className="space-y-4">
+                            {/* Category 1 */}
+                            <div className="space-y-1">
+                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest px-2.5 mb-1.5">Painel & Casos</p>
                                 <button
-                                    onClick={onLogout}
-                                    className="px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5 bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 ml-auto"
+                                    onClick={() => { setActiveSection('overview'); setShowMobileMenu(false); }}
+                                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-150 ${
+                                        activeSection === 'overview'
+                                            ? 'bg-primary text-white shadow-sm'
+                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
+                                    }`}
                                 >
-                                    🚪 Sair
+                                    <span>📊</span> Visão Geral
                                 </button>
-                            )}
-                        </div>
+                                <button
+                                    onClick={() => { setActiveSection('gestaoJuridica'); setShowMobileMenu(false); }}
+                                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-150 ${
+                                        activeSection === 'gestaoJuridica'
+                                            ? 'bg-primary text-white shadow-sm'
+                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
+                                    }`}
+                                >
+                                    <span>⚖️</span> Gestão Jurídica
+                                </button>
+                                <button
+                                    onClick={() => { setActiveSection('meusCasos'); setShowMobileMenu(false); }}
+                                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-150 ${
+                                        activeSection === 'meusCasos'
+                                            ? 'bg-primary text-white shadow-sm'
+                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
+                                    }`}
+                                >
+                                    <span>📂</span> Meus Casos
+                                </button>
+                                <button
+                                    onClick={() => { setActiveSection('financeiro'); setShowMobileMenu(false); }}
+                                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-150 ${
+                                        activeSection === 'financeiro'
+                                            ? 'bg-primary text-white shadow-sm'
+                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
+                                    }`}
+                                >
+                                    <span>💰</span> Financeiro
+                                </button>
+                            </div>
 
-                    </div>
+                            {/* Category 2 */}
+                            <div className="space-y-1">
+                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest px-2.5 mb-1.5">Colaboração & Serv.</p>
+                                <button
+                                    onClick={() => { setActiveSection('estagiarios'); setShowMobileMenu(false); }}
+                                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-150 ${
+                                        activeSection === 'estagiarios'
+                                            ? 'bg-indigo-600 text-white shadow-sm'
+                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
+                                    }`}
+                                >
+                                    <span>🎓</span> Estagiários
+                                </button>
+                                <button
+                                    onClick={() => { setActiveSection('secretariado'); setShowMobileMenu(false); }}
+                                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-150 ${
+                                        activeSection === 'secretariado'
+                                            ? 'bg-purple-600 text-white shadow-sm'
+                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
+                                    }`}
+                                >
+                                    <span>🗂️</span> Secret./Assist. Jurídico
+                                </button>
+                                <button
+                                    onClick={() => { setActiveSection('efficiency_services'); setShowMobileMenu(false); }}
+                                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-150 ${
+                                        activeSection === 'efficiency_services'
+                                            ? 'bg-primary text-white shadow-sm'
+                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
+                                    }`}
+                                >
+                                    <span>💼</span> Serviços de Eficiência
+                                </button>
+                            </div>
+
+                            {/* Category 3 */}
+                            <div className="space-y-1">
+                                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest px-2.5 mb-1.5">Inteligência & Ref.</p>
+                                <button
+                                    onClick={() => { setActiveSection('iaTools'); setShowMobileMenu(false); }}
+                                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-150 ${
+                                        activeSection === 'iaTools'
+                                            ? 'bg-primary text-white shadow-sm'
+                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
+                                    }`}
+                                >
+                                    <span>⚡</span> IA Jurídica
+                                </button>
+                                <button
+                                    onClick={() => { handleActivateCodes(); setShowMobileMenu(false); }}
+                                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-150 ${
+                                        activeSection === 'codigos'
+                                            ? 'bg-primary text-white shadow-sm'
+                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
+                                    }`}
+                                >
+                                    <span>📖</span> Códigos Legais
+                                </button>
+                                <button
+                                    onClick={() => { setActiveSection('apis'); setShowMobileMenu(false); }}
+                                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-150 ${
+                                        activeSection === 'apis'
+                                            ? 'bg-teal-600 text-white shadow-sm'
+                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
+                                    }`}
+                                >
+                                    <span>🔌</span> APIs / Conexões
+                                </button>
+                            </div>
+
+                            {/* Category 4 */}
+                            <div className="space-y-1 border-t border-gray-150 dark:border-[#2A2545] pt-3">
+                                <button
+                                    onClick={() => { setActiveSection('perfil'); setShowMobileMenu(false); }}
+                                    className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-150 ${
+                                        activeSection === 'perfil'
+                                            ? 'bg-primary text-white shadow-sm'
+                                            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
+                                    }`}
+                                >
+                                    <span>👤</span> Meu Perfil
+                                </button>
+                                {onLogout && (
+                                    <button
+                                        onClick={onLogout}
+                                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all duration-150 mt-2"
+                                    >
+                                        <span>🚪</span> Sair da Conta
+                                    </button>
+                                )}
+                            </div>
+                        </nav>
+                    </aside>
+
+                    {/* Main Content Area */}
+                    <main className="flex-grow bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] p-6 sm:p-8 rounded-xl shadow-sm min-w-0 w-full">
 
                     {/* Meus Casos Section */}
                     {activeSection === 'meusCasos' && (
@@ -1535,28 +1576,34 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                             )}
                         </div>
                     )}
-                    </div>
+
+                    {/* APIs Section */}
+                    {activeSection === 'apis' && (
+                        <div className="space-y-6 animate-fade-in">
+                            <div>
+                                <h2 className="text-lg font-bold text-gray-800">🔌 APIs Habilitadas</h2>
+                                <p className="text-sm text-gray-500 mt-0.5">Integrações ativas configuradas pelo administrador da plataforma.</p>
+                            </div>
+                            <ApiStatusPanel />
+                        </div>
+                    )}
+
+                    {/* IA Tools Section */}
+                    {activeSection === 'iaTools' && (
+                        <div className="space-y-6 animate-fade-in">
+                            <LegalAiTools role="lawyer" allowedTools={['pecas', 'pesquisas', 'audios', 'transcricao', 'fundamentacoes', 'revisao', 'jurisprudencia', 'manifestacao']} />
+                        </div>
+                    )}
+
+                    {/* Efficiency Services Section */}
+                    {activeSection === 'efficiency_services' && (
+                        <div className="space-y-6 animate-fade-in">
+                            <EfficiencyServicesPage embedded={true} />
+                        </div>
+                    )}
+                    </main>
                 </div>
-                        {/* APIs Section — fora do bloco secretariado */}
-                        {activeSection === 'apis' && (
-                            <div className="space-y-6 animate-fade-in">
-                                <div>
-                                    <h2 className="text-lg font-bold text-gray-800">🔌 APIs Habilitadas</h2>
-                                    <p className="text-sm text-gray-500 mt-0.5">Integrações ativas configuradas pelo administrador da plataforma.</p>
-                                </div>
-                                <ApiStatusPanel />
-                            </div>
-                        )}
-                        {activeSection === 'iaTools' && (
-                            <div className="space-y-6 animate-fade-in">
-                                <LegalAiTools role="lawyer" allowedTools={['pecas', 'pesquisas', 'audios', 'transcricao', 'fundamentacoes', 'revisao', 'jurisprudencia', 'manifestacao']} />
-                            </div>
-                        )}
-                        {activeSection === 'efficiency_services' && (
-                            <div className="space-y-6 animate-fade-in">
-                                <EfficiencyServicesPage embedded={true} />
-                            </div>
-                        )}
+            </div>
 
 
             {/* Password/Email Modals */}
