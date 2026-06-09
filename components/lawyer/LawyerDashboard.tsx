@@ -6,6 +6,7 @@ import { UpdateCaseStatusModal } from '../common/UpdateCaseStatusModal';
 import { CalendarSyncModal } from '../common/CalendarSyncModal';
 import { dbCodes, LegalCode } from '../../services/dbService';
 import { FinancialKPI } from './FinancialKPI';
+import { LegalManagementDashboard } from './LegalManagementDashboard';
 import { ChangePasswordModal } from '../common/ChangePasswordModal';
 import { ChangeEmailModal } from '../common/ChangeEmailModal';
 import { AREAS_OF_LAW, BRAZILIAN_STATES } from '../../constants';
@@ -165,7 +166,7 @@ const AppointmentCard: React.FC<{ appointment: Appointment }> = ({ appointment }
 
 export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogout }) => {
     const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
-    const [activeSection, setActiveSection] = useState<'overview' | 'meusCasos' | 'codigos' | 'financeiro' | 'perfil' | 'estagiarios' | 'secretariado' | 'apis' | 'iaTools' | 'efficiency_services'>('overview');
+    const [activeSection, setActiveSection] = useState<'overview' | 'meusCasos' | 'gestaoJuridica' | 'codigos' | 'financeiro' | 'perfil' | 'estagiarios' | 'secretariado' | 'apis' | 'iaTools' | 'efficiency_services'>('overview');
 
     // Intern/Secretary selection state
     const [linkedInternId, setLinkedInternId] = useState<number | null>(() => {
@@ -545,6 +546,16 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                 Meus Casos
                             </button>
                             <button
+                                onClick={() => setActiveSection('gestaoJuridica')}
+                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
+                                    activeSection === 'gestaoJuridica'
+                                        ? 'bg-primary text-white shadow'
+                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                }`}
+                            >
+                                ⚖️ Gestão Jurídica
+                            </button>
+                            <button
                                 onClick={() => setActiveSection('financeiro')}
                                 className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
                                     activeSection === 'financeiro'
@@ -874,6 +885,11 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                     {/* Financial KPI section */}
                     {activeSection === 'financeiro' && (
                         <FinancialKPI lawyerId={lawyer.id} />
+                    )}
+
+                    {/* Legal Management Dashboard section */}
+                    {activeSection === 'gestaoJuridica' && (
+                        <LegalManagementDashboard />
                     )}
 
                     {/* Codes Section */}
