@@ -1137,11 +1137,11 @@ const GeneralSettings: React.FC = () => {
       localStorage.setItem('legis_bi_vendas', JSON.stringify(mockBiVendas));
     }
     const migrated = data.map((v: BiVenda) => {
-      let status = v.status_aluguel;
+      let status = v.status_aluguel as string;
       if (status === 'Devolvido') status = 'Entregue';
       else if (status === 'Não devolvido') status = 'Cancelado';
       else if (status === 'Não retirado ainda') status = 'Em Realização';
-      return { ...v, status_aluguel: status };
+      return { ...v, status_aluguel: status as BiVenda['status_aluguel'] };
     });
     return migrated;
   });
@@ -3277,11 +3277,11 @@ Lucro_Total = SUM(fato_vendas[Lucro])
 -- 3. Margem de Lucro % (Medida)
 Margem_Lucro = DIVIDE([Lucro_Total], [Faturamento_Total], 0)
 
--- 4. Tempo Médio de Aluguer em Dias (Medida)
-Dias_Aluguer = AVERAGE(DATEDIFF(fato_vendas[Data Retirada], fato_vendas[Data Devolução], DAY))
+-- 4. Tempo Médio em Dias (Medida)
+Tempo_Medio = AVERAGE(DATEDIFF(fato_vendas[Data Entrada], fato_vendas[Data Entrega], DAY))
 
--- 5. Valor Não Devolvido (Medida)
-Valor_Nao_Devolvido = CALCULATE([Faturamento_Total], fato_vendas[Status Aluguel] = "Não devolvido")`}
+-- 5. Valor Cancelado (Medida)
+Valor_Cancelado = CALCULATE([Faturamento_Total], fato_vendas[Status do Serviço] = "Cancelado")`}
                 </pre>
               )}
             </div>
