@@ -14,6 +14,7 @@ export interface User {
   foreignerDocument?: string;
   countryOfOrigin?: string;
   timeInBrazil?: string;
+  socialLinks?: { provider: string; url: string }[];
 }
 
 export interface CaseStage {
@@ -95,6 +96,9 @@ export interface Lawyer {
   // Fields for signup
   cpf?: string;
   rg?: string;
+  dataNasc?: string;
+  estadoCivil?: string;
+  naturalidade?: string;
   address?: string; // Residential address
   commercialAddress?: string;
   oabUF?: string;
@@ -105,6 +109,7 @@ export interface Lawyer {
   foreignerDocument?: string;
   countryOfOrigin?: string;
   timeInBrazil?: string;
+  socialLinks?: { provider: string; url: string }[];
 
   // Specialty groups
   primarySpecialties?: string[];
@@ -140,6 +145,7 @@ export interface Intern {
   foreignerDocument?: string;
   countryOfOrigin?: string;
   timeInBrazil?: string;
+  socialLinks?: { provider: string; url: string }[];
 }
 
 export interface CaseAnalysis {
@@ -220,4 +226,5 @@ export interface Secretary {
   foreignerDocument?: string;
   countryOfOrigin?: string;
   timeInBrazil?: string;
+  socialLinks?: { provider: string; url: string }[];
 }

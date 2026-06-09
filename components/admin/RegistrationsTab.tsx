@@ -245,7 +245,7 @@ const IconSecretariat = () => (
 // ─── Lawyer Editor ────────────────────────────────────────────────────────────
 
 const LawyerEditor: React.FC<{ lawyer: Lawyer; onSave: (l: Lawyer) => void; onBack: () => void }> = ({ lawyer, onSave, onBack }) => {
-  const [data, setData] = useState({ ...lawyer, adminNotes: (lawyer as any).adminNotes || '' });
+  const [data, setData] = useState({ ...lawyer, adminNotes: (lawyer as { adminNotes?: string }).adminNotes || '' });
   const [showConfirm, setShowConfirm] = useState(false);
   const f = (field: keyof Lawyer) => (v: string) => setData(d => ({ ...d, [field]: v }));
 
@@ -260,7 +260,7 @@ const LawyerEditor: React.FC<{ lawyer: Lawyer; onSave: (l: Lawyer) => void; onBa
     { label: 'Status', oldValue: lawyer.status, newValue: data.status },
     { label: 'Taxa Consulta', oldValue: String(lawyer.consultationFee || ''), newValue: String(data.consultationFee || '') },
     { label: 'Bio', oldValue: lawyer.bio, newValue: data.bio },
-    { label: 'Notas do Admin', oldValue: (lawyer as any).adminNotes || '', newValue: data.adminNotes },
+    { label: 'Notas do Admin', oldValue: (lawyer as { adminNotes?: string }).adminNotes || '', newValue: data.adminNotes },
   ];
 
   return (
@@ -315,7 +315,7 @@ const LawyerEditor: React.FC<{ lawyer: Lawyer; onSave: (l: Lawyer) => void; onBa
 // ─── Client Editor ────────────────────────────────────────────────────────────
 
 const ClientEditor: React.FC<{ client: MockClient; onSave: (c: MockClient) => void; onBack: () => void }> = ({ client, onSave, onBack }) => {
-  const [data, setData] = useState({ ...client, adminNotes: (client as any).adminNotes || '' });
+  const [data, setData] = useState({ ...client, adminNotes: (client as { adminNotes?: string }).adminNotes || '' });
   const [showConfirm, setShowConfirm] = useState(false);
   const f = (field: keyof MockClient) => (v: string) => setData(d => ({ ...d, [field]: v }));
 
@@ -329,7 +329,7 @@ const ClientEditor: React.FC<{ client: MockClient; onSave: (c: MockClient) => vo
     { label: 'Estado', oldValue: client.state, newValue: data.state },
     { label: 'Status', oldValue: client.status, newValue: data.status },
     { label: 'Área do Caso', oldValue: client.lastCaseArea || '', newValue: data.lastCaseArea || '' },
-    { label: 'Notas Admin', oldValue: (client as any).adminNotes || '', newValue: data.adminNotes },
+    { label: 'Notas Admin', oldValue: (client as { adminNotes?: string }).adminNotes || '', newValue: data.adminNotes },
   ];
 
   return (
@@ -381,7 +381,7 @@ const ClientEditor: React.FC<{ client: MockClient; onSave: (c: MockClient) => vo
 // ─── Bacharelando Editor (ex-Intern) ──────────────────────────────────────────
 
 const InternEditor: React.FC<{ intern: MockIntern; onSave: (i: MockIntern) => void; onBack: () => void }> = ({ intern, onSave, onBack }) => {
-  const [data, setData] = useState({ ...intern, adminNotes: (intern as any).adminNotes || '' });
+  const [data, setData] = useState({ ...intern, adminNotes: (intern as { adminNotes?: string }).adminNotes || '' });
   const [showConfirm, setShowConfirm] = useState(false);
   const f = (field: keyof MockIntern) => (v: string) => setData(d => ({ ...d, [field]: v }));
 
@@ -397,7 +397,7 @@ const InternEditor: React.FC<{ intern: MockIntern; onSave: (i: MockIntern) => vo
     { label: 'Estado', oldValue: intern.state, newValue: data.state },
     { label: 'Status', oldValue: intern.status, newValue: data.status },
     { label: 'Bolsa (R$)', oldValue: String(intern.stipend || ''), newValue: String(data.stipend || '') },
-    { label: 'Notas Admin', oldValue: (intern as any).adminNotes || '', newValue: data.adminNotes },
+    { label: 'Notas Admin', oldValue: (intern as { adminNotes?: string }).adminNotes || '', newValue: data.adminNotes },
   ];
 
   return (
@@ -451,7 +451,7 @@ const InternEditor: React.FC<{ intern: MockIntern; onSave: (i: MockIntern) => vo
 // ─── Secret./Assist Jurídico Editor ──────────────────────────────────────────
 
 const SecretaryEditor: React.FC<{ secretary: MockSecretary; onSave: (s: MockSecretary) => void; onBack: () => void }> = ({ secretary, onSave, onBack }) => {
-  const [data, setData] = useState({ ...secretary, adminNotes: (secretary as any).adminNotes || '' });
+  const [data, setData] = useState({ ...secretary, adminNotes: (secretary as { adminNotes?: string }).adminNotes || '' });
   const [showConfirm, setShowConfirm] = useState(false);
   const f = (field: keyof MockSecretary) => (v: string) => setData(d => ({ ...d, [field]: v }));
 
@@ -466,7 +466,7 @@ const SecretaryEditor: React.FC<{ secretary: MockSecretary; onSave: (s: MockSecr
     { label: 'Experiência (anos)', oldValue: String(secretary.experience), newValue: String(data.experience) },
     { label: 'Disponibilidade', oldValue: secretary.availability, newValue: data.availability },
     { label: 'Status', oldValue: secretary.status, newValue: data.status },
-    { label: 'Notas Admin', oldValue: (secretary as any).adminNotes || '', newValue: data.adminNotes },
+    { label: 'Notas Admin', oldValue: (secretary as { adminNotes?: string }).adminNotes || '', newValue: data.adminNotes },
   ];
 
   return (

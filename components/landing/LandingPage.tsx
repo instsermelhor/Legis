@@ -136,8 +136,7 @@ const audiences = [
 ];
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onSearch }) => {
-  const statsSection = useVisible();
-  const [mobileMenuOpen] = useState(false);
+  const { ref: statsRef, visible: statsVisible } = useVisible();
 
   return (
     <div className="min-h-screen bg-surface-dark text-white overflow-x-hidden">
@@ -243,14 +242,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch }) => {
       {/* ═══════════════════════════════════════════════════════════════════
           STATS SECTION
       ═══════════════════════════════════════════════════════════════════ */}
-      <section ref={statsSection.ref} className="py-20 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #0F0D1A 0%, #13102A 100%)' }}>
+      <section ref={statsRef} className="py-20 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #0F0D1A 0%, #13102A 100%)' }}>
         <div className="absolute inset-0 dot-grid opacity-20 pointer-events-none" />
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-            <StatCard value={1200} label="Advogados Verificados" icon="⚖️" started={statsSection.visible} />
-            <StatCard value={8500} label="Casos Conectados" icon="📁" started={statsSection.visible} />
-            <StatCard value={27} label="Estados Atendidos" icon="🗺️" started={statsSection.visible} suffix="+" />
-            <StatCard value={98} label="Satisfação dos Clientes" icon="⭐" started={statsSection.visible} suffix="%" />
+            <StatCard value={1200} label="Advogados Verificados" icon="⚖️" started={statsVisible} />
+            <StatCard value={8500} label="Casos Conectados" icon="📁" started={statsVisible} />
+            <StatCard value={27} label="Estados Atendidos" icon="🗺️" started={statsVisible} suffix="+" />
+            <StatCard value={98} label="Satisfação dos Clientes" icon="⭐" started={statsVisible} suffix="%" />
           </div>
         </div>
       </section>

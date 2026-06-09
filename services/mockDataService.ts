@@ -109,7 +109,7 @@ export interface LegalDocument {
   fileUrl?: string;
 }
 
-export let mockLegalDocuments: LegalDocument[] = [
+export const mockLegalDocuments: LegalDocument[] = [
   {
     id: 'etica_oab',
     title: 'Código de Ética e Disciplina da OAB',
@@ -138,7 +138,7 @@ export let mockLegalDocuments: LegalDocument[] = [
 
 import { EfficiencyServiceGroup, EfficiencyService } from '../types';
 
-export let mockEfficiencyServiceGroups: EfficiencyServiceGroup[] = [
+export const mockEfficiencyServiceGroups: EfficiencyServiceGroup[] = [
   { id: 'group-1', name: '1. Gestão Documental e Processual' },
   { id: 'group-2', name: '2. Compliance e Governança Corporativa' },
   { id: 'group-3', name: '3. Consultoria Empresarial Estratégica' },
@@ -156,7 +156,7 @@ export let mockEfficiencyServiceGroups: EfficiencyServiceGroup[] = [
   { id: 'group-15', name: '15. Secretariado Jurídico Executivo' }
 ];
 
-export let mockEfficiencyServices: EfficiencyService[] = [
+export const mockEfficiencyServices: EfficiencyService[] = [
   // Group 1
   { id: 'serv-1', groupId: 'group-1', name: 'Elaboração, revisão e padronização de contratos', description: 'Criação de minutas personalizadas, revisão de termos de parceria e estabelecimento de contratos padrão seguros para operações comerciais.', price: 250.00 },
   { id: 'serv-2', groupId: 'group-1', name: 'Controle de prazos (agenda jurídica estratégica)', description: 'Acompanhamento preventivo de datas críticas, controle de prazos processuais e integração com fluxo de produtividade.', price: 180.00 },
@@ -280,7 +280,7 @@ export interface MockSecretary {
   pendingFee?: number;   // valor pendente (R$)
 }
 
-export let mockSecretaries: MockSecretary[] = [
+export const mockSecretaries: MockSecretary[] = [
   {
     id: 1,
     name: 'Fernanda Alves',

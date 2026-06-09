@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import type { View } from '../../types';
 import { SecretariadoSignupForm, SecretarySignupData } from './SecretariadoSignupForm';
 
 interface ForSecretariadoPageProps {
@@ -8,7 +7,7 @@ interface ForSecretariadoPageProps {
   onShowTerms?: () => void;
 }
 
-export const ForSecretariadoPage: React.FC<ForSecretariadoPageProps> = ({ onLogin, onSignup, onShowTerms }) => {
+export const ForSecretariadoPage: React.FC<ForSecretariadoPageProps> = ({ onLogin, onSignup }) => {
   const [showSignup, setShowSignup] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');

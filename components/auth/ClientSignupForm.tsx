@@ -10,6 +10,7 @@ export interface ClientSignupData {
     foreignerDocument?: string;
     countryOfOrigin?: string;
     timeInBrazil?: string;
+    socialLinks?: { provider: string; url: string }[];
 }
 
 interface ClientSignupFormProps {
@@ -33,6 +34,23 @@ export const ClientSignupForm: React.FC<ClientSignupFormProps> = ({ onSignup, on
     const [foreignerDocument, setForeignerDocument] = useState('');
     const [countryOfOrigin, setCountryOfOrigin] = useState('');
     const [timeInBrazil, setTimeInBrazil] = useState('');
+
+    // Social Links
+    const [socialLinks, setSocialLinks] = useState<{ provider: string; url: string }[]>([]);
+
+    const addSocialLink = () => {
+        if (socialLinks.length < 4) {
+            setSocialLinks(prev => [...prev, { provider: 'LinkedIn', url: '' }]);
+        }
+    };
+
+    const removeSocialLink = (index: number) => {
+        setSocialLinks(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const updateSocialLink = (index: number, field: 'provider' | 'url', value: string) => {
+        setSocialLinks(prev => prev.map((item, i) => i === index ? { ...item, [field]: value } : item));
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -65,6 +83,7 @@ export const ClientSignupForm: React.FC<ClientSignupFormProps> = ({ onSignup, on
                 foreignerDocument: isForeigner ? foreignerDocument : undefined,
                 countryOfOrigin: isForeigner ? countryOfOrigin : undefined,
                 timeInBrazil: isForeigner ? timeInBrazil : undefined,
+                socialLinks: socialLinks.filter(l => l.url.trim().length > 0),
             });
             setIsLoading(false);
         }, 1000);
@@ -123,6 +142,54 @@ export const ClientSignupForm: React.FC<ClientSignupFormProps> = ({ onSignup, on
                             </div>
                         </div>
                     )}
+                </div>
+
+                {/* Social Media Links */}
+                <div className="space-y-3 pt-2">
+                    <div className="flex items-center justify-between">
+                        <label className="block text-sm font-medium text-gray-700">Redes Sociais (Opcional - Máx. 4)</label>
+                        {socialLinks.length < 4 && (
+                            <button
+                                type="button"
+                                onClick={addSocialLink}
+                                className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
+                            >
+                                ➕ Adicionar Rede Social
+                            </button>
+                        )}
+                    </div>
+                    {socialLinks.map((link, index) => (
+                        <div key={index} className="flex gap-2 items-center animate-fade-in">
+                            <select
+                                value={link.provider}
+                                onChange={e => updateSocialLink(index, 'provider', e.target.value)}
+                                className="block w-1/3 px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                            >
+                                <option value="LinkedIn">LinkedIn</option>
+                                <option value="Instagram">Instagram</option>
+                                <option value="X">X (Twitter)</option>
+                                <option value="TikTok">TikTok</option>
+                                <option value="Facebook">Facebook</option>
+                                <option value="YouTube">YouTube</option>
+                                <option value="Outro">Outro</option>
+                            </select>
+                            <input
+                                type="url"
+                                value={link.url}
+                                onChange={e => updateSocialLink(index, 'url', e.target.value)}
+                                placeholder="https://link-da-rede-social.com/seu-perfil"
+                                className="block flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary sm:text-sm"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => removeSocialLink(index)}
+                                className="p-2 text-red-500 hover:text-red-700 transition-colors"
+                                title="Remover"
+                            >
+                                🗑️
+                            </button>
+                        </div>
+                    ))}
                 </div>
 
                 <div>

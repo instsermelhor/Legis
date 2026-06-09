@@ -240,10 +240,10 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
         city: lawyer.location?.city || '',
         state: lawyer.location?.state || '',
         cpf: lawyer.cpf || '',
-        rg: (lawyer as any).rg || '',
-        dataNasc: (lawyer as any).dataNasc || '',
-        estadoCivil: (lawyer as any).estadoCivil || '',
-        naturalidade: (lawyer as any).naturalidade || '',
+        rg: lawyer.rg || '',
+        dataNasc: lawyer.dataNasc || '',
+        estadoCivil: lawyer.estadoCivil || '',
+        naturalidade: lawyer.naturalidade || '',
         // Residential address (structured)
         resCep: '',
         resStreet: lawyer.address || '',
@@ -317,13 +317,24 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
     // Legal Codes State
     const [legalCodes, setLegalCodes] = useState<LegalCode[]>(() => dbCodes.getAll());
     const [selectedCode, setSelectedCode] = useState<LegalCode | null>(() => dbCodes.getAll()[0] || null);
+    const [selectedVersionId, setSelectedVersionId] = useState<string>('');
     const [codeSearchQuery, setCodeSearchQuery] = useState('');
+
+    const currentCodeVersion = useMemo(() => {
+        if (!selectedCode) return null;
+        const versions = selectedCode.versions || [];
+        const activeVer = versions.find(v => v.id === selectedVersionId) || 
+                          versions.find(v => v.id === selectedCode.activeVersionId) || 
+                          versions[0] || null;
+        return activeVer;
+    }, [selectedCode, selectedVersionId]);
 
     // Refresh codes from storage when the codes section becomes active
     const handleActivateCodes = () => {
         const fresh = dbCodes.getAll();
         setLegalCodes(fresh);
         setSelectedCode(prev => fresh.find(c => c.id === prev?.id) || fresh[0] || null);
+        setSelectedVersionId('');
         setActiveSection('codigos');
     };
 
@@ -485,7 +496,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
 
     const highlightSearchText = (text: string, query: string) => {
         if (!query || !query.trim()) return text;
-        const parts = text.split(new RegExp(`(${query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi'));
+        const parts = text.split(new RegExp(`(${query.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')})`, 'gi'));
         return (
             <>
                 {parts.map((part, idx) =>
@@ -899,31 +910,66 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                 <div className="md:col-span-2 bg-white border border-gray-200 rounded-xl shadow-sm p-6 flex flex-col h-[550px] dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                                     {selectedCode ? (
                                         <>
-                                            <div className="border-b pb-4 mb-4 flex justify-between items-start">
+                                            <div className="border-b pb-4 mb-4 flex flex-col sm:flex-row justify-between sm:items-start gap-2">
                                                 <div>
-                                                    <h3 className="text-lg font-bold text-gray-800">{selectedCode.title}</h3>
-                                                    <p className="text-xs text-gray-400">Última atualização: {new Date(selectedCode.lastUpdated).toLocaleDateString('pt-BR')}</p>
+                                                    <h3 className="text-lg font-bold text-gray-800 dark:text-white">{selectedCode.title}</h3>
+                                                    <p className="text-xs text-gray-400">
+                                                        Última atualização: {currentCodeVersion ? new Date(currentCodeVersion.lastUpdated).toLocaleDateString('pt-BR') : new Date(selectedCode.lastUpdated).toLocaleDateString('pt-BR')}
+                                                    </p>
                                                 </div>
-                                                {selectedCode.fileName && (
-                                                    <span className="bg-gray-100 text-gray-700 text-xs px-2.5 py-1 rounded-md border font-medium">
-                                                        📄 {selectedCode.fileName}
-                                                    </span>
-                                                )}
+                                                <div className="flex flex-wrap items-center gap-2">
+                                                    {(selectedCode.versions || []).length > 1 && (
+                                                        <div className="flex items-center gap-1">
+                                                            <span className="text-[10px] text-gray-400 uppercase font-bold shrink-0">Versão:</span>
+                                                            <select
+                                                                value={currentCodeVersion?.id || ''}
+                                                                onChange={e => setSelectedVersionId(e.target.value)}
+                                                                className="text-xs border border-gray-300 rounded px-2 py-1 bg-white text-gray-900 focus:outline-none dark:bg-[#2A2545] dark:text-white dark:border-[#3A3555]"
+                                                            >
+                                                                {(selectedCode.versions || []).map(v => (
+                                                                    <option key={v.id} value={v.id}>{v.name}</option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
+                                                    )}
+                                                    {currentCodeVersion?.fileName && (
+                                                        <span className="bg-gray-100 text-gray-700 text-[10px] px-2 py-1 rounded border font-semibold dark:bg-[#2A2545] dark:text-gray-300 dark:border-[#3A3555] whitespace-nowrap">
+                                                            📄 {currentCodeVersion.fileName}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
 
-                                            <div className="mb-4">
-                                                <input
-                                                    type="text"
-                                                    value={codeSearchQuery}
-                                                    onChange={e => setCodeSearchQuery(e.target.value)}
-                                                    placeholder="Buscar palavra-chave ou artigo no texto..."
-                                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
-                                                />
-                                            </div>
-
-                                            <div className="flex-grow overflow-y-auto bg-gray-50 border rounded-lg p-4 font-mono text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
-                                                {highlightSearchText(selectedCode.content, codeSearchQuery)}
-                                            </div>
+                                            {currentCodeVersion?.fileType === 'pdf' && currentCodeVersion.fileDataUrl ? (
+                                                <>
+                                                    <div className="mb-3 bg-blue-50 border border-blue-200 text-blue-700 dark:bg-blue-950/20 dark:border-blue-950/40 dark:text-blue-400 text-xs px-3 py-2 rounded-lg flex items-center gap-2 shrink-0">
+                                                        <span>ℹ️</span>
+                                                        <span>Leitura de PDF integrada. Use as ferramentas de pesquisa nativas do leitor de PDF (Ctrl+F ou Cmd+F) para pesquisar.</span>
+                                                    </div>
+                                                    <div className="flex-grow border border-gray-200 rounded-lg overflow-hidden bg-gray-150/40">
+                                                        <iframe
+                                                            src={currentCodeVersion.fileDataUrl}
+                                                            className="w-full h-full border-0"
+                                                            title={selectedCode.title}
+                                                        />
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div className="mb-4 shrink-0">
+                                                        <input
+                                                            type="text"
+                                                            value={codeSearchQuery}
+                                                            onChange={e => setCodeSearchQuery(e.target.value)}
+                                                            placeholder="Buscar palavra-chave ou artigo no texto..."
+                                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                                        />
+                                                    </div>
+                                                    <div className="flex-grow overflow-y-auto bg-gray-50 dark:bg-black/10 border dark:border-[#2A2545] rounded-lg p-4 font-mono text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
+                                                        {highlightSearchText(currentCodeVersion?.content || selectedCode.content, codeSearchQuery)}
+                                                    </div>
+                                                </>
+                                            )}
                                         </>
                                     ) : (
                                         <div className="flex flex-col items-center justify-center h-full text-center text-gray-400 space-y-3">
@@ -1499,7 +1545,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
 
             {/* Password/Email Modals */}
             {showPasswordModal && (
-                <ChangePasswordModal onClose={() => setShowPasswordModal(false)} onSave={(cur, _next) => cur.length >= 4} />
+                <ChangePasswordModal onClose={() => setShowPasswordModal(false)} onSave={(cur) => cur.length >= 4} />
             )}
             {showEmailModal && (
                 <ChangeEmailModal currentEmail={profileData.email || lawyer.contact.email} onClose={() => setShowEmailModal(false)} onSave={(pwd, newEmail) => { if (pwd.length < 4) return false; setProfileData(p => ({ ...p, email: newEmail })); return true; }} />

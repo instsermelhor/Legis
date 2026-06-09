@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import type { Lawyer } from '../../types';
 import { mockClients, mockInterns, mockSecretaries, mockMonthlyRevenue, mockEfficiencyServices, mockEfficiencyServiceGroups } from '../../services/mockDataService';
 import type { EfficiencyService, EfficiencyServiceGroup } from '../../types';
-import { StatCard, SectionTitle, SearchInput, IconMoney, IconShield, IconChart, IconBriefcase, IconUsers, IconGradCap, IconSettings } from './AdminShared';
+import { SectionTitle, SearchInput, IconBriefcase, IconUsers, IconGradCap, IconSettings } from './AdminShared';
 
 // ─── Secretary Icon ───────────────────────────────────────────────────────────
 const IconSecretariat = () => (
@@ -42,7 +42,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
     } else {
       const initialCounts: Record<string, number> = {};
       const currentServices = savedS ? JSON.parse(savedS) : mockEfficiencyServices;
-      currentServices.forEach((s: any, idx: number) => {
+      currentServices.forEach((s: EfficiencyService, idx: number) => {
         initialCounts[s.id] = (idx + 1) * 3;
       });
       localStorage.setItem('legis_contracted_services', JSON.stringify(initialCounts));
@@ -67,7 +67,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
   const baseClientPending = mockClients.reduce((a, c) => a + c.pendingAmount, 0);
   const baseInternStipends = mockInterns.filter(i => i.status === 'ativo').reduce((a, i) => a + (i.stipend || 0), 0);
   const baseSecretaryFees = mockSecretaries.filter(s => s.status === 'ativo').reduce((a, s) => a + (s.monthlyFee || 0), 0);
-  const baseSecretaryPending = mockSecretaries.reduce((a, s) => a + (s.pendingFee || 0), 0);
+
 
   // Simulated Services Revenue Base (Mensal)
   const baseServicesRevenue = services.reduce((sum, s) => {

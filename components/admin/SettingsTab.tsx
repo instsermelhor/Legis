@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { mockLegalDocuments, mockAdminUsers, mockEfficiencyServiceGroups, hashPassword } from '../../services/mockDataService';
 import type { LegalDocument, AdminUser } from '../../services/mockDataService';
 import { SectionTitle, IconEdit, IconPlus, IconKey, IconUpload, IconTrash } from './AdminShared';
-import { dbCodes, LegalCode } from '../../services/dbService';
+import { dbCodes, LegalCode, dbCloud } from '../../services/dbService';
 import { useAppConfig } from '../../context/AppContext';
 import type { EfficiencyServiceGroup } from '../../types';
 import { LegalAiTools } from '../common/LegalAiTools';
@@ -346,6 +346,14 @@ const DEFAULT_PERMISSIONS: Record<AdminUser['role'], string[]> = {
 };
 
 
+const Field = ({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) => (
+  <div>
+    <label className="block text-xs font-semibold text-gray-600 mb-1">{label}</label>
+    {children}
+    {error && <p className="text-[10px] text-red-500 mt-0.5 font-medium">{error}</p>}
+  </div>
+);
+
 const AdminUsers: React.FC = () => {
   const [users, setUsers] = useState<AdminUser[]>(() => {
     const saved = localStorage.getItem('legis_admin_users');
@@ -517,14 +525,7 @@ const AdminUsers: React.FC = () => {
 
   const allFunctionIds = APP_FUNCTIONS.flatMap(g => g.items.map(i => i.id));
 
-  // Helper for form field
-  const Field = ({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) => (
-    <div>
-      <label className="block text-xs font-semibold text-gray-600 mb-1">{label}</label>
-      {children}
-      {error && <p className="text-[10px] text-red-500 mt-0.5 font-medium">{error}</p>}
-    </div>
-  );
+
 
   return (
     <div className="space-y-6">
@@ -1436,98 +1437,252 @@ const ServiceGroupsSettings: React.FC = () => {
 // ─── Legal Codes Settings ─────────────────────────────────────────────────────
 const LegalCodesSettings: React.FC = () => {
   const [codes, setCodes] = useState<LegalCode[]>(() => dbCodes.getAll());
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingVersionId, setEditingVersionId] = useState<{ codeId: string; versionId: string } | null>(null);
+  const [editingVersionName, setEditingVersionName] = useState('');
+  const [editingVersionContent, setEditingVersionContent] = useState('');
+  const [newVersionName, setNewVersionName] = useState<Record<string, string>>({}); // codeId -> name
   const [saved, setSaved] = useState<string | null>(null);
 
-  const handleContentChange = (id: string, content: string) => {
-    setCodes(prev => prev.map(c => c.id === id ? { ...c, content, lastUpdated: new Date().toISOString().split('T')[0] } : c));
+  const handleActivateVersion = (codeId: string, versionId: string) => {
+    const updated = dbCodes.activateVersion(codeId, versionId);
+    setCodes(updated);
   };
 
-  const handleSave = (id: string) => {
-    const code = codes.find(c => c.id === id);
-    if (code) {
-      dbCodes.update(id, code.content, code.fileName);
+  const handleDeleteVersion = (codeId: string, versionId: string) => {
+    if (window.confirm('Tem certeza que deseja excluir esta versão?')) {
+      const updated = dbCodes.deleteVersion(codeId, versionId);
+      setCodes(updated);
     }
-    setSaved(id);
-    setEditingId(null);
-    setTimeout(() => setSaved(null), 2500);
   };
 
-  const handleFileUpload = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleStartEditVersion = (codeId: string, version: CodeVersion) => {
+    setEditingVersionId({ codeId, versionId: version.id });
+    setEditingVersionName(version.name);
+    setEditingVersionContent(version.content);
+  };
+
+  const handleSaveVersionEdit = () => {
+    if (!editingVersionId) return;
+    const { codeId, versionId } = editingVersionId;
+    
+    const updatedCodes = codes.map(c => {
+      if (c.id === codeId) {
+        const versions = (c.versions || []).map(v => 
+          v.id === versionId 
+            ? { ...v, name: editingVersionName, content: editingVersionContent, lastUpdated: new Date().toISOString().split('T')[0] } 
+            : v
+        );
+        const isActive = c.activeVersionId === versionId;
+        const updatedCode = {
+          ...c,
+          versions,
+          lastUpdated: new Date().toISOString().split('T')[0]
+        };
+        if (isActive) {
+          updatedCode.content = editingVersionContent;
+          updatedCode.lastUpdated = new Date().toISOString().split('T')[0];
+        }
+        return updatedCode;
+      }
+      return c;
+    });
+    
+    dbCodes.saveAll(updatedCodes);
+    setCodes(updatedCodes);
+    setEditingVersionId(null);
+  };
+
+  const handleVersionUpload = (codeId: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
+    const versionName = newVersionName[codeId]?.trim() || `Versão ${new Date().toLocaleDateString('pt-BR')}`;
     if (!file) return;
+
     const isTextFile = file.name.endsWith('.txt') || file.name.endsWith('.csv') || file.name.endsWith('.json') || file.name.endsWith('.md') || file.type === 'text/plain';
+    const isPdf = file.name.toLowerCase().endsWith('.pdf');
     const reader = new FileReader();
 
     if (isTextFile) {
       reader.onload = (ev) => {
         const content = ev.target?.result as string;
-        const updated = dbCodes.update(id, content, file.name);
+        const updated = dbCodes.addVersion(codeId, versionName, content, file.name, undefined, 'text');
         setCodes(updated);
-        setSaved(id);
+        setSaved(codeId);
+        setNewVersionName(prev => ({ ...prev, [codeId]: '' }));
         setTimeout(() => setSaved(null), 2500);
       };
       reader.readAsText(file);
-    } else {
-      reader.onload = (ev) => {
-        const arrayBuffer = ev.target?.result as ArrayBuffer;
-        const extracted = extractPrintableText(arrayBuffer);
-        const content = `[Conteúdo extraído do arquivo binário ${file.name}]\n\n` + (extracted || 'Nenhum texto legível encontrado no arquivo.');
-        const updated = dbCodes.update(id, content, file.name);
-        setCodes(updated);
-        setSaved(id);
-        setTimeout(() => setSaved(null), 2500);
+    } else if (isPdf) {
+      const dataUrlReader = new FileReader();
+      dataUrlReader.onload = (dev) => {
+        const dataUrl = dev.target?.result as string;
+        const arrayBufferReader = new FileReader();
+        arrayBufferReader.onload = (aev) => {
+          const arrayBuffer = aev.target?.result as ArrayBuffer;
+          const extractedText = extractPrintableText(arrayBuffer);
+          const updated = dbCodes.addVersion(
+            codeId,
+            versionName,
+            extractedText || `[Conteúdo PDF: ${file.name}]`,
+            file.name,
+            dataUrl,
+            'pdf'
+          );
+          setCodes(updated);
+          setSaved(codeId);
+          setNewVersionName(prev => ({ ...prev, [codeId]: '' }));
+          setTimeout(() => setSaved(null), 2500);
+        };
+        arrayBufferReader.readAsArrayBuffer(file);
       };
-      reader.readAsArrayBuffer(file);
+      dataUrlReader.readAsDataURL(file);
+    } else {
+      const dataUrlReader = new FileReader();
+      dataUrlReader.onload = (dev) => {
+        const dataUrl = dev.target?.result as string;
+        const arrayBufferReader = new FileReader();
+        arrayBufferReader.onload = (aev) => {
+          const arrayBuffer = aev.target?.result as ArrayBuffer;
+          const extractedText = extractPrintableText(arrayBuffer);
+          const updated = dbCodes.addVersion(
+            codeId,
+            versionName,
+            extractedText || `[Conteúdo Binário: ${file.name}]`,
+            file.name,
+            dataUrl,
+            'text'
+          );
+          setCodes(updated);
+          setSaved(codeId);
+          setNewVersionName(prev => ({ ...prev, [codeId]: '' }));
+          setTimeout(() => setSaved(null), 2500);
+        };
+        arrayBufferReader.readAsArrayBuffer(file);
+      };
+      dataUrlReader.readAsDataURL(file);
     }
   };
 
   return (
     <div className="space-y-4">
-      <h3 className="text-base font-bold text-gray-800">Códigos Legais</h3>
-      <p className="text-sm text-gray-500">Faça o upload ou edite as legislações para consulta dos advogados.</p>
+      <h3 className="text-base font-bold text-gray-800">Códigos Legais e Regulamentos</h3>
+      <p className="text-sm text-gray-500">Gerencie múltiplas versões e faça o upload de arquivos PDF para leitura integrada.</p>
 
       <div className="space-y-4">
         {codes.map(code => (
-          <div key={code.id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-            <div className="flex items-center justify-between p-4 border-b bg-gray-50">
+          <div key={code.id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545]">
+            {/* Card Header */}
+            <div className="flex items-center justify-between p-4 border-b bg-gray-50/50 dark:bg-black/10">
               <div>
-                <p className="font-semibold text-gray-800 text-sm">{code.title}</p>
-                {code.fileName && <p className="text-xs text-primary font-medium">Arquivo: {code.fileName}</p>}
-                <p className="text-xs text-gray-400">Atualizado em: {new Date(code.lastUpdated).toLocaleDateString('pt-BR')}</p>
+                <p className="font-semibold text-gray-800 dark:text-white text-sm">{code.title}</p>
+                <p className="text-xs text-gray-400">Total de versões: {code.versions?.length || 0}</p>
               </div>
-              <div className="flex gap-2">
-                <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:border-primary/50 cursor-pointer transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-                  <IconUpload /> Upload
-                  <input type="file" accept=".txt,.pdf,.doc,.docx" className="hidden" onChange={e => handleFileUpload(code.id, e)} />
-                </label>
-                <button onClick={() => setEditingId(editingId === code.id ? null : code.id)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary bg-primary/5 border border-primary/20 rounded-lg hover:bg-primary/10 transition-colors">
-                  <IconEdit /> {editingId === code.id ? 'Fechar' : 'Editar'}
-                </button>
-                {saved === code.id && <span className="text-xs text-green-600 font-medium self-center">✓ Salvo!</span>}
+              {saved === code.id && <span className="text-xs text-green-600 font-medium">✓ Versão adicionada!</span>}
+            </div>
+
+            {/* Version List */}
+            <div className="p-4 space-y-4">
+              <div className="space-y-2">
+                <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Versões Cadastradas</p>
+                <div className="divide-y divide-gray-100 dark:divide-white/5 border border-gray-150 dark:border-[#2A2545] rounded-lg overflow-hidden bg-gray-50/20 dark:bg-black/5">
+                  {(code.versions || []).map(ver => {
+                    const isActive = code.activeVersionId === ver.id;
+                    const isPdf = ver.fileType === 'pdf';
+                    return (
+                      <div key={ver.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3 gap-2 hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors">
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-xs text-gray-800 dark:text-white">{ver.name}</span>
+                            {isActive && <span className="px-1.5 py-0.5 bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400 rounded text-[9px] font-bold">Ativa</span>}
+                            {isPdf && <span className="px-1.5 py-0.5 bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400 rounded text-[9px] font-bold">PDF</span>}
+                          </div>
+                          <p className="text-[10px] text-gray-500">
+                            {ver.fileName ? `Arquivo: ${ver.fileName}` : 'Edição Manual'} | Atualizado em: {new Date(ver.lastUpdated).toLocaleDateString('pt-BR')}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2 self-end sm:self-center">
+                          {!isActive && (
+                            <button
+                              onClick={() => handleActivateVersion(code.id, ver.id)}
+                              className="text-[11px] font-bold text-green-600 hover:text-green-700 transition-colors"
+                            >
+                              Ativar
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleStartEditVersion(code.id, ver)}
+                            className="text-[11px] font-bold text-primary hover:text-primary/80 transition-colors"
+                          >
+                            Editar Texto
+                          </button>
+                          {(code.versions || []).length > 1 && (
+                            <button
+                              onClick={() => handleDeleteVersion(code.id, ver.id)}
+                              className="text-[11px] font-bold text-red-500 hover:text-red-700 transition-colors"
+                            >
+                              Excluir
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Upload / Add New Version Form */}
+              <div className="bg-purple-50/25 dark:bg-purple-950/5 border border-purple-100/60 dark:border-purple-950/20 rounded-xl p-4 space-y-3">
+                <p className="text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider">📤 Adicionar Nova Versão</p>
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex-1">
+                    <input
+                      type="text"
+                      value={newVersionName[code.id] || ''}
+                      onChange={e => setNewVersionName(prev => ({ ...prev, [code.id]: e.target.value }))}
+                      placeholder="Ex: Revisão 2026, Emenda Constitucional 132"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs bg-white text-gray-900 dark:bg-[#1A1730] dark:border-[#2A2545] dark:text-white focus:outline-none"
+                    />
+                  </div>
+                  <label className="flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-primary rounded-lg hover:bg-primary/95 cursor-pointer transition-colors shrink-0">
+                    <IconPlus /> Selecionar Arquivo e Enviar
+                    <input
+                      type="file"
+                      accept=".txt,.pdf,.doc,.docx"
+                      className="hidden"
+                      onChange={e => handleVersionUpload(code.id, e)}
+                    />
+                  </label>
+                </div>
+                <p className="text-[10px] text-gray-400">Suporta arquivos de texto (.txt, .md) ou arquivos PDF (.pdf) que serão exibidos nativamente na biblioteca.</p>
               </div>
             </div>
 
-            {editingId === code.id ? (
-              <div className="p-4">
+            {/* Version Text Editor modal/panel */}
+            {editingVersionId && editingVersionId.codeId === code.id && (
+              <div className="border-t p-4 space-y-3 bg-gray-50/50 dark:bg-black/15 animate-fade-in">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-bold text-gray-600 dark:text-gray-400">Editando Texto da Versão</p>
+                  <input
+                    type="text"
+                    value={editingVersionName}
+                    onChange={e => setEditingVersionName(e.target.value)}
+                    className="border border-gray-300 rounded px-2 py-0.5 text-xs bg-white dark:bg-[#1A1730] dark:text-white"
+                    placeholder="Nome da Versão"
+                  />
+                </div>
                 <textarea
-                  value={code.content}
-                  onChange={e => handleContentChange(code.id, e.target.value)}
-                  rows={10}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-y font-mono dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                  value={editingVersionContent}
+                  onChange={e => setEditingVersionContent(e.target.value)}
+                  rows={8}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-xs focus:outline-none resize-y font-mono bg-white dark:bg-[#1A1730] dark:text-white dark:border-[#2A2545]"
                 />
-                <div className="mt-3 flex gap-2">
-                  <button onClick={() => handleSave(code.id)} className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90">
-                    Salvar Código
+                <div className="flex gap-2">
+                  <button onClick={handleSaveVersionEdit} className="px-3 py-1.5 text-xs font-medium text-white bg-primary rounded hover:bg-primary/90">
+                    Salvar Alterações
                   </button>
-                  <button onClick={() => setEditingId(null)} className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
+                  <button onClick={() => setEditingVersionId(null)} className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-200 rounded hover:bg-gray-300">
                     Cancelar
                   </button>
                 </div>
-              </div>
-            ) : (
-              <div className="p-4">
-                <p className="text-sm text-gray-600 line-clamp-3 whitespace-pre-wrap">{code.content}</p>
               </div>
             )}
           </div>
@@ -1561,30 +1716,46 @@ const DatabaseSettings: React.FC = () => {
     setTimeout(() => setSaved(false), 2500);
   };
 
-  const handleTestConnection = () => {
+  const handleTestConnection = async () => {
     setTesting(true);
     setTestResult(null);
-    setTimeout(() => {
-      setTesting(false);
+    try {
       if (dbType === 'local') {
+        setTesting(false);
         setTestResult({
           type: 'success',
           message: 'Conexão local (localStorage) estabelecida com sucesso! Status: Ativo e operacional.'
         });
       } else {
         if (!dbApiKey || !dbProjectUrl) {
+          setTesting(false);
           setTestResult({
             type: 'error',
             message: 'Erro ao conectar na nuvem: Chave da API e URL do Projeto são obrigatórias.'
           });
         } else {
-          setTestResult({
-            type: 'success',
-            message: `Conexão de teste com ${dbCloudProvider === 'firebase' ? 'Firebase Firestore' : 'Supabase PostgreSQL'} bem-sucedida!`
-          });
+          const ok = await dbCloud.testConnection(dbCloudProvider, dbApiKey, dbProjectUrl);
+          setTesting(false);
+          if (ok) {
+            setTestResult({
+              type: 'success',
+              message: `Conexão de teste com ${dbCloudProvider === 'firebase' ? 'Firebase Firestore' : 'Supabase PostgreSQL'} bem-sucedida!`
+            });
+          } else {
+            setTestResult({
+              type: 'error',
+              message: `Falha na conexão com ${dbCloudProvider === 'firebase' ? 'Firebase' : 'Supabase'}. Verifique as credenciais e tente novamente.`
+            });
+          }
         }
       }
-    }, 1500);
+    } catch (e) {
+      setTesting(false);
+      setTestResult({
+        type: 'error',
+        message: `Erro ao testar conexão: ${e instanceof Error ? e.message : String(e)}`
+      });
+    }
   };
 
   return (
@@ -1599,7 +1770,7 @@ const DatabaseSettings: React.FC = () => {
           <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Tipo de Armazenamento/Conexão</label>
           <select
             value={dbType}
-            onChange={e => { setDbType(e.target.value as any); setTestResult(null); }}
+            onChange={e => { setDbType(e.target.value as 'local' | 'cloud'); setTestResult(null); }}
             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
           >
             <option value="local">Banco de Dados Local (localStorage - Offline Primeiro)</option>
@@ -1616,7 +1787,7 @@ const DatabaseSettings: React.FC = () => {
                 <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Provedor Cloud</label>
                 <select
                   value={dbCloudProvider}
-                  onChange={e => setDbCloudProvider(e.target.value as any)}
+                  onChange={e => setDbCloudProvider(e.target.value as 'firebase' | 'supabase')}
                   className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:text-white p-1"
                 >
                   <option value="firebase">Firebase Firestore</option>

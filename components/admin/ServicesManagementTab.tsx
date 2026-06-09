@@ -64,6 +64,7 @@ export const ServicesManagementTab: React.FC = () => {
     }
 
     const newService: EfficiencyService = {
+      // eslint-disable-next-line react-hooks/purity
       id: editingId || `serv-${Date.now()}`,
       groupId: formGroupId,
       name: formName,
@@ -254,7 +255,7 @@ export const ServicesManagementTab: React.FC = () => {
                               max="100"
                               value={val || ''}
                               placeholder="0"
-                              onChange={e => handleDiscountInputChange(group.id, item.role as any, e.target.value)}
+                              onChange={e => handleDiscountInputChange(group.id, item.role as 'lawyer' | 'intern' | 'secretary' | 'client', e.target.value)}
                               className="w-16 border border-gray-300 dark:border-[#3A3555] rounded px-2.5 py-1 text-center bg-white dark:bg-[#2A2545] text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
                             />
                             <span className="text-gray-400 font-semibold">%</span>
