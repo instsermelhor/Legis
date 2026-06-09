@@ -8,6 +8,8 @@ export interface Processo {
   status: 'Em Andamento' | 'Concluído' | 'Aguardando Documentação';
   valor: number;
   tempo: number; // calculado
+  clientName?: string;
+  clientCpf?: string;
 }
 
 const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
@@ -20,6 +22,8 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
     data_conclusao: '2025-03-15',
     status: 'Concluído',
     valor: 15000,
+    clientName: 'Ana Rodrigues',
+    clientCpf: '111.222.333-01',
   },
   {
     id_processo: 1002,
@@ -30,6 +34,8 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
     data_conclusao: '2025-05-20',
     status: 'Concluído',
     valor: 28000,
+    clientName: 'Bruno Ferreira',
+    clientCpf: '222.333.444-02',
   },
   {
     id_processo: 1003,
@@ -40,6 +46,8 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
     data_conclusao: null,
     status: 'Em Andamento',
     valor: 45000,
+    clientName: 'Carla Mendes',
+    clientCpf: '333.444.555-03',
   },
   {
     id_processo: 1004,
@@ -50,6 +58,8 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
     data_conclusao: null,
     status: 'Aguardando Documentação',
     valor: 12000,
+    clientName: 'Daniel Sousa',
+    clientCpf: '444.555.666-04',
   },
   {
     id_processo: 1005,
@@ -60,6 +70,8 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
     data_conclusao: '2025-07-10',
     status: 'Concluído',
     valor: 35000,
+    clientName: 'Eliane Costa',
+    clientCpf: '555.666.777-05',
   },
   {
     id_processo: 1006,
@@ -70,6 +82,8 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
     data_conclusao: null,
     status: 'Em Andamento',
     valor: 62000,
+    clientName: 'Fábio Lima',
+    clientCpf: '666.777.888-06',
   },
   {
     id_processo: 1007,
@@ -80,6 +94,8 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
     data_conclusao: '2025-10-05',
     status: 'Concluído',
     valor: 18000,
+    clientName: 'Gabriela Oliveira',
+    clientCpf: '777.888.999-07',
   },
   {
     id_processo: 1008,
@@ -90,6 +106,8 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
     data_conclusao: null,
     status: 'Aguardando Documentação',
     valor: 22000,
+    clientName: 'Ana Rodrigues',
+    clientCpf: '111.222.333-01',
   },
   {
     id_processo: 1009,
@@ -100,6 +118,8 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
     data_conclusao: '2025-12-01',
     status: 'Concluído',
     valor: 50000,
+    clientName: 'Bruno Ferreira',
+    clientCpf: '222.333.444-02',
   },
   {
     id_processo: 1010,
@@ -110,6 +130,8 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
     data_conclusao: null,
     status: 'Em Andamento',
     valor: 9000,
+    clientName: 'Carla Mendes',
+    clientCpf: '333.444.555-03',
   },
   {
     id_processo: 1011,
@@ -120,6 +142,8 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
     data_conclusao: '2026-02-15',
     status: 'Concluído',
     valor: 42000,
+    clientName: 'Daniel Sousa',
+    clientCpf: '444.555.666-04',
   },
   {
     id_processo: 1012,
@@ -130,6 +154,8 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
     data_conclusao: null,
     status: 'Em Andamento',
     valor: 75000,
+    clientName: 'Eliane Costa',
+    clientCpf: '555.666.777-05',
   },
   {
     id_processo: 1013,
@@ -140,6 +166,8 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
     data_conclusao: null,
     status: 'Aguardando Documentação',
     valor: 16000,
+    clientName: 'Fábio Lima',
+    clientCpf: '666.777.888-06',
   },
   {
     id_processo: 1014,
@@ -150,6 +178,8 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
     data_conclusao: '2026-04-30',
     status: 'Concluído',
     valor: 31000,
+    clientName: 'Gabriela Oliveira',
+    clientCpf: '777.888.999-07',
   },
   {
     id_processo: 1015,
@@ -160,6 +190,8 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
     data_conclusao: null,
     status: 'Em Andamento',
     valor: 88000,
+    clientName: 'Ana Rodrigues',
+    clientCpf: '111.222.333-01',
   },
   {
     id_processo: 1016,
@@ -170,6 +202,8 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
     data_conclusao: null,
     status: 'Em Andamento',
     valor: 25000,
+    clientName: 'Bruno Ferreira',
+    clientCpf: '222.333.444-02',
   },
   {
     id_processo: 1017,
@@ -180,6 +214,8 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
     data_conclusao: null,
     status: 'Aguardando Documentação',
     valor: 19000,
+    clientName: 'Carla Mendes',
+    clientCpf: '333.444.555-03',
   },
   {
     id_processo: 1018,
@@ -190,6 +226,8 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
     data_conclusao: null,
     status: 'Em Andamento',
     valor: 55000,
+    clientName: 'Daniel Sousa',
+    clientCpf: '444.555.666-04',
   },
   {
     id_processo: 1019,
@@ -200,6 +238,8 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
     data_conclusao: null,
     status: 'Em Andamento',
     valor: 33000,
+    clientName: 'Eliane Costa',
+    clientCpf: '555.666.777-05',
   },
   {
     id_processo: 1020,
@@ -210,6 +250,8 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
     data_conclusao: null,
     status: 'Em Andamento',
     valor: 14000,
+    clientName: 'Fábio Lima',
+    clientCpf: '666.777.888-06',
   },
 ];
 
