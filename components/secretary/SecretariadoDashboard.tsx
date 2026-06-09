@@ -8,6 +8,7 @@ import { ApiStatusPanel } from '../common/ApiStatusPanel';
 import { mockLawyers } from '../../services/mockLawyerService';
 import { XIcon } from '../common/IconComponents';
 import { LegalAiTools } from '../common/LegalAiTools';
+import { EfficiencyServicesPage } from '../client/EfficiencyServicesPage';
 
 
 interface SecretariadoDashboardProps {
@@ -18,7 +19,7 @@ interface SecretariadoDashboardProps {
   onLogout?: () => void;
 }
 
-type ActiveTab = 'overview' | 'perfil' | 'agenda' | 'documentos' | 'apis' | 'iaTools';
+type ActiveTab = 'overview' | 'perfil' | 'agenda' | 'documentos' | 'apis' | 'iaTools' | 'efficiency_services';
 
 
 const AREAS_CONHECIMENTO = [
@@ -454,6 +455,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
             {tabBtn('documentos', '📂 Documentos')}
             {tabBtn('apis', '🔌 APIs')}
             {tabBtn('iaTools', '⚡ IA Jurídica')}
+            {tabBtn('efficiency_services', '💼 Serviços de Eficiência')}
 
             {onLogout && (
               <button onClick={onLogout}
@@ -859,6 +861,11 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
         {activeTab === 'iaTools' && (
           <div className="space-y-6 animate-fade-in">
             <LegalAiTools role="secretary" allowedTools={allowedTools} />
+          </div>
+        )}
+        {activeTab === 'efficiency_services' && (
+          <div className="space-y-6 animate-fade-in">
+            <EfficiencyServicesPage embedded={true} />
           </div>
         )}
 

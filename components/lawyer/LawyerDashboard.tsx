@@ -13,6 +13,7 @@ import { mockInterns, mockSecretaries } from '../../services/mockDataService';
 import { ApiStatusPanel } from '../common/ApiStatusPanel';
 import type { MockIntern, MockSecretary } from '../../services/mockDataService';
 import { LegalAiTools } from '../common/LegalAiTools';
+import { EfficiencyServicesPage } from '../client/EfficiencyServicesPage';
 
 const ALL_IA_TOOLS = [
     { key: 'pecas', label: '📄 Peças Jurídicas' },
@@ -164,7 +165,7 @@ const AppointmentCard: React.FC<{ appointment: Appointment }> = ({ appointment }
 
 export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogout }) => {
     const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
-    const [activeSection, setActiveSection] = useState<'overview' | 'meusCasos' | 'codigos' | 'financeiro' | 'perfil' | 'estagiarios' | 'secretariado' | 'apis' | 'iaTools'>('overview');
+    const [activeSection, setActiveSection] = useState<'overview' | 'meusCasos' | 'codigos' | 'financeiro' | 'perfil' | 'estagiarios' | 'secretariado' | 'apis' | 'iaTools' | 'efficiency_services'>('overview');
 
     // Intern/Secretary selection state
     const [linkedInternId, setLinkedInternId] = useState<number | null>(() => {
@@ -601,6 +602,16 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                 }`}
                             >
                                 ⚡ IA Jurídica
+                            </button>
+                            <button
+                                onClick={() => setActiveSection('efficiency_services')}
+                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
+                                    activeSection === 'efficiency_services'
+                                        ? 'bg-primary text-white shadow'
+                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                }`}
+                            >
+                                💼 Serviços de Eficiência
                             </button>
 
                             {onLogout && (
@@ -1477,6 +1488,11 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                         {activeSection === 'iaTools' && (
                             <div className="space-y-6 animate-fade-in">
                                 <LegalAiTools role="lawyer" allowedTools={['pecas', 'pesquisas', 'audios', 'transcricao', 'fundamentacoes', 'revisao', 'jurisprudencia', 'manifestacao']} />
+                            </div>
+                        )}
+                        {activeSection === 'efficiency_services' && (
+                            <div className="space-y-6 animate-fade-in">
+                                <EfficiencyServicesPage embedded={true} />
                             </div>
                         )}
 

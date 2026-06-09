@@ -9,6 +9,7 @@ import { ApiStatusPanel } from '../common/ApiStatusPanel';
 import { mockLawyers } from '../../services/mockLawyerService';
 import { mockInterns } from '../../services/mockDataService';
 import { LegalAiTools } from '../common/LegalAiTools';
+import { EfficiencyServicesPage } from '../client/EfficiencyServicesPage';
 
 
 interface InternDashboardProps {
@@ -423,7 +424,7 @@ const SemesterGradeCard: React.FC<SemesterGradeCardProps> = ({
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 
 export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEmail, onUpdateIntern, onUpdateEmail, onLogout }) => {
-    const [activeTab, setActiveTab] = useState<'overview' | 'perfil' | 'studies' | 'hours' | 'casos' | 'apis' | 'iaTools'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'perfil' | 'studies' | 'hours' | 'casos' | 'apis' | 'iaTools' | 'efficiency_services'>('overview');
     const [showLawyerPopup, setShowLawyerPopup] = useState(false);
 
     const mockInternData = mockInterns.find(i => i.name === intern.name);
@@ -589,6 +590,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                         {tabBtn('hours', 'Mentorias e Clínicas')}
                         {tabBtn('apis', '🔌 APIs')}
                         {tabBtn('iaTools', '⚡ IA Jurídica')}
+                        {tabBtn('efficiency_services', '💼 Serviços de Eficiência')}
 
                         {onLogout && (
                             <button onClick={onLogout}
@@ -913,6 +915,11 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                 {activeTab === 'iaTools' && (
                     <div className="space-y-6 animate-fade-in">
                         <LegalAiTools role="intern" allowedTools={allowedTools} />
+                    </div>
+                )}
+                {activeTab === 'efficiency_services' && (
+                    <div className="space-y-6 animate-fade-in">
+                        <EfficiencyServicesPage embedded={true} />
                     </div>
                 )}
 

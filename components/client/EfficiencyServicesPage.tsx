@@ -1,14 +1,57 @@
 import React, { useState, useEffect } from 'react';
-import { BriefcaseIcon } from '../common/IconComponents';
+import { 
+  BriefcaseIcon, 
+  ClipboardListIcon, 
+  ShieldCheckIcon, 
+  UsersIcon, 
+  UserCircleIcon, 
+  PencilIcon, 
+  BadgeCheckIcon, 
+  ChatBubbleIcon, 
+  CurrencyDollarIcon, 
+  CrosshairsIcon, 
+  DocumentDownloadIcon, 
+  LocationMarkerIcon, 
+  CalendarIcon, 
+  CreditCardIcon 
+} from '../common/IconComponents';
 import { mockEfficiencyServiceGroups, mockEfficiencyServices } from '../../services/mockDataService';
 import type { EfficiencyServiceGroup, EfficiencyService } from '../../types';
 
-export const EfficiencyServicesPage: React.FC = () => {
+const getGroupIcon = (groupId: string, className = "w-4 h-4") => {
+  switch (groupId) {
+    case 'group-1': return <ClipboardListIcon className={className} />;
+    case 'group-2': return <ShieldCheckIcon className={className} />;
+    case 'group-3': return <UsersIcon className={className} />;
+    case 'group-4': return <UserCircleIcon className={className} />;
+    case 'group-5': return <PencilIcon className={className} />;
+    case 'group-6': return <UsersIcon className={className} />;
+    case 'group-7': return <BadgeCheckIcon className={className} />;
+    case 'group-8': return <ChatBubbleIcon className={className} />;
+    case 'group-9': return <CurrencyDollarIcon className={className} />;
+    case 'group-10': return <CrosshairsIcon className={className} />;
+    case 'group-11': return <DocumentDownloadIcon className={className} />;
+    case 'group-12': return <LocationMarkerIcon className={className} />;
+    case 'group-13': return <CalendarIcon className={className} />;
+    case 'group-14': return <CreditCardIcon className={className} />;
+    case 'group-15': return <BriefcaseIcon className={className} />;
+    default: return <BriefcaseIcon className={className} />;
+  }
+};
+
+export interface EfficiencyServicesPageProps {
+  embedded?: boolean;
+}
+
+export const EfficiencyServicesPage: React.FC<EfficiencyServicesPageProps> = ({ embedded = false }) => {
   const [groups, setGroups] = useState<EfficiencyServiceGroup[]>([]);
   const [services, setServices] = useState<EfficiencyService[]>([]);
+  const [groupDiscounts, setGroupDiscounts] = useState<Record<string, { lawyer: number; intern: number; secretary: number; client: number }>>({});
   const [selectedService, setSelectedService] = useState<EfficiencyService | null>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedGroupFilter, setSelectedGroupFilter] = useState('all');
   
   // Form for non-logged-in users
   const [contactForm, setContactForm] = useState({
@@ -21,15 +64,55 @@ export const EfficiencyServicesPage: React.FC = () => {
   // Check if user is logged in
   const [loggedInUser, setLoggedInUser] = useState<any>(null);
 
-  useEffect(() => {
-    const savedGroups = localStorage.getItem('legis_serviceGroups');
-    const savedServices = localStorage.getItem('legis_services');
+  const getServiceDiscount = (service: EfficiencyService): number => {
+    if (!loggedInUser) return 0;
+    const role = loggedInUser.role;
     
-    if (savedGroups) setGroups(JSON.parse(savedGroups));
-    else setGroups(mockEfficiencyServiceGroups);
+    let specific: number | undefined;
+    let group: number | undefined;
 
-    if (savedServices) setServices(JSON.parse(savedServices));
-    else setServices(mockEfficiencyServices);
+    if (role === 'lawyer') {
+      specific = service.discountLawyer;
+      group = groupDiscounts[service.groupId]?.lawyer;
+    } else if (role === 'intern') {
+      specific = service.discountIntern;
+      group = groupDiscounts[service.groupId]?.intern;
+    } else if (role === 'secretary') {
+      specific = service.discountSecretary;
+      group = groupDiscounts[service.groupId]?.secretary;
+    } else if (role === 'client') {
+      specific = service.discountClient;
+      group = groupDiscounts[service.groupId]?.client;
+    }
+
+    if (specific !== undefined && specific > 0) {
+      return specific;
+    }
+    return group ?? 0;
+  };
+
+
+  useEffect(() => {
+    const isMigrated = localStorage.getItem('legis_services_initialized_v6');
+    if (!isMigrated) {
+      localStorage.setItem('legis_serviceGroups', JSON.stringify(mockEfficiencyServiceGroups));
+      localStorage.setItem('legis_services', JSON.stringify(mockEfficiencyServices));
+      localStorage.setItem('legis_services_initialized_v6', 'true');
+      setGroups(mockEfficiencyServiceGroups);
+      setServices(mockEfficiencyServices);
+    } else {
+      const savedGroups = localStorage.getItem('legis_serviceGroups');
+      const savedServices = localStorage.getItem('legis_services');
+      
+      if (savedGroups) setGroups(JSON.parse(savedGroups));
+      else setGroups(mockEfficiencyServiceGroups);
+
+      if (savedServices) setServices(JSON.parse(savedServices));
+      else setServices(mockEfficiencyServices);
+    }
+
+    const savedGroupDiscounts = localStorage.getItem('legis_group_discounts');
+    if (savedGroupDiscounts) setGroupDiscounts(JSON.parse(savedGroupDiscounts));
 
     const userRaw = localStorage.getItem('legis_user');
     if (userRaw) {
@@ -40,6 +123,19 @@ export const EfficiencyServicesPage: React.FC = () => {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (selectedGroupFilter !== 'all') {
+      const matchCount = services.filter(s => 
+        s.groupId === selectedGroupFilter && 
+        (s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+         s.description.toLowerCase().includes(searchQuery.toLowerCase()))
+      ).length;
+      if (matchCount === 0) {
+        setSelectedGroupFilter('all');
+      }
+    }
+  }, [searchQuery, services, selectedGroupFilter]);
 
   const handleOpenContract = (service: EfficiencyService) => {
     setSelectedService(service);
@@ -95,12 +191,14 @@ export const EfficiencyServicesPage: React.FC = () => {
       try {
         const savedTxRaw = localStorage.getItem('legis_financial_tx');
         const txList = savedTxRaw ? JSON.parse(savedTxRaw) : [];
+        const discountPct = getServiceDiscount(selectedService);
+        const finalPrice = discountPct > 0 ? selectedService.price * (1 - discountPct / 100) : selectedService.price;
         const newTx = {
           id: `tx-${Date.now()}`,
           date: new Date().toISOString().split('T')[0],
           clientName: loggedInUser.name || 'Cliente Logado',
-          description: `Contratação: ${selectedService.name}`,
-          amount: selectedService.price,
+          description: `Contratação: ${selectedService.name}${discountPct > 0 ? ` (${discountPct}% desc.)` : ''}`,
+          amount: finalPrice,
           status: 'pendente'
         };
         localStorage.setItem('legis_financial_tx', JSON.stringify([...txList, newTx]));
@@ -117,56 +215,219 @@ export const EfficiencyServicesPage: React.FC = () => {
     setContactForm({ name: '', email: '', phone: '' });
   };
 
+  // Check if any service matches the keyword search
+  const hasMatchedServices = groups.some(group => 
+    services.some(s => 
+      s.groupId === group.id && 
+      (s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+       s.description.toLowerCase().includes(searchQuery.toLowerCase()))
+    )
+  );
+
   return (
-    <div className="bg-white min-h-screen dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-      <div className="bg-primary/5 py-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center animate-fade-in">
-          <BriefcaseIcon className="h-16 w-16 text-primary mx-auto mb-6" />
-          <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">
-            Serviços Administrativos e de Eficiência
-          </h1>
-          <p className="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
-            Soluções ágeis e especializadas para otimizar sua rotina jurídica e documental.
+    <div className={embedded ? "space-y-6" : "bg-white min-h-screen dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"}>
+      {!embedded && (
+        <div className="bg-primary/5 py-12">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center animate-fade-in">
+            <BriefcaseIcon className="h-10 w-10 text-primary mx-auto mb-4" />
+            <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">
+              Serviços Administrativos e de Eficiência
+            </h1>
+            <p className="mt-4 text-xl text-gray-600 max-w-3xl mx-auto">
+              Soluções ágeis e especializadas para otimizar sua rotina jurídica e documental.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {embedded && (
+        <div className="mb-4">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-white">💼 Serviços Administrativos e de Eficiência</h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Contrate soluções administrativas e de otimização de forma nativa e integrada.
           </p>
         </div>
-      </div>
+      )}
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className={embedded ? "py-2" : "container mx-auto px-4 sm:px-6 lg:px-8 py-12"}>
+        {/* Keyword Search Filter */}
+        {groups.length > 0 && (
+          <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="relative w-full max-w-md">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <svg className="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </span>
+              <input 
+                type="text" 
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full border border-gray-300 rounded-xl pl-10 pr-10 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white text-gray-950 dark:bg-[#2A2545] dark:border-[#3A3555] dark:text-white placeholder-gray-400"
+                placeholder="Buscar serviços por palavra-chave..."
+              />
+              {searchQuery && (
+                <button 
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 text-lg"
+                >
+                  &times;
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Small Menu / Navigation divided by service groups */}
+        {groups.length > 0 && (
+          <div className="mb-8 bg-gray-50 dark:bg-[#2A2545]/40 rounded-xl p-4 border border-gray-200/60 dark:border-white/5 animate-fade-in">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Categorias de Serviços</p>
+              {selectedGroupFilter !== 'all' && (
+                <button 
+                  type="button" 
+                  onClick={() => setSelectedGroupFilter('all')}
+                  className="text-xs font-semibold text-primary dark:text-purple-400 hover:underline"
+                >
+                  Mostrar Todos
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-2 max-h-36 overflow-y-auto pr-1">
+              <button
+                type="button"
+                onClick={() => setSelectedGroupFilter('all')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                  selectedGroupFilter === 'all'
+                    ? 'bg-primary text-white shadow-sm shadow-primary/25'
+                    : 'bg-white text-gray-600 hover:bg-gray-105 border border-gray-205 dark:bg-[#2A2545] dark:border-[#3A3555] dark:text-gray-300 dark:hover:bg-[#3A3555]'
+                }`}
+              >
+                📁 Todos os Grupos
+                <span className={`px-1.5 py-0.5 rounded-md text-[9px] ${
+                  selectedGroupFilter === 'all' ? 'bg-white/20 text-white' : 'bg-gray-105 text-gray-500 dark:bg-black/20 dark:text-gray-400'
+                }`}>
+                  {services.filter(s => 
+                    s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                    s.description.toLowerCase().includes(searchQuery.toLowerCase())
+                  ).length}
+                </span>
+              </button>
+              {groups.map(g => {
+                const count = services.filter(s => 
+                  s.groupId === g.id && 
+                  (s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                   s.description.toLowerCase().includes(searchQuery.toLowerCase()))
+                ).length;
+                
+                if (count === 0) return null;
+                const cleanName = g.name.replace(/^\d+\.\s*/, '');
+
+                return (
+                  <button
+                    key={g.id}
+                    type="button"
+                    onClick={() => setSelectedGroupFilter(g.id)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all border ${
+                      selectedGroupFilter === g.id
+                        ? 'bg-primary text-white border-primary shadow-sm shadow-primary/25'
+                        : 'bg-white text-gray-650 hover:bg-gray-105 border-gray-205 dark:bg-[#2A2545] dark:border-[#3A3555] dark:text-gray-350 dark:hover:bg-[#3A3555]'
+                    }`}
+                  >
+                    <span>{getGroupIcon(g.id, "w-3.5 h-3.5")}</span>
+                    {cleanName}
+                    <span className={`px-1.5 py-0.5 rounded-md text-[9px] ${
+                      selectedGroupFilter === g.id ? 'bg-white/20 text-white' : 'bg-gray-105 text-gray-500 dark:bg-black/20 dark:text-gray-400'
+                    }`}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {groups.length === 0 ? (
           <div className="text-center py-10">
-            <p className="text-gray-500">Nenhum serviço disponível no momento.</p>
+            <p className="text-gray-500 dark:text-gray-400">Nenhum serviço disponível no momento.</p>
+          </div>
+        ) : !hasMatchedServices ? (
+          <div className="text-center py-12 bg-white rounded-2xl border border-gray-200 p-8 dark:bg-[#2A2545] dark:border-[#3A3555]">
+            <svg className="w-12 h-12 text-gray-350 dark:text-gray-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">
+              Nenhum serviço encontrado para "<strong>{searchQuery}</strong>".
+            </p>
+            <button 
+              type="button"
+              onClick={() => setSearchQuery('')}
+              className="mt-4 text-sm font-semibold text-primary dark:text-purple-400 hover:underline"
+            >
+              Limpar busca
+            </button>
           </div>
         ) : (
           <div className="space-y-16">
             {groups.map(group => {
-              const groupServices = services.filter(s => s.groupId === group.id);
+              if (selectedGroupFilter !== 'all' && group.id !== selectedGroupFilter) return null;
+
+              const groupServices = services.filter(s => 
+                s.groupId === group.id && 
+                (s.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                 s.description.toLowerCase().includes(searchQuery.toLowerCase()))
+              );
               if (groupServices.length === 0) return null;
 
               return (
                 <div key={group.id} className="animate-fade-in">
-                  <h2 className="text-2xl font-bold text-gray-800 border-b-2 border-primary/20 pb-3 mb-8">
+                  <h2 className="text-2xl font-bold text-gray-800 dark:text-white border-b-2 border-primary/20 pb-3 mb-8">
                     {group.name}
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {groupServices.map(service => (
-                      <div key={service.id} className="bg-white rounded-xl shadow-md border border-gray-100 p-6 flex flex-col h-full hover:shadow-lg transition-shadow dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-                        <div className="flex-grow">
-                          <h3 className="text-lg font-bold text-gray-900 mb-3">{service.name}</h3>
-                          <p className="text-gray-600 text-sm leading-relaxed mb-6">{service.description}</p>
+                    {groupServices.map(service => {
+                      const discountPct = getServiceDiscount(service);
+                      const finalPrice = discountPct > 0 ? service.price * (1 - discountPct / 100) : service.price;
+                      return (
+                        <div key={service.id} className="bg-white rounded-xl shadow-md border border-gray-100 p-6 flex flex-col h-full hover:shadow-lg transition-shadow dark:text-white dark:bg-[#2A2545] dark:border-[#3A3555]">
+                          <div className="flex-grow">
+                            <div className="flex items-start gap-3 mb-3">
+                              <div className="p-1.5 rounded-lg bg-primary/10 text-primary shrink-0 dark:bg-primary/20 dark:text-purple-300">
+                                {getGroupIcon(service.groupId, "w-4 h-4")}
+                              </div>
+                              <h3 className="text-base font-bold text-gray-900 dark:text-white leading-snug">{service.name}</h3>
+                            </div>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-6">{service.description}</p>
+                          </div>
+                          <div className="mt-auto pt-6 border-t border-gray-100 dark:border-white/10 flex items-center justify-between">
+                            <div className="flex flex-col">
+                              {discountPct > 0 && (
+                                <span className="text-xs text-gray-400 line-through">
+                                  R$ {service.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                </span>
+                              )}
+                              <span className="text-2xl font-bold text-primary dark:text-purple-400 flex items-center gap-2">
+                                R$ {finalPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                                {discountPct > 0 && (
+                                  <span className="text-[10px] bg-red-100 text-red-700 dark:bg-red-950/20 dark:text-red-300 px-1.5 py-0.5 rounded-full font-bold">
+                                    {discountPct}% OFF
+                                  </span>
+                                )}
+                              </span>
+                            </div>
+                            <button 
+                              type="button"
+                              onClick={() => handleOpenContract(service)}
+                              className="px-4 py-2 bg-primary/10 text-primary dark:bg-purple-950/30 dark:text-purple-300 font-medium rounded-lg hover:bg-primary hover:text-white dark:hover:bg-purple-600 dark:hover:text-white transition-colors"
+                            >
+                              Contratar
+                            </button>
+                          </div>
                         </div>
-                        <div className="mt-auto pt-6 border-t border-gray-100 flex items-center justify-between">
-                          <span className="text-2xl font-bold text-primary">
-                            R$ {service.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                          </span>
-                          <button 
-                            onClick={() => handleOpenContract(service)}
-                            className="px-4 py-2 bg-primary/10 text-primary font-medium rounded-lg hover:bg-primary hover:text-white transition-colors"
-                          >
-                            Contratar
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               );
@@ -189,9 +450,21 @@ export const EfficiencyServicesPage: React.FC = () => {
                 <p className="text-xs text-primary font-bold uppercase tracking-wider">Serviço Selecionado</p>
                 <p className="text-base font-bold text-gray-950 dark:text-white mt-1">{selectedService.name}</p>
                 <p className="text-xs text-gray-500 mt-1">{selectedService.description}</p>
-                <p className="text-xl font-bold text-primary mt-3">
-                  R$ {selectedService.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </p>
+                <div className="mt-3 flex flex-col">
+                  {getServiceDiscount(selectedService) > 0 && (
+                    <span className="text-xs text-gray-400 line-through">
+                      R$ {selectedService.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </span>
+                  )}
+                  <p className="text-xl font-bold text-primary flex items-center gap-2">
+                    R$ {(getServiceDiscount(selectedService) > 0 ? selectedService.price * (1 - getServiceDiscount(selectedService) / 100) : selectedService.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    {getServiceDiscount(selectedService) > 0 && (
+                      <span className="text-[10px] bg-red-100 text-red-700 dark:bg-red-950/20 dark:text-red-300 px-1.5 py-0.5 rounded-full font-bold">
+                        {getServiceDiscount(selectedService)}% OFF
+                      </span>
+                    )}
+                  </p>
+                </div>
               </div>
 
               {loggedInUser ? (

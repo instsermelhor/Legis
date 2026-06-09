@@ -7,6 +7,7 @@ import { StarRating } from '../common/StarRating';
 import { ChangePasswordModal } from '../common/ChangePasswordModal';
 import { ChangeEmailModal } from '../common/ChangeEmailModal';
 import { BRAZILIAN_STATES } from '../../constants';
+import { EfficiencyServicesPage } from './EfficiencyServicesPage';
 
 interface ClientDashboardProps {
   user: User;
@@ -365,7 +366,7 @@ const ActionCard: React.FC<{
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdateLawyerReview, onNavigate, onLogout }) => {
-    const [activeTab, setActiveTab] = useState<'perfil' | 'advogado' | 'casos'>('advogado');
+    const [activeTab, setActiveTab] = useState<'perfil' | 'advogado' | 'casos' | 'efficiency_services'>('advogado');
     const [messages, setMessages] = useState<Message[]>(initialMessages);
     const [newMessage, setNewMessage] = useState('');
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -476,6 +477,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                     <nav className="-mb-px flex overflow-x-auto">
                         {tabBtn('advogado', 'Meu Advogado', '⚖️')}
                         {tabBtn('casos', 'Meus Casos', '📋')}
+                        {tabBtn('efficiency_services', 'Serviços de Eficiência', '💼')}
                         {tabBtn('perfil', 'Meu Perfil', '👤')}
                         {onLogout && (
                             <button onClick={onLogout}
@@ -744,6 +746,13 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                                 <p className="text-gray-500 mt-2 max-w-md mx-auto">Você ainda não tem nenhum caso na plataforma.</p>
                             </div>
                         )}
+                    </div>
+                )}
+
+                {/* ─── ABA SERVIÇOS DE EFICIÊNCIA ─── */}
+                {activeTab === 'efficiency_services' && (
+                    <div className="space-y-6 animate-fade-in">
+                        <EfficiencyServicesPage embedded={true} />
                     </div>
                 )}
 
