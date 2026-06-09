@@ -142,7 +142,7 @@ export const dbCloud = {
   async testConnection(provider: 'firebase' | 'supabase', apiKey: string, projectId: string): Promise<boolean> {
     if (provider === 'firebase') {
       try {
-        const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/__test_connection__?key=${apiKey}`;
+        const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/test_connection?key=${apiKey}`;
         const res = await fetch(url);
         return res.status === 200 || res.status === 404;
       } catch {
