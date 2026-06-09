@@ -7,6 +7,8 @@ export const ServicesManagementTab: React.FC = () => {
   const [groups, setGroups] = useState<EfficiencyServiceGroup[]>([]);
   const [services, setServices] = useState<EfficiencyService[]>([]);
   const [groupDiscounts, setGroupDiscounts] = useState<Record<string, { lawyer: number; intern: number; secretary: number; client: number }>>({});
+  const [localGroupDiscounts, setLocalGroupDiscounts] = useState<Record<string, { lawyer: number; intern: number; secretary: number; client: number }>>({});
+  const [savedGroupsState, setSavedGroupsState] = useState<Record<string, boolean>>({});
   
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -41,7 +43,9 @@ export const ServicesManagementTab: React.FC = () => {
 
     const savedGroupDiscounts = localStorage.getItem('legis_group_discounts');
     if (savedGroupDiscounts) {
-      setGroupDiscounts(JSON.parse(savedGroupDiscounts));
+      const parsed = JSON.parse(savedGroupDiscounts);
+      setGroupDiscounts(parsed);
+      setLocalGroupDiscounts(parsed);
     }
   }, []);
 
@@ -114,14 +118,36 @@ export const ServicesManagementTab: React.FC = () => {
     setFormDiscountClient('');
   };
 
-  const handleSaveGroupDiscount = (groupId: string, role: 'lawyer' | 'intern' | 'secretary' | 'client', val: string) => {
+  const handleDiscountInputChange = (groupId: string, role: 'lawyer' | 'intern' | 'secretary' | 'client', val: string) => {
     const num = Math.min(100, Math.max(0, parseFloat(val) || 0));
-    const current = groupDiscounts[groupId] || { lawyer: 0, intern: 0, secretary: 0, client: 0 };
+    const current = localGroupDiscounts[groupId] || { lawyer: 0, intern: 0, secretary: 0, client: 0 };
     const updatedGroup = { ...current, [role]: num };
-    const updatedDiscounts = { ...groupDiscounts, [groupId]: updatedGroup };
+    setLocalGroupDiscounts(prev => ({
+      ...prev,
+      [groupId]: updatedGroup
+    }));
+  };
+
+  const isGroupDiscountDirty = (groupId: string) => {
+    const saved = groupDiscounts[groupId] || { lawyer: 0, intern: 0, secretary: 0, client: 0 };
+    const local = localGroupDiscounts[groupId] || { lawyer: 0, intern: 0, secretary: 0, client: 0 };
+    return saved.lawyer !== local.lawyer ||
+           saved.intern !== local.intern ||
+           saved.secretary !== local.secretary ||
+           saved.client !== local.client;
+  };
+
+  const handleSaveGroupDiscount = (groupId: string) => {
+    const localVal = localGroupDiscounts[groupId] || { lawyer: 0, intern: 0, secretary: 0, client: 0 };
+    const updatedDiscounts = { ...groupDiscounts, [groupId]: localVal };
     
     setGroupDiscounts(updatedDiscounts);
     localStorage.setItem('legis_group_discounts', JSON.stringify(updatedDiscounts));
+    
+    setSavedGroupsState(prev => ({ ...prev, [groupId]: true }));
+    setTimeout(() => {
+      setSavedGroupsState(prev => ({ ...prev, [groupId]: false }));
+    }, 2000);
   };
 
   return (
@@ -208,32 +234,49 @@ export const ServicesManagementTab: React.FC = () => {
                 </div>
 
                 {/* Group Discounts */}
-                <div className="bg-purple-50/40 dark:bg-purple-950/10 px-6 py-4 border-b border-gray-200 dark:border-[#2A2545] space-y-2">
-                  <p className="text-[10px] font-bold text-purple-700 dark:text-purple-400 uppercase tracking-widest">Desconto Geral do Grupo para Assinantes (%)</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    {[
-                      { role: 'lawyer', label: 'Advogados' },
-                      { role: 'intern', label: 'Bacharelandos' },
-                      { role: 'secretary', label: 'Secret./Assist.' },
-                      { role: 'client', label: 'Clientes' }
-                    ].map(item => {
-                      const val = groupDiscounts[group.id]?.[item.role as 'lawyer'] ?? 0;
-                      return (
-                        <div key={item.role} className="flex items-center gap-2 text-xs">
-                          <span className="font-semibold text-gray-600 dark:text-gray-400 shrink-0">{item.label}:</span>
-                          <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            value={val || ''}
-                            placeholder="0"
-                            onChange={e => handleSaveGroupDiscount(group.id, item.role as any, e.target.value)}
-                            className="w-16 border border-gray-300 dark:border-[#3A3555] rounded px-2.5 py-1 text-center bg-white dark:bg-[#2A2545] text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
-                          />
-                          <span className="text-gray-400 font-semibold">%</span>
-                        </div>
-                      );
-                    })}
+                <div className="bg-purple-50/40 dark:bg-purple-950/10 px-6 py-4 border-b border-gray-200 dark:border-[#2A2545] flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-2 flex-1">
+                    <p className="text-[10px] font-bold text-purple-700 dark:text-purple-400 uppercase tracking-widest">Desconto Geral do Grupo para Assinantes (%)</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                      {[
+                        { role: 'lawyer', label: 'Advogados' },
+                        { role: 'intern', label: 'Bacharelandos' },
+                        { role: 'secretary', label: 'Secret./Assist.' },
+                        { role: 'client', label: 'Clientes' }
+                      ].map(item => {
+                        const val = localGroupDiscounts[group.id]?.[item.role as 'lawyer'] ?? 0;
+                        return (
+                          <div key={item.role} className="flex items-center gap-2 text-xs">
+                            <span className="font-semibold text-gray-600 dark:text-gray-400 shrink-0">{item.label}:</span>
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={val || ''}
+                              placeholder="0"
+                              onChange={e => handleDiscountInputChange(group.id, item.role as any, e.target.value)}
+                              className="w-16 border border-gray-300 dark:border-[#3A3555] rounded px-2.5 py-1 text-center bg-white dark:bg-[#2A2545] text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
+                            />
+                            <span className="text-gray-400 font-semibold">%</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="flex items-end justify-end shrink-0">
+                    <button
+                      onClick={() => handleSaveGroupDiscount(group.id)}
+                      className={`px-4 py-2 text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 ${
+                        isGroupDiscountDirty(group.id)
+                          ? 'bg-primary text-white hover:bg-primary/90 shadow-sm'
+                          : 'bg-gray-100 text-gray-400 dark:bg-[#2A2545] dark:text-gray-500 cursor-not-allowed'
+                      }`}
+                      disabled={!isGroupDiscountDirty(group.id)}
+                    >
+                      <span>💾</span>
+                      <span>{savedGroupsState[group.id] ? 'Salvo!' : 'Salvar'}</span>
+                    </button>
                   </div>
                 </div>
 
