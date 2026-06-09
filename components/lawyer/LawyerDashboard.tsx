@@ -1192,29 +1192,30 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
 
                             {/* Checkbox permissions grid */}
                             {linkedInternId && (
-                                <div className="bg-white rounded-xl border border-indigo-200 shadow-sm p-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-                                    <h4 className="font-bold text-sm text-gray-800 mb-2 flex items-center gap-1.5 dark:text-gray-100">
+                                <div className="bg-white rounded-xl border border-indigo-200 shadow-sm p-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                                    <h4 className="font-bold text-xs text-gray-800 mb-1 flex items-center gap-1.5 dark:text-gray-100">
                                         <span>⚙️</span> Controle de Acesso do Estagiário ({mockInterns.find(i => i.id === linkedInternId)?.name})
                                     </h4>
-                                    <p className="text-xs text-gray-500 mb-4">Selecione quais ferramentas baseadas em IA o estagiário poderá acessar no painel dele:</p>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                                    <p className="text-[11px] text-gray-500 mb-3">Selecione quais ferramentas baseadas em IA o estagiário poderá acessar no painel dele:</p>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                                         {ALL_IA_TOOLS.map(t => {
                                             const isChecked = internPerms.includes(t.key);
                                             return (
-                                                <label key={t.key} className="flex items-center gap-2.5 p-3 rounded-lg border border-gray-250 hover:bg-gray-50 cursor-pointer transition-colors dark:border-[#2A2545] dark:hover:bg-[#2A2545]">
+                                                <label key={t.key} className="flex items-center gap-2 p-2 rounded-lg border border-gray-250 hover:bg-gray-50 cursor-pointer transition-colors dark:border-[#2A2545] dark:hover:bg-[#2A2545]">
                                                     <input
                                                         type="checkbox"
                                                         checked={isChecked}
                                                         onChange={() => toggleInternPerm(t.key)}
-                                                        className="rounded border-gray-300 text-indigo-650 focus:ring-indigo-550 dark:bg-black/20 dark:border-gray-650"
+                                                        className="rounded border-gray-300 text-indigo-650 focus:ring-indigo-550 dark:bg-black/20 dark:border-gray-655"
                                                     />
-                                                    <span className="text-xs font-semibold text-gray-805 dark:text-gray-200">{t.label}</span>
+                                                    <span className="text-[11px] font-semibold text-gray-805 dark:text-gray-200">{t.label}</span>
                                                 </label>
                                             );
                                         })}
                                     </div>
                                 </div>
                             )}
+
 
 
                             {/* Success Banner */}
@@ -1334,29 +1335,30 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
 
                             {/* Checkbox permissions grid */}
                             {linkedSecretaryId && (
-                                <div className="bg-white rounded-xl border border-purple-200 shadow-sm p-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-                                    <h4 className="font-bold text-sm text-gray-800 mb-2 flex items-center gap-1.5 dark:text-gray-100">
+                                <div className="bg-white rounded-xl border border-purple-200 shadow-sm p-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                                    <h4 className="font-bold text-xs text-gray-800 mb-1 flex items-center gap-1.5 dark:text-gray-100">
                                         <span>⚙️</span> Controle de Acesso do(a) Secretário(a) ({mockSecretaries.find(s => s.id === linkedSecretaryId)?.name})
                                     </h4>
-                                    <p className="text-xs text-gray-500 mb-4">Selecione quais ferramentas baseadas em IA o(a) secretário(a) poderá acessar no painel dele(a):</p>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                                    <p className="text-[11px] text-gray-500 mb-3">Selecione quais ferramentas baseadas em IA o(a) secretário(a) poderá acessar no painel dele(a):</p>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                                         {ALL_IA_TOOLS.map(t => {
                                             const isChecked = secretaryPerms.includes(t.key);
                                             return (
-                                                <label key={t.key} className="flex items-center gap-2.5 p-3 rounded-lg border border-gray-250 hover:bg-gray-50 cursor-pointer transition-colors dark:border-[#2A2545] dark:hover:bg-[#2A2545]">
+                                                <label key={t.key} className="flex items-center gap-2 p-2 rounded-lg border border-gray-250 hover:bg-gray-50 cursor-pointer transition-colors dark:border-[#2A2545] dark:hover:bg-[#2A2545]">
                                                     <input
                                                         type="checkbox"
                                                         checked={isChecked}
                                                         onChange={() => toggleSecretaryPerm(t.key)}
                                                         className="rounded border-gray-300 text-purple-650 focus:ring-purple-550 dark:bg-black/20 dark:border-gray-655"
                                                     />
-                                                    <span className="text-xs font-semibold text-gray-805 dark:text-gray-200">{t.label}</span>
+                                                    <span className="text-[11px] font-semibold text-gray-805 dark:text-gray-200">{t.label}</span>
                                                 </label>
                                             );
                                         })}
                                     </div>
                                 </div>
                             )}
+
 
 
                             {/* Success Banner */}
