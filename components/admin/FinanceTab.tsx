@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import type { Lawyer, EfficiencyService, EfficiencyServiceGroup, BiApoio, BiDadosBase } from '../../types';
-import { mockClients, mockInterns, mockSecretaries, mockMonthlyRevenue, mockEfficiencyServices, mockEfficiencyServiceGroups, mockBiApoio, mockBiDadosBase } from '../../services/mockDataService';
+import type { Lawyer, EfficiencyService, EfficiencyServiceGroup, BiApoio, BiDadosBase, BiCliente, BiVenda } from '../../types';
+import { mockClients, mockInterns, mockSecretaries, mockMonthlyRevenue, mockEfficiencyServices, mockEfficiencyServiceGroups, mockBiApoio, mockBiDadosBase, mockBiClientes, mockBiVendas } from '../../services/mockDataService';
 import { SectionTitle, SearchInput, IconBriefcase, IconUsers, IconGradCap, IconSettings } from './AdminShared';
 
 // ─── Secretary Icon ───────────────────────────────────────────────────────────
@@ -14,7 +14,7 @@ const BRAZIL_STATES = ['Todos', 'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA
 type FilterType = 'lawyers' | 'clients' | 'interns' | 'secretaries' | 'services';
 
 export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }> = ({ lawyers, initialFilter }) => {
-  const [viewMode, setViewMode] = useState<'profiles' | 'bi_dashboard'>('profiles');
+  const [viewMode, setViewMode] = useState<'profiles' | 'bi_dashboard' | 'bi_aluguel'>('profiles');
   const [filterType, setFilterType] = useState<FilterType>(
     initialFilter === 'clients' ? 'clients'
     : initialFilter === 'interns' ? 'interns'
@@ -25,6 +25,9 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
   const [stateFilter, setStateFilter] = useState('Todos');
   const [search, setSearch] = useState('');
   const [timeFilter, setTimeFilter] = useState('Mensal');
+
+  // New Equipment Rental Critical Table filter state
+  const [criticalFilter, setCriticalFilter] = useState<'all' | 'critical'>('critical');
 
   // Load BI config
   const biApoio = useMemo<BiApoio>(() => {
@@ -37,6 +40,157 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
     const data = saved ? JSON.parse(saved) : mockBiDadosBase;
     return [...data].sort((a, b) => a.mes_ano.localeCompare(b.mes_ano));
   }, []);
+
+  const biClientes = useMemo<BiCliente[]>(() => {
+    const saved = localStorage.getItem('legis_bi_clientes');
+    return saved ? JSON.parse(saved) : mockBiClientes;
+  }, []);
+
+  const biVendas = useMemo<BiVenda[]>(() => {
+    const saved = localStorage.getItem('legis_bi_vendas');
+    const data = saved ? JSON.parse(saved) : mockBiVendas;
+    return [...data].sort((a, b) => a.data.localeCompare(b.data));
+  }, []);
+
+  const aluguelMetrics = useMemo(() => {
+    const totalFat = biVendas.reduce((sum, v) => sum + v.valor_total, 0);
+    const totalLucro = biVendas.reduce((sum, v) => sum + v.lucro, 0);
+    const avgMargem = totalFat > 0 ? totalLucro / totalFat : 0;
+    
+    // Average days
+    let daysSum = 0;
+    let countWithDays = 0;
+    biVendas.forEach(v => {
+      if (v.data_retirada && v.data_devolucao) {
+        const d1 = new Date(v.data_retirada + 'T12:00:00');
+        const d2 = new Date(v.data_devolucao + 'T12:00:00');
+        const diff = d2.getTime() - d1.getTime();
+        const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+        if (days >= 0) {
+          daysSum += days;
+          countWithDays++;
+        }
+      }
+    });
+    const avgDays = countWithDays > 0 ? daysSum / countWithDays : 0;
+    
+    // Valor Não Devolvido
+    const valorNaoDevolvido = biVendas
+      .filter(v => v.status_aluguel === 'Não devolvido')
+      .reduce((sum, v) => sum + v.valor_total, 0);
+
+    const totalQtdContratada = biVendas.reduce((sum, v) => sum + v.qtd, 0);
+    
+    return {
+      totalFat,
+      totalLucro,
+      avgMargem,
+      avgDays,
+      valorNaoDevolvido,
+      totalQtdContratada,
+    };
+  }, [biVendas]);
+
+  // Equipment Rental aggregations
+  const monthlyAggregated = useMemo(() => {
+    const monthNames: Record<string, string> = {
+      '08': 'Ago',
+      '09': 'Set',
+      '10': 'Out',
+      '11': 'Nov',
+      '12': 'Dez',
+    };
+    const groups: Record<string, { faturamento: number; lucro: number }> = {
+      '08': { faturamento: 0, lucro: 0 },
+      '09': { faturamento: 0, lucro: 0 },
+      '10': { faturamento: 0, lucro: 0 },
+      '11': { faturamento: 0, lucro: 0 },
+      '12': { faturamento: 0, lucro: 0 },
+    };
+    biVendas.forEach(v => {
+      if (v.data_referencia) {
+        const parts = v.data_referencia.split('-');
+        const monthPart = parts[1];
+        if (monthPart && groups[monthPart]) {
+          groups[monthPart].faturamento += v.valor_total;
+          groups[monthPart].lucro += v.lucro;
+        }
+      }
+    });
+    return Object.keys(groups).sort().map(m => ({
+      month: monthNames[m] || m,
+      faturamento: groups[m].faturamento,
+      lucro: groups[m].lucro,
+    }));
+  }, [biVendas]);
+
+  const productRanking = useMemo(() => {
+    const map: Record<string, number> = {};
+    biVendas.forEach(v => {
+      const name = v.produto.split(' - ')[1] || v.produto;
+      map[name] = (map[name] || 0) + v.valor_total;
+    });
+    return Object.entries(map)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+  }, [biVendas]);
+
+  const cityRanking = useMemo(() => {
+    const map: Record<string, number> = {};
+    biVendas.forEach(v => {
+      const client = biClientes.find(c => c.lista_concatenada === v.cliente);
+      const city = client?.cidade || 'Outros';
+      map[city] = (map[city] || 0) + v.valor_total;
+    });
+    return Object.entries(map)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+  }, [biVendas, biClientes]);
+
+  const statusDistribution = useMemo(() => {
+    const map: Record<string, number> = {
+      'Devolvido': 0,
+      'Não devolvido': 0,
+      'Não retirado ainda': 0,
+    };
+    biVendas.forEach(v => {
+      const status = v.status_aluguel || 'Não retirado ainda';
+      map[status] = (map[status] || 0) + v.valor_total;
+    });
+    const total = Object.values(map).reduce((a, b) => a + b, 0) || 1;
+    return Object.entries(map).map(([name, value]) => ({
+      name,
+      value,
+      pct: value / total,
+    }));
+  }, [biVendas]);
+
+  const supplierRanking = useMemo(() => {
+    const map: Record<string, number> = {};
+    biVendas.forEach(v => {
+      const name = v.fornecedor.split(' - ')[1] || v.fornecedor;
+      map[name] = (map[name] || 0) + 1;
+    });
+    return Object.entries(map)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+  }, [biVendas]);
+
+  const criticalVendas = useMemo(() => {
+    let data = biVendas;
+    if (criticalFilter === 'critical') {
+      data = biVendas.filter(v => v.status_aluguel === 'Não devolvido');
+    }
+    return data.map(v => {
+      const clientName = v.cliente.split(' - ')[1] || v.cliente;
+      const prodName = v.produto.split(' - ')[1] || v.produto;
+      return {
+        ...v,
+        cliente: clientName,
+        produto: prodName,
+      };
+    });
+  }, [biVendas, criticalFilter]);
 
   // Calculations for BI Dashboard
   const processedData = useMemo(() => {
@@ -198,7 +352,13 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
               onClick={() => setViewMode('bi_dashboard')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 ${viewMode === 'bi_dashboard' ? 'bg-primary text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-primary'}`}
             >
-              📊 BI Dashboard
+              📊 BI Geral
+            </button>
+            <button
+              onClick={() => setViewMode('bi_aluguel')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 ${viewMode === 'bi_aluguel' ? 'bg-primary text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-primary'}`}
+            >
+              🚜 BI Aluguer Equipamentos
             </button>
           </div>
 
@@ -575,6 +735,380 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
              ) : (
                <p className="text-center text-gray-400 py-12">Nenhum dado disponível.</p>
              )}
+           </div>
+        </div>
+      ) : viewMode === 'bi_aluguel' ? (
+        <div className="space-y-8 animate-fade-in text-left">
+           {/* Equipment Rental BI Dashboard */}
+           {/* KPI Cards */}
+           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+             {/* Card 1: Faturamento Total */}
+             <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 shadow-sm space-y-1">
+               <div className="flex items-center justify-between">
+                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Faturamento Total</span>
+                 <span className="text-xl">💰</span>
+               </div>
+               <p className="text-2xl font-black text-gray-800 dark:text-white">R$ {aluguelMetrics.totalFat.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</p>
+               <p className="text-[10px] text-gray-400">Soma de fato_vendas[Valor Total]</p>
+             </div>
+
+             {/* Card 2: Lucro Líquido */}
+             <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 shadow-sm space-y-1">
+               <div className="flex items-center justify-between">
+                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Lucro Líquido Acumulado</span>
+                 <span className="text-xl">📈</span>
+               </div>
+               <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
+                 R$ {aluguelMetrics.totalLucro.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}
+               </p>
+               <p className="text-[10px] text-gray-400">Soma de fato_vendas[Lucro]</p>
+             </div>
+
+             {/* Card 3: Margem Média */}
+             <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 shadow-sm space-y-1">
+               <div className="flex items-center justify-between">
+                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Margem de Lucro Média</span>
+                 <span className="text-xs text-purple-700 bg-purple-50 px-2 py-0.5 rounded font-bold">Rentabilidade</span>
+               </div>
+               <p className="text-2xl font-black text-gray-800 dark:text-white">{(aluguelMetrics.avgMargem * 100).toFixed(1)}%</p>
+               <p className="text-[10px] text-gray-400">Lucro Total / Faturamento Total</p>
+             </div>
+
+             {/* Card 4: Tempo Médio & Qtd */}
+             <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 shadow-sm space-y-1">
+               <div className="flex items-center justify-between">
+                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Tempo Médio de Aluguer</span>
+                 <span className="text-xs text-blue-700 bg-blue-50 px-2 py-0.5 rounded font-bold">Qtd: {aluguelMetrics.totalQtdContratada}</span>
+               </div>
+               <div className="flex items-baseline gap-1.5">
+                 <p className="text-2xl font-black text-gray-800 dark:text-white">{aluguelMetrics.avgDays.toFixed(1)} dias</p>
+               </div>
+               <p className="text-[10px] text-gray-400">Média de dias (retirada vs devolução)</p>
+             </div>
+           </div>
+
+           {/* Perspective 1: Performance Financeira e Comercial */}
+           <div className="bg-purple-50/20 dark:bg-purple-950/10 border border-purple-100 dark:border-purple-900/30 rounded-2xl p-5 space-y-6">
+             <div className="border-b dark:border-purple-900/30 pb-2">
+               <h3 className="text-sm font-bold text-purple-800 dark:text-purple-300 uppercase tracking-wide flex items-center gap-1.5">
+                 <span>📈</span> PERSPECTIVA 1: Performance Financeira e Comercial
+               </h3>
+             </div>
+
+             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+               {/* Line Chart: Evolução Mensal */}
+               <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-6 shadow-sm flex flex-col justify-between lg:col-span-2">
+                 <div>
+                   <h4 className="text-sm font-bold text-gray-800 dark:text-white flex items-center justify-between">
+                     <span>📈 Evolução Mensal (Ago - Dez)</span>
+                     <span className="text-[10px] font-medium text-gray-400">Valores em R$</span>
+                   </h4>
+                   <p className="text-xs text-gray-400 mt-0.5">Evolução do faturamento total e do lucro líquido no período.</p>
+                 </div>
+
+                 {/* Line SVG Chart */}
+                 {monthlyAggregated.length > 0 ? (
+                   <div className="relative h-60 mt-6">
+                     <svg className="w-full h-full" viewBox="0 0 500 220" preserveAspectRatio="none">
+                       {/* Grid lines */}
+                       {[0.2, 0.4, 0.6, 0.8, 1.0].map((level, idx) => {
+                         const maxV = Math.max(...monthlyAggregated.map(m => Math.max(m.faturamento, m.lucro)), 1000) || 1000;
+                         const y = 200 - (level * 180);
+                         return (
+                           <g key={idx}>
+                             <line x1="40" y1={y} x2="480" y2={y} stroke="#E5E7EB" strokeWidth="0.5" strokeDasharray="3,3" />
+                             <text x="5" y={y + 4} className="text-[9px] fill-gray-400 font-mono">R$ {Math.round(level * maxV / 1000)}k</text>
+                           </g>
+                         );
+                       })}
+
+                       {/* Paths & Points */}
+                       {(() => {
+                         const maxV = Math.max(...monthlyAggregated.map(m => Math.max(m.faturamento, m.lucro)), 1000) || 1000;
+                         const pointsFat = monthlyAggregated.map((m, idx) => {
+                           const x = 50 + (idx * (410 / (monthlyAggregated.length - 1 || 1)));
+                           const y = 200 - (m.faturamento / maxV * 180);
+                           return { x, y, val: m.faturamento };
+                         });
+
+                         const pointsLuc = monthlyAggregated.map((m, idx) => {
+                           const x = 50 + (idx * (410 / (monthlyAggregated.length - 1 || 1)));
+                           const y = 200 - (m.lucro / maxV * 180);
+                           return { x, y, val: m.lucro };
+                         });
+
+                         const dFat = pointsFat.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+                         const dLuc = pointsLuc.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+
+                         return (
+                           <g>
+                             {/* Faturamento Line */}
+                             <path d={dFat} fill="none" stroke="#3B82F6" strokeWidth="2.5" />
+                             {pointsFat.map((p, idx) => (
+                               <circle key={`f-${idx}`} cx={p.x} cy={p.y} r="4.5" fill="#3B82F6" stroke="#FFFFFF" strokeWidth="1.5" />
+                             ))}
+
+                             {/* Lucro Line */}
+                             <path d={dLuc} fill="none" stroke="#10B981" strokeWidth="2.5" />
+                             {pointsLuc.map((p, idx) => (
+                               <circle key={`l-${idx}`} cx={p.x} cy={p.y} r="4.5" fill="#10B981" stroke="#FFFFFF" strokeWidth="1.5" />
+                             ))}
+                           </g>
+                         );
+                       })()}
+
+                       {/* X Axis Labels */}
+                       {monthlyAggregated.map((d, idx) => {
+                         const x = 50 + (idx * (410 / (monthlyAggregated.length - 1 || 1)));
+                         return (
+                           <text key={idx} x={x} y="215" textAnchor="middle" className="text-[10px] fill-gray-400 font-bold">
+                             {d.month}
+                           </text>
+                         );
+                       })}
+                     </svg>
+
+                     {/* Legend */}
+                     <div className="flex justify-center gap-6 mt-2 text-[10px]">
+                       <div className="flex items-center gap-1">
+                         <span className="w-2.5 h-2.5 rounded bg-blue-500 inline-block" />
+                         <span className="text-gray-500">Faturamento</span>
+                       </div>
+                       <div className="flex items-center gap-1">
+                         <span className="w-2.5 h-2.5 rounded bg-emerald-500 inline-block" />
+                         <span className="text-gray-500">Lucro Líquido</span>
+                       </div>
+                     </div>
+                   </div>
+                 ) : (
+                   <p className="text-center text-gray-400 py-12">Sem dados de evolução.</p>
+                 )}
+               </div>
+
+               {/* Ranking de Serviços / Produtos */}
+               <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-6 shadow-sm space-y-4">
+                 <div>
+                   <h4 className="text-sm font-bold text-gray-800 dark:text-white">🏷️ Faturamento por Serviço</h4>
+                   <p className="text-xs text-gray-400 mt-0.5">Ranking dos serviços/produtos mais rentáveis.</p>
+                 </div>
+
+                 <div className="space-y-3">
+                   {productRanking.map((p, idx) => {
+                     const max = Math.max(...productRanking.map(x => x.value)) || 1;
+                     const pct = (p.value / max) * 100;
+                     return (
+                       <div key={p.name} className="space-y-1">
+                         <div className="flex justify-between items-baseline text-[10px] font-semibold">
+                           <span className="text-gray-700 dark:text-gray-300 truncate max-w-[150px]">{idx + 1}. {p.name}</span>
+                           <span className="text-gray-500 font-mono">R$ {p.value.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</span>
+                         </div>
+                         <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
+                           <div className="h-full rounded-full bg-purple-600" style={{ width: `${pct}%` }} />
+                         </div>
+                       </div>
+                     );
+                   })}
+                   {productRanking.length === 0 && <p className="text-xs text-gray-400 py-8 text-center">Nenhum dado.</p>}
+                 </div>
+               </div>
+             </div>
+
+             {/* Geográfico / Cidade do Cliente */}
+             <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-6 shadow-sm">
+               <div>
+                 <h4 className="text-sm font-bold text-gray-800 dark:text-white">📍 Faturamento por Cidade do Cliente</h4>
+                 <p className="text-xs text-gray-400 mt-0.5">Distribuição das contratações por localização do cliente.</p>
+               </div>
+               
+               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
+                 {cityRanking.map(c => (
+                   <div key={c.name} className="bg-gray-50 dark:bg-[#1E1B38] p-4 rounded-xl border border-gray-100 dark:border-[#2A2545]">
+                     <p className="text-[10px] text-gray-400 uppercase font-bold">{c.name}</p>
+                     <p className="text-lg font-black text-gray-800 dark:text-white mt-1">R$ {c.value.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</p>
+                     <div className="w-full bg-gray-200 dark:bg-gray-700 h-1.5 rounded-full mt-2 overflow-hidden">
+                       <div className="bg-blue-500 h-full rounded-full" style={{ width: `${Math.min(100, c.value / (aluguelMetrics.totalFat || 1) * 100)}%` }} />
+                     </div>
+                   </div>
+                 ))}
+                 {cityRanking.length === 0 && <p className="text-xs text-gray-400 col-span-full py-6 text-center">Nenhum dado geográfico.</p>}
+               </div>
+             </div>
+           </div>
+
+           {/* Perspective 2: Controlo Logístico e Operacional */}
+           <div className="bg-blue-50/20 dark:bg-blue-950/10 border border-blue-100 dark:border-blue-900/30 rounded-2xl p-5 space-y-6">
+             <div className="border-b dark:border-blue-900/30 pb-2">
+               <h3 className="text-sm font-bold text-blue-800 dark:text-blue-300 uppercase tracking-wide flex items-center gap-1.5">
+                 <span>⚙️</span> PERSPECTIVA 2: Controlo Logístico e Operacional
+               </h3>
+             </div>
+
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+               {/* Rosca / Donut: Status do Aluguer */}
+               <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-6 shadow-sm space-y-4 flex flex-col justify-between">
+                 <div>
+                   <h4 className="text-sm font-bold text-gray-800 dark:text-white">🍩 Status do Aluguel</h4>
+                   <p className="text-xs text-gray-400 mt-0.5">Distribuição do faturamento total por status de devolução/retirada.</p>
+                 </div>
+
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
+                   {/* SVG Donut */}
+                   <div className="relative flex justify-center">
+                     <svg className="w-36 h-36" viewBox="0 0 100 100">
+                       {(() => {
+                         let accumulatedAngle = 0;
+                         const colors: Record<string, string> = {
+                           'Devolvido': '#10B981',
+                           'Não devolvido': '#EF4444',
+                           'Não retirado ainda': '#F59E0B',
+                         };
+                         return statusDistribution.map((s, idx) => {
+                           const percentage = s.pct;
+                           if (percentage <= 0) return null;
+                           const strokeDash = `${percentage * 251.2} ${251.2 * (1 - percentage)}`;
+                           const strokeOffset = -accumulatedAngle * 251.2;
+                           accumulatedAngle += percentage;
+                           return (
+                             <circle
+                               key={idx}
+                               cx="50"
+                               cy="50"
+                               r="40"
+                               fill="transparent"
+                               stroke={colors[s.name] || '#9CA3AF'}
+                               strokeWidth="11"
+                               strokeDasharray={strokeDash}
+                               strokeDashoffset={strokeOffset}
+                               transform="rotate(-90 50 50)"
+                             />
+                           );
+                         });
+                       })()}
+                       <circle cx="50" cy="50" r="29" className="fill-white dark:fill-[#1A1730]" />
+                       <text x="50" y="48" textAnchor="middle" className="text-[6px] font-bold fill-gray-400 uppercase tracking-wider">Inadimplência</text>
+                       <text x="50" y="58" textAnchor="middle" className="text-[8px] font-black fill-red-600">
+                         {((aluguelMetrics.valorNaoDevolvido / (aluguelMetrics.totalFat || 1)) * 100).toFixed(1)}%
+                       </text>
+                     </svg>
+                   </div>
+
+                   {/* Legend & values */}
+                   <div className="space-y-2">
+                     {statusDistribution.map(s => {
+                       const colors: Record<string, string> = {
+                         'Devolvido': 'bg-emerald-500',
+                         'Não devolvido': 'bg-red-500',
+                         'Não retirado ainda': 'bg-amber-500',
+                       };
+                       return (
+                         <div key={s.name} className="space-y-0.5">
+                           <div className="flex items-center gap-1.5 text-[10px] font-semibold">
+                             <span className={`w-2 h-2 rounded-full ${colors[s.name]}`} />
+                             <span className="text-gray-700 dark:text-gray-300 truncate">{s.name}</span>
+                             <span className="text-gray-400 font-mono">({(s.pct * 100).toFixed(0)}%)</span>
+                           </div>
+                           <p className="text-[10px] text-gray-500 pl-3.5">R$ {s.value.toLocaleString('pt-BR')}</p>
+                         </div>
+                       );
+                     })}
+                   </div>
+                 </div>
+               </div>
+
+               {/* Desempenho por Fornecedor (Qtd) */}
+               <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-6 shadow-sm space-y-4">
+                 <div>
+                   <h4 className="text-sm font-bold text-gray-800 dark:text-white">🏢 Desempenho por Fornecedor</h4>
+                   <p className="text-xs text-gray-400 mt-0.5">Quantidade total de serviços contratados de cada parceiro.</p>
+                 </div>
+
+                 <div className="space-y-3">
+                   {supplierRanking.map((s, idx) => {
+                     const max = Math.max(...supplierRanking.map(x => x.value)) || 1;
+                     const pct = (s.value / max) * 100;
+                     return (
+                       <div key={s.name} className="space-y-1">
+                         <div className="flex justify-between items-baseline text-[10px] font-semibold">
+                           <span className="text-gray-700 dark:text-gray-300">{idx + 1}. {s.name}</span>
+                           <span className="text-gray-500 font-mono">{s.value} locações</span>
+                         </div>
+                         <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                           <div className="h-full rounded-full bg-blue-600" style={{ width: `${pct}%` }} />
+                         </div>
+                       </div>
+                     );
+                   })}
+                   {supplierRanking.length === 0 && <p className="text-xs text-gray-400 py-8 text-center">Nenhum fornecedor registrado.</p>}
+                 </div>
+               </div>
+             </div>
+
+             {/* Tabela de Serviços Críticos */}
+             <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-6 shadow-sm space-y-4">
+               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                 <div>
+                   <h4 className="text-sm font-bold text-red-600 dark:text-red-400 flex items-center gap-1.5">
+                     <span>⚠️</span> Detalhe de Serviços Críticos (Ativos Retidos)
+                   </h4>
+                   <p className="text-xs text-gray-400 mt-0.5">Lista de equipamentos em atraso ou não devolvidos para cobrança operacional.</p>
+                 </div>
+
+                 <div className="flex bg-gray-100 dark:bg-[#201C3D] p-1 rounded-xl border border-gray-200 dark:border-[#2A2545] shadow-sm shrink-0">
+                   <button
+                     type="button"
+                     onClick={() => setCriticalFilter('critical')}
+                     className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-150 ${criticalFilter === 'critical' ? 'bg-red-500 text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-red-500'}`}
+                   >
+                     Apenas Não Devolvidos
+                   </button>
+                   <button
+                     type="button"
+                     onClick={() => setCriticalFilter('all')}
+                     className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-150 ${criticalFilter === 'all' ? 'bg-primary text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-primary'}`}
+                   >
+                     Todos
+                   </button>
+                 </div>
+               </div>
+
+               <div className="overflow-x-auto border border-gray-200 dark:border-[#2A2545] rounded-lg">
+                 <table className="w-full text-xs text-left bg-white dark:bg-[#1A1730]">
+                   <thead className="bg-gray-100 dark:bg-[#201C3D] uppercase font-bold text-gray-700 dark:text-gray-300 border-b dark:border-[#2A2545]">
+                     <tr>
+                       <th className="px-4 py-2">Cliente</th>
+                       <th className="px-4 py-2">Produto</th>
+                       <th className="px-4 py-2">Data Retirada</th>
+                       <th className="px-4 py-2 text-right">Valor Total</th>
+                       <th className="px-4 py-2 text-center">Status</th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     {criticalVendas.map(v => (
+                       <tr key={v.id_tab} className="border-b dark:border-[#2A2545] hover:bg-gray-50 dark:hover:bg-[#221d3f]">
+                         <td className="px-4 py-2 font-medium">{v.cliente}</td>
+                         <td className="px-4 py-2">{v.produto}</td>
+                         <td className="px-4 py-2">{v.data_retirada ? new Date(v.data_retirada + 'T12:00:00').toLocaleDateString('pt-BR') : '—'}</td>
+                         <td className="px-4 py-2 text-right font-bold text-gray-800 dark:text-white">R$ {v.valor_total.toLocaleString('pt-BR')}</td>
+                         <td className="px-4 py-2 text-center">
+                           <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                             v.status_aluguel === 'Devolvido' ? 'bg-green-100 text-green-800' :
+                             v.status_aluguel === 'Não devolvido' ? 'bg-red-100 text-red-800' :
+                             'bg-yellow-100 text-yellow-800'
+                           }`}>
+                             {v.status_aluguel}
+                           </span>
+                         </td>
+                       </tr>
+                     ))}
+                     {criticalVendas.length === 0 && (
+                       <tr>
+                         <td colSpan={5} className="px-4 py-6 text-center text-gray-400">Nenhum registro crítico encontrado.</td>
+                       </tr>
+                     )}
+                   </tbody>
+                 </table>
+               </div>
+             </div>
            </div>
         </div>
       ) : (

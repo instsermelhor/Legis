@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { mockLegalDocuments, mockAdminUsers, mockEfficiencyServiceGroups, hashPassword, mockBiApoio, mockBiDadosBase } from '../../services/mockDataService';
+import { mockLegalDocuments, mockAdminUsers, mockEfficiencyServiceGroups, hashPassword, mockBiApoio, mockBiDadosBase, mockBiClientes, mockBiProdutos, mockBiFornecedores, mockBiVendas } from '../../services/mockDataService';
 import type { LegalDocument, AdminUser } from '../../services/mockDataService';
 import { SectionTitle, IconEdit, IconPlus, IconKey, IconUpload, IconTrash } from './AdminShared';
-import { dbCodes, LegalCode, dbCloud } from '../../services/dbService';
+import { dbCodes, LegalCode, dbCloud, CodeVersion } from '../../services/dbService';
 import { useAppConfig } from '../../context/AppContext';
-import type { EfficiencyServiceGroup, BiApoio, BiDadosBase } from '../../types';
+import type { EfficiencyServiceGroup, BiApoio, BiDadosBase, BiCliente, BiProduto, BiFornecedor, BiVenda } from '../../types';
 import { LegalAiTools } from '../common/LegalAiTools';
 
 
@@ -1099,6 +1099,58 @@ const GeneralSettings: React.FC = () => {
     return saved ? JSON.parse(saved) : mockBiDadosBase;
   });
 
+  // New BI Equipamentos/Serviços de Eficiência states
+  const [biClientes, setBiClientes] = useState<BiCliente[]>(() => {
+    const saved = localStorage.getItem('legis_bi_clientes');
+    return saved ? JSON.parse(saved) : mockBiClientes;
+  });
+
+  const [biProdutos, setBiProdutos] = useState<BiProduto[]>(() => {
+    const saved = localStorage.getItem('legis_bi_produtos');
+    return saved ? JSON.parse(saved) : mockBiProdutos;
+  });
+
+  const [biFornecedores, setBiFornecedores] = useState<BiFornecedor[]>(() => {
+    const saved = localStorage.getItem('legis_bi_fornecedores');
+    return saved ? JSON.parse(saved) : mockBiFornecedores;
+  });
+
+  const [biVendas, setBiVendas] = useState<BiVenda[]>(() => {
+    const saved = localStorage.getItem('legis_bi_vendas');
+    return saved ? JSON.parse(saved) : mockBiVendas;
+  });
+
+  const [biSubTab, setBiSubTab] = useState<'excel_ums' | 'servicos_aluguel'>('excel_ums');
+  const [biAluguelTab, setBiAluguelTab] = useState<'clientes' | 'produtos' | 'fornecedores' | 'vendas'>('vendas');
+
+  const [showAluguelForm, setShowAluguelForm] = useState(false);
+  const [editingAluguelId, setEditingAluguelId] = useState<string | null>(null);
+
+  // Form states for dim_clientes
+  const [clientForm, setClientForm] = useState<BiCliente>({ codigo: '', nome: '', cpf_cnpj: '', cidade: '', estado: '', lista_concatenada: '' });
+  // Form states for dim_produtos
+  const [productForm, setProductForm] = useState<BiProduto>({ codigo: '', nome: '', descricao: '', custo: 0, preco_tabela: 0, lista_concatenada: '' });
+  // Form states for dim_fornecedores
+  const [supplierForm, setSupplierForm] = useState<BiFornecedor>({ codigo: '', nome: '', cpf_cnpj: '', estado: '', lista_concatenada: '' });
+  // Form states for fato_vendas
+  const [saleForm, setSaleForm] = useState<BiVenda>({
+    id_tab: '',
+    fornecedor: '',
+    cliente: '',
+    produto: '',
+    qtd: 1,
+    vlr_unit: 0,
+    valor_total: 0,
+    custo_prod: 0,
+    lucro: 0,
+    data: '',
+    data_referencia: '',
+    data_retirada: '',
+    data_devolucao: '',
+    status_pagamento: 'Pago',
+    status_aluguel: 'Devolvido',
+  });
+
   const [docTab, setDocTab] = useState('DAX (Power BI)');
   const [showTxForm, setShowTxForm] = useState(false);
   const [editingTxId, setEditingTxId] = useState<number | null>(null);
@@ -1131,6 +1183,10 @@ const GeneralSettings: React.FC = () => {
     });
     localStorage.setItem('legis_bi_tb_apoio', JSON.stringify(biApoio));
     localStorage.setItem('legis_bi_tb_dados_base', JSON.stringify(biDadosBase));
+    localStorage.setItem('legis_bi_clientes', JSON.stringify(biClientes));
+    localStorage.setItem('legis_bi_produtos', JSON.stringify(biProdutos));
+    localStorage.setItem('legis_bi_fornecedores', JSON.stringify(biFornecedores));
+    localStorage.setItem('legis_bi_vendas', JSON.stringify(biVendas));
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };
@@ -1374,341 +1430,1040 @@ const GeneralSettings: React.FC = () => {
       </div>
 
       {/* Seção BI / Modelagem Financeira */}
-      <div className="pt-6 border-t space-y-4">
-        <h4 className="text-sm font-bold text-purple-700 uppercase tracking-wider flex items-center gap-2">
-          <span>📊</span> Modelagem de Dados Financeiros (BI / Dashboard)
-        </h4>
-        <p className="text-xs text-gray-500">
-          Configure as premissas e os dados transacionais para a ferramenta de BI e Analytics. Essas informações alimentam de forma reativa os gráficos, KPIs e análises financeiras da plataforma.
-        </p>
-
-        {/* Tabela A: Premissas (tb_apoio) */}
-        <div className="bg-purple-50/50 dark:bg-[#1A1730]/40 border border-purple-200 dark:border-[#2A2545] rounded-xl p-4 space-y-4 text-left">
-          <h5 className="text-xs font-bold text-purple-800 dark:text-purple-300 uppercase">Tabela A: Premissas (tb_apoio)</h5>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Teto de Execução Anual (UMS) *</label>
-              <input
-                type="number"
-                className="w-full border border-gray-300 dark:border-[#2A2545] rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white p-1"
-                value={biApoio.teto_execucao_anual_ums}
-                onChange={e => setBiApoio(prev => ({ ...prev, teto_execucao_anual_ums: Number(e.target.value) }))}
-              />
-            </div>
-            <div>
-              <label className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Meta de Razão de Eficiência Final *</label>
-              <input
-                type="number"
-                step="0.0000001"
-                className="w-full border border-gray-300 dark:border-[#2A2545] rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white p-1"
-                value={biApoio.meta_razao_final}
-                onChange={e => setBiApoio(prev => ({ ...prev, meta_razao_final: Number(e.target.value) }))}
-              />
-              <p className="text-[10px] text-gray-400 mt-1">Ex: 0.4399678 (equivale a ~44%)</p>
-            </div>
+      <div className="pt-6 border-t space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h4 className="text-sm font-bold text-purple-700 uppercase tracking-wider flex items-center gap-2">
+              <span>📊</span> Modelagem de Dados Financeiros & BI
+            </h4>
+            <p className="text-xs text-gray-500 mt-1">
+              Gerencie os modelos de dados e premissas financeiras que alimentam os Dashboards de Analytics da plataforma.
+            </p>
           </div>
 
-          <div className="space-y-2">
-            <label className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 uppercase">Metas de Faturamento por Período / Semestre</label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {biApoio.periodos.map((periodo, idx) => (
-                <div key={periodo} className="bg-white dark:bg-[#1A1730] p-2.5 rounded-lg border border-purple-100 dark:border-[#2A2545]">
-                  <span className="block text-[10px] font-bold text-gray-500 uppercase">{periodo}</span>
-                  <input
-                    type="number"
-                    step="0.001"
-                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded mt-1 px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white"
-                    value={biApoio.meta_faturamento_percentual[idx]}
-                    onChange={e => {
-                      const nextMetas = [...biApoio.meta_faturamento_percentual];
-                      nextMetas[idx] = Number(e.target.value);
-                      setBiApoio(prev => ({ ...prev, meta_faturamento_percentual: nextMetas }));
-                    }}
-                  />
-                </div>
-              ))}
-            </div>
+          <div className="flex bg-gray-100 dark:bg-[#201C3D] p-1 rounded-xl border border-gray-200 dark:border-[#2A2545] shadow-sm shrink-0">
+            <button
+              type="button"
+              onClick={() => { setBiSubTab('excel_ums'); setDocTab('DAX (Power BI)'); }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 ${biSubTab === 'excel_ums' ? 'bg-primary text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-primary'}`}
+            >
+              📊 Geral (Excel UMS)
+            </button>
+            <button
+              type="button"
+              onClick={() => { setBiSubTab('servicos_aluguel'); setDocTab('SQL (Criação de Tabelas)'); }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 ${biSubTab === 'servicos_aluguel' ? 'bg-primary text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-primary'}`}
+            >
+              ⚙️ Aluguer de Equipamentos
+            </button>
           </div>
         </div>
 
-        {/* Tabela B: Transacional (tb_dados_base) */}
-        <div className="bg-blue-50/50 dark:bg-[#1A1730]/40 border border-blue-200 dark:border-[#2A2545] rounded-xl p-4 space-y-4 text-left">
-          <div className="flex justify-between items-center flex-wrap gap-2">
-            <h5 className="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase">Tabela B: Dados Transacionais (tb_dados_base)</h5>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  if (window.confirm('Deseja redefinir a tabela transacional para os dados de teste originais?')) {
-                    setBiDadosBase(mockBiDadosBase);
-                    localStorage.setItem('legis_bi_tb_dados_base', JSON.stringify(mockBiDadosBase));
-                  }
-                }}
-                className="text-[10px] font-bold text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/30 px-2.5 py-1 rounded hover:bg-red-100 dark:hover:bg-red-900/40"
-              >
-                Redefinir Padrão
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setEditingTxId(null);
-                  setTxForm({
-                    id_tab: 0,
-                    semestre: '1º sem',
-                    valor_ums: 5.5,
-                    mes_ano: new Date().toISOString().split('T')[0],
-                    executado_ums: 10000,
-                    receita_fat: 50000,
-                    transferencia_recebida: 5000,
-                    despesa_total: 25000,
-                    custo: 10000,
-                    imposto: 5000,
-                    juros: 1000,
-                    salarios_ordenados: 6000,
-                    glosa: 1000,
-                    emissao_nf: new Date().toISOString().split('T')[0],
-                    recebimento_nf: new Date().toISOString().split('T')[0],
-                  });
-                  setShowTxForm(!showTxForm);
-                }}
-                className="text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/30 px-2.5 py-1 rounded hover:bg-blue-100 dark:hover:bg-blue-900/40"
-              >
-                {showTxForm && !editingTxId ? '✕ Fechar Form' : '+ Novo Lançamento'}
-              </button>
-            </div>
-          </div>
-
-          {/* Tx Form (Add / Edit) */}
-          {showTxForm && (
-            <div className="bg-white dark:bg-[#1A1730] border border-blue-200 dark:border-[#2A2545] p-4 rounded-lg space-y-4">
-              <p className="text-xs font-bold text-blue-900 dark:text-blue-300">{editingTxId ? `📝 Editar Registro #${editingTxId}` : '➕ Novo Registro Transacional'}</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+        {biSubTab === 'excel_ums' ? (
+          <>
+            {/* Tabela A: Premissas (tb_apoio) */}
+            <div className="bg-purple-50/50 dark:bg-[#1A1730]/40 border border-purple-200 dark:border-[#2A2545] rounded-xl p-4 space-y-4 text-left animate-fade-in">
+              <h5 className="text-xs font-bold text-purple-800 dark:text-purple-300 uppercase">Tabela A: Premissas (tb_apoio)</h5>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Semestre *</label>
-                  <select
-                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
-                    value={txForm.semestre}
-                    onChange={e => setTxForm(p => ({ ...p, semestre: e.target.value }))}
-                  >
-                    {biApoio.periodos.map(p => <option key={p} value={p}>{p}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Mês / Ano *</label>
-                  <input
-                    type="date"
-                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
-                    value={txForm.mes_ano}
-                    onChange={e => setTxForm(p => ({ ...p, mes_ano: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Valor UMS (R$) *</label>
+                  <label className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Teto de Execução Anual (UMS) *</label>
                   <input
                     type="number"
-                    step="0.01"
-                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
-                    value={txForm.valor_ums}
-                    onChange={e => setTxForm(p => ({ ...p, valor_ums: Number(e.target.value) }))}
+                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white p-1"
+                    value={biApoio.teto_execucao_anual_ums}
+                    onChange={e => setBiApoio(prev => ({ ...prev, teto_execucao_anual_ums: Number(e.target.value) }))}
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Executado UMS *</label>
+                  <label className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Meta de Razão de Eficiência Final *</label>
                   <input
                     type="number"
-                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
-                    value={txForm.executado_ums}
-                    onChange={e => setTxForm(p => ({ ...p, executado_ums: Number(e.target.value) }))}
+                    step="0.0000001"
+                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white p-1"
+                    value={biApoio.meta_razao_final}
+                    onChange={e => setBiApoio(prev => ({ ...prev, meta_razao_final: Number(e.target.value) }))}
                   />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Receita Faturamento *</label>
-                  <input
-                    type="number"
-                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
-                    value={txForm.receita_fat}
-                    onChange={e => setTxForm(p => ({ ...p, receita_fat: Number(e.target.value) }))}
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Transf. Recebida *</label>
-                  <input
-                    type="number"
-                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
-                    value={txForm.transferencia_recebida}
-                    onChange={e => setTxForm(p => ({ ...p, transferencia_recebida: Number(e.target.value) }))}
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Despesa Total *</label>
-                  <input
-                    type="number"
-                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
-                    value={txForm.despesa_total}
-                    onChange={e => setTxForm(p => ({ ...p, despesa_total: Number(e.target.value) }))}
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Custo Operacional *</label>
-                  <input
-                    type="number"
-                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
-                    value={txForm.custo}
-                    onChange={e => setTxForm(p => ({ ...p, custo: Number(e.target.value) }))}
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Impostos *</label>
-                  <input
-                    type="number"
-                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
-                    value={txForm.imposto}
-                    onChange={e => setTxForm(p => ({ ...p, imposto: Number(e.target.value) }))}
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Juros *</label>
-                  <input
-                    type="number"
-                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
-                    value={txForm.juros}
-                    onChange={e => setTxForm(p => ({ ...p, juros: Number(e.target.value) }))}
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Salários/Ordenados *</label>
-                  <input
-                    type="number"
-                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
-                    value={txForm.salarios_ordenados}
-                    onChange={e => setTxForm(p => ({ ...p, salarios_ordenados: Number(e.target.value) }))}
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Glosas *</label>
-                  <input
-                    type="number"
-                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
-                    value={txForm.glosa}
-                    onChange={e => setTxForm(p => ({ ...p, glosa: Number(e.target.value) }))}
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Emissão NF *</label>
-                  <input
-                    type="date"
-                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
-                    value={txForm.emissao_nf}
-                    onChange={e => setTxForm(p => ({ ...p, emissao_nf: e.target.value }))}
-                  />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Recebimento NF *</label>
-                  <input
-                    type="date"
-                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
-                    value={txForm.recebimento_nf}
-                    onChange={e => setTxForm(p => ({ ...p, recebimento_nf: e.target.value }))}
-                  />
+                  <p className="text-[10px] text-gray-400 mt-1">Ex: 0.4399678 (equivale a ~44%)</p>
                 </div>
               </div>
+
+              <div className="space-y-2">
+                <label className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 uppercase">Metas de Faturamento por Período / Semestre</label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {biApoio.periodos.map((periodo, idx) => (
+                    <div key={periodo} className="bg-white dark:bg-[#1A1730] p-2.5 rounded-lg border border-purple-100 dark:border-[#2A2545]">
+                      <span className="block text-[10px] font-bold text-gray-500 uppercase">{periodo}</span>
+                      <input
+                        type="number"
+                        step="0.001"
+                        className="w-full border border-gray-300 dark:border-[#2A2545] rounded mt-1 px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white"
+                        value={biApoio.meta_faturamento_percentual[idx]}
+                        onChange={e => {
+                          const nextMetas = [...biApoio.meta_faturamento_percentual];
+                          nextMetas[idx] = Number(e.target.value);
+                          setBiApoio(prev => ({ ...prev, meta_faturamento_percentual: nextMetas }));
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Tabela B: Transacional (tb_dados_base) */}
+            <div className="bg-blue-50/50 dark:bg-[#1A1730]/40 border border-blue-200 dark:border-[#2A2545] rounded-xl p-4 space-y-4 text-left animate-fade-in">
+              <div className="flex justify-between items-center flex-wrap gap-2">
+                <h5 className="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase">Tabela B: Dados Transacionais (tb_dados_base)</h5>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (window.confirm('Deseja redefinir a tabela transacional para os dados de teste originais?')) {
+                        setBiDadosBase(mockBiDadosBase);
+                        localStorage.setItem('legis_bi_tb_dados_base', JSON.stringify(mockBiDadosBase));
+                      }
+                    }}
+                    className="text-[10px] font-bold text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/30 px-2.5 py-1 rounded hover:bg-red-100 dark:hover:bg-red-900/40"
+                  >
+                    Redefinir Padrão
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingTxId(null);
+                      setTxForm({
+                        id_tab: 0,
+                        semestre: '1º sem',
+                        valor_ums: 5.5,
+                        mes_ano: new Date().toISOString().split('T')[0],
+                        executado_ums: 10000,
+                        receita_fat: 50000,
+                        transferencia_recebida: 5000,
+                        despesa_total: 25000,
+                        custo: 10000,
+                        imposto: 5000,
+                        juros: 1000,
+                        salarios_ordenados: 6000,
+                        glosa: 1000,
+                        emissao_nf: new Date().toISOString().split('T')[0],
+                        recebimento_nf: new Date().toISOString().split('T')[0],
+                      });
+                      setShowTxForm(!showTxForm);
+                    }}
+                    className="text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/30 px-2.5 py-1 rounded hover:bg-blue-100 dark:hover:bg-blue-900/40"
+                  >
+                    {showTxForm && !editingTxId ? '✕ Fechar Form' : '+ Novo Lançamento'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Tx Form */}
+              {showTxForm && (
+                <div className="bg-white dark:bg-[#1A1730] border border-blue-200 dark:border-[#2A2545] p-4 rounded-lg space-y-4">
+                  <p className="text-xs font-bold text-blue-900 dark:text-blue-300">{editingTxId ? `📝 Editar Registro #${editingTxId}` : '➕ Novo Registro Transacional'}</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase">Semestre *</label>
+                      <select
+                        className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                        value={txForm.semestre}
+                        onChange={e => setTxForm(p => ({ ...p, semestre: e.target.value }))}
+                      >
+                        {biApoio.periodos.map(p => <option key={p} value={p}>{p}</option>)}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase">Mês / Ano *</label>
+                      <input
+                        type="date"
+                        className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                        value={txForm.mes_ano}
+                        onChange={e => setTxForm(p => ({ ...p, mes_ano: e.target.value }))}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase">Valor UMS (R$) *</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                        value={txForm.valor_ums}
+                        onChange={e => setTxForm(p => ({ ...p, valor_ums: Number(e.target.value) }))}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase">Executado UMS *</label>
+                      <input
+                        type="number"
+                        className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                        value={txForm.executado_ums}
+                        onChange={e => setTxForm(p => ({ ...p, executado_ums: Number(e.target.value) }))}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase">Receita Faturamento *</label>
+                      <input
+                        type="number"
+                        className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                        value={txForm.receita_fat}
+                        onChange={e => setTxForm(p => ({ ...p, receita_fat: Number(e.target.value) }))}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase">Transf. Recebida *</label>
+                      <input
+                        type="number"
+                        className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                        value={txForm.transferencia_recebida}
+                        onChange={e => setTxForm(p => ({ ...p, transferencia_recebida: Number(e.target.value) }))}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase">Despesa Total *</label>
+                      <input
+                        type="number"
+                        className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                        value={txForm.despesa_total}
+                        onChange={e => setTxForm(p => ({ ...p, despesa_total: Number(e.target.value) }))}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase">Custo Operacional *</label>
+                      <input
+                        type="number"
+                        className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                        value={txForm.custo}
+                        onChange={e => setTxForm(p => ({ ...p, custo: Number(e.target.value) }))}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase">Impostos *</label>
+                      <input
+                        type="number"
+                        className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                        value={txForm.imposto}
+                        onChange={e => setTxForm(p => ({ ...p, imposto: Number(e.target.value) }))}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase">Juros *</label>
+                      <input
+                        type="number"
+                        className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                        value={txForm.juros}
+                        onChange={e => setTxForm(p => ({ ...p, juros: Number(e.target.value) }))}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase">Salários/Ordenados *</label>
+                      <input
+                        type="number"
+                        className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                        value={txForm.salarios_ordenados}
+                        onChange={e => setTxForm(p => ({ ...p, salarios_ordenados: Number(e.target.value) }))}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase">Glosas *</label>
+                      <input
+                        type="number"
+                        className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                        value={txForm.glosa}
+                        onChange={e => setTxForm(p => ({ ...p, glosa: Number(e.target.value) }))}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase">Emissão NF *</label>
+                      <input
+                        type="date"
+                        className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                        value={txForm.emissao_nf}
+                        onChange={e => setTxForm(p => ({ ...p, emissao_nf: e.target.value }))}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase">Recebimento NF *</label>
+                      <input
+                        type="date"
+                        className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                        value={txForm.recebimento_nf}
+                        onChange={e => setTxForm(p => ({ ...p, recebimento_nf: e.target.value }))}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        let nextBase;
+                        if (editingTxId) {
+                          nextBase = biDadosBase.map(t => t.id_tab === editingTxId ? { ...txForm, id_tab: editingTxId } : t);
+                        } else {
+                          nextBase = [...biDadosBase, { ...txForm, id_tab: Date.now() }];
+                        }
+                        setBiDadosBase(nextBase);
+                        localStorage.setItem('legis_bi_tb_dados_base', JSON.stringify(nextBase));
+                        setShowTxForm(false);
+                        setEditingTxId(null);
+                      }}
+                      className="px-4 py-2 bg-blue-600 text-white rounded text-xs font-bold hover:bg-blue-700"
+                    >
+                      {editingTxId ? 'Salvar Alterações' : 'Adicionar Lançamento'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowTxForm(false);
+                        setEditingTxId(null);
+                      }}
+                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded text-xs font-semibold hover:bg-gray-300"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Tx List Table */}
+              <div className="overflow-x-auto border border-gray-200 dark:border-[#2A2545] rounded-lg">
+                <table className="w-full text-xs text-left bg-white dark:bg-[#1A1730]">
+                  <thead className="bg-gray-100 dark:bg-[#201C3D] uppercase font-bold text-gray-700 dark:text-gray-300 border-b dark:border-[#2A2545]">
+                    <tr>
+                      <th className="px-3 py-2">Mês/Ano</th>
+                      <th className="px-3 py-2">Semestre</th>
+                      <th className="px-3 py-2 text-right">Faturamento</th>
+                      <th className="px-3 py-2 text-right">Despesa Total</th>
+                      <th className="px-3 py-2 text-right">Custo</th>
+                      <th className="px-3 py-2 text-right">Imposto</th>
+                      <th className="px-3 py-2 text-right">Exec UMS</th>
+                      <th className="px-3 py-2 text-center">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {biDadosBase.map(tx => (
+                      <tr key={tx.id_tab} className="border-b dark:border-[#2A2545] hover:bg-gray-50 dark:hover:bg-[#221d3f]">
+                        <td className="px-3 py-2 font-medium">
+                          {tx.mes_ano ? new Date(tx.mes_ano + 'T12:00:00').toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' }) : '—'}
+                        </td>
+                        <td className="px-3 py-2">{tx.semestre}</td>
+                        <td className="px-3 py-2 text-right font-semibold text-emerald-700 dark:text-emerald-400">R$ {tx.receita_fat.toLocaleString('pt-BR')}</td>
+                        <td className="px-3 py-2 text-right text-red-600 dark:text-red-400">R$ {tx.despesa_total.toLocaleString('pt-BR')}</td>
+                        <td className="px-3 py-2 text-right">R$ {tx.custo.toLocaleString('pt-BR')}</td>
+                        <td className="px-3 py-2 text-right">R$ {tx.imposto.toLocaleString('pt-BR')}</td>
+                        <td className="px-3 py-2 text-right">{tx.executado_ums}</td>
+                        <td className="px-3 py-2 text-center space-x-2 whitespace-nowrap">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingTxId(tx.id_tab);
+                              setTxForm({ ...tx });
+                              setShowTxForm(true);
+                            }}
+                            className="text-blue-600 dark:text-blue-400 hover:underline font-bold"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (window.confirm('Deseja excluir este registro transacional?')) {
+                                const next = biDadosBase.filter(t => t.id_tab !== tx.id_tab);
+                                setBiDadosBase(next);
+                                localStorage.setItem('legis_bi_tb_dados_base', JSON.stringify(next));
+                              }
+                            }}
+                            className="text-red-600 dark:text-red-400 hover:underline font-bold"
+                          >
+                            Excluir
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {biDadosBase.length === 0 && (
+                      <tr>
+                        <td colSpan={8} className="px-3 py-6 text-center text-gray-400">Nenhum lançamento cadastrado.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="space-y-4 animate-fade-in">
+            <div className="flex gap-2 flex-wrap mb-2 border-b pb-2">
+              {[
+                { id: 'vendas', label: 'fato_vendas (Alugueres)' },
+                { id: 'clientes', label: 'dim_clientes (Clientes)' },
+                { id: 'produtos', label: 'dim_produtos (Produtos)' },
+                { id: 'fornecedores', label: 'dim_fornecedores (Fornecedores)' }
+              ].map(sub => (
+                <button
+                  key={sub.id}
+                  type="button"
+                  onClick={() => {
+                    setBiAluguelTab(sub.id as 'clientes' | 'produtos' | 'fornecedores' | 'vendas');
+                    setShowAluguelForm(false);
+                    setEditingAluguelId(null);
+                  }}
+                  className={`pb-2 text-xs font-bold transition-all ${
+                    biAluguelTab === sub.id
+                      ? 'border-b-2 border-purple-600 text-purple-700'
+                      : 'text-gray-500 hover:text-purple-600'
+                  }`}
+                >
+                  {sub.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Actions header */}
+            <div className="flex justify-between items-center flex-wrap gap-2">
+              <h5 className="text-xs font-bold text-purple-800 dark:text-purple-300 uppercase">
+                {biAluguelTab === 'vendas' ? 'Tabela Facto: fato_vendas' : 
+                 biAluguelTab === 'clientes' ? 'Tabela Dimensão: dim_clientes' :
+                 biAluguelTab === 'produtos' ? 'Tabela Dimensão: dim_produtos' :
+                 'Tabela Dimensão: dim_fornecedores'}
+              </h5>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => {
-                    let nextBase;
-                    if (editingTxId) {
-                      nextBase = biDadosBase.map(t => t.id_tab === editingTxId ? { ...txForm, id_tab: editingTxId } : t);
-                    } else {
-                      nextBase = [...biDadosBase, { ...txForm, id_tab: Date.now() }];
+                    if (window.confirm('Deseja redefinir esta tabela para os dados de teste originais?')) {
+                      if (biAluguelTab === 'vendas') { setBiVendas(mockBiVendas); localStorage.setItem('legis_bi_vendas', JSON.stringify(mockBiVendas)); }
+                      else if (biAluguelTab === 'clientes') { setBiClientes(mockBiClientes); localStorage.setItem('legis_bi_clientes', JSON.stringify(mockBiClientes)); }
+                      else if (biAluguelTab === 'produtos') { setBiProdutos(mockBiProdutos); localStorage.setItem('legis_bi_produtos', JSON.stringify(mockBiProdutos)); }
+                      else if (biAluguelTab === 'fornecedores') { setBiFornecedores(mockBiFornecedores); localStorage.setItem('legis_bi_fornecedores', JSON.stringify(mockBiFornecedores)); }
                     }
-                    setBiDadosBase(nextBase);
-                    localStorage.setItem('legis_bi_tb_dados_base', JSON.stringify(nextBase));
-                    setShowTxForm(false);
-                    setEditingTxId(null);
                   }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded text-xs font-bold hover:bg-blue-700"
+                  className="text-[10px] font-bold text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/30 px-2.5 py-1 rounded hover:bg-red-100 dark:hover:bg-red-900/40"
                 >
-                  {editingTxId ? 'Salvar Alterações' : 'Adicionar Lançamento'}
+                  Redefinir Padrão
                 </button>
                 <button
                   type="button"
                   onClick={() => {
-                    setShowTxForm(false);
-                    setEditingTxId(null);
+                    setEditingAluguelId(null);
+                    setShowAluguelForm(!showAluguelForm);
+                    // Reset forms
+                    if (biAluguelTab === 'clientes') setClientForm({ codigo: 'C' + String(biClientes.length + 1).padStart(2, '0'), nome: '', cpf_cnpj: '', cidade: '', estado: '', lista_concatenada: '' });
+                    else if (biAluguelTab === 'produtos') setProductForm({ codigo: 'P' + String(biProdutos.length + 1).padStart(2, '0'), nome: '', descricao: '', custo: 0, preco_tabela: 0, lista_concatenada: '' });
+                    else if (biAluguelTab === 'fornecedores') setSupplierForm({ codigo: 'F' + String(biFornecedores.length + 1).padStart(2, '0'), nome: '', cpf_cnpj: '', estado: '', lista_concatenada: '' });
+                    else if (biAluguelTab === 'vendas') setSaleForm({
+                      id_tab: 'v' + String(biVendas.length + 1).padStart(2, '0'),
+                      fornecedor: biFornecedores[0]?.lista_concatenada || '',
+                      cliente: biClientes[0]?.lista_concatenada || '',
+                      produto: biProdutos[0]?.lista_concatenada || '',
+                      qtd: 1,
+                      vlr_unit: biProdutos[0]?.preco_tabela || 0,
+                      valor_total: biProdutos[0]?.preco_tabela || 0,
+                      custo_prod: biProdutos[0]?.custo || 0,
+                      lucro: (biProdutos[0]?.preco_tabela || 0) - (biProdutos[0]?.custo || 0),
+                      data: new Date().toISOString().split('T')[0],
+                      data_referencia: new Date().toISOString().split('T')[0].substring(0, 8) + '01',
+                      data_retirada: new Date().toISOString().split('T')[0],
+                      data_devolucao: '',
+                      status_pagamento: 'Pago',
+                      status_aluguel: 'Devolvido',
+                    });
                   }}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded text-xs font-semibold hover:bg-gray-300"
+                  className="text-[10px] font-bold text-purple-600 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-900/30 px-2.5 py-1 rounded hover:bg-purple-100 dark:hover:bg-purple-900/40"
                 >
-                  Cancelar
+                  {showAluguelForm && !editingAluguelId ? '✕ Fechar Form' : '+ Novo Registro'}
                 </button>
               </div>
             </div>
-          )}
 
-          {/* Tx List Table */}
-          <div className="overflow-x-auto border border-gray-200 dark:border-[#2A2545] rounded-lg">
-            <table className="w-full text-xs text-left bg-white dark:bg-[#1A1730]">
-              <thead className="bg-gray-100 dark:bg-[#201C3D] uppercase font-bold text-gray-700 dark:text-gray-300 border-b dark:border-[#2A2545]">
-                <tr>
-                  <th className="px-3 py-2">Mês/Ano</th>
-                  <th className="px-3 py-2">Semestre</th>
-                  <th className="px-3 py-2 text-right">Faturamento</th>
-                  <th className="px-3 py-2 text-right">Despesa Total</th>
-                  <th className="px-3 py-2 text-right">Custo</th>
-                  <th className="px-3 py-2 text-right">Imposto</th>
-                  <th className="px-3 py-2 text-right">Exec UMS</th>
-                  <th className="px-3 py-2 text-center">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                {biDadosBase.map(tx => (
-                  <tr key={tx.id_tab} className="border-b dark:border-[#2A2545] hover:bg-gray-50 dark:hover:bg-[#221d3f]">
-                    <td className="px-3 py-2 font-medium">
-                      {tx.mes_ano ? new Date(tx.mes_ano + 'T12:00:00').toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' }) : '—'}
-                    </td>
-                    <td className="px-3 py-2">{tx.semestre}</td>
-                    <td className="px-3 py-2 text-right font-semibold text-emerald-700 dark:text-emerald-400">R$ {tx.receita_fat.toLocaleString('pt-BR')}</td>
-                    <td className="px-3 py-2 text-right text-red-600 dark:text-red-400">R$ {tx.despesa_total.toLocaleString('pt-BR')}</td>
-                    <td className="px-3 py-2 text-right">R$ {tx.custo.toLocaleString('pt-BR')}</td>
-                    <td className="px-3 py-2 text-right">R$ {tx.imposto.toLocaleString('pt-BR')}</td>
-                    <td className="px-3 py-2 text-right">{tx.executado_ums}</td>
-                    <td className="px-3 py-2 text-center space-x-2 whitespace-nowrap">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingTxId(tx.id_tab);
-                          setTxForm({ ...tx });
-                          setShowTxForm(true);
-                        }}
-                        className="text-blue-600 dark:text-blue-400 hover:underline font-bold"
-                      >
-                        Editar
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (window.confirm('Deseja excluir este registro transacional?')) {
-                            const next = biDadosBase.filter(t => t.id_tab !== tx.id_tab);
-                            setBiDadosBase(next);
-                            localStorage.setItem('legis_bi_tb_dados_base', JSON.stringify(next));
-                          }
-                        }}
-                        className="text-red-600 dark:text-red-400 hover:underline font-bold"
-                      >
-                        Excluir
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                {biDadosBase.length === 0 && (
-                  <tr>
-                    <td colSpan={8} className="px-3 py-6 text-center text-gray-400">Nenhum lançamento cadastrado.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+            {/* Form for dim_clientes */}
+            {showAluguelForm && biAluguelTab === 'clientes' && (
+              <div className="bg-white dark:bg-[#1A1730] border border-purple-200 dark:border-[#2A2545] p-4 rounded-lg space-y-4">
+                <p className="text-xs font-bold text-purple-900 dark:text-purple-300">{editingAluguelId ? '📝 Editar Cliente' : '➕ Novo Cliente'}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Código *</label>
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={clientForm.codigo} onChange={e => setClientForm(p => ({ ...p, codigo: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Nome *</label>
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={clientForm.nome} onChange={e => setClientForm(p => ({ ...p, nome: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">CPF/CNPJ *</label>
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={clientForm.cpf_cnpj} onChange={e => setClientForm(p => ({ ...p, cpf_cnpj: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Cidade *</label>
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={clientForm.cidade} onChange={e => setClientForm(p => ({ ...p, cidade: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Estado (UF) *</label>
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={clientForm.estado} onChange={e => setClientForm(p => ({ ...p, estado: e.target.value }))} />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const computed = `${clientForm.codigo} - ${clientForm.nome}`;
+                      const payload = { ...clientForm, lista_concatenada: computed };
+                      let next;
+                      if (editingAluguelId) {
+                        next = biClientes.map(c => c.lista_concatenada === editingAluguelId ? payload : c);
+                      } else {
+                        next = [...biClientes, payload];
+                      }
+                      setBiClientes(next);
+                      localStorage.setItem('legis_bi_clientes', JSON.stringify(next));
+                      setShowAluguelForm(false);
+                      setEditingAluguelId(null);
+                    }}
+                    className="px-4 py-2 bg-purple-600 text-white rounded text-xs font-bold hover:bg-purple-700"
+                  >
+                    Salvar
+                  </button>
+                  <button type="button" onClick={() => { setShowAluguelForm(false); setEditingAluguelId(null); }} className="px-4 py-2 bg-gray-200 text-gray-700 rounded text-xs font-semibold hover:bg-gray-300">
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Form for dim_produtos */}
+            {showAluguelForm && biAluguelTab === 'produtos' && (
+              <div className="bg-white dark:bg-[#1A1730] border border-purple-200 dark:border-[#2A2545] p-4 rounded-lg space-y-4">
+                <p className="text-xs font-bold text-purple-900 dark:text-purple-300">{editingAluguelId ? '📝 Editar Produto' : '➕ Novo Produto'}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Código *</label>
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={productForm.codigo} onChange={e => setProductForm(p => ({ ...p, codigo: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Nome *</label>
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={productForm.nome} onChange={e => setProductForm(p => ({ ...p, nome: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Descrição *</label>
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={productForm.descricao} onChange={e => setProductForm(p => ({ ...p, descricao: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Custo *</label>
+                    <input type="number" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={productForm.custo} onChange={e => setProductForm(p => ({ ...p, custo: Number(e.target.value) }))} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Preço Tabela *</label>
+                    <input type="number" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={productForm.preco_tabela} onChange={e => setProductForm(p => ({ ...p, preco_tabela: Number(e.target.value) }))} />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const computed = `${productForm.codigo} - ${productForm.nome}`;
+                      const payload = { ...productForm, lista_concatenada: computed };
+                      let next;
+                      if (editingAluguelId) {
+                        next = biProdutos.map(p => p.lista_concatenada === editingAluguelId ? payload : p);
+                      } else {
+                        next = [...biProdutos, payload];
+                      }
+                      setBiProdutos(next);
+                      localStorage.setItem('legis_bi_produtos', JSON.stringify(next));
+                      setShowAluguelForm(false);
+                      setEditingAluguelId(null);
+                    }}
+                    className="px-4 py-2 bg-purple-600 text-white rounded text-xs font-bold hover:bg-purple-700"
+                  >
+                    Salvar
+                  </button>
+                  <button type="button" onClick={() => { setShowAluguelForm(false); setEditingAluguelId(null); }} className="px-4 py-2 bg-gray-200 text-gray-700 rounded text-xs font-semibold hover:bg-gray-300">
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Form for dim_fornecedores */}
+            {showAluguelForm && biAluguelTab === 'fornecedores' && (
+              <div className="bg-white dark:bg-[#1A1730] border border-purple-200 dark:border-[#2A2545] p-4 rounded-lg space-y-4">
+                <p className="text-xs font-bold text-purple-900 dark:text-purple-300">{editingAluguelId ? '📝 Editar Fornecedor' : '➕ Novo Fornecedor'}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Código *</label>
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={supplierForm.codigo} onChange={e => setSupplierForm(p => ({ ...p, codigo: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Nome *</label>
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={supplierForm.nome} onChange={e => setSupplierForm(p => ({ ...p, nome: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">CPF/CNPJ *</label>
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={supplierForm.cpf_cnpj} onChange={e => setSupplierForm(p => ({ ...p, cpf_cnpj: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Estado (UF) *</label>
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={supplierForm.estado} onChange={e => setSupplierForm(p => ({ ...p, estado: e.target.value }))} />
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const computed = `${supplierForm.codigo} - ${supplierForm.nome}`;
+                      const payload = { ...supplierForm, lista_concatenada: computed };
+                      let next;
+                      if (editingAluguelId) {
+                        next = biFornecedores.map(f => f.lista_concatenada === editingAluguelId ? payload : f);
+                      } else {
+                        next = [...biFornecedores, payload];
+                      }
+                      setBiFornecedores(next);
+                      localStorage.setItem('legis_bi_fornecedores', JSON.stringify(next));
+                      setShowAluguelForm(false);
+                      setEditingAluguelId(null);
+                    }}
+                    className="px-4 py-2 bg-purple-600 text-white rounded text-xs font-bold hover:bg-purple-700"
+                  >
+                    Salvar
+                  </button>
+                  <button type="button" onClick={() => { setShowAluguelForm(false); setEditingAluguelId(null); }} className="px-4 py-2 bg-gray-200 text-gray-700 rounded text-xs font-semibold hover:bg-gray-300">
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Form for fato_vendas */}
+            {showAluguelForm && biAluguelTab === 'vendas' && (
+              <div className="bg-white dark:bg-[#1A1730] border border-purple-200 dark:border-[#2A2545] p-4 rounded-lg space-y-4">
+                <p className="text-xs font-bold text-purple-900 dark:text-purple-300">{editingAluguelId ? '📝 Editar Registro de Venda' : '➕ Novo Registro de Venda'}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">ID Lançamento *</label>
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={saleForm.id_tab} onChange={e => setSaleForm(p => ({ ...p, id_tab: e.target.value }))} disabled={!!editingAluguelId} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Fornecedor *</label>
+                    <select
+                      className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                      value={saleForm.fornecedor}
+                      onChange={e => setSaleForm(p => ({ ...p, fornecedor: e.target.value }))}
+                    >
+                      {biFornecedores.map(f => <option key={f.lista_concatenada} value={f.lista_concatenada}>{f.lista_concatenada}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Cliente *</label>
+                    <select
+                      className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                      value={saleForm.cliente}
+                      onChange={e => setSaleForm(p => ({ ...p, cliente: e.target.value }))}
+                    >
+                      {biClientes.map(c => <option key={c.lista_concatenada} value={c.lista_concatenada}>{c.lista_concatenada}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Produto *</label>
+                    <select
+                      className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                      value={saleForm.produto}
+                      onChange={e => {
+                        const prodVal = e.target.value;
+                        const matched = biProdutos.find(p => p.lista_concatenada === prodVal);
+                        setSaleForm(p => {
+                          const nextQtd = p.qtd;
+                          const nextVlr = matched ? matched.preco_tabela : p.vlr_unit;
+                          const nextCusto = matched ? matched.custo : p.custo_prod;
+                          const nextTotal = nextQtd * nextVlr;
+                          const nextLucro = nextTotal - (nextQtd * nextCusto);
+                          return {
+                            ...p,
+                            produto: prodVal,
+                            vlr_unit: nextVlr,
+                            custo_prod: nextCusto,
+                            valor_total: nextTotal,
+                            lucro: nextLucro
+                          };
+                        });
+                      }}
+                    >
+                      {biProdutos.map(p => <option key={p.lista_concatenada} value={p.lista_concatenada}>{p.lista_concatenada}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Qtd *</label>
+                    <input
+                      type="number"
+                      className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                      value={saleForm.qtd}
+                      onChange={e => {
+                        const nextQtd = Number(e.target.value);
+                        setSaleForm(p => {
+                          const nextTotal = nextQtd * p.vlr_unit;
+                          const nextLucro = nextTotal - (nextQtd * p.custo_prod);
+                          return { ...p, qtd: nextQtd, valor_total: nextTotal, lucro: nextLucro };
+                        });
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Vlr Unit (R$) *</label>
+                    <input
+                      type="number"
+                      className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                      value={saleForm.vlr_unit}
+                      onChange={e => {
+                        const nextVlr = Number(e.target.value);
+                        setSaleForm(p => {
+                          const nextTotal = p.qtd * nextVlr;
+                          const nextLucro = nextTotal - (p.qtd * p.custo_prod);
+                          return { ...p, vlr_unit: nextVlr, valor_total: nextTotal, lucro: nextLucro };
+                        });
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Custo Prod (R$) *</label>
+                    <input
+                      type="number"
+                      className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                      value={saleForm.custo_prod}
+                      onChange={e => {
+                        const nextCusto = Number(e.target.value);
+                        setSaleForm(p => {
+                          const nextLucro = p.valor_total - (p.qtd * nextCusto);
+                          return { ...p, custo_prod: nextCusto, lucro: nextLucro };
+                        });
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Valor Total (R$) *</label>
+                    <input
+                      type="number"
+                      className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1 bg-gray-50"
+                      value={saleForm.valor_total}
+                      readOnly
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Lucro (R$) *</label>
+                    <input
+                      type="number"
+                      className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1 bg-gray-50"
+                      value={saleForm.lucro}
+                      readOnly
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Data *</label>
+                    <input type="date" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={saleForm.data} onChange={e => setSaleForm(p => ({ ...p, data: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Data Referencia *</label>
+                    <input type="date" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={saleForm.data_referencia} onChange={e => setSaleForm(p => ({ ...p, data_referencia: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Data Retirada *</label>
+                    <input type="date" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={saleForm.data_retirada} onChange={e => setSaleForm(p => ({ ...p, data_retirada: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Data Devolução</label>
+                    <input type="date" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={saleForm.data_devolucao} onChange={e => setSaleForm(p => ({ ...p, data_devolucao: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Status Pagamento *</label>
+                    <select
+                      className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                      value={saleForm.status_pagamento}
+                      onChange={e => setSaleForm(p => ({ ...p, status_pagamento: e.target.value }))}
+                    >
+                      <option value="Pago">Pago</option>
+                      <option value="Pendente">Pendente</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Status Aluguel *</label>
+                    <select
+                      className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                      value={saleForm.status_aluguel}
+                      onChange={e => setSaleForm(p => ({ ...p, status_aluguel: e.target.value as 'Devolvido' | 'Não devolvido' | 'Não retirado ainda' }))}
+                    >
+                      <option value="Devolvido">Devolvido</option>
+                      <option value="Não devolvido">Não devolvido</option>
+                      <option value="Não retirado ainda">Não retirado ainda</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      let next;
+                      if (editingAluguelId) {
+                        next = biVendas.map(v => v.id_tab === editingAluguelId ? saleForm : v);
+                      } else {
+                        next = [...biVendas, saleForm];
+                      }
+                      setBiVendas(next);
+                      localStorage.setItem('legis_bi_vendas', JSON.stringify(next));
+                      setShowAluguelForm(false);
+                      setEditingAluguelId(null);
+                    }}
+                    className="px-4 py-2 bg-purple-600 text-white rounded text-xs font-bold hover:bg-purple-700"
+                  >
+                    Salvar
+                  </button>
+                  <button type="button" onClick={() => { setShowAluguelForm(false); setEditingAluguelId(null); }} className="px-4 py-2 bg-gray-200 text-gray-700 rounded text-xs font-semibold hover:bg-gray-300">
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Table lists */}
+            <div className="overflow-x-auto border border-gray-200 dark:border-[#2A2545] rounded-lg">
+              {biAluguelTab === 'clientes' && (
+                <table className="w-full text-xs text-left bg-white dark:bg-[#1A1730]">
+                  <thead className="bg-gray-100 dark:bg-[#201C3D] uppercase font-bold text-gray-700 dark:text-gray-300 border-b dark:border-[#2A2545]">
+                    <tr>
+                      <th className="px-3 py-2">Código</th>
+                      <th className="px-3 py-2">Nome</th>
+                      <th className="px-3 py-2">CPF/CNPJ</th>
+                      <th className="px-3 py-2">Cidade</th>
+                      <th className="px-3 py-2">Estado</th>
+                      <th className="px-3 py-2 text-center">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {biClientes.map(c => (
+                      <tr key={c.lista_concatenada} className="border-b dark:border-[#2A2545] hover:bg-gray-50 dark:hover:bg-[#221d3f]">
+                        <td className="px-3 py-2">{c.codigo}</td>
+                        <td className="px-3 py-2 font-medium">{c.nome}</td>
+                        <td className="px-3 py-2">{c.cpf_cnpj}</td>
+                        <td className="px-3 py-2">{c.cidade}</td>
+                        <td className="px-3 py-2">{c.estado}</td>
+                        <td className="px-3 py-2 text-center space-x-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingAluguelId(c.lista_concatenada);
+                              setClientForm({ ...c });
+                              setShowAluguelForm(true);
+                            }}
+                            className="text-blue-600 dark:text-blue-400 hover:underline font-bold"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (window.confirm('Excluir este cliente?')) {
+                                const next = biClientes.filter(x => x.lista_concatenada !== c.lista_concatenada);
+                                setBiClientes(next);
+                                localStorage.setItem('legis_bi_clientes', JSON.stringify(next));
+                              }
+                            }}
+                            className="text-red-600 dark:text-red-400 hover:underline font-bold"
+                          >
+                            Excluir
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {biClientes.length === 0 && (
+                      <tr>
+                        <td colSpan={6} className="px-3 py-6 text-center text-gray-400">Nenhum cliente cadastrado.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              )}
+
+              {biAluguelTab === 'produtos' && (
+                <table className="w-full text-xs text-left bg-white dark:bg-[#1A1730]">
+                  <thead className="bg-gray-100 dark:bg-[#201C3D] uppercase font-bold text-gray-700 dark:text-gray-300 border-b dark:border-[#2A2545]">
+                    <tr>
+                      <th className="px-3 py-2">Código</th>
+                      <th className="px-3 py-2">Nome</th>
+                      <th className="px-3 py-2">Descrição</th>
+                      <th className="px-3 py-2 text-right">Custo</th>
+                      <th className="px-3 py-2 text-right">Preço Tabela</th>
+                      <th className="px-3 py-2 text-center">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {biProdutos.map(p => (
+                      <tr key={p.lista_concatenada} className="border-b dark:border-[#2A2545] hover:bg-gray-50 dark:hover:bg-[#221d3f]">
+                        <td className="px-3 py-2">{p.codigo}</td>
+                        <td className="px-3 py-2 font-medium">{p.nome}</td>
+                        <td className="px-3 py-2 truncate max-w-[200px]" title={p.descricao}>{p.descricao}</td>
+                        <td className="px-3 py-2 text-right">R$ {p.custo}</td>
+                        <td className="px-3 py-2 text-right">R$ {p.preco_tabela}</td>
+                        <td className="px-3 py-2 text-center space-x-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingAluguelId(p.lista_concatenada);
+                              setProductForm({ ...p });
+                              setShowAluguelForm(true);
+                            }}
+                            className="text-blue-600 dark:text-blue-400 hover:underline font-bold"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (window.confirm('Excluir este produto?')) {
+                                const next = biProdutos.filter(x => x.lista_concatenada !== p.lista_concatenada);
+                                setBiProdutos(next);
+                                localStorage.setItem('legis_bi_produtos', JSON.stringify(next));
+                              }
+                            }}
+                            className="text-red-600 dark:text-red-400 hover:underline font-bold"
+                          >
+                            Excluir
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {biProdutos.length === 0 && (
+                      <tr>
+                        <td colSpan={6} className="px-3 py-6 text-center text-gray-400">Nenhum produto cadastrado.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              )}
+
+              {biAluguelTab === 'fornecedores' && (
+                <table className="w-full text-xs text-left bg-white dark:bg-[#1A1730]">
+                  <thead className="bg-gray-100 dark:bg-[#201C3D] uppercase font-bold text-gray-700 dark:text-gray-300 border-b dark:border-[#2A2545]">
+                    <tr>
+                      <th className="px-3 py-2">Código</th>
+                      <th className="px-3 py-2">Nome</th>
+                      <th className="px-3 py-2">CPF/CNPJ</th>
+                      <th className="px-3 py-2">Estado</th>
+                      <th className="px-3 py-2 text-center">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {biFornecedores.map(f => (
+                      <tr key={f.lista_concatenada} className="border-b dark:border-[#2A2545] hover:bg-gray-50 dark:hover:bg-[#221d3f]">
+                        <td className="px-3 py-2">{f.codigo}</td>
+                        <td className="px-3 py-2 font-medium">{f.nome}</td>
+                        <td className="px-3 py-2">{f.cpf_cnpj}</td>
+                        <td className="px-3 py-2">{f.estado}</td>
+                        <td className="px-3 py-2 text-center space-x-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingAluguelId(f.lista_concatenada);
+                              setSupplierForm({ ...f });
+                              setShowAluguelForm(true);
+                            }}
+                            className="text-blue-600 dark:text-blue-400 hover:underline font-bold"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (window.confirm('Excluir este fornecedor?')) {
+                                const next = biFornecedores.filter(x => x.lista_concatenada !== f.lista_concatenada);
+                                setBiFornecedores(next);
+                                localStorage.setItem('legis_bi_fornecedores', JSON.stringify(next));
+                              }
+                            }}
+                            className="text-red-600 dark:text-red-400 hover:underline font-bold"
+                          >
+                            Excluir
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {biFornecedores.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="px-3 py-6 text-center text-gray-400">Nenhum fornecedor cadastrado.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              )}
+
+              {biAluguelTab === 'vendas' && (
+                <table className="w-full text-xs text-left bg-white dark:bg-[#1A1730]">
+                  <thead className="bg-gray-100 dark:bg-[#201C3D] uppercase font-bold text-gray-700 dark:text-gray-300 border-b dark:border-[#2A2545]">
+                    <tr>
+                      <th className="px-3 py-2">ID</th>
+                      <th className="px-3 py-2">Cliente</th>
+                      <th className="px-3 py-2">Fornecedor</th>
+                      <th className="px-3 py-2">Produto</th>
+                      <th className="px-3 py-2 text-right">Qtd</th>
+                      <th className="px-3 py-2 text-right">Total</th>
+                      <th className="px-3 py-2 text-right">Lucro</th>
+                      <th className="px-3 py-2">Status Aluguel</th>
+                      <th className="px-3 py-2 text-center">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {biVendas.map(v => (
+                      <tr key={v.id_tab} className="border-b dark:border-[#2A2545] hover:bg-gray-50 dark:hover:bg-[#221d3f]">
+                        <td className="px-3 py-2">{v.id_tab}</td>
+                        <td className="px-3 py-2 font-medium truncate max-w-[120px]" title={v.cliente}>{v.cliente}</td>
+                        <td className="px-3 py-2 truncate max-w-[120px]" title={v.fornecedor}>{v.fornecedor}</td>
+                        <td className="px-3 py-2 truncate max-w-[120px]" title={v.produto}>{v.produto}</td>
+                        <td className="px-3 py-2 text-right">{v.qtd}</td>
+                        <td className="px-3 py-2 text-right font-semibold text-emerald-700">R$ {v.valor_total.toLocaleString('pt-BR')}</td>
+                        <td className="px-3 py-2 text-right text-emerald-600">R$ {v.lucro.toLocaleString('pt-BR')}</td>
+                        <td className="px-3 py-2">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            v.status_aluguel === 'Devolvido' ? 'bg-green-100 text-green-800' :
+                            v.status_aluguel === 'Não devolvido' ? 'bg-red-100 text-red-800' :
+                            'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {v.status_aluguel}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2 text-center space-x-2 whitespace-nowrap">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingAluguelId(v.id_tab);
+                              setSaleForm({ ...v });
+                              setShowAluguelForm(true);
+                            }}
+                            className="text-blue-600 dark:text-blue-400 hover:underline font-bold"
+                          >
+                            Editar
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (window.confirm('Excluir este lançamento de aluguer?')) {
+                                const next = biVendas.filter(x => x.id_tab !== v.id_tab);
+                                setBiVendas(next);
+                                localStorage.setItem('legis_bi_vendas', JSON.stringify(next));
+                              }
+                            }}
+                            className="text-red-600 dark:text-red-400 hover:underline font-bold"
+                          >
+                            Excluir
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {biVendas.length === 0 && (
+                      <tr>
+                        <td colSpan={9} className="px-3 py-6 text-center text-gray-400">Nenhum lançamento cadastrado.</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              )}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Documentação BI */}
         <div className="bg-slate-50 dark:bg-[#1A1730]/40 border border-slate-200 dark:border-[#2A2545] rounded-xl p-4 space-y-3">
@@ -1722,29 +2477,51 @@ const GeneralSettings: React.FC = () => {
           <div className="space-y-3 text-left">
             <div className="bg-white dark:bg-[#1A1730] p-3 rounded-lg border border-slate-100 dark:border-[#2A2545] space-y-1.5">
               <p className="text-xs font-bold text-slate-700 dark:text-slate-300">🔗 Estrutura de Relacionamentos</p>
-              <ol className="list-decimal list-inside text-[11px] text-gray-600 dark:text-gray-400 space-y-1 leading-relaxed">
-                <li><strong>Chave de Relação:</strong> Ligue as tabelas usando <code>tb_apoio[periodos]</code> &rarr; <code>tb_dados_base[semestre]</code>.</li>
-                <li><strong>Cardinalidade:</strong> Relacionamento de <strong>1 para Muitos (1:N)</strong>, onde cada período de premissa se relaciona a múltiplos registros mensais.</li>
-                <li><strong>Direção do Filtro:</strong> Unidirecional (tb_apoio filtra tb_dados_base).</li>
-                <li><strong>Alinhamento:</strong> Mantenha os mesmos nomes textuais (ex: '1º sem', '2º sem') em ambos os lados para que as fórmulas encontrem os percentuais corretos.</li>
-              </ol>
+              {biSubTab === 'excel_ums' ? (
+                <ol className="list-decimal list-inside text-[11px] text-gray-600 dark:text-gray-400 space-y-1 leading-relaxed">
+                  <li><strong>Chave de Relação:</strong> Ligue as tabelas usando <code>tb_apoio[periodos]</code> &rarr; <code>tb_dados_base[semestre]</code>.</li>
+                  <li><strong>Cardinalidade:</strong> Relacionamento de <strong>1 para Muitos (1:N)</strong>, onde cada período de premissa se relaciona a múltiplos registros mensais.</li>
+                  <li><strong>Direção do Filtro:</strong> Unidirecional (tb_apoio filtra tb_dados_base).</li>
+                  <li><strong>Alinhamento:</strong> Mantenha os mesmos nomes textuais (ex: '1º sem', '2º sem') em ambos os lados para que as fórmulas encontrem os percentuais corretos.</li>
+                </ol>
+              ) : (
+                <ol className="list-decimal list-inside text-[11px] text-gray-600 dark:text-gray-400 space-y-1 leading-relaxed">
+                  <li><strong>Chave de Relação (Clientes):</strong> <code>dim_clientes[lista_concatenada]</code> &rarr; <code>fato_vendas[cliente]</code> (1:N).</li>
+                  <li><strong>Chave de Relação (Produtos):</strong> <code>dim_produtos[lista_concatenada]</code> &rarr; <code>fato_vendas[produto]</code> (1:N).</li>
+                  <li><strong>Chave de Relação (Fornecedores):</strong> <code>dim_fornecedores[lista_concatenada]</code> &rarr; <code>fato_vendas[fornecedor]</code> (1:N).</li>
+                  <li><strong>Nota de Limpeza:</strong> Como as chaves originais utilizam o formato concatenado "ID - Nome", a tabela facto liga-se diretamente às chaves primárias textuais correspondentes.</li>
+                </ol>
+              )}
             </div>
 
             <div className="space-y-2">
               <div className="flex gap-2 border-b border-gray-200 dark:border-[#2A2545]">
-                {['DAX (Power BI)', 'Python (Pandas)', 'SQL Queries'].map(tabName => (
-                  <button
-                    key={tabName}
-                    type="button"
-                    onClick={() => setDocTab(tabName)}
-                    className={`pb-1 text-xs font-bold ${docTab === tabName ? 'border-b-2 border-primary text-primary' : 'text-gray-500'}`}
-                  >
-                    {tabName}
-                  </button>
-                ))}
+                {biSubTab === 'excel_ums' ? (
+                  ['DAX (Power BI)', 'Python (Pandas)', 'SQL Queries'].map(tabName => (
+                    <button
+                      key={tabName}
+                      type="button"
+                      onClick={() => setDocTab(tabName)}
+                      className={`pb-1 text-xs font-bold ${docTab === tabName ? 'border-b-2 border-primary text-primary' : 'text-gray-500'}`}
+                    >
+                      {tabName}
+                    </button>
+                  ))
+                ) : (
+                  ['SQL (Criação de Tabelas)', 'Tratamento de Chaves (Regex / Limpeza)', 'Fórmulas DAX'].map(tabName => (
+                    <button
+                      key={tabName}
+                      type="button"
+                      onClick={() => setDocTab(tabName)}
+                      className={`pb-1 text-xs font-bold ${docTab === tabName ? 'border-b-2 border-primary text-primary' : 'text-gray-500'}`}
+                    >
+                      {tabName}
+                    </button>
+                  ))
+                )}
               </div>
 
-              {docTab === 'DAX (Power BI)' && (
+              {biSubTab === 'excel_ums' && docTab === 'DAX (Power BI)' && (
                 <pre className="p-3 bg-gray-900 text-gray-200 rounded-lg text-[10px] font-mono overflow-auto max-h-48 leading-relaxed">
 {`-- Medida: Faturamento Acumulado
 Faturamento_Acumulado = SUM(tb_dados_base[receita_fat])
@@ -1784,7 +2561,7 @@ CALCULATE(
 Percentual_Consumo_Teto = DIVIDE([Executado_UMS_Acumulado], 189346)`}
                 </pre>
               )}
-              {docTab === 'Python (Pandas)' && (
+              {biSubTab === 'excel_ums' && docTab === 'Python (Pandas)' && (
                 <pre className="p-3 bg-gray-900 text-gray-200 rounded-lg text-[10px] font-mono overflow-auto max-h-48 leading-relaxed">
 {`import pandas as pd
 import numpy as np
@@ -1822,7 +2599,7 @@ tb_dados_base['Executado_UMS_Acumulado'] = tb_dados_base['executado_ums'].cumsum
 tb_dados_base['Percentual_Consumo_Teto'] = tb_dados_base['Executado_UMS_Acumulado'] / 189346`}
                 </pre>
               )}
-              {docTab === 'SQL Queries' && (
+              {biSubTab === 'excel_ums' && docTab === 'SQL Queries' && (
                 <pre className="p-3 bg-gray-900 text-gray-200 rounded-lg text-[10px] font-mono overflow-auto max-h-48 leading-relaxed">
 {`-- 1. Resultado Mensal
 SELECT 
@@ -1865,6 +2642,106 @@ SELECT
     (executado_ums_acumulado / 189346.0) AS percentual_consumo_teto,
     (custo + (despesa_total - custo - imposto - juros - salarios_ordenados - glosa) + imposto) / NULLIF(receita_fat + transferencia_recebida, 0) AS razao_mensal
 FROM acumulado;`}
+                </pre>
+              )}
+
+              {/* Equipment Rental docs */}
+              {biSubTab === 'servicos_aluguel' && docTab === 'SQL (Criação de Tabelas)' && (
+                <pre className="p-3 bg-gray-900 text-gray-200 rounded-lg text-[10px] font-mono overflow-auto max-h-48 leading-relaxed">
+{`-- 1. Criação do DDL para Dimensões e Facto (Star Schema)
+CREATE TABLE dim_clientes (
+    lista_concatenada VARCHAR(255) PRIMARY KEY, -- ID - Nome
+    codigo VARCHAR(50) UNIQUE,
+    nome VARCHAR(150),
+    cpf_cnpj VARCHAR(50),
+    cidade VARCHAR(100),
+    estado VARCHAR(2)
+);
+
+CREATE TABLE dim_produtos (
+    lista_concatenada VARCHAR(255) PRIMARY KEY, -- ID - Nome
+    codigo VARCHAR(50) UNIQUE,
+    nome VARCHAR(150),
+    descricao TEXT,
+    custo DECIMAL(18,4),
+    preco_tabela DECIMAL(18,4)
+);
+
+CREATE TABLE dim_fornecedores (
+    lista_concatenada VARCHAR(255) PRIMARY KEY, -- ID - Nome
+    codigo VARCHAR(50) UNIQUE,
+    nome VARCHAR(150),
+    cpf_cnpj VARCHAR(50),
+    estado VARCHAR(2)
+);
+
+CREATE TABLE fato_vendas (
+    id_tab VARCHAR(50) PRIMARY KEY,
+    fornecedor VARCHAR(255) REFERENCES dim_fornecedores(lista_concatenada),
+    cliente VARCHAR(255) REFERENCES dim_clientes(lista_concatenada),
+    produto VARCHAR(255) REFERENCES dim_produtos(lista_concatenada),
+    qtd INT,
+    vlr_unit DECIMAL(18,4),
+    valor_total DECIMAL(18,4),
+    custo_prod DECIMAL(18,4),
+    lucro DECIMAL(18,4),
+    data DATE,
+    data_referencia DATE,
+    data_retirada DATE,
+    data_devolucao DATE,
+    status_pagamento VARCHAR(50),
+    status_aluguel VARCHAR(50)
+);`}
+                </pre>
+              )}
+
+              {biSubTab === 'servicos_aluguel' && docTab === 'Tratamento de Chaves (Regex / Limpeza)' && (
+                <pre className="p-3 bg-gray-900 text-gray-200 rounded-lg text-[10px] font-mono overflow-auto max-h-48 leading-relaxed">
+{`# Script Python/Pandas para Limpeza de Dados e Chaves
+import pandas as pd
+import re
+
+# Carregar vendas originais com chaves mistas
+fato_vendas = pd.read_csv('Vendas.csv')
+
+# Extrair ID numérico e Nome limpo a partir de chaves concatenadas "ID - Nome"
+def extrair_id(texto):
+    if pd.isna(texto): return None
+    match = re.match(r'^(\\w+)\\s*-\\s*', str(texto))
+    return match.group(1) if match else str(texto)
+
+def extrair_nome(texto):
+    if pd.isna(texto): return None
+    return re.sub(r'^\\w+\\s*-\\s*', '', str(texto))
+
+# Aplicar transformações
+fato_vendas['cliente_codigo'] = fato_vendas['Cliente'].apply(extrair_id)
+fato_vendas['cliente_nome'] = fato_vendas['Cliente'].apply(extrair_nome)
+
+fato_vendas['produto_codigo'] = fato_vendas['Produto'].apply(extrair_id)
+fato_vendas['produto_nome'] = fato_vendas['Produto'].apply(extrair_nome)
+
+fato_vendas['fornecedor_codigo'] = fato_vendas['Fornecedor'].apply(extrair_id)
+fato_vendas['fornecedor_nome'] = fato_vendas['Fornecedor'].apply(extrair_nome)`}
+                </pre>
+              )}
+
+              {biSubTab === 'servicos_aluguel' && docTab === 'Fórmulas DAX' && (
+                <pre className="p-3 bg-gray-900 text-gray-200 rounded-lg text-[10px] font-mono overflow-auto max-h-48 leading-relaxed">
+{`-- 1. Faturamento Total (Medida)
+Faturamento_Total = SUM(fato_vendas[Valor Total])
+
+-- 2. Lucro Líquido Acumulado (Medida)
+Lucro_Total = SUM(fato_vendas[Lucro])
+
+-- 3. Margem de Lucro % (Medida)
+Margem_Lucro = DIVIDE([Lucro_Total], [Faturamento_Total], 0)
+
+-- 4. Tempo Médio de Aluguer em Dias (Medida)
+Dias_Aluguer = AVERAGE(DATEDIFF(fato_vendas[Data Retirada], fato_vendas[Data Devolução], DAY))
+
+-- 5. Valor Não Devolvido (Medida)
+Valor_Nao_Devolvido = CALCULATE([Faturamento_Total], fato_vendas[Status Aluguel] = "Não devolvido")`}
                 </pre>
               )}
             </div>
