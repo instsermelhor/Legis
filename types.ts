@@ -192,6 +192,10 @@ export interface EfficiencyService {
   name: string;
   description: string;
   price: number;
+  discountLawyer?: number;
+  discountIntern?: number;
+  discountSecretary?: number;
+  discountClient?: number;
 }
 
 export interface Secretary {

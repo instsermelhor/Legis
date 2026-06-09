@@ -1608,52 +1608,146 @@ const DatabaseSettings: React.FC = () => {
         </div>
 
         {dbType === 'cloud' && (
-          <div className="bg-gray-50 border p-4 rounded-xl space-y-4 animate-fade-in">
-            <h4 className="text-xs font-bold text-gray-700 uppercase">Configurações de Credenciais da Nuvem</h4>
+          <div className="bg-gray-50 dark:bg-[#201C3D] border border-gray-200 dark:border-[#2A2545] p-4 rounded-xl space-y-4 animate-fade-in">
+            <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Configurações de Credenciais da Nuvem</h4>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Provedor Cloud</label>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Provedor Cloud</label>
                 <select
                   value={dbCloudProvider}
                   onChange={e => setDbCloudProvider(e.target.value as any)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:text-white p-1"
                 >
                   <option value="firebase">Firebase Firestore</option>
                   <option value="supabase">Supabase PostgreSQL</option>
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Chave da API (API Key) *</label>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Chave da API (API Key) *</label>
                 <input
                   type="password"
                   value={dbApiKey}
                   onChange={e => setDbApiKey(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:text-white p-1"
                   placeholder="AIzaSy..."
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">ID do Projeto / URL do Projeto *</label>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">ID do Projeto / URL do Projeto *</label>
                 <input
                   type="text"
                   value={dbProjectUrl}
                   onChange={e => setDbProjectUrl(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:text-white p-1"
                   placeholder="https://sua-app.supabase.co ou project-id"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Domínio de Autenticação (Auth Domain)</label>
+                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Domínio de Autenticação (Auth Domain)</label>
                 <input
                   type="text"
                   value={dbAuthDomain}
                   onChange={e => setDbAuthDomain(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:text-white p-1"
                   placeholder="sua-app.firebaseapp.com"
                 />
               </div>
             </div>
+
+            {dbCloudProvider === 'firebase' && (
+              <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-[#2a243d] dark:to-[#221c33] border border-amber-200 dark:border-[#3d3159] p-4 rounded-xl mt-4 space-y-3">
+                <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300 font-bold text-xs uppercase tracking-wider">
+                  <span>🔑</span>
+                  <span>Guia de Acesso e Configuração do Firebase</span>
+                </div>
+                
+                <div className="text-xs text-gray-700 dark:text-gray-300 space-y-2 leading-relaxed">
+                  <p>
+                    Como as políticas de segurança do Google bloqueiam logins automatizados por segurança, você precisará copiar as chaves do Console do Firebase. Siga o passo a passo abaixo:
+                  </p>
+                  
+                  <div className="space-y-2 pl-1">
+                    <div className="flex gap-2">
+                      <span className="flex items-center justify-center w-5 h-5 bg-amber-200 dark:bg-[#3d3159] text-amber-900 dark:text-amber-200 font-bold rounded-full text-[10px] shrink-0">1</span>
+                      <div>
+                        Acesse o <a href="https://console.firebase.google.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-semibold">Firebase Console</a>.
+                      </div>
+                    </div>
+                    
+                    <div className="flex gap-2">
+                      <span className="flex items-center justify-center w-5 h-5 bg-amber-200 dark:bg-[#3d3159] text-amber-900 dark:text-amber-200 font-bold rounded-full text-[10px] shrink-0">2</span>
+                      <div className="flex-1">
+                        Use as credenciais abaixo para entrar na conta do Google:
+                        <div className="mt-1.5 grid grid-cols-1 sm:grid-cols-2 gap-2 bg-white/70 dark:bg-[#1A1730]/65 p-2 rounded-lg border border-amber-100 dark:border-[#3d3159]">
+                          <div className="flex items-center justify-between gap-1 text-[11px]">
+                            <span className="text-gray-500">Email:</span>
+                            <code className="bg-gray-100 dark:bg-[#201C3D] px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200">legisconnectonline@gmail.com</code>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                navigator.clipboard.writeText('legisconnectonline@gmail.com');
+                                alert('E-mail copiado!');
+                              }}
+                              className="text-primary hover:underline text-[10px] shrink-0"
+                            >
+                              Copiar
+                            </button>
+                          </div>
+                          <div className="flex items-center justify-between gap-1 text-[11px]">
+                            <span className="text-gray-500">Senha:</span>
+                            <code className="bg-gray-100 dark:bg-[#201C3D] px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200">@@Rk08266570#</code>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                navigator.clipboard.writeText('@@Rk08266570#');
+                                alert('Senha copiada!');
+                              }}
+                              className="text-primary hover:underline text-[10px] shrink-0"
+                            >
+                              Copiar
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <span className="flex items-center justify-center w-5 h-5 bg-amber-200 dark:bg-[#3d3159] text-amber-900 dark:text-amber-200 font-bold rounded-full text-[10px] shrink-0">3</span>
+                      <div>
+                        Selecione o projeto correspondente (ex: <strong>Legis Connect</strong>) no painel.
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <span className="flex items-center justify-center w-5 h-5 bg-amber-200 dark:bg-[#3d3159] text-amber-900 dark:text-amber-200 font-bold rounded-full text-[10px] shrink-0">4</span>
+                      <div>
+                        Clique no ícone de <strong>Engrenagem (Configurações do Projeto)</strong> no menu lateral esquerdo e selecione <strong>Configurações do projeto</strong>.
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <span className="flex items-center justify-center w-5 h-5 bg-amber-200 dark:bg-[#3d3159] text-amber-900 dark:text-amber-200 font-bold rounded-full text-[10px] shrink-0">5</span>
+                      <div>
+                        Na guia <strong>Geral</strong>, role até a seção <strong>Seus aplicativos</strong>. Copie os seguintes valores do bloco de código `firebaseConfig`:
+                        <ul className="list-disc list-inside mt-1 space-y-0.5 pl-2 text-gray-600 dark:text-gray-400">
+                          <li><code className="text-gray-800 dark:text-gray-200">apiKey</code> &rarr; Cole no campo <strong>Chave da API</strong> acima</li>
+                          <li><code className="text-gray-800 dark:text-gray-200">projectId</code> &rarr; Cole no campo <strong>ID do Projeto / URL do Projeto</strong> acima</li>
+                          <li><code className="text-gray-800 dark:text-gray-200">authDomain</code> &rarr; Cole no campo <strong>Domínio de Autenticação</strong> acima</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <span className="flex items-center justify-center w-5 h-5 bg-amber-200 dark:bg-[#3d3159] text-amber-900 dark:text-amber-200 font-bold rounded-full text-[10px] shrink-0">6</span>
+                      <div>
+                        Clique em <strong>Salvar Conexão</strong> e depois em <strong>🔌 Testar Conexão</strong> para validar a sincronização.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
         

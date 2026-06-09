@@ -6,6 +6,7 @@ import { RegistrationsTab } from './RegistrationsTab';
 import { FinanceTab } from './FinanceTab';
 import { SettingsTab } from './SettingsTab';
 import { ServicesManagementTab } from './ServicesManagementTab';
+import { AdminCommandsTab } from './AdminCommandsTab';
 import {
   IconMoney, IconSettings, IconChart, IconEdit,
   SearchInput, SectionTitle, lawyerStatusBadge,
@@ -21,6 +22,12 @@ const IconShopBag = () => (
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 11H4L5 9z" />
   </svg>
 );
+const IconLock = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+  </svg>
+);
+
 
 // ─── Lawyers Tab (kept local) ────────────────────────────────────────────────
 const LawyersTab: React.FC<{
@@ -127,14 +134,15 @@ const LawyersTab: React.FC<{
 };
 
 // ─── Tab definitions ──────────────────────────────────────────────────────────
-type Tab = 'overview' | 'registrations' | 'finance' | 'settings' | 'services';
+type Tab = 'overview' | 'admin_commands' | 'registrations' | 'finance' | 'services' | 'settings';
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
-  { id: 'overview',       label: 'Visão Geral',         icon: <IconChart /> },
-  { id: 'registrations',  label: 'Gestão de Cadastros', icon: <IconEdit /> },
-  { id: 'finance',        label: 'Financeiro',           icon: <IconMoney /> },
-  { id: 'services',       label: 'Serviços / Eficiência', icon: <IconShopBag /> },
-  { id: 'settings',       label: 'Configurações',        icon: <IconSettings /> },
+  { id: 'overview',       label: 'Visão Geral',             icon: <IconChart /> },
+  { id: 'registrations',  label: 'Gestão de Cadastros',     icon: <IconEdit /> },
+  { id: 'finance',        label: 'Financeiro',               icon: <IconMoney /> },
+  { id: 'services',       label: 'Serviços / Eficiência',     icon: <IconShopBag /> },
+  { id: 'admin_commands', label: 'Configurações Admin',      icon: <IconLock /> },
+  { id: 'settings',       label: 'Configurações',            icon: <IconSettings /> },
 ];
 
 interface AdminDashboardProps {
@@ -215,11 +223,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLo
 
         {/* Content */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
-          {activeTab === 'overview'      && <OverviewTab lawyers={lawyers} onNavigateToFinance={navigateToFinance} />}
-          {activeTab === 'registrations' && <RegistrationsTab lawyers={lawyers} onLawyerUpdate={handleLawyerUpdate} />}
-          {activeTab === 'finance'       && <FinanceTab lawyers={lawyers} initialFilter={financeFilter} />}
-          {activeTab === 'services'      && <ServicesManagementTab />}
-          {activeTab === 'settings'      && <SettingsTab />}
+          {activeTab === 'overview'       && <OverviewTab lawyers={lawyers} onNavigateToFinance={navigateToFinance} />}
+          {activeTab === 'admin_commands' && <AdminCommandsTab />}
+          {activeTab === 'registrations'  && <RegistrationsTab lawyers={lawyers} onLawyerUpdate={handleLawyerUpdate} />}
+          {activeTab === 'finance'        && <FinanceTab lawyers={lawyers} initialFilter={financeFilter} />}
+          {activeTab === 'services'       && <ServicesManagementTab />}
+          {activeTab === 'settings'       && <SettingsTab />}
         </main>
       </div>
     </div>
