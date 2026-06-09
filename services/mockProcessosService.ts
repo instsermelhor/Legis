@@ -14,7 +14,7 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
   {
     id_processo: 1001,
     departamento: 'Cível',
-    advogado: 'Dr. Carlos Silva',
+    advogado: 'Dr. Carlos Andrade',
     gestor: 'Dra. Patrícia Souza',
     data_entrada: '2025-01-10',
     data_conclusao: '2025-03-15',
@@ -24,7 +24,7 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
   {
     id_processo: 1002,
     departamento: 'Trabalhista',
-    advogado: 'Dra. Mariana Costa',
+    advogado: 'Dra. Beatriz Lima',
     gestor: 'Dr. Fernando Rocha',
     data_entrada: '2025-02-18',
     data_conclusao: '2025-05-20',
@@ -34,7 +34,7 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
   {
     id_processo: 1003,
     departamento: 'Societário',
-    advogado: 'Dr. Ricardo Santos',
+    advogado: 'Dr. Ricardo Mendes',
     gestor: 'Dra. Beatriz Reis',
     data_entrada: '2025-03-05',
     data_conclusao: null,
@@ -44,7 +44,7 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
   {
     id_processo: 1004,
     departamento: 'Cível',
-    advogado: 'Dra. Ana Oliveira',
+    advogado: 'Dra. Beatriz Lima',
     gestor: 'Dra. Patrícia Souza',
     data_entrada: '2025-04-12',
     data_conclusao: null,
@@ -54,7 +54,7 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
   {
     id_processo: 1005,
     departamento: 'Trabalhista',
-    advogado: 'Dr. Bruno Lima',
+    advogado: 'Dr. Carlos Andrade',
     gestor: 'Dr. Fernando Rocha',
     data_entrada: '2025-05-01',
     data_conclusao: '2025-07-10',
@@ -64,7 +64,7 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
   {
     id_processo: 1006,
     departamento: 'Societário',
-    advogado: 'Dr. Carlos Silva',
+    advogado: 'Dr. Carlos Andrade',
     gestor: 'Dra. Beatriz Reis',
     data_entrada: '2025-06-15',
     data_conclusao: null,
@@ -74,7 +74,7 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
   {
     id_processo: 1007,
     departamento: 'Cível',
-    advogado: 'Dra. Mariana Costa',
+    advogado: 'Dra. Beatriz Lima',
     gestor: 'Dra. Patrícia Souza',
     data_entrada: '2025-07-22',
     data_conclusao: '2025-10-05',
@@ -84,7 +84,7 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
   {
     id_processo: 1008,
     departamento: 'Trabalhista',
-    advogado: 'Dr. Ricardo Santos',
+    advogado: 'Dr. Ricardo Mendes',
     gestor: 'Dr. Fernando Rocha',
     data_entrada: '2025-08-30',
     data_conclusao: null,
@@ -94,7 +94,7 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
   {
     id_processo: 1009,
     departamento: 'Societário',
-    advogado: 'Dra. Ana Oliveira',
+    advogado: 'Dra. Beatriz Lima',
     gestor: 'Dra. Beatriz Reis',
     data_entrada: '2025-09-10',
     data_conclusao: '2025-12-01',
@@ -104,7 +104,7 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
   {
     id_processo: 1010,
     departamento: 'Cível',
-    advogado: 'Dr. Bruno Lima',
+    advogado: 'Dr. Carlos Andrade',
     gestor: 'Dra. Patrícia Souza',
     data_entrada: '2025-10-05',
     data_conclusao: null,
@@ -114,7 +114,7 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
   {
     id_processo: 1011,
     departamento: 'Trabalhista',
-    advogado: 'Dr. Carlos Silva',
+    advogado: 'Dr. Carlos Andrade',
     gestor: 'Dr. Fernando Rocha',
     data_entrada: '2025-11-20',
     data_conclusao: '2026-02-15',
@@ -124,7 +124,7 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
   {
     id_processo: 1012,
     departamento: 'Societário',
-    advogado: 'Dra. Mariana Costa',
+    advogado: 'Dra. Beatriz Lima',
     gestor: 'Dra. Beatriz Reis',
     data_entrada: '2025-12-05',
     data_conclusao: null,
@@ -134,7 +134,7 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
   {
     id_processo: 1013,
     departamento: 'Cível',
-    advogado: 'Dr. Ricardo Santos',
+    advogado: 'Dr. Ricardo Mendes',
     gestor: 'Dra. Patrícia Souza',
     data_entrada: '2026-01-15',
     data_conclusao: null,
@@ -144,7 +144,7 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
   {
     id_processo: 1014,
     departamento: 'Trabalhista',
-    advogado: 'Dra. Ana Oliveira',
+    advogado: 'Dra. Beatriz Lima',
     gestor: 'Dr. Fernando Rocha',
     data_entrada: '2026-02-10',
     data_conclusao: '2026-04-30',
@@ -154,7 +154,7 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
   {
     id_processo: 1015,
     departamento: 'Societário',
-    advogado: 'Dr. Bruno Lima',
+    advogado: 'Dr. Carlos Andrade',
     gestor: 'Dra. Beatriz Reis',
     data_entrada: '2026-03-01',
     data_conclusao: null,
@@ -164,7 +164,7 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
   {
     id_processo: 1016,
     departamento: 'Cível',
-    advogado: 'Dr. Carlos Silva',
+    advogado: 'Dr. Carlos Andrade',
     gestor: 'Dra. Patrícia Souza',
     data_entrada: '2026-04-18',
     data_conclusao: null,
@@ -174,7 +174,7 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
   {
     id_processo: 1017,
     departamento: 'Trabalhista',
-    advogado: 'Dra. Mariana Costa',
+    advogado: 'Dra. Beatriz Lima',
     gestor: 'Dr. Fernando Rocha',
     data_entrada: '2026-05-02',
     data_conclusao: null,
@@ -184,7 +184,7 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
   {
     id_processo: 1018,
     departamento: 'Societário',
-    advogado: 'Dr. Ricardo Santos',
+    advogado: 'Dr. Ricardo Mendes',
     gestor: 'Dra. Beatriz Reis',
     data_entrada: '2026-05-15',
     data_conclusao: null,
@@ -194,7 +194,7 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
   {
     id_processo: 1019,
     departamento: 'Cível',
-    advogado: 'Dra. Ana Oliveira',
+    advogado: 'Dra. Beatriz Lima',
     gestor: 'Dra. Patrícia Souza',
     data_entrada: '2026-06-01',
     data_conclusao: null,
@@ -204,7 +204,7 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
   {
     id_processo: 1020,
     departamento: 'Trabalhista',
-    advogado: 'Dr. Bruno Lima',
+    advogado: 'Dr. Carlos Andrade',
     gestor: 'Dr. Fernando Rocha',
     data_entrada: '2026-06-05',
     data_conclusao: null,

@@ -7,6 +7,8 @@
 import React, { useState, useMemo } from 'react';
 import { dbFinancial } from '../../services/dbService';
 import type { FinancialTransaction } from '../../services/dbService';
+import { mockProcessosService } from '../../services/mockProcessosService';
+import { mockLawyers } from '../../services/mockLawyerService';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const fmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -118,6 +120,23 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
   const [statusFilter, setStatusFilter] = useState<'all' | FinancialTransaction['status']>('all');
   const [search, setSearch] = useState('');
   const [processSearch, setProcessSearch] = useState('');
+
+  // Query processes data
+  const lawyerName = lawyerId ? mockLawyers.find(l => l.id === lawyerId)?.name : undefined;
+  const procKpis = useMemo(() => {
+    const allProcs = mockProcessosService.getProcessos();
+    const list = lawyerName ? allProcs.filter(p => p.advogado === lawyerName) : allProcs;
+    const count = list.length;
+    const totalVal = list.reduce((acc, p) => acc + p.valor, 0);
+    const concluidoVal = list.filter(p => p.status === 'Concluído').reduce((acc, p) => acc + p.valor, 0);
+    const concluidoCount = list.filter(p => p.status === 'Concluído').length;
+    const andamentoVal = list.filter(p => p.status === 'Em Andamento').reduce((acc, p) => acc + p.valor, 0);
+    const andamentoCount = list.filter(p => p.status === 'Em Andamento').length;
+    const aguardandoVal = list.filter(p => p.status === 'Aguardando Documentação').reduce((acc, p) => acc + p.valor, 0);
+    const aguardandoCount = list.filter(p => p.status === 'Aguardando Documentação').length;
+
+    return { list, count, totalVal, concluidoVal, concluidoCount, andamentoVal, andamentoCount, aguardandoVal, aguardandoCount };
+  }, [lawyerName]);
 
   const filtered = useMemo(() => {
     const now = new Date();
@@ -267,6 +286,85 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
         <div className="px-4 py-3 border-t flex justify-between items-center text-xs text-gray-500">
           <span>{filtered.length} transações</span>
           <span>Total recebido no filtro: <strong className="text-green-700">{fmt(totalRecebido)}</strong></span>
+        </div>
+      </div>
+
+      {/* Seção de Faturamento de Processos (Gestão Jurídica) */}
+      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] space-y-6">
+        <div>
+          <h3 className="text-base font-bold text-gray-800 dark:text-white flex items-center gap-2">
+            ⚖️ Faturamento de Processos (Gestão Jurídica)
+          </h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            Acompanhe a receita estimada e honorários acumulados da sua carteira de processos ativos e concluídos.
+          </p>
+        </div>
+
+        {/* KPI cards for processes */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="bg-purple-50/50 dark:bg-purple-950/10 p-4 rounded-xl border border-purple-100 dark:border-purple-900/30">
+            <p className="text-[10px] text-purple-750 dark:text-purple-300 uppercase font-bold tracking-wide">Valor Total da Carteira</p>
+            <p className="text-lg font-black text-purple-800 dark:text-purple-300 mt-1">{fmt(procKpis.totalVal)}</p>
+            <p className="text-[9px] text-gray-400 mt-0.5">{procKpis.count} processos vinculados</p>
+          </div>
+          <div className="bg-emerald-50/50 dark:bg-emerald-950/10 p-4 rounded-xl border border-emerald-100 dark:border-emerald-900/30">
+            <p className="text-[10px] text-emerald-700 dark:text-emerald-300 uppercase font-bold tracking-wide">Honorários Recebidos (Concluídos)</p>
+            <p className="text-lg font-black text-emerald-800 dark:text-emerald-300 mt-1">{fmt(procKpis.concluidoVal)}</p>
+            <p className="text-[9px] text-gray-400 mt-0.5">{procKpis.concluidoCount} processos concluídos</p>
+          </div>
+          <div className="bg-blue-50/50 dark:bg-blue-950/10 p-4 rounded-xl border border-blue-100 dark:border-blue-900/30">
+            <p className="text-[10px] text-blue-700 dark:text-blue-300 uppercase font-bold tracking-wide">Honorários Em Andamento</p>
+            <p className="text-lg font-black text-blue-800 dark:text-blue-300 mt-1">{fmt(procKpis.andamentoVal)}</p>
+            <p className="text-[9px] text-gray-400 mt-0.5">{procKpis.andamentoCount} processos ativos</p>
+          </div>
+          <div className="bg-amber-50/50 dark:bg-amber-950/10 p-4 rounded-xl border border-amber-100 dark:border-amber-900/30">
+            <p className="text-[10px] text-amber-700 dark:text-amber-300 uppercase font-bold tracking-wide">Gargalo (Aguardando Doc)</p>
+            <p className="text-lg font-black text-amber-800 dark:text-amber-300 mt-1">{fmt(procKpis.aguardandoVal)}</p>
+            <p className="text-[9px] text-amber-600 dark:text-amber-400 mt-0.5">{procKpis.aguardandoCount} processos travados</p>
+          </div>
+        </div>
+
+        {/* Table of Processes */}
+        <div className="border border-gray-150 dark:border-[#2A2545] rounded-xl overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs text-left text-gray-600 dark:text-gray-300">
+              <thead className="bg-gray-50 dark:bg-black/10 border-b text-gray-700 dark:text-gray-300 uppercase">
+                <tr>
+                  <th className="px-4 py-2.5">ID Processo</th>
+                  <th className="px-4 py-2.5">Departamento</th>
+                  <th className="px-4 py-2.5">Gestor</th>
+                  <th className="px-4 py-2.5">Data Entrada</th>
+                  <th className="px-4 py-2.5">Status</th>
+                  <th className="px-4 py-2.5 text-right">Valor do Caso</th>
+                  <th className="px-4 py-2.5 text-right">Duração</th>
+                </tr>
+              </thead>
+              <tbody>
+                {procKpis.list.map(p => (
+                  <tr key={p.id_processo} className="border-b hover:bg-gray-50 dark:hover:bg-black/10">
+                    <td className="px-4 py-2.5 font-bold text-gray-900 dark:text-white">#{p.id_processo}</td>
+                    <td className="px-4 py-2.5">{p.departamento}</td>
+                    <td className="px-4 py-2.5">{p.gestor}</td>
+                    <td className="px-4 py-2.5">{new Date(p.data_entrada).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
+                    <td className="px-4 py-2.5">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                        p.status === 'Concluído' ? 'bg-green-100 text-green-800' :
+                        p.status === 'Em Andamento' ? 'bg-blue-100 text-blue-800' :
+                        'bg-amber-100 text-amber-800 animate-pulse'
+                      }`}>
+                        {p.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2.5 text-right font-bold text-gray-950 dark:text-white">{fmt(p.valor)}</td>
+                    <td className="px-4 py-2.5 text-right">{p.status === 'Concluído' ? `${p.tempo} dias` : '—'}</td>
+                  </tr>
+                ))}
+                {procKpis.list.length === 0 && (
+                  <tr><td colSpan={7} className="px-4 py-6 text-center text-gray-400">Nenhum processo da Gestão Jurídica vinculado.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
