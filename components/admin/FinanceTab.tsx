@@ -55,11 +55,11 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
       localStorage.setItem('legis_bi_vendas', JSON.stringify(mockBiVendas));
     }
     const migrated = data.map((v: BiVenda) => {
-      let status = v.status_aluguel;
+      let status = v.status_aluguel as string;
       if (status === 'Devolvido') status = 'Entregue';
       else if (status === 'Não devolvido') status = 'Cancelado';
       else if (status === 'Não retirado ainda') status = 'Em Realização';
-      return { ...v, status_aluguel: status };
+      return { ...v, status_aluguel: status as BiVenda['status_aluguel'] };
     });
     return [...migrated].sort((a, b) => a.data.localeCompare(b.data));
   }, []);
@@ -69,13 +69,13 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
     const totalLucro = biVendas.reduce((sum, v) => sum + v.lucro, 0);
     const avgMargem = totalFat > 0 ? totalLucro / totalFat : 0;
     
-    // Average days
+    // Average days (Data Entrada x Data Entrega)
     let daysSum = 0;
     let countWithDays = 0;
     biVendas.forEach(v => {
-      if (v.data_retirada && v.data_devolucao) {
-        const d1 = new Date(v.data_retirada + 'T12:00:00');
-        const d2 = new Date(v.data_devolucao + 'T12:00:00');
+      if (v.data_referencia && v.data_retirada) {
+        const d1 = new Date(v.data_referencia + 'T12:00:00');
+        const d2 = new Date(v.data_retirada + 'T12:00:00');
         const diff = d2.getTime() - d1.getTime();
         const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
         if (days >= 0) {
@@ -789,13 +789,13 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
              {/* Card 4: Tempo Médio & Qtd */}
              <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 shadow-sm space-y-1">
                <div className="flex items-center justify-between">
-                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Tempo Médio de Aluguer</span>
+                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Tempo Médio</span>
                  <span className="text-xs text-blue-700 bg-blue-50 px-2 py-0.5 rounded font-bold">Qtd: {aluguelMetrics.totalQtdContratada}</span>
                </div>
                <div className="flex items-baseline gap-1.5">
                  <p className="text-2xl font-black text-gray-800 dark:text-white">{aluguelMetrics.avgDays.toFixed(1)} dias</p>
                </div>
-               <p className="text-[10px] text-gray-400">Média de dias (retirada vs devolução)</p>
+               <p className="text-[10px] text-gray-400">Média de dias (Data Entrada x Data Entrega)</p>
              </div>
            </div>
 
