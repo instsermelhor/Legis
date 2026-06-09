@@ -48,8 +48,18 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
 
   const biVendas = useMemo<BiVenda[]>(() => {
     const saved = localStorage.getItem('legis_bi_vendas');
-    const data = saved ? JSON.parse(saved) : mockBiVendas;
-    return [...data].sort((a, b) => a.data.localeCompare(b.data));
+    let data = saved ? JSON.parse(saved) : mockBiVendas;
+    if (data.length > 0 && data[0].produto && !data[0].produto.startsWith('G')) {
+      data = mockBiVendas;
+    }
+    const migrated = data.map((v: any) => {
+      let status = v.status_aluguel;
+      if (status === 'Devolvido') status = 'Entregue';
+      else if (status === 'Não devolvido') status = 'Cancelado';
+      else if (status === 'Não retirado ainda') status = 'Em Realização';
+      return { ...v, status_aluguel: status };
+    });
+    return [...migrated].sort((a, b) => a.data.localeCompare(b.data));
   }, []);
 
   const aluguelMetrics = useMemo(() => {
@@ -76,7 +86,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
     
     // Valor Não Devolvido
     const valorNaoDevolvido = biVendas
-      .filter(v => v.status_aluguel === 'Não devolvido')
+      .filter(v => v.status_aluguel === 'Cancelado')
       .reduce((sum, v) => sum + v.valor_total, 0);
 
     const totalQtdContratada = biVendas.reduce((sum, v) => sum + v.qtd, 0);
@@ -149,12 +159,12 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
 
   const statusDistribution = useMemo(() => {
     const map: Record<string, number> = {
-      'Devolvido': 0,
-      'Não devolvido': 0,
-      'Não retirado ainda': 0,
+      'Entregue': 0,
+      'Cancelado': 0,
+      'Em Realização': 0,
     };
     biVendas.forEach(v => {
-      const status = v.status_aluguel || 'Não retirado ainda';
+      const status = v.status_aluguel || 'Em Realização';
       map[status] = (map[status] || 0) + v.valor_total;
     });
     const total = Object.values(map).reduce((a, b) => a + b, 0) || 1;
@@ -179,7 +189,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
   const criticalVendas = useMemo(() => {
     let data = biVendas;
     if (criticalFilter === 'critical') {
-      data = biVendas.filter(v => v.status_aluguel === 'Não devolvido');
+      data = biVendas.filter(v => v.status_aluguel === 'Cancelado');
     }
     return data.map(v => {
       const clientName = v.cliente.split(' - ')[1] || v.cliente;
@@ -358,7 +368,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
               onClick={() => setViewMode('bi_aluguel')}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 ${viewMode === 'bi_aluguel' ? 'bg-primary text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-primary'}`}
             >
-              🚜 BI Aluguer Equipamentos
+              🚜 BI Vendas Prod. e Serv.
             </button>
           </div>
 
@@ -944,10 +954,10 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
              </div>
 
              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-               {/* Rosca / Donut: Status do Aluguer */}
+               {/* Rosca / Donut: Status dos Serviços */}
                <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-6 shadow-sm space-y-4 flex flex-col justify-between">
                  <div>
-                   <h4 className="text-sm font-bold text-gray-800 dark:text-white">🍩 Status do Aluguel</h4>
+                   <h4 className="text-sm font-bold text-gray-800 dark:text-white">🍩 Status dos Serviços</h4>
                    <p className="text-xs text-gray-400 mt-0.5">Distribuição do faturamento total por status de devolução/retirada.</p>
                  </div>
 
@@ -958,9 +968,9 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                        {(() => {
                          let accumulatedAngle = 0;
                          const colors: Record<string, string> = {
-                           'Devolvido': '#10B981',
-                           'Não devolvido': '#EF4444',
-                           'Não retirado ainda': '#F59E0B',
+                           'Entregue': '#10B981',
+                           'Cancelado': '#EF4444',
+                           'Em Realização': '#F59E0B',
                          };
                          return statusDistribution.map((s, idx) => {
                            const percentage = s.pct;
@@ -996,9 +1006,9 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                    <div className="space-y-2">
                      {statusDistribution.map(s => {
                        const colors: Record<string, string> = {
-                         'Devolvido': 'bg-emerald-500',
-                         'Não devolvido': 'bg-red-500',
-                         'Não retirado ainda': 'bg-amber-500',
+                         'Entregue': 'bg-emerald-500',
+                         'Cancelado': 'bg-red-500',
+                         'Em Realização': 'bg-amber-500',
                        };
                        return (
                          <div key={s.name} className="space-y-0.5">
@@ -1077,7 +1087,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                      <tr>
                        <th className="px-4 py-2">Cliente</th>
                        <th className="px-4 py-2">Produto</th>
-                       <th className="px-4 py-2">Data Retirada</th>
+                       <th className="px-4 py-2">Data Entrega</th>
                        <th className="px-4 py-2 text-right">Valor Total</th>
                        <th className="px-4 py-2 text-center">Status</th>
                      </tr>
@@ -1091,8 +1101,8 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                          <td className="px-4 py-2 text-right font-bold text-gray-800 dark:text-white">R$ {v.valor_total.toLocaleString('pt-BR')}</td>
                          <td className="px-4 py-2 text-center">
                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                             v.status_aluguel === 'Devolvido' ? 'bg-green-100 text-green-800' :
-                             v.status_aluguel === 'Não devolvido' ? 'bg-red-100 text-red-800' :
+                             v.status_aluguel === 'Entregue' ? 'bg-green-100 text-green-800' :
+                             v.status_aluguel === 'Cancelado' ? 'bg-red-100 text-red-800' :
                              'bg-yellow-100 text-yellow-800'
                            }`}>
                              {v.status_aluguel}

@@ -295,5 +295,5 @@ export interface BiVenda {
   data_retirada: string;
   data_devolucao: string;
   status_pagamento: string;
-  status_aluguel: 'Devolvido' | 'Não devolvido' | 'Não retirado ainda';
+  status_aluguel: 'Entregue' | 'Cancelado' | 'Em Realização';
 }

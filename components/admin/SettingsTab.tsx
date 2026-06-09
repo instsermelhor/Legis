@@ -1107,7 +1107,13 @@ const GeneralSettings: React.FC = () => {
 
   const [biProdutos, setBiProdutos] = useState<BiProduto[]>(() => {
     const saved = localStorage.getItem('legis_bi_produtos');
-    return saved ? JSON.parse(saved) : mockBiProdutos;
+    const parsed = saved ? JSON.parse(saved) : mockBiProdutos;
+    if (parsed.length > 0 && parsed[0].codigo && !parsed[0].codigo.startsWith('G')) {
+      localStorage.setItem('legis_bi_produtos', JSON.stringify(mockBiProdutos));
+      localStorage.setItem('legis_bi_vendas', JSON.stringify(mockBiVendas));
+      return mockBiProdutos;
+    }
+    return parsed;
   });
 
   const [biFornecedores, setBiFornecedores] = useState<BiFornecedor[]>(() => {
@@ -1117,7 +1123,19 @@ const GeneralSettings: React.FC = () => {
 
   const [biVendas, setBiVendas] = useState<BiVenda[]>(() => {
     const saved = localStorage.getItem('legis_bi_vendas');
-    return saved ? JSON.parse(saved) : mockBiVendas;
+    let data = saved ? JSON.parse(saved) : mockBiVendas;
+    if (data.length > 0 && data[0].produto && !data[0].produto.startsWith('G')) {
+      data = mockBiVendas;
+      localStorage.setItem('legis_bi_vendas', JSON.stringify(mockBiVendas));
+    }
+    const migrated = data.map((v: any) => {
+      let status = v.status_aluguel;
+      if (status === 'Devolvido') status = 'Entregue';
+      else if (status === 'Não devolvido') status = 'Cancelado';
+      else if (status === 'Não retirado ainda') status = 'Em Realização';
+      return { ...v, status_aluguel: status };
+    });
+    return migrated;
   });
 
   const [biSubTab, setBiSubTab] = useState<'excel_ums' | 'servicos_aluguel'>('excel_ums');
@@ -1148,7 +1166,7 @@ const GeneralSettings: React.FC = () => {
     data_retirada: '',
     data_devolucao: '',
     status_pagamento: 'Pago',
-    status_aluguel: 'Devolvido',
+    status_aluguel: 'Entregue',
   });
 
   const [docTab, setDocTab] = useState('DAX (Power BI)');
@@ -1171,6 +1189,375 @@ const GeneralSettings: React.FC = () => {
     emissao_nf: '',
     recebimento_nf: '',
   });
+
+  // Double-Click Inline Editing states
+  const [customLabels, setCustomLabels] = useState<Record<string, string>>(() => {
+    const saved = localStorage.getItem('legis_bi_custom_labels');
+    const defaults = {
+      tab_excel_ums: 'Geral (Excel UMS)',
+      tab_servicos_aluguel: 'Config. Serviços',
+      sub_vendas: 'Fato Vendas(Servicos)',
+      sub_clientes: 'Dim Clientes',
+      sub_produtos: 'Dim Produtos',
+      sub_fornecedores: 'Dim Fornecedores'
+    };
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.tab_servicos_aluguel === 'Aluguer de Equipamentos') {
+        parsed.tab_servicos_aluguel = 'Config. Serviços';
+      }
+      if (parsed.sub_vendas === 'fato_vendas (Alugueres)' || parsed.sub_vendas === 'Fato Vendas(Servicos') {
+        parsed.sub_vendas = 'Fato Vendas(Servicos)';
+      }
+      if (parsed.sub_clientes === 'dim_clientes (Clientes)') {
+        parsed.sub_clientes = 'Dim Clientes';
+      }
+      if (parsed.sub_produtos === 'dim_produtos (Produtos)' || parsed.sub_produtos === 'Dim Serviços') {
+        parsed.sub_produtos = 'Dim Produtos';
+      }
+      if (parsed.sub_fornecedores === 'dim_fornecedores (Fornecedores)') {
+        parsed.sub_fornecedores = 'Dim Fornecedores';
+      }
+      return parsed;
+    }
+    return defaults;
+  });
+
+  interface ActiveInlineEditor {
+    type: 'label' | 'cell';
+    targetId: string;
+    field?: string;
+    value: string;
+  }
+  const [activeInlineEditor, setActiveInlineEditor] = useState<ActiveInlineEditor | null>(null);
+
+  const isSuperAdmin = () => {
+    try {
+      const userRaw = localStorage.getItem('legis_user');
+      if (!userRaw) return false;
+      const user = JSON.parse(userRaw);
+      if (user.role !== 'admin') return false;
+
+      const adminUsersRaw = localStorage.getItem('legis_admin_users');
+      const adminUsersList = adminUsersRaw ? JSON.parse(adminUsersRaw) : [
+        { id: 1, name: 'Super Admin', email: 'admin@legisconnect.com.br', password: 'admin', role: 'super', createdAt: '2024-01-01', active: true }
+      ];
+
+      const matched = adminUsersList.find((u: AdminUser) => u.email.toLowerCase() === user.email.toLowerCase());
+      return matched?.role === 'super';
+    } catch {
+      return false;
+    }
+  };
+
+  const handleLabelDoubleClick = (key: string, currentValue: string) => {
+    if (!isSuperAdmin()) return;
+    setActiveInlineEditor({
+      type: 'label',
+      targetId: key,
+      value: currentValue
+    });
+  };
+
+  const handleSaveLabel = (key: string, newValue: string) => {
+    if (!newValue.trim()) {
+      setActiveInlineEditor(null);
+      return;
+    }
+    const updated = { ...customLabels, [key]: newValue.trim() };
+    setCustomLabels(updated);
+    localStorage.setItem('legis_bi_custom_labels', JSON.stringify(updated));
+    setActiveInlineEditor(null);
+  };
+
+  const handleSaveClientCell = (index: number, field: keyof BiCliente, newValue: string) => {
+    const oldClient = biClientes[index];
+    if (!oldClient) return;
+    const oldConcat = oldClient.lista_concatenada;
+
+    const updatedClient = { ...oldClient, [field]: newValue };
+    if (field === 'codigo' || field === 'nome') {
+      updatedClient.lista_concatenada = `${updatedClient.codigo} - ${updatedClient.nome}`;
+    }
+
+    const nextClientes = [...biClientes];
+    nextClientes[index] = updatedClient;
+    setBiClientes(nextClientes);
+    localStorage.setItem('legis_bi_clientes', JSON.stringify(nextClientes));
+
+    if (updatedClient.lista_concatenada !== oldConcat) {
+      const updatedSales = biVendas.map(v => {
+        if (v.cliente === oldConcat) {
+          return { ...v, cliente: updatedClient.lista_concatenada };
+        }
+        return v;
+      });
+      setBiVendas(updatedSales);
+      localStorage.setItem('legis_bi_vendas', JSON.stringify(updatedSales));
+    }
+
+    setActiveInlineEditor(null);
+  };
+
+  const handleSaveProductCell = (index: number, field: keyof BiProduto, newValue: string | number) => {
+    const oldProduct = biProdutos[index];
+    if (!oldProduct) return;
+    const oldConcat = oldProduct.lista_concatenada;
+
+    const parsedValue = (field === 'custo' || field === 'preco_tabela') ? Number(newValue) : newValue;
+    const updatedProduct = { ...oldProduct, [field]: parsedValue };
+    if (field === 'codigo' || field === 'nome') {
+      updatedProduct.lista_concatenada = `${updatedProduct.codigo} - ${updatedProduct.nome}`;
+    }
+
+    const nextProdutos = [...biProdutos];
+    nextProdutos[index] = updatedProduct as BiProduto;
+    setBiProdutos(nextProdutos);
+    localStorage.setItem('legis_bi_produtos', JSON.stringify(nextProdutos));
+
+    if (updatedProduct.lista_concatenada !== oldConcat) {
+      const updatedSales = biVendas.map(v => {
+        if (v.produto === oldConcat) {
+          return { ...v, produto: updatedProduct.lista_concatenada };
+        }
+        return v;
+      });
+      setBiVendas(updatedSales);
+      localStorage.setItem('legis_bi_vendas', JSON.stringify(updatedSales));
+    }
+
+    setActiveInlineEditor(null);
+  };
+
+  const handleSaveSupplierCell = (index: number, field: keyof BiFornecedor, newValue: string) => {
+    const oldSupplier = biFornecedores[index];
+    if (!oldSupplier) return;
+    const oldConcat = oldSupplier.lista_concatenada;
+
+    const updatedSupplier = { ...oldSupplier, [field]: newValue };
+    if (field === 'codigo' || field === 'nome') {
+      updatedSupplier.lista_concatenada = `${updatedSupplier.codigo} - ${updatedSupplier.nome}`;
+    }
+
+    const nextFornecedores = [...biFornecedores];
+    nextFornecedores[index] = updatedSupplier;
+    setBiFornecedores(nextFornecedores);
+    localStorage.setItem('legis_bi_fornecedores', JSON.stringify(nextFornecedores));
+
+    if (updatedSupplier.lista_concatenada !== oldConcat) {
+      const updatedSales = biVendas.map(v => {
+        if (v.fornecedor === oldConcat) {
+          return { ...v, fornecedor: updatedSupplier.lista_concatenada };
+        }
+        return v;
+      });
+      setBiVendas(updatedSales);
+      localStorage.setItem('legis_bi_vendas', JSON.stringify(updatedSales));
+    }
+
+    setActiveInlineEditor(null);
+  };
+
+  const handleSaveSaleCell = (index: number, field: keyof BiVenda, newValue: string | number) => {
+    const oldSale = biVendas[index];
+    if (!oldSale) return;
+
+    let updatedSale = { ...oldSale };
+
+    if (field === 'produto') {
+      const prodVal = String(newValue);
+      const matched = biProdutos.find(p => p.lista_concatenada === prodVal);
+      const nextQtd = oldSale.qtd;
+      const nextVlr = matched ? matched.preco_tabela : oldSale.vlr_unit;
+      const nextCusto = matched ? matched.custo : oldSale.custo_prod;
+      const nextTotal = nextQtd * nextVlr;
+      const nextLucro = nextTotal - (nextQtd * nextCusto);
+      updatedSale = {
+        ...oldSale,
+        produto: prodVal,
+        vlr_unit: nextVlr,
+        custo_prod: nextCusto,
+        valor_total: nextTotal,
+        lucro: nextLucro
+      };
+    } else if (field === 'qtd') {
+      const nextQtd = Number(newValue);
+      const nextTotal = nextQtd * oldSale.vlr_unit;
+      const nextLucro = nextTotal - (nextQtd * oldSale.custo_prod);
+      updatedSale = {
+        ...oldSale,
+        qtd: nextQtd,
+        valor_total: nextTotal,
+        lucro: nextLucro
+      };
+    } else if (field === 'valor_total') {
+      const nextTotal = Number(newValue);
+      const nextLucro = nextTotal - (oldSale.qtd * oldSale.custo_prod);
+      updatedSale = {
+        ...oldSale,
+        valor_total: nextTotal,
+        lucro: nextLucro
+      };
+    } else if (field === 'lucro') {
+      updatedSale = {
+        ...oldSale,
+        lucro: Number(newValue)
+      };
+    } else if (field === 'vlr_unit' || field === 'custo_prod') {
+      updatedSale = {
+        ...oldSale,
+        [field]: Number(newValue)
+      };
+    } else {
+      updatedSale = {
+        ...oldSale,
+        [field]: newValue as never
+      };
+    }
+
+    const nextVendas = [...biVendas];
+    nextVendas[index] = updatedSale as BiVenda;
+    setBiVendas(nextVendas);
+    localStorage.setItem('legis_bi_vendas', JSON.stringify(nextVendas));
+
+    setActiveInlineEditor(null);
+  };
+
+  const handleSaveTxCell = (index: number, field: keyof BiDadosBase, newValue: string | number) => {
+    const oldTx = biDadosBase[index];
+    if (!oldTx) return;
+
+    let parsedValue = newValue;
+    if (field === 'mes_ano' || field === 'semestre' || field === 'emissao_nf' || field === 'recebimento_nf') {
+      parsedValue = String(newValue);
+    } else {
+      parsedValue = Number(newValue);
+    }
+
+    const updatedTx = { ...oldTx, [field]: parsedValue };
+
+    const nextBase = [...biDadosBase];
+    nextBase[index] = updatedTx as BiDadosBase;
+    setBiDadosBase(nextBase);
+    localStorage.setItem('legis_bi_tb_dados_base', JSON.stringify(nextBase));
+
+    setActiveInlineEditor(null);
+  };
+
+  const renderEditableCell = (
+    value: string | number | undefined,
+    onSave: (val: string) => void,
+    options?: {
+      type?: 'text' | 'number' | 'date' | 'select';
+      selectOptions?: string[];
+      displayValue?: string;
+      className?: string;
+      onDoubleClickKey: string;
+    }
+  ) => {
+    const isSuper = isSuperAdmin();
+    const type = options?.type || 'text';
+    const isEditing = activeInlineEditor?.type === 'cell' && activeInlineEditor.targetId === options?.onDoubleClickKey;
+    const displayVal = options?.displayValue !== undefined ? options.displayValue : String(value);
+
+    if (isSuper && isEditing) {
+      if (type === 'select' && options?.selectOptions) {
+        return (
+          <select
+            autoFocus
+            className={`border border-purple-500 rounded px-1.5 py-0.5 text-xs bg-white dark:bg-[#1A1730] dark:text-white ${options?.className || ''}`}
+            value={activeInlineEditor.value}
+            onChange={e => {
+              setActiveInlineEditor({ ...activeInlineEditor, value: e.target.value });
+              onSave(e.target.value);
+            }}
+            onBlur={() => onSave(activeInlineEditor.value)}
+            onKeyDown={e => {
+              if (e.key === 'Escape') setActiveInlineEditor(null);
+            }}
+          >
+            {options.selectOptions.map(opt => (
+              <option key={opt} value={opt}>{opt}</option>
+            ))}
+          </select>
+        );
+      }
+      return (
+        <input
+          autoFocus
+          type={type}
+          className={`border border-purple-500 rounded px-1.5 py-0.5 text-xs bg-white dark:bg-[#1A1730] dark:text-white ${options?.className || ''}`}
+          value={activeInlineEditor.value}
+          onChange={e => setActiveInlineEditor({ ...activeInlineEditor, value: e.target.value })}
+          onBlur={() => onSave(activeInlineEditor.value)}
+          onKeyDown={e => {
+            if (e.key === 'Enter') onSave(activeInlineEditor.value);
+            if (e.key === 'Escape') setActiveInlineEditor(null);
+          }}
+        />
+      );
+    }
+
+    return (
+      <span
+        onDoubleClick={() => {
+          if (!isSuper) return;
+          setActiveInlineEditor({
+            type: 'cell',
+            targetId: options!.onDoubleClickKey,
+            value: String(value)
+          });
+        }}
+        className={`${isSuper ? 'cursor-pointer hover:bg-purple-50/50 hover:text-purple-600 dark:hover:bg-purple-950/30 transition-all rounded px-1 -mx-1' : ''} ${options?.className || ''}`}
+        title={isSuper ? 'Duplo clique para editar' : undefined}
+      >
+        {displayVal}
+      </span>
+    );
+  };
+
+  const renderEditableLabel = (
+    labelKey: string,
+    defaultVal: string,
+    options?: {
+      className?: string;
+    }
+  ) => {
+    const isSuper = isSuperAdmin();
+    const currentValue = customLabels[labelKey] || defaultVal;
+    const isEditing = activeInlineEditor?.type === 'label' && activeInlineEditor.targetId === labelKey;
+
+    if (isSuper && isEditing) {
+      return (
+        <input
+          autoFocus
+          className={`border border-purple-500 rounded px-2 py-1 text-xs bg-white dark:bg-[#1A1730] dark:text-white font-bold inline-block text-black ${options?.className || ''}`}
+          value={activeInlineEditor.value}
+          onChange={e => setActiveInlineEditor({ ...activeInlineEditor, value: e.target.value })}
+          onBlur={() => handleSaveLabel(labelKey, activeInlineEditor.value)}
+          onKeyDown={e => {
+            if (e.key === 'Enter') handleSaveLabel(labelKey, activeInlineEditor.value);
+            if (e.key === 'Escape') setActiveInlineEditor(null);
+          }}
+          onClick={e => e.stopPropagation()}
+        />
+      );
+    }
+
+    return (
+      <span
+        onDoubleClick={e => {
+          if (!isSuper) return;
+          e.stopPropagation();
+          handleLabelDoubleClick(labelKey, currentValue);
+        }}
+        className={`${isSuper ? 'cursor-pointer hover:underline' : ''} ${options?.className || ''}`}
+        title={isSuper ? 'Duplo clique para editar' : undefined}
+      >
+        {currentValue}
+      </span>
+    );
+  };
 
   const handleSave = () => {
     updateConfig({
@@ -1447,14 +1834,14 @@ const GeneralSettings: React.FC = () => {
               onClick={() => { setBiSubTab('excel_ums'); setDocTab('DAX (Power BI)'); }}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 ${biSubTab === 'excel_ums' ? 'bg-primary text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-primary'}`}
             >
-              📊 Geral (Excel UMS)
+              📊 {renderEditableLabel('tab_excel_ums', 'Geral (Excel UMS)')}
             </button>
             <button
               type="button"
               onClick={() => { setBiSubTab('servicos_aluguel'); setDocTab('SQL (Criação de Tabelas)'); }}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 ${biSubTab === 'servicos_aluguel' ? 'bg-primary text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-primary'}`}
             >
-              ⚙️ Aluguer de Equipamentos
+              ⚙️ {renderEditableLabel('tab_servicos_aluguel', 'Aluguer de Equipamentos')}
             </button>
           </div>
         </div>
@@ -1510,10 +1897,10 @@ const GeneralSettings: React.FC = () => {
               </div>
             </div>
 
-            {/* Tabela B: Transacional (tb_dados_base) */}
+            {/* Tabela Dados Transacionais */}
             <div className="bg-blue-50/50 dark:bg-[#1A1730]/40 border border-blue-200 dark:border-[#2A2545] rounded-xl p-4 space-y-4 text-left animate-fade-in">
               <div className="flex justify-between items-center flex-wrap gap-2">
-                <h5 className="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase">Tabela B: Dados Transacionais (tb_dados_base)</h5>
+                <h5 className="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase">Tabela Dados Transacionais</h5>
                 <div className="flex gap-2">
                   <button
                     type="button"
@@ -1740,17 +2127,55 @@ const GeneralSettings: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {biDadosBase.map(tx => (
+                    {biDadosBase.map((tx, idx) => (
                       <tr key={tx.id_tab} className="border-b dark:border-[#2A2545] hover:bg-gray-50 dark:hover:bg-[#221d3f]">
                         <td className="px-3 py-2 font-medium">
-                          {tx.mes_ano ? new Date(tx.mes_ano + 'T12:00:00').toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' }) : '—'}
+                          {renderEditableCell(tx.mes_ano, val => handleSaveTxCell(idx, 'mes_ano', val), {
+                            type: 'date',
+                            displayValue: tx.mes_ano ? new Date(tx.mes_ano + 'T12:00:00').toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' }) : '—',
+                            onDoubleClickKey: `tx-${idx}-mes_ano`
+                          })}
                         </td>
-                        <td className="px-3 py-2">{tx.semestre}</td>
-                        <td className="px-3 py-2 text-right font-semibold text-emerald-700 dark:text-emerald-400">R$ {tx.receita_fat.toLocaleString('pt-BR')}</td>
-                        <td className="px-3 py-2 text-right text-red-600 dark:text-red-400">R$ {tx.despesa_total.toLocaleString('pt-BR')}</td>
-                        <td className="px-3 py-2 text-right">R$ {tx.custo.toLocaleString('pt-BR')}</td>
-                        <td className="px-3 py-2 text-right">R$ {tx.imposto.toLocaleString('pt-BR')}</td>
-                        <td className="px-3 py-2 text-right">{tx.executado_ums}</td>
+                        <td className="px-3 py-2">
+                          {renderEditableCell(tx.semestre, val => handleSaveTxCell(idx, 'semestre', val), {
+                            type: 'select',
+                            selectOptions: biApoio.periodos,
+                            onDoubleClickKey: `tx-${idx}-semestre`
+                          })}
+                        </td>
+                        <td className="px-3 py-2 text-right font-semibold text-emerald-700 dark:text-emerald-400">
+                          {renderEditableCell(tx.receita_fat, val => handleSaveTxCell(idx, 'receita_fat', val), {
+                            type: 'number',
+                            displayValue: `R$ ${tx.receita_fat.toLocaleString('pt-BR')}`,
+                            onDoubleClickKey: `tx-${idx}-receita_fat`
+                          })}
+                        </td>
+                        <td className="px-3 py-2 text-right text-red-600 dark:text-red-400">
+                          {renderEditableCell(tx.despesa_total, val => handleSaveTxCell(idx, 'despesa_total', val), {
+                            type: 'number',
+                            displayValue: `R$ ${tx.despesa_total.toLocaleString('pt-BR')}`,
+                            onDoubleClickKey: `tx-${idx}-despesa_total`
+                          })}
+                        </td>
+                        <td className="px-3 py-2 text-right">
+                          {renderEditableCell(tx.custo, val => handleSaveTxCell(idx, 'custo', val), {
+                            type: 'number',
+                            displayValue: `R$ ${tx.custo.toLocaleString('pt-BR')}`,
+                            onDoubleClickKey: `tx-${idx}-custo`
+                          })}
+                        </td>
+                        <td className="px-3 py-2 text-right">
+                          {renderEditableCell(tx.imposto, val => handleSaveTxCell(idx, 'imposto', val), {
+                            type: 'number',
+                            displayValue: `R$ ${tx.imposto.toLocaleString('pt-BR')}`,
+                            onDoubleClickKey: `tx-${idx}-imposto`
+                          })}
+                        </td>
+                        <td className="px-3 py-2 text-right">
+                          {renderEditableCell(tx.executado_ums, val => handleSaveTxCell(idx, 'executado_ums', val), {
+                            type: 'number',
+                            onDoubleClickKey: `tx-${idx}-executado_ums`
+                          })}</td>
                         <td className="px-3 py-2 text-center space-x-2 whitespace-nowrap">
                           <button
                             type="button"
@@ -1793,16 +2218,16 @@ const GeneralSettings: React.FC = () => {
           <div className="space-y-4 animate-fade-in">
             <div className="flex gap-2 flex-wrap mb-2 border-b pb-2">
               {[
-                { id: 'vendas', label: 'fato_vendas (Alugueres)' },
-                { id: 'clientes', label: 'dim_clientes (Clientes)' },
-                { id: 'produtos', label: 'dim_produtos (Produtos)' },
-                { id: 'fornecedores', label: 'dim_fornecedores (Fornecedores)' }
+                { id: 'vendas' as const, key: 'sub_vendas', default: 'fato_vendas (Alugueres)' },
+                { id: 'clientes' as const, key: 'sub_clientes', default: 'dim_clientes (Clientes)' },
+                { id: 'produtos' as const, key: 'sub_produtos', default: 'dim_produtos (Produtos)' },
+                { id: 'fornecedores' as const, key: 'sub_fornecedores', default: 'dim_fornecedores (Fornecedores)' }
               ].map(sub => (
                 <button
                   key={sub.id}
                   type="button"
                   onClick={() => {
-                    setBiAluguelTab(sub.id as 'clientes' | 'produtos' | 'fornecedores' | 'vendas');
+                    setBiAluguelTab(sub.id);
                     setShowAluguelForm(false);
                     setEditingAluguelId(null);
                   }}
@@ -1812,7 +2237,7 @@ const GeneralSettings: React.FC = () => {
                       : 'text-gray-500 hover:text-purple-600'
                   }`}
                 >
-                  {sub.label}
+                  {renderEditableLabel(sub.key, sub.default)}
                 </button>
               ))}
             </div>
@@ -1820,10 +2245,10 @@ const GeneralSettings: React.FC = () => {
             {/* Actions header */}
             <div className="flex justify-between items-center flex-wrap gap-2">
               <h5 className="text-xs font-bold text-purple-800 dark:text-purple-300 uppercase">
-                {biAluguelTab === 'vendas' ? 'Tabela Facto: fato_vendas' : 
-                 biAluguelTab === 'clientes' ? 'Tabela Dimensão: dim_clientes' :
-                 biAluguelTab === 'produtos' ? 'Tabela Dimensão: dim_produtos' :
-                 'Tabela Dimensão: dim_fornecedores'}
+                {biAluguelTab === 'vendas' ? 'Tabela Fato Serviços' : 
+                 biAluguelTab === 'clientes' ? 'Tabela Dimensão: Clientes' :
+                 biAluguelTab === 'produtos' ? 'Tabela Dimensão Produtos' :
+                 'Tabela Dimensão Fornecedores'}
               </h5>
               <div className="flex gap-2">
                 <button
@@ -1864,7 +2289,7 @@ const GeneralSettings: React.FC = () => {
                       data_retirada: new Date().toISOString().split('T')[0],
                       data_devolucao: '',
                       status_pagamento: 'Pago',
-                      status_aluguel: 'Devolvido',
+                      status_aluguel: 'Entregue',
                     });
                   }}
                   className="text-[10px] font-bold text-purple-600 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-900/30 px-2.5 py-1 rounded hover:bg-purple-100 dark:hover:bg-purple-900/40"
@@ -1946,7 +2371,7 @@ const GeneralSettings: React.FC = () => {
                     <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={productForm.descricao} onChange={e => setProductForm(p => ({ ...p, descricao: e.target.value }))} />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Custo *</label>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">com Desc. *</label>
                     <input type="number" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={productForm.custo} onChange={e => setProductForm(p => ({ ...p, custo: Number(e.target.value) }))} />
                   </div>
                   <div>
@@ -2155,19 +2580,19 @@ const GeneralSettings: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Data *</label>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Data Pedido *</label>
                     <input type="date" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={saleForm.data} onChange={e => setSaleForm(p => ({ ...p, data: e.target.value }))} />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Data Referencia *</label>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Data Entrada *</label>
                     <input type="date" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={saleForm.data_referencia} onChange={e => setSaleForm(p => ({ ...p, data_referencia: e.target.value }))} />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Data Retirada *</label>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Data Entrega *</label>
                     <input type="date" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={saleForm.data_retirada} onChange={e => setSaleForm(p => ({ ...p, data_retirada: e.target.value }))} />
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Data Devolução</label>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Data Pagto</label>
                     <input type="date" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={saleForm.data_devolucao} onChange={e => setSaleForm(p => ({ ...p, data_devolucao: e.target.value }))} />
                   </div>
                   <div>
@@ -2182,15 +2607,15 @@ const GeneralSettings: React.FC = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold text-gray-500 uppercase">Status Aluguel *</label>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase">STATUS SERVIÇO *</label>
                     <select
                       className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
                       value={saleForm.status_aluguel}
-                      onChange={e => setSaleForm(p => ({ ...p, status_aluguel: e.target.value as 'Devolvido' | 'Não devolvido' | 'Não retirado ainda' }))}
+                      onChange={e => setSaleForm(p => ({ ...p, status_aluguel: e.target.value as 'Entregue' | 'Cancelado' | 'Em Realização' }))}
                     >
-                      <option value="Devolvido">Devolvido</option>
-                      <option value="Não devolvido">Não devolvido</option>
-                      <option value="Não retirado ainda">Não retirado ainda</option>
+                      <option value="Entregue">Entregue</option>
+                      <option value="Cancelado">Cancelado</option>
+                      <option value="Em Realização">Em Realização</option>
                     </select>
                   </div>
                 </div>
@@ -2235,13 +2660,33 @@ const GeneralSettings: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {biClientes.map(c => (
+                    {biClientes.map((c, idx) => (
                       <tr key={c.lista_concatenada} className="border-b dark:border-[#2A2545] hover:bg-gray-50 dark:hover:bg-[#221d3f]">
-                        <td className="px-3 py-2">{c.codigo}</td>
-                        <td className="px-3 py-2 font-medium">{c.nome}</td>
-                        <td className="px-3 py-2">{c.cpf_cnpj}</td>
-                        <td className="px-3 py-2">{c.cidade}</td>
-                        <td className="px-3 py-2">{c.estado}</td>
+                        <td className="px-3 py-2">
+                          {renderEditableCell(c.codigo, val => handleSaveClientCell(idx, 'codigo', val), {
+                            onDoubleClickKey: `client-${idx}-codigo`
+                          })}
+                        </td>
+                        <td className="px-3 py-2 font-medium">
+                          {renderEditableCell(c.nome, val => handleSaveClientCell(idx, 'nome', val), {
+                            onDoubleClickKey: `client-${idx}-nome`
+                          })}
+                        </td>
+                        <td className="px-3 py-2">
+                          {renderEditableCell(c.cpf_cnpj, val => handleSaveClientCell(idx, 'cpf_cnpj', val), {
+                            onDoubleClickKey: `client-${idx}-cpf_cnpj`
+                          })}
+                        </td>
+                        <td className="px-3 py-2">
+                          {renderEditableCell(c.cidade, val => handleSaveClientCell(idx, 'cidade', val), {
+                            onDoubleClickKey: `client-${idx}-cidade`
+                          })}
+                        </td>
+                        <td className="px-3 py-2">
+                          {renderEditableCell(c.estado, val => handleSaveClientCell(idx, 'estado', val), {
+                            onDoubleClickKey: `client-${idx}-estado`
+                          })}
+                        </td>
                         <td className="px-3 py-2 text-center space-x-2">
                           <button
                             type="button"
@@ -2286,19 +2731,43 @@ const GeneralSettings: React.FC = () => {
                       <th className="px-3 py-2">Código</th>
                       <th className="px-3 py-2">Nome</th>
                       <th className="px-3 py-2">Descrição</th>
-                      <th className="px-3 py-2 text-right">Custo</th>
+                      <th className="px-3 py-2 text-right">C/ Desc.</th>
                       <th className="px-3 py-2 text-right">Preço Tabela</th>
                       <th className="px-3 py-2 text-center">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {biProdutos.map(p => (
+                    {biProdutos.map((p, idx) => (
                       <tr key={p.lista_concatenada} className="border-b dark:border-[#2A2545] hover:bg-gray-50 dark:hover:bg-[#221d3f]">
-                        <td className="px-3 py-2">{p.codigo}</td>
-                        <td className="px-3 py-2 font-medium">{p.nome}</td>
-                        <td className="px-3 py-2 truncate max-w-[200px]" title={p.descricao}>{p.descricao}</td>
-                        <td className="px-3 py-2 text-right">R$ {p.custo}</td>
-                        <td className="px-3 py-2 text-right">R$ {p.preco_tabela}</td>
+                        <td className="px-3 py-2">
+                          {renderEditableCell(p.codigo, val => handleSaveProductCell(idx, 'codigo', val), {
+                            onDoubleClickKey: `product-${idx}-codigo`
+                          })}
+                        </td>
+                        <td className="px-3 py-2 font-medium">
+                          {renderEditableCell(p.nome, val => handleSaveProductCell(idx, 'nome', val), {
+                            onDoubleClickKey: `product-${idx}-nome`
+                          })}
+                        </td>
+                        <td className="px-3 py-2 truncate max-w-[200px]" title={p.descricao}>
+                          {renderEditableCell(p.descricao, val => handleSaveProductCell(idx, 'descricao', val), {
+                            onDoubleClickKey: `product-${idx}-descricao`
+                          })}
+                        </td>
+                        <td className="px-3 py-2 text-right">
+                          {renderEditableCell(p.custo, val => handleSaveProductCell(idx, 'custo', val), {
+                            type: 'number',
+                            displayValue: `R$ ${p.custo}`,
+                            onDoubleClickKey: `product-${idx}-custo`
+                          })}
+                        </td>
+                        <td className="px-3 py-2 text-right">
+                          {renderEditableCell(p.preco_tabela, val => handleSaveProductCell(idx, 'preco_tabela', val), {
+                            type: 'number',
+                            displayValue: `R$ ${p.preco_tabela}`,
+                            onDoubleClickKey: `product-${idx}-preco_tabela`
+                          })}
+                        </td>
                         <td className="px-3 py-2 text-center space-x-2">
                           <button
                             type="button"
@@ -2348,12 +2817,28 @@ const GeneralSettings: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {biFornecedores.map(f => (
+                    {biFornecedores.map((f, idx) => (
                       <tr key={f.lista_concatenada} className="border-b dark:border-[#2A2545] hover:bg-gray-50 dark:hover:bg-[#221d3f]">
-                        <td className="px-3 py-2">{f.codigo}</td>
-                        <td className="px-3 py-2 font-medium">{f.nome}</td>
-                        <td className="px-3 py-2">{f.cpf_cnpj}</td>
-                        <td className="px-3 py-2">{f.estado}</td>
+                        <td className="px-3 py-2">
+                          {renderEditableCell(f.codigo, val => handleSaveSupplierCell(idx, 'codigo', val), {
+                            onDoubleClickKey: `supplier-${idx}-codigo`
+                          })}
+                        </td>
+                        <td className="px-3 py-2 font-medium">
+                          {renderEditableCell(f.nome, val => handleSaveSupplierCell(idx, 'nome', val), {
+                            onDoubleClickKey: `supplier-${idx}-nome`
+                          })}
+                        </td>
+                        <td className="px-3 py-2">
+                          {renderEditableCell(f.cpf_cnpj, val => handleSaveSupplierCell(idx, 'cpf_cnpj', val), {
+                            onDoubleClickKey: `supplier-${idx}-cpf_cnpj`
+                          })}
+                        </td>
+                        <td className="px-3 py-2">
+                          {renderEditableCell(f.estado, val => handleSaveSupplierCell(idx, 'estado', val), {
+                            onDoubleClickKey: `supplier-${idx}-estado`
+                          })}
+                        </td>
                         <td className="px-3 py-2 text-center space-x-2">
                           <button
                             type="button"
@@ -2402,28 +2887,75 @@ const GeneralSettings: React.FC = () => {
                       <th className="px-3 py-2 text-right">Qtd</th>
                       <th className="px-3 py-2 text-right">Total</th>
                       <th className="px-3 py-2 text-right">Lucro</th>
-                      <th className="px-3 py-2">Status Aluguel</th>
+                      <th className="px-3 py-2">STATUS SERVIÇO</th>
                       <th className="px-3 py-2 text-center">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {biVendas.map(v => (
+                    {biVendas.map((v, idx) => (
                       <tr key={v.id_tab} className="border-b dark:border-[#2A2545] hover:bg-gray-50 dark:hover:bg-[#221d3f]">
-                        <td className="px-3 py-2">{v.id_tab}</td>
-                        <td className="px-3 py-2 font-medium truncate max-w-[120px]" title={v.cliente}>{v.cliente}</td>
-                        <td className="px-3 py-2 truncate max-w-[120px]" title={v.fornecedor}>{v.fornecedor}</td>
-                        <td className="px-3 py-2 truncate max-w-[120px]" title={v.produto}>{v.produto}</td>
-                        <td className="px-3 py-2 text-right">{v.qtd}</td>
-                        <td className="px-3 py-2 text-right font-semibold text-emerald-700">R$ {v.valor_total.toLocaleString('pt-BR')}</td>
-                        <td className="px-3 py-2 text-right text-emerald-600">R$ {v.lucro.toLocaleString('pt-BR')}</td>
                         <td className="px-3 py-2">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            v.status_aluguel === 'Devolvido' ? 'bg-green-100 text-green-800' :
-                            v.status_aluguel === 'Não devolvido' ? 'bg-red-100 text-red-800' :
-                            'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {v.status_aluguel}
-                          </span>
+                          {renderEditableCell(v.id_tab, val => handleSaveSaleCell(idx, 'id_tab', val), {
+                            onDoubleClickKey: `sale-${idx}-id_tab`
+                          })}
+                        </td>
+                        <td className="px-3 py-2 font-medium truncate max-w-[120px]" title={v.cliente}>
+                          {renderEditableCell(v.cliente, val => handleSaveSaleCell(idx, 'cliente', val), {
+                            type: 'select',
+                            selectOptions: biClientes.map(c => c.lista_concatenada),
+                            onDoubleClickKey: `sale-${idx}-cliente`
+                          })}
+                        </td>
+                        <td className="px-3 py-2 truncate max-w-[120px]" title={v.fornecedor}>
+                          {renderEditableCell(v.fornecedor, val => handleSaveSaleCell(idx, 'fornecedor', val), {
+                            type: 'select',
+                            selectOptions: biFornecedores.map(f => f.lista_concatenada),
+                            onDoubleClickKey: `sale-${idx}-fornecedor`
+                          })}
+                        </td>
+                        <td className="px-3 py-2 truncate max-w-[120px]" title={v.produto}>
+                          {renderEditableCell(v.produto, val => handleSaveSaleCell(idx, 'produto', val), {
+                            type: 'select',
+                            selectOptions: biProdutos.map(p => p.lista_concatenada),
+                            onDoubleClickKey: `sale-${idx}-produto`
+                          })}
+                        </td>
+                        <td className="px-3 py-2 text-right">
+                          {renderEditableCell(v.qtd, val => handleSaveSaleCell(idx, 'qtd', val), {
+                            type: 'number',
+                            onDoubleClickKey: `sale-${idx}-qtd`
+                          })}
+                        </td>
+                        <td className="px-3 py-2 text-right font-semibold text-emerald-700">
+                          {renderEditableCell(v.valor_total, val => handleSaveSaleCell(idx, 'valor_total', val), {
+                            type: 'number',
+                            displayValue: `R$ ${v.valor_total.toLocaleString('pt-BR')}`,
+                            onDoubleClickKey: `sale-${idx}-valor_total`
+                          })}
+                        </td>
+                        <td className="px-3 py-2 text-right text-emerald-600">
+                          {renderEditableCell(v.lucro, val => handleSaveSaleCell(idx, 'lucro', val), {
+                            type: 'number',
+                            displayValue: `R$ ${v.lucro.toLocaleString('pt-BR')}`,
+                            onDoubleClickKey: `sale-${idx}-lucro`
+                          })}
+                        </td>
+                        <td className="px-3 py-2">
+                          {renderEditableCell(
+                            v.status_aluguel,
+                            val => handleSaveSaleCell(idx, 'status_aluguel', val),
+                            {
+                              type: 'select',
+                              selectOptions: ['Entregue', 'Cancelado', 'Em Realização'],
+                              displayValue: v.status_aluguel,
+                              onDoubleClickKey: `sale-${idx}-status_aluguel`,
+                              className: `px-2 py-0.5 rounded text-[10px] font-bold ${
+                                v.status_aluguel === 'Entregue' ? 'bg-green-100 text-green-800' :
+                                v.status_aluguel === 'Cancelado' ? 'bg-red-100 text-red-800' :
+                                'bg-yellow-100 text-yellow-800'
+                              }`
+                            }
+                          )}
                         </td>
                         <td className="px-3 py-2 text-center space-x-2 whitespace-nowrap">
                           <button
