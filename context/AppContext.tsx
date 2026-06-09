@@ -1,9 +1,10 @@
+/* eslint-disable react-refresh/only-export-components */
 /**
  * AppContext.tsx
  * Contexto global para nome do app, logo e configurações.
  * Persiste automaticamente via dbService (localStorage).
  */
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 import { dbConfig } from '../services/dbService';
 import type { AppConfig } from '../services/dbService';
 

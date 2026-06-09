@@ -16,7 +16,7 @@ import {
   CreditCardIcon 
 } from '../common/IconComponents';
 import { mockEfficiencyServiceGroups, mockEfficiencyServices } from '../../services/mockDataService';
-import type { EfficiencyServiceGroup, EfficiencyService } from '../../types';
+import type { EfficiencyServiceGroup, EfficiencyService, User } from '../../types';
 
 const getGroupIcon = (groupId: string, className = "w-4 h-4") => {
   switch (groupId) {
@@ -44,9 +44,31 @@ export interface EfficiencyServicesPageProps {
 }
 
 export const EfficiencyServicesPage: React.FC<EfficiencyServicesPageProps> = ({ embedded = false }) => {
-  const [groups, setGroups] = useState<EfficiencyServiceGroup[]>([]);
-  const [services, setServices] = useState<EfficiencyService[]>([]);
-  const [groupDiscounts, setGroupDiscounts] = useState<Record<string, { lawyer: number; intern: number; secretary: number; client: number }>>({});
+  const [groups] = useState<EfficiencyServiceGroup[]>(() => {
+    const isMigrated = localStorage.getItem('legis_services_initialized_v6');
+    if (!isMigrated) {
+      localStorage.setItem('legis_serviceGroups', JSON.stringify(mockEfficiencyServiceGroups));
+      localStorage.setItem('legis_services', JSON.stringify(mockEfficiencyServices));
+      localStorage.setItem('legis_services_initialized_v6', 'true');
+      return mockEfficiencyServiceGroups;
+    } else {
+      const savedGroups = localStorage.getItem('legis_serviceGroups');
+      return savedGroups ? JSON.parse(savedGroups) : mockEfficiencyServiceGroups;
+    }
+  });
+  const [services] = useState<EfficiencyService[]>(() => {
+    const isMigrated = localStorage.getItem('legis_services_initialized_v6');
+    if (!isMigrated) {
+      return mockEfficiencyServices;
+    } else {
+      const savedServices = localStorage.getItem('legis_services');
+      return savedServices ? JSON.parse(savedServices) : mockEfficiencyServices;
+    }
+  });
+  const [groupDiscounts] = useState<Record<string, { lawyer: number; intern: number; secretary: number; client: number }>>(() => {
+    const savedGroupDiscounts = localStorage.getItem('legis_group_discounts');
+    return savedGroupDiscounts ? JSON.parse(savedGroupDiscounts) : {};
+  });
   const [selectedService, setSelectedService] = useState<EfficiencyService | null>(null);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
@@ -62,7 +84,17 @@ export const EfficiencyServicesPage: React.FC<EfficiencyServicesPageProps> = ({ 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   
   // Check if user is logged in
-  const [loggedInUser, setLoggedInUser] = useState<any>(null);
+  const [loggedInUser] = useState<User | null>(() => {
+    const userRaw = localStorage.getItem('legis_user');
+    if (userRaw) {
+      try {
+        return JSON.parse(userRaw);
+      } catch (e) {
+        console.error('Error parsing logged-in user', e);
+      }
+    }
+    return null;
+  });
 
   const getServiceDiscount = (service: EfficiencyService): number => {
     if (!loggedInUser) return 0;
@@ -91,39 +123,6 @@ export const EfficiencyServicesPage: React.FC<EfficiencyServicesPageProps> = ({ 
     return group ?? 0;
   };
 
-
-  useEffect(() => {
-    const isMigrated = localStorage.getItem('legis_services_initialized_v6');
-    if (!isMigrated) {
-      localStorage.setItem('legis_serviceGroups', JSON.stringify(mockEfficiencyServiceGroups));
-      localStorage.setItem('legis_services', JSON.stringify(mockEfficiencyServices));
-      localStorage.setItem('legis_services_initialized_v6', 'true');
-      setGroups(mockEfficiencyServiceGroups);
-      setServices(mockEfficiencyServices);
-    } else {
-      const savedGroups = localStorage.getItem('legis_serviceGroups');
-      const savedServices = localStorage.getItem('legis_services');
-      
-      if (savedGroups) setGroups(JSON.parse(savedGroups));
-      else setGroups(mockEfficiencyServiceGroups);
-
-      if (savedServices) setServices(JSON.parse(savedServices));
-      else setServices(mockEfficiencyServices);
-    }
-
-    const savedGroupDiscounts = localStorage.getItem('legis_group_discounts');
-    if (savedGroupDiscounts) setGroupDiscounts(JSON.parse(savedGroupDiscounts));
-
-    const userRaw = localStorage.getItem('legis_user');
-    if (userRaw) {
-      try {
-        setLoggedInUser(JSON.parse(userRaw));
-      } catch (e) {
-        console.error('Error parsing logged-in user', e);
-      }
-    }
-  }, []);
-
   useEffect(() => {
     if (selectedGroupFilter !== 'all') {
       const matchCount = services.filter(s => 
@@ -132,7 +131,8 @@ export const EfficiencyServicesPage: React.FC<EfficiencyServicesPageProps> = ({ 
          s.description.toLowerCase().includes(searchQuery.toLowerCase()))
       ).length;
       if (matchCount === 0) {
-        setSelectedGroupFilter('all');
+        const timer = setTimeout(() => setSelectedGroupFilter('all'), 0);
+        return () => clearTimeout(timer);
       }
     }
   }, [searchQuery, services, selectedGroupFilter]);

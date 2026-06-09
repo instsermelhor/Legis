@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import type { Secretary } from '../../types';
-import type { Lawyer } from '../../types';
 import { ChangePasswordModal } from '../common/ChangePasswordModal';
 import { ChangeEmailModal } from '../common/ChangeEmailModal';
 import { LawyerInfoPopup } from '../common/LawyerInfoPopup';

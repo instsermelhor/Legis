@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 const ALL_APIS = [
   { id: 'whatsapp', label: 'WhatsApp Business API', icon: '💬', description: 'Mensagens automáticas aos clientes via WhatsApp.' },

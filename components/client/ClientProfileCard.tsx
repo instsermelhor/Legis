@@ -104,7 +104,7 @@ export const ClientProfileCard: React.FC<ClientProfileCardProps> = ({ user, onUp
             {showPasswordModal && (
                 <ChangePasswordModal
                     onClose={() => setShowPasswordModal(false)}
-                    onSave={(cur, _next) => cur.length >= 4}
+                    onSave={(cur) => cur.length >= 4}
                 />
             )}
             {showEmailModal && (

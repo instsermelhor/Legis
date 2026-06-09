@@ -178,7 +178,7 @@ export const AgendaSync: React.FC = () => {
                   <label className="block text-xs font-medium text-gray-600 mb-1">{f.label}</label>
                   <input
                     type={f.type}
-                    value={(newEvent as any)[f.key]}
+                    value={newEvent[f.key as keyof typeof newEvent]}
                     onChange={e => setNewEvent(prev => ({ ...prev, [f.key]: e.target.value }))}
                     placeholder={f.placeholder}
                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"

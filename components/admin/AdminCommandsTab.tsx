@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import type { Lawyer, Intern, Secretary, EfficiencyService } from '../../types';
+import React, { useState } from 'react';
+import type { Lawyer, Secretary } from '../../types';
 import { mockLawyers } from '../../services/mockLawyerService';
-import { mockInterns, mockSecretaries, mockEfficiencyServices } from '../../services/mockDataService';
+import { mockInterns, mockSecretaries, MockIntern } from '../../services/mockDataService';
 import { SectionTitle } from './AdminShared';
 
 interface AdminCommandsTabProps {
@@ -43,16 +43,66 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
   const [subTab, setSubTab] = useState<'toggles' | 'assignments' | 'packages'>('toggles');
 
   // Platform states
-  const [featureStates, setFeatureStates] = useState<Record<string, boolean>>({});
+  const [featureStates, setFeatureStates] = useState<Record<string, boolean>>(() => {
+    const savedFeatures = localStorage.getItem('legis_platform_features');
+    if (savedFeatures) {
+      return JSON.parse(savedFeatures);
+    } else {
+      const defaults: Record<string, boolean> = {};
+      FEATURES_LIST.forEach(f => {
+        defaults[f.id] = true;
+      });
+      localStorage.setItem('legis_platform_features', JSON.stringify(defaults));
+      return defaults;
+    }
+  });
   
   // User states loaded from localStorage/mocks
-  const [lawyers, setLawyers] = useState<Lawyer[]>([]);
-  const [interns, setInterns] = useState<Intern[]>([]);
-  const [secretaries, setSecretaries] = useState<Secretary[]>([]);
-  const [efficiencyServices, setEfficiencyServices] = useState<EfficiencyService[]>([]);
+  const [lawyers, setLawyers] = useState<Lawyer[]>(() => {
+    const savedLawyers = localStorage.getItem('legis_lawyers');
+    if (savedLawyers) {
+      return JSON.parse(savedLawyers);
+    } else {
+      localStorage.setItem('legis_lawyers', JSON.stringify(mockLawyers));
+      return mockLawyers;
+    }
+  });
+  const [interns, setInterns] = useState<MockIntern[]>(() => {
+    const savedInterns = localStorage.getItem('legis_interns');
+    if (savedInterns) {
+      return JSON.parse(savedInterns);
+    } else {
+      localStorage.setItem('legis_interns', JSON.stringify(mockInterns));
+      return mockInterns;
+    }
+  });
+  const [secretaries, setSecretaries] = useState<Secretary[]>(() => {
+    const savedSecretaries = localStorage.getItem('legis_secretaries');
+    if (savedSecretaries) {
+      return JSON.parse(savedSecretaries);
+    } else {
+      const parsed = mockSecretaries as unknown as Secretary[];
+      localStorage.setItem('legis_secretaries', JSON.stringify(parsed));
+      return parsed;
+    }
+  });
 
   // Package creator states
-  const [packages, setPackages] = useState<UserPackage[]>([]);
+  const [packages, setPackages] = useState<UserPackage[]>(() => {
+    const savedPackages = localStorage.getItem('legis_packages');
+    if (savedPackages) {
+      return JSON.parse(savedPackages);
+    } else {
+      const defaultPackages: UserPackage[] = [
+        { id: 'pkg-1', name: 'Plano Legis Essencial', role: 'lawyer', price: 199.90, features: ['ia_juridica', 'agenda_digital'], status: 'ativo' },
+        { id: 'pkg-2', name: 'Plano Legis Premium', role: 'lawyer', price: 399.90, features: ['ia_juridica', 'transcricao_audio', 'peticionamento', 'api_jusbrasil'], status: 'ativo' },
+        { id: 'pkg-3', name: 'Módulo Estudante Pro', role: 'intern', price: 49.90, features: ['ia_juridica', 'peticionamento'], status: 'ativo' },
+        { id: 'pkg-4', name: 'Pacote Auxiliar Administrativo', role: 'secretary', price: 99.90, features: ['chatbot_atendimento', 'agenda_digital'], status: 'ativo' }
+      ];
+      localStorage.setItem('legis_packages', JSON.stringify(defaultPackages));
+      return defaultPackages;
+    }
+  });
   const [packageName, setPackageName] = useState('');
   const [packageRole, setPackageRole] = useState<'lawyer' | 'client' | 'intern' | 'secretary'>('lawyer');
   const [packagePrice, setPackagePrice] = useState('');
@@ -62,72 +112,6 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
   // Assignment states for linking
   const [selectedInternLawyer, setSelectedInternLawyer] = useState<Record<number, number>>({});
   const [selectedSecretaryLawyer, setSelectedSecretaryLawyer] = useState<Record<number, number>>({});
-
-  // Loading data from localStorage or fallback mock
-  useEffect(() => {
-    // 1. Features
-    const savedFeatures = localStorage.getItem('legis_platform_features');
-    if (savedFeatures) {
-      setFeatureStates(JSON.parse(savedFeatures));
-    } else {
-      const defaults: Record<string, boolean> = {};
-      FEATURES_LIST.forEach(f => {
-        defaults[f.id] = true; // all default to active
-      });
-      setFeatureStates(defaults);
-      localStorage.setItem('legis_platform_features', JSON.stringify(defaults));
-    }
-
-    // 2. Lawyers
-    const savedLawyers = localStorage.getItem('legis_lawyers');
-    if (savedLawyers) {
-      setLawyers(JSON.parse(savedLawyers));
-    } else {
-      setLawyers(mockLawyers);
-      localStorage.setItem('legis_lawyers', JSON.stringify(mockLawyers));
-    }
-
-    // 3. Interns
-    const savedInterns = localStorage.getItem('legis_interns');
-    if (savedInterns) {
-      setInterns(JSON.parse(savedInterns));
-    } else {
-      setInterns(mockInterns as unknown as Intern[]);
-      localStorage.setItem('legis_interns', JSON.stringify(mockInterns));
-    }
-
-    // 4. Secretaries
-    const savedSecretaries = localStorage.getItem('legis_secretaries');
-    if (savedSecretaries) {
-      setSecretaries(JSON.parse(savedSecretaries));
-    } else {
-      setSecretaries(mockSecretaries as unknown as Secretary[]);
-      localStorage.setItem('legis_secretaries', JSON.stringify(mockSecretaries));
-    }
-
-    // 5. Efficiency Services (to offer inside package creator)
-    const savedServices = localStorage.getItem('legis_services');
-    if (savedServices) {
-      setEfficiencyServices(JSON.parse(savedServices));
-    } else {
-      setEfficiencyServices(mockEfficiencyServices);
-    }
-
-    // 6. Subscription Packages
-    const savedPackages = localStorage.getItem('legis_packages');
-    if (savedPackages) {
-      setPackages(JSON.parse(savedPackages));
-    } else {
-      const defaultPackages: UserPackage[] = [
-        { id: 'pkg-1', name: 'Plano Legis Essencial', role: 'lawyer', price: 199.90, features: ['ia_juridica', 'agenda_digital'], status: 'ativo' },
-        { id: 'pkg-2', name: 'Plano Legis Premium', role: 'lawyer', price: 399.90, features: ['ia_juridica', 'transcricao_audio', 'peticionamento', 'api_jusbrasil'], status: 'ativo' },
-        { id: 'pkg-3', name: 'Módulo Estudante Pro', role: 'intern', price: 49.90, features: ['ia_juridica', 'peticionamento'], status: 'ativo' },
-        { id: 'pkg-4', name: 'Pacote Auxiliar Administrativo', role: 'secretary', price: 99.90, features: ['chatbot_atendimento', 'agenda_digital'], status: 'ativo' }
-      ];
-      setPackages(defaultPackages);
-      localStorage.setItem('legis_packages', JSON.stringify(defaultPackages));
-    }
-  }, []);
 
   // Toggles active state of a platform feature or API
   const handleToggleFeature = (id: string) => {
@@ -158,7 +142,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
     } else if (role === 'intern') {
       const updated = interns.map(i => {
         if (i.id === id) {
-          const nextStatus: Intern['status'] = i.status === 'inativo' || i.status === 'pending' ? 'active' : 'inativo' as any;
+          const nextStatus: MockIntern['status'] = i.status === 'inativo' || i.status === 'pendente' ? 'ativo' : 'inativo';
           return { ...i, status: nextStatus };
         }
         return i;
@@ -335,7 +319,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
   const handleTogglePackageStatus = (id: string) => {
     const updated = packages.map(p => {
       if (p.id === id) {
-        return { ...p, status: p.status === 'ativo' ? 'inativo' : 'ativo' as any };
+        return { ...p, status: p.status === 'ativo' ? 'inativo' as const : 'ativo' as const };
       }
       return p;
     });
@@ -700,7 +684,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                   <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Perfil de Usuário Alvo *</label>
                   <select
                     value={packageRole}
-                    onChange={e => setPackageRole(e.target.value as any)}
+                    onChange={e => setPackageRole(e.target.value as 'lawyer' | 'client' | 'intern' | 'secretary')}
                     className="w-full border border-gray-300 dark:border-[#3A3555] rounded-lg px-3 py-2 text-sm bg-white dark:bg-[#2A2545] text-gray-950 dark:text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
                   >
                     <option value="lawyer">Advogado</option>

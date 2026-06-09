@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { mockClients, mockInterns } from '../../services/mockDataService';
 import type { MockClient, MockIntern } from '../../services/mockDataService';
-import { SearchInput, SectionTitle, clientStatusBadge, internStatusBadge, IconX, IconEdit } from './AdminShared';
+import { SearchInput, SectionTitle, clientStatusBadge, internStatusBadge, IconEdit } from './AdminShared';
 
 // ─── Clients Tab ─────────────────────────────────────────────────────────────
 export const ClientsTab: React.FC<{ onEditClient?: (c: MockClient) => void }> = ({ onEditClient }) => {

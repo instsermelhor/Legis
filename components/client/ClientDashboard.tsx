@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import type { User, Message, Case } from '../../types';
+import type { User, Message, Case, View } from '../../types';
 import { mockLawyers } from '../../services/mockLawyerService';
 import { PaperAirplaneIcon, BriefcaseIcon, VideoCameraIcon, XIcon, BadgeCheckIcon } from '../common/IconComponents';
 import { CaseProgressTracker } from '../common/CaseProgressTracker';
@@ -12,7 +12,7 @@ import { EfficiencyServicesPage } from './EfficiencyServicesPage';
 interface ClientDashboardProps {
   user: User;
   onUpdateLawyerReview: (lawyerId: number, caseId: string, rating: number, comment: string) => void;
-  onNavigate?: (view: any) => void;
+  onNavigate?: (view: View) => void;
   onLogout?: () => void;
 }
 
@@ -365,7 +365,7 @@ const ActionCard: React.FC<{
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdateLawyerReview, onNavigate, onLogout }) => {
+export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdateLawyerReview, onLogout }) => {
     const [activeTab, setActiveTab] = useState<'perfil' | 'advogado' | 'casos' | 'efficiency_services'>('advogado');
     const [messages, setMessages] = useState<Message[]>(initialMessages);
     const [newMessage, setNewMessage] = useState('');
@@ -823,7 +823,9 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                                             address: profileForm.street || u.address,
                                         }));
                                     }
-                                } catch {}
+                                } catch {
+                                    // Ignore error
+                                }
                                 setProfileSaved(true);
                                 setTimeout(() => setProfileSaved(false), 2500);
                             }}
@@ -884,7 +886,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                 />
             )}
             {showPasswordModal && <ChangePasswordModal onClose={() => setShowPasswordModal(false)} onSave={cur => cur.length >= 4} />}
-            {showEmailModal && <ChangeEmailModal currentEmail={user.email} onClose={() => setShowEmailModal(false)} onSave={(pwd, _) => pwd.length >= 4} />}
+            {showEmailModal && <ChangeEmailModal currentEmail={user.email} onClose={() => setShowEmailModal(false)} onSave={(pwd) => pwd.length >= 4} />}
         </>
     );
 };

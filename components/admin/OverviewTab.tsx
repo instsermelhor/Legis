@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import type { Lawyer } from '../../types';
 import { mockClients, mockInterns, mockSecretaries, mockMonthlyRevenue, mockEfficiencyServices } from '../../services/mockDataService';
 import { SpecialtyPieChart } from './SpecialtyPieChart';
-import { StatCard, SectionTitle, SearchInput, Badge, IconBriefcase, IconUsers, IconGradCap, IconMoney, IconX, lawyerStatusBadge, clientStatusBadge, internStatusBadge } from './AdminShared';
+import { SectionTitle, SearchInput, IconBriefcase, IconUsers, IconGradCap, IconMoney, IconX, lawyerStatusBadge, clientStatusBadge, internStatusBadge } from './AdminShared';
 
 type KpiModal = { type: 'lawyers' | 'clients' | 'interns' | 'secretaries' | 'services' } | null;
 
@@ -132,6 +132,7 @@ export const OverviewTab: React.FC<{
       counts['Sem Serviços'] = 1;
     }
     return counts;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [servicesCount]);
 
   const clientServiceDistribution = useMemo(() => ({

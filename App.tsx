@@ -28,10 +28,8 @@ import { EticaOABModal } from './components/common/EticaOABModal';
 import { chatWithGemini } from './services/geminiService';
 import type { View, Lawyer, Intern, Secretary, ChatMessage, User, Case, Appointment, Review, MapsSearchResult } from './types';
 import { mockLawyers } from './services/mockLawyerService';
-import { hashPassword } from './services/mockDataService';
+import { hashPassword, AdminUser } from './services/mockDataService';
 
-const ADMIN_EMAIL = 'admin@legisconnect.com.br';
-const ADMIN_PASSWORD = 'admin';
 const TEST_EMAIL = 'teste@legisconnect.com.br';
 const TEST_PASSWORD = 'teste';
 
@@ -139,7 +137,7 @@ const App: React.FC = () => {
       { id: 1, name: 'Super Admin', email: 'admin@legisconnect.com.br', password: hashPassword('admin'), role: 'super', createdAt: '2024-01-01', active: true }
     ];
 
-    const matchedAdmin = adminUsersList.find((u: any) => u.email.toLowerCase() === lowerEmail);
+    const matchedAdmin = adminUsersList.find((u: AdminUser) => u.email.toLowerCase() === lowerEmail);
     if (matchedAdmin) {
       if (matchedAdmin.password === hashPassword(password || '')) {
         if (!matchedAdmin.active) {
@@ -369,6 +367,7 @@ const App: React.FC = () => {
       phone: data.phone,
       address: data.address,
       caseHistory: [],
+      socialLinks: data.socialLinks,
     };
     setUser(clientUser);
     handleNavigate('dashboard', clientUser);
@@ -428,6 +427,7 @@ const App: React.FC = () => {
       foreignerDocument: data.foreignerDocument,
       countryOfOrigin: data.countryOfOrigin,
       timeInBrazil: data.timeInBrazil,
+      socialLinks: data.socialLinks,
     };
     console.log('New intern signup:', newIntern);
     const internUser: User = { email: newIntern.contact.email, role: 'intern', data: newIntern, name: newIntern.name };
@@ -485,6 +485,7 @@ const App: React.FC = () => {
       foreignerDocument: data.foreignerDocument,
       countryOfOrigin: data.countryOfOrigin,
       timeInBrazil: data.timeInBrazil,
+      socialLinks: data.socialLinks,
     };
     console.log('New secretary signup:', newSecretary);
     const secretaryUser: User = { email: newSecretary.email, role: 'secretary', data: newSecretary, name: newSecretary.name };
