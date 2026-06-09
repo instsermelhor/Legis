@@ -228,3 +228,28 @@ export interface Secretary {
   timeInBrazil?: string;
   socialLinks?: { provider: string; url: string }[];
 }
+
+export interface BiApoio {
+  teto_execucao_anual_ums: number;
+  meta_razao_final: number;
+  periodos: string[];
+  meta_faturamento_percentual: number[];
+}
+
+export interface BiDadosBase {
+  id_tab: number;
+  semestre: string;
+  valor_ums: number;
+  mes_ano: string;
+  executado_ums: number;
+  receita_fat: number;
+  transferencia_recebida: number;
+  despesa_total: number;
+  custo: number;
+  imposto: number;
+  juros: number;
+  salarios_ordenados: number;
+  glosa: number;
+  emissao_nf: string;
+  recebimento_nf: string;
+}

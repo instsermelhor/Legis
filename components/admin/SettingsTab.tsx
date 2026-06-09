@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { mockLegalDocuments, mockAdminUsers, mockEfficiencyServiceGroups, hashPassword } from '../../services/mockDataService';
+import { mockLegalDocuments, mockAdminUsers, mockEfficiencyServiceGroups, hashPassword, mockBiApoio, mockBiDadosBase } from '../../services/mockDataService';
 import type { LegalDocument, AdminUser } from '../../services/mockDataService';
 import { SectionTitle, IconEdit, IconPlus, IconKey, IconUpload, IconTrash } from './AdminShared';
 import { dbCodes, LegalCode, dbCloud } from '../../services/dbService';
 import { useAppConfig } from '../../context/AppContext';
-import type { EfficiencyServiceGroup } from '../../types';
+import type { EfficiencyServiceGroup, BiApoio, BiDadosBase } from '../../types';
 import { LegalAiTools } from '../common/LegalAiTools';
 
 
@@ -1088,6 +1088,38 @@ const GeneralSettings: React.FC = () => {
   
   const [saved, setSaved] = useState(false);
 
+  // BI support & transational data states
+  const [biApoio, setBiApoio] = useState<BiApoio>(() => {
+    const saved = localStorage.getItem('legis_bi_tb_apoio');
+    return saved ? JSON.parse(saved) : mockBiApoio;
+  });
+
+  const [biDadosBase, setBiDadosBase] = useState<BiDadosBase[]>(() => {
+    const saved = localStorage.getItem('legis_bi_tb_dados_base');
+    return saved ? JSON.parse(saved) : mockBiDadosBase;
+  });
+
+  const [docTab, setDocTab] = useState('DAX (Power BI)');
+  const [showTxForm, setShowTxForm] = useState(false);
+  const [editingTxId, setEditingTxId] = useState<number | null>(null);
+  const [txForm, setTxForm] = useState<BiDadosBase>({
+    id_tab: 0,
+    semestre: '1º sem',
+    valor_ums: 5.2,
+    mes_ano: '',
+    executado_ums: 0,
+    receita_fat: 0,
+    transferencia_recebida: 0,
+    despesa_total: 0,
+    custo: 0,
+    imposto: 0,
+    juros: 0,
+    salarios_ordenados: 0,
+    glosa: 0,
+    emissao_nf: '',
+    recebimento_nf: '',
+  });
+
   const handleSave = () => {
     updateConfig({
       appName: appName.trim(),
@@ -1097,6 +1129,8 @@ const GeneralSettings: React.FC = () => {
       contactPhone: contactPhone.trim(),
       customFields
     });
+    localStorage.setItem('legis_bi_tb_apoio', JSON.stringify(biApoio));
+    localStorage.setItem('legis_bi_tb_dados_base', JSON.stringify(biDadosBase));
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };
@@ -1333,6 +1367,505 @@ const GeneralSettings: React.FC = () => {
                 >
                   Excluir Logo
                 </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Seção BI / Modelagem Financeira */}
+      <div className="pt-6 border-t space-y-4">
+        <h4 className="text-sm font-bold text-purple-700 uppercase tracking-wider flex items-center gap-2">
+          <span>📊</span> Modelagem de Dados Financeiros (BI / Dashboard)
+        </h4>
+        <p className="text-xs text-gray-500">
+          Configure as premissas e os dados transacionais para a ferramenta de BI e Analytics. Essas informações alimentam de forma reativa os gráficos, KPIs e análises financeiras da plataforma.
+        </p>
+
+        {/* Tabela A: Premissas (tb_apoio) */}
+        <div className="bg-purple-50/50 dark:bg-[#1A1730]/40 border border-purple-200 dark:border-[#2A2545] rounded-xl p-4 space-y-4 text-left">
+          <h5 className="text-xs font-bold text-purple-800 dark:text-purple-300 uppercase">Tabela A: Premissas (tb_apoio)</h5>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Teto de Execução Anual (UMS) *</label>
+              <input
+                type="number"
+                className="w-full border border-gray-300 dark:border-[#2A2545] rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white p-1"
+                value={biApoio.teto_execucao_anual_ums}
+                onChange={e => setBiApoio(prev => ({ ...prev, teto_execucao_anual_ums: Number(e.target.value) }))}
+              />
+            </div>
+            <div>
+              <label className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Meta de Razão de Eficiência Final *</label>
+              <input
+                type="number"
+                step="0.0000001"
+                className="w-full border border-gray-300 dark:border-[#2A2545] rounded-lg px-3 py-1.5 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white p-1"
+                value={biApoio.meta_razao_final}
+                onChange={e => setBiApoio(prev => ({ ...prev, meta_razao_final: Number(e.target.value) }))}
+              />
+              <p className="text-[10px] text-gray-400 mt-1">Ex: 0.4399678 (equivale a ~44%)</p>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 uppercase">Metas de Faturamento por Período / Semestre</label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {biApoio.periodos.map((periodo, idx) => (
+                <div key={periodo} className="bg-white dark:bg-[#1A1730] p-2.5 rounded-lg border border-purple-100 dark:border-[#2A2545]">
+                  <span className="block text-[10px] font-bold text-gray-500 uppercase">{periodo}</span>
+                  <input
+                    type="number"
+                    step="0.001"
+                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded mt-1 px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white"
+                    value={biApoio.meta_faturamento_percentual[idx]}
+                    onChange={e => {
+                      const nextMetas = [...biApoio.meta_faturamento_percentual];
+                      nextMetas[idx] = Number(e.target.value);
+                      setBiApoio(prev => ({ ...prev, meta_faturamento_percentual: nextMetas }));
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Tabela B: Transacional (tb_dados_base) */}
+        <div className="bg-blue-50/50 dark:bg-[#1A1730]/40 border border-blue-200 dark:border-[#2A2545] rounded-xl p-4 space-y-4 text-left">
+          <div className="flex justify-between items-center flex-wrap gap-2">
+            <h5 className="text-xs font-bold text-blue-800 dark:text-blue-300 uppercase">Tabela B: Dados Transacionais (tb_dados_base)</h5>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm('Deseja redefinir a tabela transacional para os dados de teste originais?')) {
+                    setBiDadosBase(mockBiDadosBase);
+                    localStorage.setItem('legis_bi_tb_dados_base', JSON.stringify(mockBiDadosBase));
+                  }
+                }}
+                className="text-[10px] font-bold text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/30 px-2.5 py-1 rounded hover:bg-red-100 dark:hover:bg-red-900/40"
+              >
+                Redefinir Padrão
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setEditingTxId(null);
+                  setTxForm({
+                    id_tab: 0,
+                    semestre: '1º sem',
+                    valor_ums: 5.5,
+                    mes_ano: new Date().toISOString().split('T')[0],
+                    executado_ums: 10000,
+                    receita_fat: 50000,
+                    transferencia_recebida: 5000,
+                    despesa_total: 25000,
+                    custo: 10000,
+                    imposto: 5000,
+                    juros: 1000,
+                    salarios_ordenados: 6000,
+                    glosa: 1000,
+                    emissao_nf: new Date().toISOString().split('T')[0],
+                    recebimento_nf: new Date().toISOString().split('T')[0],
+                  });
+                  setShowTxForm(!showTxForm);
+                }}
+                className="text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/30 px-2.5 py-1 rounded hover:bg-blue-100 dark:hover:bg-blue-900/40"
+              >
+                {showTxForm && !editingTxId ? '✕ Fechar Form' : '+ Novo Lançamento'}
+              </button>
+            </div>
+          </div>
+
+          {/* Tx Form (Add / Edit) */}
+          {showTxForm && (
+            <div className="bg-white dark:bg-[#1A1730] border border-blue-200 dark:border-[#2A2545] p-4 rounded-lg space-y-4">
+              <p className="text-xs font-bold text-blue-900 dark:text-blue-300">{editingTxId ? `📝 Editar Registro #${editingTxId}` : '➕ Novo Registro Transacional'}</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Semestre *</label>
+                  <select
+                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                    value={txForm.semestre}
+                    onChange={e => setTxForm(p => ({ ...p, semestre: e.target.value }))}
+                  >
+                    {biApoio.periodos.map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Mês / Ano *</label>
+                  <input
+                    type="date"
+                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                    value={txForm.mes_ano}
+                    onChange={e => setTxForm(p => ({ ...p, mes_ano: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Valor UMS (R$) *</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                    value={txForm.valor_ums}
+                    onChange={e => setTxForm(p => ({ ...p, valor_ums: Number(e.target.value) }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Executado UMS *</label>
+                  <input
+                    type="number"
+                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                    value={txForm.executado_ums}
+                    onChange={e => setTxForm(p => ({ ...p, executado_ums: Number(e.target.value) }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Receita Faturamento *</label>
+                  <input
+                    type="number"
+                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                    value={txForm.receita_fat}
+                    onChange={e => setTxForm(p => ({ ...p, receita_fat: Number(e.target.value) }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Transf. Recebida *</label>
+                  <input
+                    type="number"
+                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                    value={txForm.transferencia_recebida}
+                    onChange={e => setTxForm(p => ({ ...p, transferencia_recebida: Number(e.target.value) }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Despesa Total *</label>
+                  <input
+                    type="number"
+                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                    value={txForm.despesa_total}
+                    onChange={e => setTxForm(p => ({ ...p, despesa_total: Number(e.target.value) }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Custo Operacional *</label>
+                  <input
+                    type="number"
+                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                    value={txForm.custo}
+                    onChange={e => setTxForm(p => ({ ...p, custo: Number(e.target.value) }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Impostos *</label>
+                  <input
+                    type="number"
+                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                    value={txForm.imposto}
+                    onChange={e => setTxForm(p => ({ ...p, imposto: Number(e.target.value) }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Juros *</label>
+                  <input
+                    type="number"
+                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                    value={txForm.juros}
+                    onChange={e => setTxForm(p => ({ ...p, juros: Number(e.target.value) }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Salários/Ordenados *</label>
+                  <input
+                    type="number"
+                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                    value={txForm.salarios_ordenados}
+                    onChange={e => setTxForm(p => ({ ...p, salarios_ordenados: Number(e.target.value) }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Glosas *</label>
+                  <input
+                    type="number"
+                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                    value={txForm.glosa}
+                    onChange={e => setTxForm(p => ({ ...p, glosa: Number(e.target.value) }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Emissão NF *</label>
+                  <input
+                    type="date"
+                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                    value={txForm.emissao_nf}
+                    onChange={e => setTxForm(p => ({ ...p, emissao_nf: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-gray-500 uppercase">Recebimento NF *</label>
+                  <input
+                    type="date"
+                    className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1"
+                    value={txForm.recebimento_nf}
+                    onChange={e => setTxForm(p => ({ ...p, recebimento_nf: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    let nextBase;
+                    if (editingTxId) {
+                      nextBase = biDadosBase.map(t => t.id_tab === editingTxId ? { ...txForm, id_tab: editingTxId } : t);
+                    } else {
+                      nextBase = [...biDadosBase, { ...txForm, id_tab: Date.now() }];
+                    }
+                    setBiDadosBase(nextBase);
+                    localStorage.setItem('legis_bi_tb_dados_base', JSON.stringify(nextBase));
+                    setShowTxForm(false);
+                    setEditingTxId(null);
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded text-xs font-bold hover:bg-blue-700"
+                >
+                  {editingTxId ? 'Salvar Alterações' : 'Adicionar Lançamento'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowTxForm(false);
+                    setEditingTxId(null);
+                  }}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded text-xs font-semibold hover:bg-gray-300"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Tx List Table */}
+          <div className="overflow-x-auto border border-gray-200 dark:border-[#2A2545] rounded-lg">
+            <table className="w-full text-xs text-left bg-white dark:bg-[#1A1730]">
+              <thead className="bg-gray-100 dark:bg-[#201C3D] uppercase font-bold text-gray-700 dark:text-gray-300 border-b dark:border-[#2A2545]">
+                <tr>
+                  <th className="px-3 py-2">Mês/Ano</th>
+                  <th className="px-3 py-2">Semestre</th>
+                  <th className="px-3 py-2 text-right">Faturamento</th>
+                  <th className="px-3 py-2 text-right">Despesa Total</th>
+                  <th className="px-3 py-2 text-right">Custo</th>
+                  <th className="px-3 py-2 text-right">Imposto</th>
+                  <th className="px-3 py-2 text-right">Exec UMS</th>
+                  <th className="px-3 py-2 text-center">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                {biDadosBase.map(tx => (
+                  <tr key={tx.id_tab} className="border-b dark:border-[#2A2545] hover:bg-gray-50 dark:hover:bg-[#221d3f]">
+                    <td className="px-3 py-2 font-medium">
+                      {tx.mes_ano ? new Date(tx.mes_ano + 'T12:00:00').toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' }) : '—'}
+                    </td>
+                    <td className="px-3 py-2">{tx.semestre}</td>
+                    <td className="px-3 py-2 text-right font-semibold text-emerald-700 dark:text-emerald-400">R$ {tx.receita_fat.toLocaleString('pt-BR')}</td>
+                    <td className="px-3 py-2 text-right text-red-600 dark:text-red-400">R$ {tx.despesa_total.toLocaleString('pt-BR')}</td>
+                    <td className="px-3 py-2 text-right">R$ {tx.custo.toLocaleString('pt-BR')}</td>
+                    <td className="px-3 py-2 text-right">R$ {tx.imposto.toLocaleString('pt-BR')}</td>
+                    <td className="px-3 py-2 text-right">{tx.executado_ums}</td>
+                    <td className="px-3 py-2 text-center space-x-2 whitespace-nowrap">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingTxId(tx.id_tab);
+                          setTxForm({ ...tx });
+                          setShowTxForm(true);
+                        }}
+                        className="text-blue-600 dark:text-blue-400 hover:underline font-bold"
+                      >
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (window.confirm('Deseja excluir este registro transacional?')) {
+                            const next = biDadosBase.filter(t => t.id_tab !== tx.id_tab);
+                            setBiDadosBase(next);
+                            localStorage.setItem('legis_bi_tb_dados_base', JSON.stringify(next));
+                          }
+                        }}
+                        className="text-red-600 dark:text-red-400 hover:underline font-bold"
+                      >
+                        Excluir
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {biDadosBase.length === 0 && (
+                  <tr>
+                    <td colSpan={8} className="px-3 py-6 text-center text-gray-400">Nenhum lançamento cadastrado.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Documentação BI */}
+        <div className="bg-slate-50 dark:bg-[#1A1730]/40 border border-slate-200 dark:border-[#2A2545] rounded-xl p-4 space-y-3">
+          <h5 className="text-xs font-bold text-slate-800 dark:text-slate-300 uppercase flex items-center gap-1">
+            <span>📖</span> Documentação do Modelo de Dados & Relacionamentos
+          </h5>
+          <p className="text-xs text-gray-600 dark:text-gray-400">
+            Copie os scripts de transformação de dados para Power BI (DAX), Python (Pandas) ou SQL para recriar o modelo de dados de forma idêntica ou otimizada:
+          </p>
+
+          <div className="space-y-3 text-left">
+            <div className="bg-white dark:bg-[#1A1730] p-3 rounded-lg border border-slate-100 dark:border-[#2A2545] space-y-1.5">
+              <p className="text-xs font-bold text-slate-700 dark:text-slate-300">🔗 Estrutura de Relacionamentos</p>
+              <ol className="list-decimal list-inside text-[11px] text-gray-600 dark:text-gray-400 space-y-1 leading-relaxed">
+                <li><strong>Chave de Relação:</strong> Ligue as tabelas usando <code>tb_apoio[periodos]</code> &rarr; <code>tb_dados_base[semestre]</code>.</li>
+                <li><strong>Cardinalidade:</strong> Relacionamento de <strong>1 para Muitos (1:N)</strong>, onde cada período de premissa se relaciona a múltiplos registros mensais.</li>
+                <li><strong>Direção do Filtro:</strong> Unidirecional (tb_apoio filtra tb_dados_base).</li>
+                <li><strong>Alinhamento:</strong> Mantenha os mesmos nomes textuais (ex: '1º sem', '2º sem') em ambos os lados para que as fórmulas encontrem os percentuais corretos.</li>
+              </ol>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex gap-2 border-b border-gray-200 dark:border-[#2A2545]">
+                {['DAX (Power BI)', 'Python (Pandas)', 'SQL Queries'].map(tabName => (
+                  <button
+                    key={tabName}
+                    type="button"
+                    onClick={() => setDocTab(tabName)}
+                    className={`pb-1 text-xs font-bold ${docTab === tabName ? 'border-b-2 border-primary text-primary' : 'text-gray-500'}`}
+                  >
+                    {tabName}
+                  </button>
+                ))}
+              </div>
+
+              {docTab === 'DAX (Power BI)' && (
+                <pre className="p-3 bg-gray-900 text-gray-200 rounded-lg text-[10px] font-mono overflow-auto max-h-48 leading-relaxed">
+{`-- Medida: Faturamento Acumulado
+Faturamento_Acumulado = SUM(tb_dados_base[receita_fat])
+
+-- Medida: Resultado Mensal
+Resultado_Mensal = SUM(tb_dados_base[receita_fat]) + SUM(tb_dados_base[transferencia_recebida]) - SUM(tb_dados_base[despesa_total])
+
+-- Coluna Calculada: Dias para Recebimento
+Dias_p_Recebimento = DATEDIFF(tb_dados_base[emissao_nf], tb_dados_base[recebimento_nf], DAY)
+
+-- Medida: Prazo Médio de Recebimento
+Prazo_Medio_Recebimento = AVERAGE(tb_dados_base[Dias_p_Recebimento])
+
+-- Coluna Calculada: Despesa Administrativa
+Despesa_Administrativa = tb_dados_base[despesa_total] - tb_dados_base[custo] - tb_dados_base[imposto] - tb_dados_base[juros] - tb_dados_base[salarios_ordenados] - tb_dados_base[glosa]
+
+-- Coluna Calculada: Custo Operacional Amplo
+Custo_Mais_Despesa = tb_dados_base[custo] + tb_dados_base[Despesa_Administrativa]
+
+-- Coluna Calculada: Base de Saída Total
+Total_Saidas_Razao = tb_dados_base[custo] + tb_dados_base[Despesa_Administrativa] + tb_dados_base[imposto]
+
+-- Medida: Razão de Eficiência Mensal
+Razao_Mensal = DIVIDE(SUM(tb_dados_base[Total_Saidas_Razao]), SUM(tb_dados_base[receita_fat]) + SUM(tb_dados_base[transferencia_recebida]))
+
+-- Medida: UMS Acumulado
+Executado_UMS_Acumulado = 
+CALCULATE(
+    SUM(tb_dados_base[executado_ums]),
+    FILTER(
+        ALLSELECTED(tb_dados_base),
+        tb_dados_base[mes_ano] <= MAX(tb_dados_base[mes_ano])
+    )
+)
+
+-- Medida: % Consumo do Teto
+Percentual_Consumo_Teto = DIVIDE([Executado_UMS_Acumulado], 189346)`}
+                </pre>
+              )}
+              {docTab === 'Python (Pandas)' && (
+                <pre className="p-3 bg-gray-900 text-gray-200 rounded-lg text-[10px] font-mono overflow-auto max-h-48 leading-relaxed">
+{`import pandas as pd
+import numpy as np
+
+# Carregar dados
+tb_dados_base = pd.read_csv('tb_dados_base.csv')
+tb_dados_base['mes_ano'] = pd.to_datetime(tb_dados_base['mes_ano'])
+tb_dados_base['emissao_nf'] = pd.to_datetime(tb_dados_base['emissao_nf'])
+tb_dados_base['recebimento_nf'] = pd.to_datetime(tb_dados_base['recebimento_nf'])
+
+# 1. Resultado Mensal
+tb_dados_base['Resultado'] = tb_dados_base['receita_fat'] + tb_dados_base['transferencia_recebida'] - tb_dados_base['despesa_total']
+
+# 2. Prazo Médio de Recebimento
+tb_dados_base['Dias_p_Recebimento'] = (tb_dados_base['recebimento_nf'] - tb_dados_base['emissao_nf']).dt.days
+
+# 3. Despesa Administrativa e Custo Operacional Amplo
+tb_dados_base['Despesa_Administrativa'] = (
+    tb_dados_base['despesa_total'] - tb_dados_base['custo'] - 
+    tb_dados_base['imposto'] - tb_dados_base['juros'] - 
+    tb_dados_base['salarios_ordenados'] - tb_dados_base['glosa']
+).clip(lower=0)
+
+tb_dados_base['Custo_Mais_Despesa'] = tb_dados_base['custo'] + tb_dados_base['Despesa_Administrativa']
+
+# 4. Base de Saída Total para Razão
+tb_dados_base['Total_Saidas_Razao'] = tb_dados_base['custo'] + tb_dados_base['Despesa_Administrativa'] + tb_dados_base['imposto']
+
+# 5. Razão de Eficiência Mensal
+tb_dados_base['Razao_Mensal'] = tb_dados_base['Total_Saidas_Razao'] / (tb_dados_base['receita_fat'] + tb_dados_base['transferencia_recebida'])
+
+# 6. Consumo do Teto UMS
+tb_dados_base = tb_dados_base.sort_values('mes_ano')
+tb_dados_base['Executado_UMS_Acumulado'] = tb_dados_base['executado_ums'].cumsum()
+tb_dados_base['Percentual_Consumo_Teto'] = tb_dados_base['Executado_UMS_Acumulado'] / 189346`}
+                </pre>
+              )}
+              {docTab === 'SQL Queries' && (
+                <pre className="p-3 bg-gray-900 text-gray-200 rounded-lg text-[10px] font-mono overflow-auto max-h-48 leading-relaxed">
+{`-- 1. Resultado Mensal
+SELECT 
+    id_tab,
+    mes_ano,
+    (receita_fat + transferencia_recebida - despesa_total) AS resultado_mensal
+FROM tb_dados_base;
+
+-- 2. Prazo Médio de Recebimento
+SELECT 
+    id_tab,
+    mes_ano,
+    DATEDIFF(day, emissao_nf, recebimento_nf) AS dias_p_recebimento
+FROM tb_dados_base;
+
+-- 3. Custo Operacional Amplo e Base de Saída Total
+SELECT 
+    id_tab,
+    mes_ano,
+    custo,
+    despesa_total,
+    imposto,
+    (despesa_total - custo - imposto - juros - salarios_ordenados - glosa) AS despesa_administrativa,
+    (custo + (despesa_total - custo - imposto - juros - salarios_ordenados - glosa)) AS custo_mais_despesa,
+    (custo + (despesa_total - custo - imposto - juros - salarios_ordenados - glosa) + imposto) AS total_saidas_razao
+FROM tb_dados_base;
+
+-- 4. Razão de Eficiência Mensal e Consumo UMS
+WITH acumulado AS (
+    SELECT 
+        b.*,
+        SUM(executado_ums) OVER (ORDER BY mes_ano) AS executado_ums_acumulado
+    FROM tb_dados_base b
+)
+SELECT 
+    id_tab,
+    mes_ano,
+    executado_ums,
+    executado_ums_acumulado,
+    (executado_ums_acumulado / 189346.0) AS percentual_consumo_teto,
+    (custo + (despesa_total - custo - imposto - juros - salarios_ordenados - glosa) + imposto) / NULLIF(receita_fat + transferencia_recebida, 0) AS razao_mensal
+FROM acumulado;`}
+                </pre>
               )}
             </div>
           </div>
