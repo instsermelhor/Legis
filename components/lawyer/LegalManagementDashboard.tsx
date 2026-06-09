@@ -4,7 +4,11 @@ import { mockProcessosService, Processo } from '../../services/mockProcessosServ
 const fmtCurrency = (v: number) =>
   v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
-export const LegalManagementDashboard: React.FC = () => {
+interface LegalManagementDashboardProps {
+  lawyerName?: string;
+}
+
+export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> = ({ lawyerName }) => {
   // Load data from mock service
   const [processos, setProcessos] = useState<Processo[]>(() => mockProcessosService.getProcessos());
   
@@ -17,7 +21,7 @@ export const LegalManagementDashboard: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string>('All');
   const [filterDept, setFilterDept] = useState<string>('All');
   const [filterGestor, setFilterGestor] = useState<string>('All');
-  const [filterAdvogado, setFilterAdvogado] = useState<string>('All');
+  const [filterAdvogado, setFilterAdvogado] = useState<string>(lawyerName || 'All');
 
   // Advanced features: Search and highlights
   const [searchQuery, setSearchQuery] = useState('');

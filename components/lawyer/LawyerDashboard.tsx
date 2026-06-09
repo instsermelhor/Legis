@@ -15,6 +15,7 @@ import { ApiStatusPanel } from '../common/ApiStatusPanel';
 import type { MockIntern, MockSecretary } from '../../services/mockDataService';
 import { LegalAiTools } from '../common/LegalAiTools';
 import { EfficiencyServicesPage } from '../client/EfficiencyServicesPage';
+import { mockProcessosService } from '../../services/mockProcessosService';
 
 const ALL_IA_TOOLS = [
     { key: 'pecas', label: '📄 Peças Jurídicas' },
@@ -168,6 +169,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
     const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
     const [activeSection, setActiveSection] = useState<'overview' | 'meusCasos' | 'gestaoJuridica' | 'codigos' | 'financeiro' | 'perfil' | 'estagiarios' | 'secretariado' | 'apis' | 'iaTools' | 'efficiency_services'>('overview');
     const [showMobileMenu, setShowMobileMenu] = useState(false);
+    const [meusCasosSubTab, setMeusCasosSubTab] = useState<'crm' | 'processos'>('crm');
 
     // Intern/Secretary selection state
     const [linkedInternId, setLinkedInternId] = useState<number | null>(() => {
@@ -352,6 +354,10 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
             return matchesOAB && matchesProcesso && matchesCPF && matchesGroup && matchesCaseType;
         });
     }, [cases, filterOAB, filterProcesso, filterCPF, filterGroup, filterCaseType, lawyer.oab]);
+
+    const lawyerProcessos = useMemo(() => {
+        return mockProcessosService.getProcessos().filter(p => p.advogado === lawyer.name);
+    }, [lawyer.name]);
 
     const handleOpenUpdateModal = (caseToUpdate: Case) => {
         setSelectedCase(caseToUpdate);
@@ -692,129 +698,229 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                     {/* Meus Casos Section */}
                     {activeSection === 'meusCasos' && (
                         <div className="animate-fade-in">
-                            <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-xl font-semibold text-gray-700">Meus Casos</h2>
-                                <button
-                                    onClick={() => setShowAddCaseForm(true)}
-                                    className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary-dark shadow transition-all duration-150"
-                                >
-                                    + Cadastrar Processo
-                                </button>
-                            </div>
-
-                            {/* Filter Panel */}
-                            <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm mb-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-                                <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-3">Filtros de Busca</h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 mb-1">Número da OAB</label>
-                                        <input
-                                            type="text"
-                                            value={filterOAB}
-                                            onChange={e => setFilterOAB(e.target.value)}
-                                            placeholder="Ex: SP123456"
-                                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 mb-1">Número do Processo</label>
-                                        <input
-                                            type="text"
-                                            value={filterProcesso}
-                                            onChange={e => setFilterProcesso(e.target.value)}
-                                            placeholder="Ex: case001"
-                                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 mb-1">CPF / Nome do Cliente</label>
-                                        <input
-                                            type="text"
-                                            value={filterCPF}
-                                            onChange={e => setFilterCPF(e.target.value)}
-                                            placeholder="Ex: Ana Clara"
-                                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 mb-1">Grupo (Rito)</label>
-                                        <select
-                                            value={filterGroup}
-                                            onChange={e => { setFilterGroup(e.target.value); setFilterCaseType(''); }}
-                                            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-white p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
-                                        >
-                                            <option value="">Todos</option>
-                                            <option value="Civil">Civil</option>
-                                            <option value="Penal">Penal / Criminal</option>
-                                            <option value="Trabalhista">Trabalhista</option>
-                                            <option value="Outro">Outro</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="block text-xs font-medium text-gray-600 mb-1">Tipo de Processo</label>
-                                        {filterGroup && GROUP_TYPES[filterGroup] ? (
-                                            <select
-                                                value={filterCaseType}
-                                                onChange={e => setFilterCaseType(e.target.value)}
-                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-white p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
-                                            >
-                                                <option value="">Todos</option>
-                                                {GROUP_TYPES[filterGroup].map(t => <option key={t} value={t}>{t}</option>)}
-                                            </select>
-                                        ) : (
-                                            <input
-                                                type="text"
-                                                value={filterCaseType}
-                                                onChange={e => setFilterCaseType(e.target.value)}
-                                                placeholder="Ex: Rito Ordinário"
-                                                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
-                                            />
-                                        )}
-                                    </div>
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-gray-200 dark:border-[#2A2545] pb-3">
+                                <div>
+                                    <h2 className="text-xl font-semibold text-gray-700 dark:text-white">Meus Casos & Processos</h2>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400">Gerencie o andamento dos seus casos locais e acompanhe seus processos da Gestão Jurídica.</p>
                                 </div>
-                                <div className="mt-3 flex justify-end">
+                                <div className="flex gap-2">
                                     <button
-                                        onClick={() => { setFilterOAB(''); setFilterProcesso(''); setFilterCPF(''); setFilterGroup(''); setFilterCaseType(''); }}
-                                        className="text-xs text-primary hover:underline"
+                                        onClick={() => setMeusCasosSubTab('crm')}
+                                        className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                                            meusCasosSubTab === 'crm'
+                                                ? 'bg-primary text-white shadow-sm'
+                                                : 'bg-white dark:bg-[#1A1730] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-[#2A2545] hover:bg-gray-50'
+                                        }`}
                                     >
-                                        Limpar Filtros
+                                        📋 Linhas de Andamento (CRM)
+                                    </button>
+                                    <button
+                                        onClick={() => setMeusCasosSubTab('processos')}
+                                        className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+                                            meusCasosSubTab === 'processos'
+                                                ? 'bg-primary text-white shadow-sm'
+                                                : 'bg-white dark:bg-[#1A1730] text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-[#2A2545] hover:bg-gray-50'
+                                        }`}
+                                    >
+                                        ⚖️ Processos Vinculados ({lawyerProcessos.length})
                                     </button>
                                 </div>
                             </div>
-                            {/* Cases List */}
-                            <div className="space-y-6">
-                                {filteredCases.length > 0 ? filteredCases.map(c => (
-                                    <div key={c.id} className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-                                        <div className="flex flex-col sm:flex-row justify-between items-start mb-2">
-                                            <div>
-                                                <h3 className="text-lg font-bold text-gray-800">{c.title}</h3>
-                                                <p className="text-sm text-gray-500">Cliente: {c.clientName}</p>
-                                                <p className="text-xs text-gray-400 mt-1">
-                                                    Nº Processo: <span className="font-mono font-semibold text-gray-900 bg-gray-100 px-1 py-0.5 rounded">{c.id}</span>
-                                                    {c.group && <span className="ml-2 text-gray-500">· Rito: <strong>{c.group} ({c.caseType})</strong></span>}
-                                                </p>
-                                            </div>
-                                            <span className="bg-primary/10 text-primary text-xs font-medium mt-2 sm:mt-0 px-2.5 py-0.5 rounded-full">{c.status}</span>
+
+                            {meusCasosSubTab === 'processos' ? (
+                                <div className="space-y-6 animate-fade-in text-left">
+                                    {/* Small Kpis */}
+                                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                        <div className="bg-purple-50/50 dark:bg-purple-950/10 p-4 rounded-xl border border-purple-100 dark:border-purple-900/30">
+                                            <p className="text-[9px] text-purple-700 dark:text-purple-300 uppercase font-bold tracking-wide">Total de Processos</p>
+                                            <p className="text-xl font-bold text-purple-800 dark:text-purple-300 mt-0.5">{lawyerProcessos.length}</p>
                                         </div>
-                                        <CaseProgressTracker stages={c.stages} />
-                                        <div className="mt-4 border-t pt-4 flex flex-col sm:flex-row gap-3">
+                                        <div className="bg-blue-50/50 dark:bg-blue-950/10 p-4 rounded-xl border border-blue-100 dark:border-blue-900/30">
+                                            <p className="text-[9px] text-blue-700 dark:text-blue-300 uppercase font-bold tracking-wide">Em Andamento</p>
+                                            <p className="text-xl font-bold text-blue-800 dark:text-blue-300 mt-0.5">{lawyerProcessos.filter(p => p.status === 'Em Andamento').length}</p>
+                                        </div>
+                                        <div className="bg-emerald-50/50 dark:bg-emerald-950/10 p-4 rounded-xl border border-emerald-100 dark:border-emerald-900/30">
+                                            <p className="text-[9px] text-emerald-700 dark:text-emerald-300 uppercase font-bold tracking-wide">Concluídos</p>
+                                            <p className="text-xl font-bold text-emerald-800 dark:text-emerald-300 mt-0.5">{lawyerProcessos.filter(p => p.status === 'Concluído').length}</p>
+                                        </div>
+                                        <div className="bg-amber-50/50 dark:bg-amber-950/10 p-4 rounded-xl border border-amber-100 dark:border-amber-900/30">
+                                            <p className="text-[9px] text-amber-700 dark:text-amber-300 uppercase font-bold tracking-wide">Aguardando Doc (Gargalo)</p>
+                                            <p className="text-xl font-bold text-amber-800 dark:text-amber-300 mt-0.5">{lawyerProcessos.filter(p => p.status === 'Aguardando Documentação').length}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Table of Processes */}
+                                    <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-xl overflow-hidden shadow-sm">
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-xs text-left text-gray-600 dark:text-gray-300">
+                                                <thead className="bg-gray-50 dark:bg-black/10 border-b text-gray-700 dark:text-gray-300 uppercase">
+                                                    <tr>
+                                                        <th className="px-4 py-3">Processo Nº</th>
+                                                        <th className="px-4 py-3">Departamento</th>
+                                                        <th className="px-4 py-3">Gestor</th>
+                                                        <th className="px-4 py-3">Data Entrada</th>
+                                                        <th className="px-4 py-3">Status</th>
+                                                        <th className="px-4 py-3 text-right">Valor do Caso</th>
+                                                        <th className="px-4 py-3 text-right">Duração (Concluído)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {lawyerProcessos.map(p => (
+                                                        <tr key={p.id_processo} className="border-b hover:bg-gray-50 dark:hover:bg-black/10">
+                                                            <td className="px-4 py-3 font-bold text-gray-900 dark:text-white">#{p.id_processo}</td>
+                                                            <td className="px-4 py-3">{p.departamento}</td>
+                                                            <td className="px-4 py-3">{p.gestor}</td>
+                                                            <td className="px-4 py-3">{new Date(p.data_entrada).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
+                                                            <td className="px-4 py-3">
+                                                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                                                                    p.status === 'Concluído' ? 'bg-green-100 text-green-800' :
+                                                                    p.status === 'Em Andamento' ? 'bg-blue-100 text-blue-800' :
+                                                                    'bg-amber-100 text-amber-800 animate-pulse'
+                                                                }`}>
+                                                                    {p.status}
+                                                                </span>
+                                                            </td>
+                                                            <td className="px-4 py-3 text-right font-bold text-gray-950 dark:text-white">
+                                                                {p.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                                            </td>
+                                                            <td className="px-4 py-3 text-right">{p.status === 'Concluído' ? `${p.tempo} dias` : '—'}</td>
+                                                        </tr>
+                                                    ))}
+                                                    {lawyerProcessos.length === 0 && (
+                                                        <tr><td colSpan={7} className="px-4 py-6 text-center text-gray-400">Nenhum processo da Gestão Jurídica vinculado.</td></tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="flex justify-between items-center mb-4">
+                                        <h3 className="text-lg font-bold text-gray-800 dark:text-white">Linhas de Andamento (Casos CRM)</h3>
+                                        <button
+                                            onClick={() => setShowAddCaseForm(true)}
+                                            className="flex items-center gap-1.5 px-4 py-2 text-sm font-semibold text-white bg-primary rounded-lg hover:bg-primary-dark shadow transition-all duration-150"
+                                        >
+                                            + Cadastrar Processo
+                                        </button>
+                                    </div>
+
+                                    {/* Filter Panel */}
+                                    <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm mb-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                                        <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-3">Filtros de Busca</h3>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-600 mb-1">Número da OAB</label>
+                                                <input
+                                                    type="text"
+                                                    value={filterOAB}
+                                                    onChange={e => setFilterOAB(e.target.value)}
+                                                    placeholder="Ex: SP123456"
+                                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-600 mb-1">Número do Processo</label>
+                                                <input
+                                                    type="text"
+                                                    value={filterProcesso}
+                                                    onChange={e => setFilterProcesso(e.target.value)}
+                                                    placeholder="Ex: case001"
+                                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-600 mb-1">CPF / Nome do Cliente</label>
+                                                <input
+                                                    type="text"
+                                                    value={filterCPF}
+                                                    onChange={e => setFilterCPF(e.target.value)}
+                                                    placeholder="Ex: Ana Clara"
+                                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-600 mb-1">Grupo (Rito)</label>
+                                                <select
+                                                    value={filterGroup}
+                                                    onChange={e => { setFilterGroup(e.target.value); setFilterCaseType(''); }}
+                                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-white p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                                >
+                                                    <option value="">Todos</option>
+                                                    <option value="Civil">Civil</option>
+                                                    <option value="Penal">Penal / Criminal</option>
+                                                    <option value="Trabalhista">Trabalhista</option>
+                                                    <option value="Outro">Outro</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-600 mb-1">Tipo de Processo</label>
+                                                {filterGroup && GROUP_TYPES[filterGroup] ? (
+                                                    <select
+                                                        value={filterCaseType}
+                                                        onChange={e => setFilterCaseType(e.target.value)}
+                                                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-white p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                                    >
+                                                        <option value="">Todos</option>
+                                                        {GROUP_TYPES[filterGroup].map(t => <option key={t} value={t}>{t}</option>)}
+                                                    </select>
+                                                ) : (
+                                                    <input
+                                                        type="text"
+                                                        value={filterCaseType}
+                                                        onChange={e => setFilterCaseType(e.target.value)}
+                                                        placeholder="Ex: Rito Ordinário"
+                                                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                                    />
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="mt-3 flex justify-end">
                                             <button
-                                                onClick={() => handleOpenDetailsConfirm(c)}
-                                                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors"
+                                                onClick={() => { setFilterOAB(''); setFilterProcesso(''); setFilterCPF(''); setFilterGroup(''); setFilterCaseType(''); }}
+                                                className="text-xs text-primary hover:underline"
                                             >
-                                                Ver Detalhes / Localização
-                                            </button>
-                                            <button className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors">Enviar Mensagem</button>
-                                            <button onClick={() => handleOpenUpdateModal(c)} className="flex-1 px-4 py-2 bg-primary/10 text-primary text-sm font-semibold rounded-lg hover:bg-primary/20 transition-colors flex items-center justify-center gap-2">
-                                                <PencilIcon className="w-4 h-4" />
-                                                Atualizar Andamento
+                                                Limpar Filtros
                                             </button>
                                         </div>
                                     </div>
-                                )) : (
-                                    <p className="text-gray-500 text-center py-10 bg-white rounded-lg border border-gray-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">Nenhum caso encontrado com os filtros aplicados.</p>
-                                )}
-                            </div>
+                                    {/* Cases List */}
+                                    <div className="space-y-6">
+                                        {filteredCases.length > 0 ? filteredCases.map(c => (
+                                            <div key={c.id} className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                                                <div className="flex flex-col sm:flex-row justify-between items-start mb-2">
+                                                    <div>
+                                                        <h3 className="text-lg font-bold text-gray-800">{c.title}</h3>
+                                                        <p className="text-sm text-gray-500">Cliente: {c.clientName}</p>
+                                                        <p className="text-xs text-gray-400 mt-1">
+                                                            Nº Processo: <span className="font-mono font-semibold text-gray-900 bg-gray-100 px-1 py-0.5 rounded">{c.id}</span>
+                                                            {c.group && <span className="ml-2 text-gray-500">· Rito: <strong>{c.group} ({c.caseType})</strong></span>}
+                                                        </p>
+                                                    </div>
+                                                    <span className="bg-primary/10 text-primary text-xs font-medium mt-2 sm:mt-0 px-2.5 py-0.5 rounded-full">{c.status}</span>
+                                                </div>
+                                                <CaseProgressTracker stages={c.stages} />
+                                                <div className="mt-4 border-t pt-4 flex flex-col sm:flex-row gap-3">
+                                                    <button
+                                                        onClick={() => handleOpenDetailsConfirm(c)}
+                                                        className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors"
+                                                    >
+                                                        Ver Detalhes / Localização
+                                                    </button>
+                                                    <button className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 text-sm font-semibold rounded-lg hover:bg-gray-200 transition-colors">Enviar Mensagem</button>
+                                                    <button onClick={() => handleOpenUpdateModal(c)} className="flex-1 px-4 py-2 bg-primary/10 text-primary text-sm font-semibold rounded-lg hover:bg-primary/20 transition-colors flex items-center justify-center gap-2">
+                                                        <PencilIcon className="w-4 h-4" />
+                                                        Atualizar Andamento
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )) : (
+                                            <p className="text-gray-500 text-center py-10 bg-white rounded-lg border border-gray-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">Nenhum caso encontrado com os filtros aplicados.</p>
+                                        )}
+                                    </div>
+                                </>
+                            )}
                         </div>
                     )}
 
@@ -930,7 +1036,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
 
                     {/* Legal Management Dashboard section */}
                     {activeSection === 'gestaoJuridica' && (
-                        <LegalManagementDashboard />
+                        <LegalManagementDashboard lawyerName={lawyer.name} />
                     )}
 
                     {/* Codes Section */}
