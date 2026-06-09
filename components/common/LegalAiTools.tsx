@@ -120,33 +120,33 @@ export const LegalAiTools: React.FC<LegalAiToolsProps> = ({ role, allowedTools }
 
       {!selectedTool ? (
         /* Tools Grid */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {ALL_TOOLS.map(t => {
             const isAllowed = allowedTools.includes(t.key);
             return (
               <div
                 key={t.key}
                 onClick={() => isAllowed && setSelectedTool(t.key)}
-                className={`bg-white rounded-xl border p-5 flex flex-col gap-3 transition-all ${
+                className={`bg-white rounded-xl border p-3.5 flex flex-col gap-1.5 transition-all ${
                   isAllowed
                     ? 'border-gray-200 hover:shadow-md cursor-pointer hover:border-primary/40'
                     : 'border-gray-100 bg-gray-50/50 opacity-40 cursor-not-allowed'
                 } dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545]`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-2xl">{t.icon}</span>
+                  <span className="text-xl">{t.icon}</span>
                   {!isAllowed && (
-                    <span className="px-1.5 py-0.5 bg-red-150 text-red-600 rounded text-[9px] font-bold uppercase tracking-wider">
+                    <span className="px-1.5 py-0.5 bg-red-150 text-red-600 rounded text-[8px] font-bold uppercase tracking-wider">
                       Bloqueado
                     </span>
                   )}
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm text-gray-900">{t.label}</h4>
-                  <p className="text-xs text-gray-500 mt-1">{t.description}</p>
+                  <h4 className="font-bold text-xs text-gray-900">{t.label}</h4>
+                  <p className="text-[11px] text-gray-500 mt-0.5 leading-normal">{t.description}</p>
                 </div>
                 {isAllowed && (
-                  <span className={`text-xs font-semibold ${themeColors.text} mt-auto hover:underline flex items-center gap-0.5`}>
+                  <span className={`text-[11px] font-semibold ${themeColors.text} mt-auto hover:underline flex items-center gap-0.5`}>
                     Abrir Ferramenta →
                   </span>
                 )}
@@ -155,6 +155,7 @@ export const LegalAiTools: React.FC<LegalAiToolsProps> = ({ role, allowedTools }
           })}
         </div>
       ) : (
+
         /* Active Tool Detail */
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545]">
           <div className="flex items-center justify-between border-b pb-4">
