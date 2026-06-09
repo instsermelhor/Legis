@@ -3654,6 +3654,29 @@ const DatabaseSettings: React.FC = () => {
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
+  // Status for Local and Cloud connections
+  const [localStatus, setLocalStatus] = useState<'connected' | 'failed' | 'not_connected'>(() => {
+    const savedStatus = localStorage.getItem('legis_db_local_status');
+    if (savedStatus) return savedStatus as 'connected' | 'failed' | 'not_connected';
+    return config.dbType === 'local' ? 'connected' : 'not_connected';
+  });
+
+  const [cloudStatus, setCloudStatus] = useState<'connected' | 'failed' | 'not_connected'>(() => {
+    const savedStatus = localStorage.getItem('legis_db_cloud_status');
+    if (savedStatus) return savedStatus as 'connected' | 'failed' | 'not_connected';
+    return config.dbType === 'cloud' ? 'not_connected' : 'not_connected';
+  });
+
+  const updateLocalStatus = (status: 'connected' | 'failed' | 'not_connected') => {
+    setLocalStatus(status);
+    localStorage.setItem('legis_db_local_status', status);
+  };
+
+  const updateCloudStatus = (status: 'connected' | 'failed' | 'not_connected') => {
+    setCloudStatus(status);
+    localStorage.setItem('legis_db_cloud_status', status);
+  };
+
   const handleSave = () => {
     updateConfig({
       dbType,
@@ -3664,6 +3687,12 @@ const DatabaseSettings: React.FC = () => {
     });
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
+
+    if (dbType === 'local') {
+      updateLocalStatus('connected');
+    } else {
+      updateLocalStatus('not_connected');
+    }
   };
 
   const handleTestConnection = async () => {
@@ -3676,6 +3705,8 @@ const DatabaseSettings: React.FC = () => {
           type: 'success',
           message: 'Conexão local (localStorage) estabelecida com sucesso! Status: Ativo e operacional.'
         });
+        updateLocalStatus('connected');
+        updateCloudStatus('not_connected');
       } else {
         if (!dbApiKey || !dbProjectUrl) {
           setTesting(false);
@@ -3683,6 +3714,8 @@ const DatabaseSettings: React.FC = () => {
             type: 'error',
             message: 'Erro ao conectar na nuvem: Chave da API e URL do Projeto são obrigatórias.'
           });
+          updateCloudStatus('failed');
+          updateLocalStatus('not_connected');
         } else {
           const ok = await dbCloud.testConnection(dbCloudProvider, dbApiKey, dbProjectUrl);
           setTesting(false);
@@ -3691,11 +3724,15 @@ const DatabaseSettings: React.FC = () => {
               type: 'success',
               message: `Conexão de teste com ${dbCloudProvider === 'firebase' ? 'Firebase Firestore' : 'Supabase PostgreSQL'} bem-sucedida!`
             });
+            updateCloudStatus('connected');
+            updateLocalStatus('not_connected');
           } else {
             setTestResult({
               type: 'error',
               message: `Falha na conexão com ${dbCloudProvider === 'firebase' ? 'Firebase' : 'Supabase'}. Verifique as credenciais e tente novamente.`
             });
+            updateCloudStatus('failed');
+            updateLocalStatus('not_connected');
           }
         }
       }
@@ -3705,6 +3742,11 @@ const DatabaseSettings: React.FC = () => {
         type: 'error',
         message: `Erro ao testar conexão: ${e instanceof Error ? e.message : String(e)}`
       });
+      if (dbType === 'local') {
+        updateLocalStatus('failed');
+      } else {
+        updateCloudStatus('failed');
+      }
     }
   };
 
@@ -3713,6 +3755,55 @@ const DatabaseSettings: React.FC = () => {
       <div>
         <h3 className="text-base font-bold text-gray-800">Conexão de Banco de Dados</h3>
         <p className="text-sm text-gray-500">Configure as conexões locais ou em nuvem para sincronização em tempo real de dados jurídicos.</p>
+      </div>
+
+      {/* Connectivity Status Indicators */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50 dark:bg-[#1E1B38] border border-gray-200 dark:border-[#2A2545] p-4 rounded-xl">
+        {/* Local Connection Indicator */}
+        <div className="flex items-center justify-between p-3 bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-xl shadow-sm">
+          <div className="flex items-center gap-2.5">
+            <span className="text-lg">💻</span>
+            <div>
+              <p className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Conexão Local</p>
+              <p className="text-[10px] text-gray-500">localStorage do Navegador</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className={`w-3.5 h-3.5 rounded-full inline-block animate-pulse ${
+              localStatus === 'connected' ? 'bg-emerald-500 shadow-sm shadow-emerald-400' :
+              localStatus === 'failed' ? 'bg-amber-500 shadow-sm shadow-amber-400' :
+              'bg-rose-500 shadow-sm shadow-rose-400'
+            }`} />
+            <span className="text-xs font-bold uppercase tracking-wide">
+              {localStatus === 'connected' && 'Conectado'}
+              {localStatus === 'failed' && 'Falha ao Conectar'}
+              {localStatus === 'not_connected' && 'Não Conectado'}
+            </span>
+          </div>
+        </div>
+
+        {/* Cloud Connection Indicator */}
+        <div className="flex items-center justify-between p-3 bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-xl shadow-sm">
+          <div className="flex items-center gap-2.5">
+            <span className="text-lg">☁️</span>
+            <div>
+              <p className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Conexão Nuvem</p>
+              <p className="text-[10px] text-gray-500">Firebase / Supabase</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className={`w-3.5 h-3.5 rounded-full inline-block animate-pulse ${
+              cloudStatus === 'connected' ? 'bg-emerald-500 shadow-sm shadow-emerald-400' :
+              cloudStatus === 'failed' ? 'bg-amber-500 shadow-sm shadow-amber-400' :
+              'bg-rose-500 shadow-sm shadow-rose-400'
+            }`} />
+            <span className="text-xs font-bold uppercase tracking-wide">
+              {cloudStatus === 'connected' && 'Conectado'}
+              {cloudStatus === 'failed' && 'Falha ao Conectar'}
+              {cloudStatus === 'not_connected' && 'Não Conectado'}
+            </span>
+          </div>
+        </div>
       </div>
 
       <div className="space-y-4">
