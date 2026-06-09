@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import type { Lawyer } from '../../types';
-import { mockClients, mockInterns, mockSecretaries, mockMonthlyRevenue, mockEfficiencyServices, mockEfficiencyServiceGroups } from '../../services/mockDataService';
-import type { EfficiencyService, EfficiencyServiceGroup } from '../../types';
+import type { Lawyer, EfficiencyService, EfficiencyServiceGroup, BiApoio, BiDadosBase } from '../../types';
+import { mockClients, mockInterns, mockSecretaries, mockMonthlyRevenue, mockEfficiencyServices, mockEfficiencyServiceGroups, mockBiApoio, mockBiDadosBase } from '../../services/mockDataService';
 import { SectionTitle, SearchInput, IconBriefcase, IconUsers, IconGradCap, IconSettings } from './AdminShared';
 
 // ─── Secretary Icon ───────────────────────────────────────────────────────────
@@ -15,6 +14,7 @@ const BRAZIL_STATES = ['Todos', 'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA
 type FilterType = 'lawyers' | 'clients' | 'interns' | 'secretaries' | 'services';
 
 export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }> = ({ lawyers, initialFilter }) => {
+  const [viewMode, setViewMode] = useState<'profiles' | 'bi_dashboard'>('profiles');
   const [filterType, setFilterType] = useState<FilterType>(
     initialFilter === 'clients' ? 'clients'
     : initialFilter === 'interns' ? 'interns'
@@ -25,6 +25,72 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
   const [stateFilter, setStateFilter] = useState('Todos');
   const [search, setSearch] = useState('');
   const [timeFilter, setTimeFilter] = useState('Mensal');
+
+  // Load BI config
+  const biApoio = useMemo<BiApoio>(() => {
+    const saved = localStorage.getItem('legis_bi_tb_apoio');
+    return saved ? JSON.parse(saved) : mockBiApoio;
+  }, []);
+
+  const biDadosBase = useMemo<BiDadosBase[]>(() => {
+    const saved = localStorage.getItem('legis_bi_tb_dados_base');
+    const data = saved ? JSON.parse(saved) : mockBiDadosBase;
+    return [...data].sort((a, b) => a.mes_ano.localeCompare(b.mes_ano));
+  }, []);
+
+  // Calculations for BI Dashboard
+  const processedData = useMemo(() => {
+    const result = [];
+    let accumulatedUms = 0;
+    for (let i = 0; i < biDadosBase.length; i++) {
+      const tx = biDadosBase[i];
+      const dtE = new Date(tx.emissao_nf + 'T12:00:00');
+      const dtR = new Date(tx.recebimento_nf + 'T12:00:00');
+      const diffTime = Math.abs(dtR.getTime() - dtE.getTime());
+      const diasRecebimento = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) || 0;
+      
+      const resultado = tx.receita_fat + tx.transferencia_recebida - tx.despesa_total;
+      
+      const despesaAdministrativa = Math.max(0, tx.despesa_total - tx.custo - tx.imposto - tx.juros - tx.salarios_ordenados - tx.glosa);
+      const custoMaisDespesa = tx.custo + despesaAdministrativa;
+      const totalSaidasRazao = tx.custo + despesaAdministrativa + tx.imposto;
+      
+      const divisorRazao = tx.receita_fat + tx.transferencia_recebida;
+      const razaoMensal = divisorRazao > 0 ? totalSaidasRazao / divisorRazao : 0;
+      
+      accumulatedUms += tx.executado_ums;
+      const percentualConsumoTeto = accumulatedUms / biApoio.teto_execucao_anual_ums;
+      
+      result.push({
+        ...tx,
+        diasRecebimento,
+        resultado,
+        despesaAdministrativa,
+        custoMaisDespesa,
+        totalSaidasRazao,
+        razaoMensal,
+        accumulatedUms,
+        percentualConsumoTeto,
+      });
+    }
+    return result;
+  }, [biDadosBase, biApoio]);
+
+  const biKpis = useMemo(() => {
+    if (processedData.length === 0) return { totalFat: 0, totalRes: 0, avgPraz: 0, maxTetoPct: 0 };
+    const totalFat = processedData.reduce((sum, d) => sum + d.receita_fat, 0);
+    const totalRes = processedData.reduce((sum, d) => sum + d.resultado, 0);
+    const avgPraz = processedData.reduce((sum, d) => sum + d.diasRecebimento, 0) / processedData.length;
+    const totalUms = processedData.reduce((sum, d) => sum + d.executado_ums, 0);
+    const maxTetoPct = totalUms / biApoio.teto_execucao_anual_ums;
+    
+    return {
+      totalFat,
+      totalRes,
+      avgPraz,
+      maxTetoPct,
+    };
+  }, [processedData, biApoio]);
 
   const [services, setServices] = useState<EfficiencyService[]>(mockEfficiencyServices);
   const [groups, setGroups] = useState<EfficiencyServiceGroup[]>(mockEfficiencyServiceGroups);
@@ -118,22 +184,403 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <SectionTitle title="Gestão Financeira" subtitle="Receita, pagamentos e remunerações individualizadas por perfil" />
-        <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border shadow-sm dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-          <span className="text-sm font-medium text-gray-700">Período do Relatório:</span>
-          <select value={timeFilter} onChange={e => setTimeFilter(e.target.value)} className="text-sm border-none bg-transparent font-bold text-primary focus:outline-none cursor-pointer">
-            <option>Diário</option>
-            <option>Semanal</option>
-            <option>Mensal</option>
-            <option>1 Ano</option>
-            <option>Até 5 Anos</option>
-          </select>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-4">
+        <SectionTitle title="Gestão Financeira" subtitle="Controles, relatórios e dashboards analíticos de faturamento e despesas" />
+        <div className="flex items-center gap-4">
+          <div className="flex bg-gray-100 dark:bg-[#201C3D] p-1 rounded-xl border border-gray-200 dark:border-[#2A2545] shadow-sm shrink-0">
+            <button
+              onClick={() => setViewMode('profiles')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 ${viewMode === 'profiles' ? 'bg-primary text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-primary'}`}
+            >
+              👤 Perfis & Contas
+            </button>
+            <button
+              onClick={() => setViewMode('bi_dashboard')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-150 ${viewMode === 'bi_dashboard' ? 'bg-primary text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-primary'}`}
+            >
+              📊 BI Dashboard
+            </button>
+          </div>
+
+          {viewMode === 'profiles' && (
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border shadow-sm dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+              <span className="text-sm font-medium text-gray-700">Período:</span>
+              <select value={timeFilter} onChange={e => setTimeFilter(e.target.value)} className="text-sm border-none bg-transparent font-bold text-primary focus:outline-none cursor-pointer">
+                <option>Diário</option>
+                <option>Semanal</option>
+                <option>Mensal</option>
+                <option>1 Ano</option>
+                <option>Até 5 Anos</option>
+              </select>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Top KPIs — compact horizontal pills */}
-      <div className="flex flex-wrap gap-2">
+      {viewMode === 'bi_dashboard' ? (
+        <div className="space-y-8 animate-fade-in text-left">
+           {/* BI Analytics Dashboard */}
+           {/* KPI Cards */}
+           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+             {/* Card 1: Faturamento Acumulado */}
+             <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 shadow-sm space-y-1">
+               <div className="flex items-center justify-between">
+                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Faturamento Acumulado</span>
+                 <span className="text-xl">💰</span>
+               </div>
+               <p className="text-2xl font-black text-gray-800 dark:text-white">R$ {biKpis.totalFat.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</p>
+               <p className="text-[10px] text-gray-400">Soma de receita_fat</p>
+             </div>
+
+             {/* Card 2: Resultado Líquido */}
+             <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 shadow-sm space-y-1">
+               <div className="flex items-center justify-between">
+                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Resultado Líquido</span>
+                 <span className={`text-xs px-2 py-0.5 rounded font-bold ${biKpis.totalRes >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                   {biKpis.totalRes >= 0 ? 'Superávit' : 'Déficit'}
+                 </span>
+               </div>
+               <p className={`text-2xl font-black ${biKpis.totalRes >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                 R$ {biKpis.totalRes.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}
+               </p>
+               <p className="text-[10px] text-gray-400">Receita + Transf - Despesa</p>
+             </div>
+
+             {/* Card 3: Prazo Médio de Recebimento */}
+             <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 shadow-sm space-y-1">
+               <div className="flex items-center justify-between">
+                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Prazo Médio Recebimento</span>
+                 <span className="text-xs text-blue-700 bg-blue-50 px-2 py-0.5 rounded font-bold">Alvo: ~30.6d</span>
+               </div>
+               <p className="text-2xl font-black text-gray-800 dark:text-white">{biKpis.avgPraz.toFixed(1)} dias</p>
+               <p className="text-[10px] text-gray-400">Diferença de NF-e (emissão vs recebimento)</p>
+             </div>
+
+             {/* Card 4: Utilização do Teto UMS */}
+             <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 shadow-sm space-y-1">
+               <div className="flex items-center justify-between">
+                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Utilização do Teto UMS</span>
+                 <span className="text-[10px] text-amber-700 font-bold">Máx: {biApoio.teto_execucao_anual_ums}</span>
+               </div>
+               <div className="flex items-baseline gap-1.5">
+                 <p className="text-2xl font-black text-gray-800 dark:text-white">{(biKpis.maxTetoPct * 100).toFixed(1)}%</p>
+                 <span className="text-[10px] text-gray-400">do anual</span>
+               </div>
+               <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
+                 <div
+                   className={`h-full rounded-full ${biKpis.maxTetoPct > 1 ? 'bg-red-500' : 'bg-primary'}`}
+                   style={{ width: `${Math.min(100, biKpis.maxTetoPct * 100)}%` }}
+                 />
+               </div>
+             </div>
+           </div>
+
+           {/* Charts Grid */}
+           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+             {/* Chart 1: Razão de Eficiência Mensal */}
+             <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+               <div>
+                 <h4 className="text-sm font-bold text-gray-800 dark:text-white flex items-center justify-between">
+                   <span>📈 Visão 1: Análise de Eficiência</span>
+                   <span className="text-[10px] font-medium text-gray-400">Razão Mensal vs Meta ({ (biApoio.meta_razao_final * 100).toFixed(1) }%)</span>
+                 </h4>
+                 <p className="text-xs text-gray-400 mt-0.5">Valores ACIMA da linha de meta indicam ineficiência (estouro de gastos).</p>
+               </div>
+
+               {/* Line Chart */}
+               {processedData.length > 0 ? (
+                 <div className="relative h-64 mt-6">
+                   <svg className="w-full h-full" viewBox="0 0 500 220" preserveAspectRatio="none">
+                     {/* Horizontal grid lines */}
+                     {[0.2, 0.4, 0.6, 0.8, 1.0].map((level, idx) => {
+                       const y = 200 - (level * 180);
+                       return (
+                         <g key={idx}>
+                           <line x1="40" y1={y} x2="480" y2={y} stroke="#E5E7EB" strokeWidth="0.5" strokeDasharray="3,3" />
+                           <text x="10" y={y + 4} className="text-[9px] fill-gray-400 font-mono">{(level * 100).toFixed(0)}%</text>
+                         </g>
+                       );
+                     })}
+
+                     {/* Constant Target Line */}
+                     {(() => {
+                       const targetY = 200 - (biApoio.meta_razao_final * 180);
+                       return (
+                         <g>
+                           <line x1="40" y1={targetY} x2="480" y2={targetY} stroke="#EF4444" strokeWidth="1.5" strokeDasharray="5,5" />
+                           <text x="400" y={targetY - 5} className="text-[8px] fill-red-500 font-bold">Meta ({ (biApoio.meta_razao_final * 100).toFixed(1) }%)</text>
+                         </g>
+                       );
+                     })()}
+
+                     {/* Line data path */}
+                     {(() => {
+                       const points = processedData.map((d, idx) => {
+                         const x = 40 + (idx * (440 / (processedData.length - 1 || 1)));
+                         const y = 200 - (Math.min(1.2, d.razaoMensal) * 180);
+                         return { x, y, val: d.razaoMensal, label: d.mes_ano };
+                       });
+
+                       const pathD = points.map((p, idx) => `${idx === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+
+                       return (
+                         <g>
+                           {/* Area path */}
+                           <path
+                             d={`${pathD} L ${points[points.length - 1].x} 200 L 40 200 Z`}
+                             fill="url(#gradient-efficiency)"
+                             opacity="0.1"
+                           />
+                           {/* Line path */}
+                           <path d={pathD} fill="none" stroke="#6366F1" strokeWidth="2.5" />
+                           
+                           {/* Data points */}
+                           {points.map((p, idx) => {
+                             const isExceeded = p.val > biApoio.meta_razao_final;
+                             return (
+                               <g key={idx}>
+                                 <circle
+                                   cx={p.x}
+                                   cy={p.y}
+                                   r="5"
+                                   fill={isExceeded ? '#EF4444' : '#10B981'}
+                                   stroke="#FFFFFF"
+                                   strokeWidth="1.5"
+                                 />
+                                 <text x={p.x} y={p.y - 8} textAnchor="middle" className="text-[8px] font-bold fill-gray-700 dark:fill-gray-300">
+                                   {(p.val * 100).toFixed(0)}%
+                                 </text>
+                               </g>
+                             );
+                           })}
+                         </g>
+                       );
+                     })()}
+
+                     {/* X Axis Labels */}
+                     {processedData.map((d, idx) => {
+                       const x = 40 + (idx * (440 / (processedData.length - 1 || 1)));
+                       const dateStr = d.mes_ano ? new Date(d.mes_ano + 'T12:00:00').toLocaleDateString('pt-BR', { month: 'short' }) : '';
+                       return (
+                         <text key={idx} x={x} y="215" textAnchor="middle" className="text-[9px] fill-gray-400 uppercase font-bold">
+                           {dateStr}
+                         </text>
+                       );
+                     })}
+
+                     {/* Gradient definitions */}
+                     <defs>
+                       <linearGradient id="gradient-efficiency" x1="0" y1="0" x2="0" y2="1">
+                         <stop offset="0%" stopColor="#6366F1" />
+                         <stop offset="100%" stopColor="#6366F1" stopOpacity="0" />
+                       </linearGradient>
+                     </defs>
+                   </svg>
+                 </div>
+               ) : (
+                 <p className="text-center text-gray-400 py-12">Nenhum dado disponível.</p>
+               )}
+             </div>
+
+             {/* Chart 2: Pareto de Despesas */}
+             {(() => {
+               const sums = [
+                 { key: 'Custo Operacional', val: processedData.reduce((sum, d) => sum + d.custo, 0), color: 'bg-indigo-600', fill: '#4F46E5', desc: 'Histórico: ~37.3%' },
+                 { key: 'Salários e Ordenados', val: processedData.reduce((sum, d) => sum + d.salarios_ordenados, 0), color: 'bg-emerald-600', fill: '#10B981', desc: 'Histórico: ~24.2%' },
+                 { key: 'Despesas Administrativas', val: processedData.reduce((sum, d) => sum + d.despesaAdministrativa, 0), color: 'bg-purple-600', fill: '#8B5CF6', desc: 'Despesas Gerais de Apoio' },
+                 { key: 'Impostos', val: processedData.reduce((sum, d) => sum + d.imposto, 0), color: 'bg-orange-600', fill: '#F97316', desc: 'Encargos Fiscais' },
+                 { key: 'Juros', val: processedData.reduce((sum, d) => sum + d.juros, 0), color: 'bg-rose-600', fill: '#F43F5E', desc: 'Despesas Financeiras' },
+                 { key: 'Glosas', val: processedData.reduce((sum, d) => sum + d.glosa, 0), color: 'bg-amber-600', fill: '#F59E0B', desc: 'Perdas / Estornos' },
+               ];
+
+               const totalDespesa = processedData.reduce((sum, d) => sum + d.despesa_total, 0) || 1;
+               const sortedSums = [...sums].sort((a, b) => b.val - a.val).map(s => ({ ...s, pct: s.val / totalDespesa }));
+
+               return (
+                 <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-6 shadow-sm space-y-4">
+                   <div>
+                     <h4 className="text-sm font-bold text-gray-800 dark:text-white flex items-center justify-between">
+                       <span>🍩 Visão 2: Composição de Despesas</span>
+                       <span className="text-[10px] font-medium text-gray-400">Total: R$ {totalDespesa.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</span>
+                     </h4>
+                     <p className="text-xs text-gray-400 mt-0.5">Distribuição percentual do desembolso total por categoria de saída.</p>
+                   </div>
+
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
+                     {/* Donut Chart using simple SVG */}
+                     <div className="relative flex justify-center">
+                       <svg className="w-40 h-40" viewBox="0 0 100 100">
+                         {(() => {
+                           let accumulatedAngle = 0;
+                           return sortedSums.map((s, idx) => {
+                             const percentage = s.pct;
+                             if (percentage <= 0) return null;
+                             const strokeDash = `${percentage * 251.2} ${251.2 * (1 - percentage)}`;
+                             const strokeOffset = -accumulatedAngle * 251.2;
+                             accumulatedAngle += percentage;
+                             return (
+                               <circle
+                                 key={idx}
+                                 cx="50"
+                                 cy="50"
+                                 r="40"
+                                 fill="transparent"
+                                 stroke={s.fill}
+                                 strokeWidth="12"
+                                 strokeDasharray={strokeDash}
+                                 strokeDashoffset={strokeOffset}
+                                 transform="rotate(-90 50 50)"
+                               />
+                             );
+                           });
+                         })()}
+                         <circle cx="50" cy="50" r="28" className="fill-white dark:fill-[#1A1730]" />
+                         <text x="50" y="48" textAnchor="middle" className="text-[7px] font-bold fill-gray-400 uppercase tracking-wider">Despesas</text>
+                         <text x="50" y="58" textAnchor="middle" className="text-[9px] font-black fill-gray-800 dark:fill-white">
+                           {totalDespesa >= 1000000 ? `R$ ${(totalDespesa / 1000000).toFixed(1)}M` : `R$ ${(totalDespesa / 1000).toFixed(0)}k`}
+                         </text>
+                       </svg>
+                     </div>
+
+                     {/* Pareto Bars */}
+                     <div className="space-y-3">
+                       {sortedSums.map((s, idx) => {
+                         if (s.val === 0 && idx > 2) return null;
+                         return (
+                           <div key={s.key} className="space-y-1">
+                             <div className="flex justify-between items-baseline text-[10px] font-semibold">
+                               <span className="text-gray-700 dark:text-gray-300">{s.key}</span>
+                               <span className="text-gray-500 font-mono">{(s.pct * 100).toFixed(1)}%</span>
+                             </div>
+                             <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                               <div className={`h-full rounded-full ${s.color}`} style={{ width: `${s.pct * 100}%` }} />
+                             </div>
+                             <div className="flex justify-between items-center text-[9px] text-gray-400">
+                               <span>R$ {s.val.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</span>
+                               <span>{s.desc}</span>
+                             </div>
+                           </div>
+                         );
+                       })}
+                     </div>
+                   </div>
+                 </div>
+               );
+             })()}
+           </div>
+
+           {/* Chart 3: Execução de Metas de Faturamento */}
+           <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-6 shadow-sm">
+             <div>
+               <h4 className="text-sm font-bold text-gray-800 dark:text-white flex items-center justify-between">
+                 <span>📊 Visão 3: Execução de Metas de Faturamento</span>
+                 <span className="text-[10px] font-medium text-gray-400">Mensal: Executado UMS vs Meta de Faturamento</span>
+               </h4>
+               <p className="text-xs text-gray-400 mt-0.5">Mês a mês comparativo do volume UMS executado contra a meta calculada de acordo com as premissas da tabela de apoio.</p>
+             </div>
+
+             {processedData.length > 0 ? (
+               <div className="relative h-64 mt-6">
+                 <svg className="w-full h-full" viewBox="0 0 1000 240" preserveAspectRatio="none">
+                   {/* Y Axis Grid lines */}
+                   {[5000, 10000, 15000, 20000, 25000].map((val, idx) => {
+                     const y = 200 - (val / 25000 * 180);
+                     return (
+                       <g key={idx}>
+                         <line x1="50" y1={y} x2="980" y2={y} stroke="#E5E7EB" strokeWidth="0.5" strokeDasharray="3,3" />
+                         <text x="10" y={y + 4} className="text-[10px] fill-gray-400 font-mono">{val.toLocaleString('pt-BR')}</text>
+                       </g>
+                     );
+                   })}
+
+                   {/* Bars & Markers */}
+                   {processedData.map((d, idx) => {
+                     const gap = 930 / processedData.length;
+                     const x = 60 + (idx * gap);
+                     const barWidth = Math.min(30, gap * 0.45);
+                     
+                     // Executado Bar
+                     const barHeight = (d.executado_ums / 25000) * 180;
+                     const barY = 200 - barHeight;
+
+                     // Target calculation: Meta faturamento percentual of that period
+                     const periodIdx = biApoio.periodos.indexOf(d.semestre);
+                     const metaPct = periodIdx >= 0 ? biApoio.meta_faturamento_percentual[periodIdx] : 0;
+                     // Target for the month is period target divided by 6
+                     const targetVal = (metaPct * biApoio.teto_execucao_anual_ums) / 6;
+                     const targetY = 200 - (targetVal / 25000) * 180;
+
+                     return (
+                       <g key={idx}>
+                         {/* Bar Executed */}
+                         <rect
+                           x={x - barWidth/2}
+                           y={barY}
+                           width={barWidth}
+                           height={barHeight}
+                           fill="#3B82F6"
+                           rx="3"
+                           className="transition-all hover:fill-blue-600"
+                         />
+
+                         {/* Target line indicator */}
+                         <line
+                           x1={x - barWidth * 0.8}
+                           y1={targetY}
+                           x2={x + barWidth * 0.8}
+                           y2={targetY}
+                           stroke="#F59E0B"
+                           strokeWidth="3"
+                           strokeLinecap="round"
+                         />
+
+                         {/* Value text */}
+                         <text x={x} y={barY - 5} textAnchor="middle" className="text-[9px] font-bold fill-blue-700 dark:fill-blue-400">
+                           {d.executado_ums}
+                         </text>
+                         
+                         {/* Target text */}
+                         <text x={x} y={targetY - 5} textAnchor="middle" className="text-[8px] font-semibold fill-amber-600">
+                           {Math.round(targetVal)}
+                         </text>
+                       </g>
+                     );
+                   })}
+
+                   {/* X Axis Labels */}
+                   {processedData.map((d, idx) => {
+                     const gap = 930 / processedData.length;
+                     const x = 60 + (idx * gap);
+                     const dateStr = d.mes_ano ? new Date(d.mes_ano + 'T12:00:00').toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' }) : '';
+                     return (
+                       <text key={idx} x={x} y="220" textAnchor="middle" className="text-[10px] fill-gray-500 font-bold uppercase">
+                         {dateStr}
+                       </text>
+                     );
+                   })}
+                 </svg>
+                 
+                 {/* Legend */}
+                 <div className="flex justify-center gap-6 mt-3 text-xs">
+                   <div className="flex items-center gap-1.5">
+                     <span className="w-3.5 h-3.5 rounded bg-blue-500 inline-block" />
+                     <span className="text-gray-600 dark:text-gray-400">Executado UMS</span>
+                   </div>
+                   <div className="flex items-center gap-1.5">
+                     <span className="w-4 h-1 rounded bg-amber-500 inline-block" />
+                     <span className="text-gray-600 dark:text-gray-400">Meta do Período (Mensalizada)</span>
+                   </div>
+                 </div>
+               </div>
+             ) : (
+               <p className="text-center text-gray-400 py-12">Nenhum dado disponível.</p>
+             )}
+           </div>
+        </div>
+      ) : (
+        <>
+          {/* Top KPIs — compact horizontal pills */}
+          <div className="flex flex-wrap gap-2">
         {[
           { label: `Receita Base (${timeFilter})`, value: `R$ ${totalRevenue.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`, color: 'border-emerald-200 bg-emerald-50 text-emerald-800' },
           { label: `Receita Serviços (${timeFilter})`, value: `R$ ${servicesRevenue.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`, color: 'border-orange-200 bg-orange-50 text-orange-800' },
@@ -399,6 +846,8 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
           )}
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 };
