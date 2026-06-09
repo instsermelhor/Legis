@@ -253,3 +253,47 @@ export interface BiDadosBase {
   emissao_nf: string;
   recebimento_nf: string;
 }
+
+export interface BiCliente {
+  codigo: string;
+  nome: string;
+  cpf_cnpj: string;
+  cidade: string;
+  estado: string; // UF Cliente
+  lista_concatenada: string; // "ID - Nome"
+}
+
+export interface BiProduto {
+  codigo: string;
+  nome: string;
+  descricao: string;
+  custo: number;
+  preco_tabela: number;
+  lista_concatenada: string;
+}
+
+export interface BiFornecedor {
+  codigo: string;
+  nome: string;
+  cpf_cnpj: string;
+  estado: string; // UF Fornec
+  lista_concatenada: string;
+}
+
+export interface BiVenda {
+  id_tab: string;
+  fornecedor: string; // "ID - Nome"
+  cliente: string;
+  produto: string;
+  qtd: number;
+  vlr_unit: number;
+  valor_total: number;
+  custo_prod: number;
+  lucro: number;
+  data: string;
+  data_referencia: string;
+  data_retirada: string;
+  data_devolucao: string;
+  status_pagamento: string;
+  status_aluguel: 'Devolvido' | 'Não devolvido' | 'Não retirado ainda';
+}

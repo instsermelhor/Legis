@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * dbService.ts
  * Abstração de banco de dados local (localStorage) e nuvem (stubs).
@@ -163,7 +164,7 @@ export const dbCloud = {
     }
   },
 
-  async saveDocument(collection: string, docId: string, data: Record<string, unknown>, provider: 'firebase' | 'supabase', apiKey: string, projectId: string): Promise<void> {
+  async saveDocument(collection: string, docId: string, data: any, provider: 'firebase' | 'supabase', apiKey: string, projectId: string): Promise<void> {
     if (provider === 'firebase') {
       try {
         const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/${collection}/${docId}?key=${apiKey}`;
@@ -208,7 +209,7 @@ export const dbCloud = {
         const json = await res.json();
         if (json && json.fields) {
           const data = fromFirestoreValue({ mapValue: { fields: json.fields } });
-          return { id: docId, ...data } as T;
+          return { id: docId, ...(data as any) } as T;
         }
         return null;
       } catch (e) {
@@ -257,7 +258,7 @@ export const dbCloud = {
     }
   },
 
-  async saveList(collection: string, list: Record<string, unknown>[], provider: 'firebase' | 'supabase', apiKey: string, projectId: string): Promise<void> {
+  async saveList(collection: string, list: any[], provider: 'firebase' | 'supabase', apiKey: string, projectId: string): Promise<void> {
     for (const item of list) {
       if (item && item.id) {
         await this.saveDocument(collection, String(item.id), item, provider, apiKey, projectId);
