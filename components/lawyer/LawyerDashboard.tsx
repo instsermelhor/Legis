@@ -12,6 +12,19 @@ import { AREAS_OF_LAW, BRAZILIAN_STATES } from '../../constants';
 import { mockInterns, mockSecretaries } from '../../services/mockDataService';
 import { ApiStatusPanel } from '../common/ApiStatusPanel';
 import type { MockIntern, MockSecretary } from '../../services/mockDataService';
+import { LegalAiTools } from '../common/LegalAiTools';
+
+const ALL_IA_TOOLS = [
+    { key: 'pecas', label: '📄 Peças Jurídicas' },
+    { key: 'pesquisas', label: '🔍 Pesquisas Jurídicas' },
+    { key: 'audios', label: '🎙️ Comandos por Áudio' },
+    { key: 'transcricao', label: '📝 Transcrição de Áudio' },
+    { key: 'fundamentacoes', label: '⚖️ Fundamentações' },
+    { key: 'revisao', label: '✍️ Revisão de Textos' },
+    { key: 'jurisprudencia', label: '🏛️ Jurisprudências' },
+    { key: 'manifestacao', label: '💼 Manifestações' },
+];
+
 
 interface LawyerDashboardProps {
     lawyer: Lawyer;
@@ -151,16 +164,69 @@ const AppointmentCard: React.FC<{ appointment: Appointment }> = ({ appointment }
 
 export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogout }) => {
     const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
-    const [activeSection, setActiveSection] = useState<'overview' | 'meusCasos' | 'codigos' | 'financeiro' | 'perfil' | 'estagiarios' | 'secretariado' | 'apis'>('overview');
+    const [activeSection, setActiveSection] = useState<'overview' | 'meusCasos' | 'codigos' | 'financeiro' | 'perfil' | 'estagiarios' | 'secretariado' | 'apis' | 'iaTools'>('overview');
 
     // Intern/Secretary selection state
-    const [linkedInternId, setLinkedInternId] = useState<number | null>(null);
-    const [linkedSecretaryId, setLinkedSecretaryId] = useState<number | null>(null);
+    const [linkedInternId, setLinkedInternId] = useState<number | null>(() => {
+        const saved = localStorage.getItem(`legis_lawyer_linked_intern_${lawyer.id}`);
+        return saved ? Number(saved) : null;
+    });
+    const [linkedSecretaryId, setLinkedSecretaryId] = useState<number | null>(() => {
+        const saved = localStorage.getItem(`legis_lawyer_linked_secretary_${lawyer.id}`);
+        return saved ? Number(saved) : null;
+    });
     const [internSearch, setInternSearch] = useState('');
     const [secretarySearch, setSecretarySearch] = useState('');
     const [confirmLinkIntern, setConfirmLinkIntern] = useState<MockIntern | null>(null);
     const [confirmLinkSecretary, setConfirmLinkSecretary] = useState<MockSecretary | null>(null);
     const [linkSuccess, setLinkSuccess] = useState<'intern' | 'secretary' | null>(null);
+
+    // AI Tools Permissions state
+    const [internPerms, setInternPerms] = useState<string[]>([]);
+    const [secretaryPerms, setSecretaryPerms] = useState<string[]>([]);
+
+    React.useEffect(() => {
+        if (linkedInternId !== null) {
+            localStorage.setItem(`legis_lawyer_linked_intern_${lawyer.id}`, String(linkedInternId));
+            const saved = localStorage.getItem(`legis_perms_intern_${linkedInternId}`);
+            setInternPerms(saved ? JSON.parse(saved) : ['pecas', 'pesquisas', 'audios', 'transcricao', 'fundamentacoes', 'revisao', 'jurisprudencia', 'manifestacao']);
+        } else {
+            localStorage.removeItem(`legis_lawyer_linked_intern_${lawyer.id}`);
+            setInternPerms([]);
+        }
+    }, [linkedInternId, lawyer.id]);
+
+    React.useEffect(() => {
+        if (linkedSecretaryId !== null) {
+            localStorage.setItem(`legis_lawyer_linked_secretary_${lawyer.id}`, String(linkedSecretaryId));
+            const saved = localStorage.getItem(`legis_perms_secretary_${linkedSecretaryId}`);
+            setSecretaryPerms(saved ? JSON.parse(saved) : ['pecas', 'pesquisas', 'audios', 'transcricao', 'fundamentacoes', 'revisao', 'jurisprudencia', 'manifestacao']);
+        } else {
+            localStorage.removeItem(`legis_lawyer_linked_secretary_${lawyer.id}`);
+            setSecretaryPerms([]);
+        }
+    }, [linkedSecretaryId, lawyer.id]);
+
+    const toggleInternPerm = (perm: string) => {
+        setInternPerms(prev => {
+            const next = prev.includes(perm) ? prev.filter(p => p !== perm) : [...prev, perm];
+            if (linkedInternId) {
+                localStorage.setItem(`legis_perms_intern_${linkedInternId}`, JSON.stringify(next));
+            }
+            return next;
+        });
+    };
+
+    const toggleSecretaryPerm = (perm: string) => {
+        setSecretaryPerms(prev => {
+            const next = prev.includes(perm) ? prev.filter(p => p !== perm) : [...prev, perm];
+            if (linkedSecretaryId) {
+                localStorage.setItem(`legis_perms_secretary_${linkedSecretaryId}`, JSON.stringify(next));
+            }
+            return next;
+        });
+    };
+
 
     // Profile Editing State
     const [profileData, setProfileData] = useState({
@@ -526,6 +592,17 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                             >
                                 🔌 APIs
                             </button>
+                            <button
+                                onClick={() => setActiveSection('iaTools')}
+                                className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
+                                    activeSection === 'iaTools'
+                                        ? 'bg-primary text-white shadow'
+                                        : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
+                                }`}
+                            >
+                                ⚡ IA Jurídica
+                            </button>
+
                             {onLogout && (
                                 <button
                                     onClick={onLogout}
@@ -1113,6 +1190,33 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                 className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                             />
 
+                            {/* Checkbox permissions grid */}
+                            {linkedInternId && (
+                                <div className="bg-white rounded-xl border border-indigo-200 shadow-sm p-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                                    <h4 className="font-bold text-sm text-gray-800 mb-2 flex items-center gap-1.5 dark:text-gray-100">
+                                        <span>⚙️</span> Controle de Acesso do Estagiário ({mockInterns.find(i => i.id === linkedInternId)?.name})
+                                    </h4>
+                                    <p className="text-xs text-gray-500 mb-4">Selecione quais ferramentas baseadas em IA o estagiário poderá acessar no painel dele:</p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                                        {ALL_IA_TOOLS.map(t => {
+                                            const isChecked = internPerms.includes(t.key);
+                                            return (
+                                                <label key={t.key} className="flex items-center gap-2.5 p-3 rounded-lg border border-gray-250 hover:bg-gray-50 cursor-pointer transition-colors dark:border-[#2A2545] dark:hover:bg-[#2A2545]">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={isChecked}
+                                                        onChange={() => toggleInternPerm(t.key)}
+                                                        className="rounded border-gray-300 text-indigo-650 focus:ring-indigo-550 dark:bg-black/20 dark:border-gray-650"
+                                                    />
+                                                    <span className="text-xs font-semibold text-gray-805 dark:text-gray-200">{t.label}</span>
+                                                </label>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+
                             {/* Success Banner */}
                             {linkSuccess === 'intern' && (
                                 <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3 text-green-700 font-semibold text-sm">
@@ -1228,6 +1332,33 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                 className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                             />
 
+                            {/* Checkbox permissions grid */}
+                            {linkedSecretaryId && (
+                                <div className="bg-white rounded-xl border border-purple-200 shadow-sm p-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                                    <h4 className="font-bold text-sm text-gray-800 mb-2 flex items-center gap-1.5 dark:text-gray-100">
+                                        <span>⚙️</span> Controle de Acesso do(a) Secretário(a) ({mockSecretaries.find(s => s.id === linkedSecretaryId)?.name})
+                                    </h4>
+                                    <p className="text-xs text-gray-500 mb-4">Selecione quais ferramentas baseadas em IA o(a) secretário(a) poderá acessar no painel dele(a):</p>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                                        {ALL_IA_TOOLS.map(t => {
+                                            const isChecked = secretaryPerms.includes(t.key);
+                                            return (
+                                                <label key={t.key} className="flex items-center gap-2.5 p-3 rounded-lg border border-gray-250 hover:bg-gray-50 cursor-pointer transition-colors dark:border-[#2A2545] dark:hover:bg-[#2A2545]">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={isChecked}
+                                                        onChange={() => toggleSecretaryPerm(t.key)}
+                                                        className="rounded border-gray-300 text-purple-650 focus:ring-purple-550 dark:bg-black/20 dark:border-gray-655"
+                                                    />
+                                                    <span className="text-xs font-semibold text-gray-805 dark:text-gray-200">{t.label}</span>
+                                                </label>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
+
+
                             {/* Success Banner */}
                             {linkSuccess === 'secretary' && (
                                 <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3 text-green-700 font-semibold text-sm">
@@ -1341,6 +1472,12 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                 <ApiStatusPanel />
                             </div>
                         )}
+                        {activeSection === 'iaTools' && (
+                            <div className="space-y-6 animate-fade-in">
+                                <LegalAiTools role="lawyer" allowedTools={['pecas', 'pesquisas', 'audios', 'transcricao', 'fundamentacoes', 'revisao', 'jurisprudencia', 'manifestacao']} />
+                            </div>
+                        )}
+
 
             {/* Password/Email Modals */}
             {showPasswordModal && (
