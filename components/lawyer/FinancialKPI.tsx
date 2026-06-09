@@ -31,10 +31,9 @@ function groupByMonth(txs: FinancialTransaction[]) {
 }
 
 function exportCSV(txs: FinancialTransaction[]) {
-  const header = 'Data,Cliente,Descrição,Valor,Status';
+  const header = 'Data,Cliente,Descrição,Valor,Status,Processo';
   const rows = txs.map(t =>
-    // Escape comma-containing fields and properly format
-    `${t.date},"${t.clientName.replace(/"/g, '""')}","${t.description.replace(/"/g, '""')}",${t.amount},${t.status}`
+    `${t.date},"${t.clientName.replace(/"/g, '""')}","${t.description.replace(/"/g, '""')}",${t.amount},${t.status},"${t.caseId || ''}"`
   );
   const csv = [header, ...rows].join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -43,6 +42,25 @@ function exportCSV(txs: FinancialTransaction[]) {
   a.href = url;
   a.download = `relatorio_financeiro_${new Date().toISOString().split('T')[0]}.csv`;
   document.body.appendChild(a); // required for Firefox
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function exportXLSX(txs: FinancialTransaction[]) {
+  let xml = '<?xml version="1.0" encoding="utf-8"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" xmlns:html="http://www.w3.org/TR/REC-html40"><Worksheet ss:Name="Financeiro"><Table>';
+  xml += '<Row><Cell><Data ss:Type="String">Data</Data></Cell><Cell><Data ss:Type="String">Cliente</Data></Cell><Cell><Data ss:Type="String">Descrição</Data></Cell><Cell><Data ss:Type="String">Valor</Data></Cell><Cell><Data ss:Type="String">Status</Data></Cell><Cell><Data ss:Type="String">Processo</Data></Cell></Row>';
+  txs.forEach(t => {
+    const dateStr = new Date(t.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+    xml += `<Row><Cell><Data ss:Type="String">${dateStr}</Data></Cell><Cell><Data ss:Type="String">${t.clientName}</Data></Cell><Cell><Data ss:Type="String">${t.description}</Data></Cell><Cell><Data ss:Type="Number">${t.amount}</Data></Cell><Cell><Data ss:Type="String">${t.status}</Data></Cell><Cell><Data ss:Type="String">${t.caseId || ''}</Data></Cell></Row>`;
+  });
+  xml += '</Table></Worksheet></Workbook>';
+  const blob = new Blob([xml], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `relatorio_financeiro_${new Date().toISOString().split('T')[0]}.xlsx`;
+  document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
@@ -96,9 +114,10 @@ interface FinancialKPIProps {
 
 export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
   const [txs] = useState<FinancialTransaction[]>(() => dbFinancial.getAll(lawyerId));
-  const [period, setPeriod] = useState<'all' | '30' | '90' | '365'>('all');
+  const [period, setPeriod] = useState<'all' | '30' | '60' | '90' | '120' | '365'>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | FinancialTransaction['status']>('all');
   const [search, setSearch] = useState('');
+  const [processSearch, setProcessSearch] = useState('');
 
   const filtered = useMemo(() => {
     const now = new Date();
@@ -108,11 +127,12 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
         if (diff > Number(period)) return false;
       }
       if (statusFilter !== 'all' && t.status !== statusFilter) return false;
+      if (processSearch && (!t.caseId || !t.caseId.toLowerCase().includes(processSearch.toLowerCase()))) return false;
       if (search && !t.clientName.toLowerCase().includes(search.toLowerCase()) &&
           !t.description.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
-  }, [txs, period, statusFilter, search]);
+  }, [txs, period, statusFilter, search, processSearch]);
 
   const totalRecebido = filtered.filter(t => t.status === 'recebido').reduce((s, t) => s + t.amount, 0);
   const totalPendente = filtered.filter(t => t.status === 'pendente').reduce((s, t) => s + t.amount, 0);
@@ -125,12 +145,20 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <h2 className="text-xl font-semibold text-gray-700">Resumo Financeiro</h2>
-        <button
-          onClick={() => exportCSV(filtered)}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50 shadow-sm transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
-        >
-          ⬇ Exportar Relatório CSV
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => exportCSV(filtered)}
+            className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-300 text-xs font-semibold rounded-lg text-gray-700 hover:bg-gray-50 shadow-sm transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+          >
+            ⬇ Exportar CSV
+          </button>
+          <button
+            onClick={() => exportXLSX(filtered)}
+            className="inline-flex items-center gap-1.5 px-3 py-2 bg-emerald-50 border border-emerald-300 text-xs font-semibold rounded-lg text-emerald-700 hover:bg-emerald-100 shadow-sm transition-colors dark:text-emerald-300 dark:bg-emerald-950/20 dark:border-emerald-900/30"
+          >
+            📊 Exportar XLSX
+          </button>
+        </div>
       </div>
 
       {/* KPI Cards */}
@@ -163,13 +191,15 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
       {/* Filters */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
         <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-3">Filtrar Transações</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1">Período</label>
-            <select value={period} onChange={e => setPeriod(e.target.value as typeof period)} className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+            <select value={period} onChange={e => setPeriod(e.target.value as any)} className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <option value="all">Todos</option>
               <option value="30">Últimos 30 dias</option>
+              <option value="60">Últimos 60 dias</option>
               <option value="90">Últimos 90 dias</option>
+              <option value="120">Últimos 120 dias</option>
               <option value="365">Último ano</option>
             </select>
           </div>
@@ -181,6 +211,16 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
               <option value="pendente">Pendente</option>
               <option value="inadimplente">Inadimplente</option>
             </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1">Número do Processo</label>
+            <input
+              type="text"
+              placeholder="Ex: case001..."
+              value={processSearch}
+              onChange={e => setProcessSearch(e.target.value)}
+              className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+            />
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1">Buscar</label>
@@ -203,6 +243,7 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
               <th className="px-4 py-3">Data</th>
               <th className="px-4 py-3">Cliente</th>
               <th className="px-4 py-3">Descrição</th>
+              <th className="px-4 py-3">Processo</th>
               <th className="px-4 py-3">Valor</th>
               <th className="px-4 py-3">Status</th>
             </tr>
@@ -213,12 +254,13 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
                 <td className="px-4 py-3 whitespace-nowrap">{new Date(t.date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
                 <td className="px-4 py-3 font-medium text-gray-900">{t.clientName}</td>
                 <td className="px-4 py-3">{t.description}</td>
+                <td className="px-4 py-3 text-xs font-semibold text-gray-500">{t.caseId || '—'}</td>
                 <td className="px-4 py-3 font-semibold">{fmt(t.amount)}</td>
                 <td className="px-4 py-3"><StatusBadge status={t.status} /></td>
               </tr>
             ))}
             {filtered.length === 0 && (
-              <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">Nenhuma transação encontrada.</td></tr>
+              <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">Nenhuma transação encontrada.</td></tr>
             )}
           </tbody>
         </table>

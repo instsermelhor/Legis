@@ -8,6 +8,8 @@ import { LawyerInfoPopup } from '../common/LawyerInfoPopup';
 import { ApiStatusPanel } from '../common/ApiStatusPanel';
 import { mockLawyers } from '../../services/mockLawyerService';
 import { mockInterns } from '../../services/mockDataService';
+import { LegalAiTools } from '../common/LegalAiTools';
+
 
 interface InternDashboardProps {
     intern: Intern;
@@ -421,12 +423,18 @@ const SemesterGradeCard: React.FC<SemesterGradeCardProps> = ({
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 
 export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEmail, onUpdateIntern, onUpdateEmail, onLogout }) => {
-    const [activeTab, setActiveTab] = useState<'overview' | 'perfil' | 'studies' | 'hours' | 'casos' | 'apis'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'perfil' | 'studies' | 'hours' | 'casos' | 'apis' | 'iaTools'>('overview');
     const [showLawyerPopup, setShowLawyerPopup] = useState(false);
 
     const mockInternData = mockInterns.find(i => i.name === intern.name);
     const supervisorLawyerId = intern.supervisorLawyerId !== undefined ? intern.supervisorLawyerId : mockInternData?.supervisorLawyerId;
     const supervisorLawyer = supervisorLawyerId ? mockLawyers.find(l => l.id === supervisorLawyerId) || null : null;
+
+    const allowedTools = React.useMemo(() => {
+        const saved = localStorage.getItem(`legis_perms_intern_${intern.id}`);
+        return saved ? JSON.parse(saved) : ['pecas', 'pesquisas', 'audios', 'transcricao', 'fundamentacoes', 'revisao', 'jurisprudencia', 'manifestacao'];
+    }, [intern.id]);
+
 
     // Profile
     const [profileData, setProfileData] = useState({
@@ -580,6 +588,8 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                         {tabBtn('studies', '📖 Mural de Estudos')}
                         {tabBtn('hours', 'Mentorias e Clínicas')}
                         {tabBtn('apis', '🔌 APIs')}
+                        {tabBtn('iaTools', '⚡ IA Jurídica')}
+
                         {onLogout && (
                             <button onClick={onLogout}
                                 className="py-3 px-1 border-b-2 border-transparent font-medium text-sm text-red-500 hover:text-red-700 hover:border-red-300 transition-colors ml-auto">
@@ -900,6 +910,12 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                         <ApiStatusPanel />
                     </div>
                 )}
+                {activeTab === 'iaTools' && (
+                    <div className="space-y-6 animate-fade-in">
+                        <LegalAiTools role="intern" allowedTools={allowedTools} />
+                    </div>
+                )}
+
             </div>
 
             {/* ─── Modals ─── */}

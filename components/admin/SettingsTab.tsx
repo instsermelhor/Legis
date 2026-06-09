@@ -293,6 +293,20 @@ const APP_FUNCTIONS: { category: string; icon: string; items: { id: string; labe
       { id: 'view_audit_log', label: 'Log de Auditoria' },
     ],
   },
+  {
+    category: 'Ferramentas de IA Jurídica',
+    icon: '⚡',
+    items: [
+      { id: 'ia_pecas', label: 'Criação de Peças Jurídicas' },
+      { id: 'ia_pesquisas', label: 'Pesquisas Jurídicas' },
+      { id: 'ia_audios', label: 'Comandos por Áudios' },
+      { id: 'ia_transcricao', label: 'Transcrição de Áudios' },
+      { id: 'ia_fundamentacoes', label: 'Fundamentações' },
+      { id: 'ia_revisao', label: 'Revisão de Textos' },
+      { id: 'ia_jurisprudencia', label: 'Busca por Jurisprudências Reais' },
+      { id: 'ia_manifestacao', label: 'Manifestação Processual' },
+    ],
+  },
 ];
 
 // Default permissions per role
@@ -305,6 +319,7 @@ const DEFAULT_PERMISSIONS: Record<AdminUser['role'], string[]> = {
     'view_settings','edit_general_settings','manage_legal_docs','manage_services','manage_admin_users',
     'view_messages','send_messages','view_calendar','manage_calendar',
     'view_reports','export_reports',
+    'ia_pecas', 'ia_pesquisas', 'ia_audios', 'ia_transcricao', 'ia_fundamentacoes', 'ia_revisao', 'ia_jurisprudencia', 'ia_manifestacao',
   ],
   manager: [
     'view_overview','view_kpis','view_charts',
@@ -312,6 +327,7 @@ const DEFAULT_PERMISSIONS: Record<AdminUser['role'], string[]> = {
     'view_finance','view_finance_lawyers','view_finance_clients','view_finance_interns','view_finance_secretaries','view_finance_services',
     'view_messages','send_messages','view_calendar',
     'view_reports',
+    'ia_pecas', 'ia_pesquisas', 'ia_audios', 'ia_transcricao', 'ia_fundamentacoes', 'ia_revisao', 'ia_jurisprudencia', 'ia_manifestacao',
   ],
   collaborator: [
     'view_overview','view_kpis',
@@ -326,6 +342,7 @@ const DEFAULT_PERMISSIONS: Record<AdminUser['role'], string[]> = {
     'view_reports',
   ],
 };
+
 
 const AdminUsers: React.FC = () => {
   const [users, setUsers] = useState<AdminUser[]>(() => {

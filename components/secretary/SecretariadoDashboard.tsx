@@ -7,6 +7,8 @@ import { LawyerInfoPopup } from '../common/LawyerInfoPopup';
 import { ApiStatusPanel } from '../common/ApiStatusPanel';
 import { mockLawyers } from '../../services/mockLawyerService';
 import { XIcon } from '../common/IconComponents';
+import { LegalAiTools } from '../common/LegalAiTools';
+
 
 interface SecretariadoDashboardProps {
   secretary: Secretary;
@@ -16,7 +18,8 @@ interface SecretariadoDashboardProps {
   onLogout?: () => void;
 }
 
-type ActiveTab = 'overview' | 'perfil' | 'agenda' | 'documentos' | 'apis';
+type ActiveTab = 'overview' | 'perfil' | 'agenda' | 'documentos' | 'apis' | 'iaTools';
+
 
 const AREAS_CONHECIMENTO = [
   'Atendimento ao Cliente', 'Gestão de Agenda', 'Protocolo Judicial',
@@ -317,6 +320,12 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('overview');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+
+  const allowedTools = React.useMemo(() => {
+    const saved = localStorage.getItem(`legis_perms_secretary_${secretary.id}`);
+    return saved ? JSON.parse(saved) : ['pecas', 'pesquisas', 'audios', 'transcricao', 'fundamentacoes', 'revisao', 'jurisprudencia', 'manifestacao'];
+  }, [secretary.id]);
+
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showLawyerPopup, setShowLawyerPopup] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
@@ -444,6 +453,8 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
             {tabBtn('agenda', '📅 Agenda')}
             {tabBtn('documentos', '📂 Documentos')}
             {tabBtn('apis', '🔌 APIs')}
+            {tabBtn('iaTools', '⚡ IA Jurídica')}
+
             {onLogout && (
               <button onClick={onLogout}
                 className="py-3 px-2 border-b-2 border-transparent font-medium text-sm text-red-500 hover:text-red-700 hover:border-red-300 transition-colors ml-auto">
@@ -845,6 +856,12 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
             <ApiStatusPanel />
           </div>
         )}
+        {activeTab === 'iaTools' && (
+          <div className="space-y-6 animate-fade-in">
+            <LegalAiTools role="secretary" allowedTools={allowedTools} />
+          </div>
+        )}
+
       </div>
 
       {/* ─── Modals ─── */}
