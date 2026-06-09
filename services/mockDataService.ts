@@ -652,7 +652,7 @@ export const mockBiVendas: BiVenda[] = rawBiVendas.map(v => {
     data_retirada: v.data_retirada,
     data_devolucao: v.data_devolucao,
     status_pagamento: v.status_pagamento,
-    status_aluguel: v.status_aluguel as any,
+    status_aluguel: v.status_aluguel as BiVenda['status_aluguel'],
   };
 });
 

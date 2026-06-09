@@ -49,12 +49,12 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
   const biVendas = useMemo<BiVenda[]>(() => {
     const saved = localStorage.getItem('legis_bi_vendas');
     let data = saved ? JSON.parse(saved) : mockBiVendas;
-    const hasOldFornecedor = data.some((v: any) => v.fornecedor && (v.fornecedor.startsWith('F01') || v.fornecedor.startsWith('F02') || v.fornecedor.startsWith('F03')));
+    const hasOldFornecedor = data.some((v: BiVenda) => v.fornecedor && (v.fornecedor.startsWith('F01') || v.fornecedor.startsWith('F02') || v.fornecedor.startsWith('F03')));
     if (hasOldFornecedor || (data.length > 0 && data[0].produto && !data[0].produto.startsWith('G'))) {
       data = mockBiVendas;
       localStorage.setItem('legis_bi_vendas', JSON.stringify(mockBiVendas));
     }
-    const migrated = data.map((v: any) => {
+    const migrated = data.map((v: BiVenda) => {
       let status = v.status_aluguel;
       if (status === 'Devolvido') status = 'Entregue';
       else if (status === 'Não devolvido') status = 'Cancelado';
