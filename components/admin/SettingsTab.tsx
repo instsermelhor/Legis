@@ -1118,13 +1118,21 @@ const GeneralSettings: React.FC = () => {
 
   const [biFornecedores, setBiFornecedores] = useState<BiFornecedor[]>(() => {
     const saved = localStorage.getItem('legis_bi_fornecedores');
-    return saved ? JSON.parse(saved) : mockBiFornecedores;
+    const parsed = saved ? JSON.parse(saved) : mockBiFornecedores;
+    const needsMigration = parsed.some((f: any) => f.codigo === 'F01' || f.codigo === 'F02' || f.codigo === 'F03') || !parsed.some((f: any) => f.codigo === 'F0001');
+    if (needsMigration) {
+      localStorage.setItem('legis_bi_fornecedores', JSON.stringify(mockBiFornecedores));
+      localStorage.setItem('legis_bi_vendas', JSON.stringify(mockBiVendas));
+      return mockBiFornecedores;
+    }
+    return parsed;
   });
 
   const [biVendas, setBiVendas] = useState<BiVenda[]>(() => {
     const saved = localStorage.getItem('legis_bi_vendas');
     let data = saved ? JSON.parse(saved) : mockBiVendas;
-    if (data.length > 0 && data[0].produto && !data[0].produto.startsWith('G')) {
+    const hasOldFornecedor = data.some((v: any) => v.fornecedor && (v.fornecedor.startsWith('F01') || v.fornecedor.startsWith('F02') || v.fornecedor.startsWith('F03')));
+    if (hasOldFornecedor || (data.length > 0 && data[0].produto && !data[0].produto.startsWith('G'))) {
       data = mockBiVendas;
       localStorage.setItem('legis_bi_vendas', JSON.stringify(mockBiVendas));
     }

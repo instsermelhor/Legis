@@ -616,22 +616,20 @@ export const mockBiProdutos: BiProduto[] = mockEfficiencyServices.map((s) => {
 });
 
 export const mockBiFornecedores: BiFornecedor[] = [
-  { codigo: 'F01', nome: 'Med Tech Brasil', cpf_cnpj: '11.222.333/0001-44', estado: 'SP', lista_concatenada: 'F01 - Med Tech Brasil' },
-  { codigo: 'F02', nome: 'Health Equipamentos', cpf_cnpj: '55.666.777/0001-88', estado: 'PR', lista_concatenada: 'F02 - Health Equipamentos' },
-  { codigo: 'F03', nome: 'Life Care Ltda', cpf_cnpj: '99.888.777/0001-11', estado: 'RJ', lista_concatenada: 'F03 - Life Care Ltda' },
+  { codigo: 'F0001', nome: 'Legis Connect', cpf_cnpj: '00.000.000/0001-00', estado: 'SP', lista_concatenada: 'F0001 - Legis Connect' },
 ];
 
 const rawBiVendas = [
-  { id_tab: 'v01', fornecedor: 'F01 - Med Tech Brasil', cliente: 'C01 - Clínica São Lucas', prodIdx: 0, qtd: 2, status_pagamento: 'Pago', status_aluguel: 'Entregue', data: '2026-08-10', data_referencia: '2026-08-01', data_retirada: '2026-08-10', data_devolucao: '2026-08-20' },
-  { id_tab: 'v02', fornecedor: 'F02 - Health Equipamentos', cliente: 'C02 - Hospital Delta', prodIdx: 1, qtd: 5, status_pagamento: 'Pago', status_aluguel: 'Entregue', data: '2026-08-25', data_referencia: '2026-08-01', data_retirada: '2026-08-25', data_devolucao: '2026-09-05' },
-  { id_tab: 'v03', fornecedor: 'F01 - Med Tech Brasil', cliente: 'C03 - Centro Clínico Sul', prodIdx: 0, qtd: 3, status_pagamento: 'Pago', status_aluguel: 'Entregue', data: '2026-09-12', data_referencia: '2026-09-01', data_retirada: '2026-09-12', data_devolucao: '2026-09-22' },
-  { id_tab: 'v04', fornecedor: 'F03 - Life Care Ltda', cliente: 'C04 - Laboratório Exame', prodIdx: 2, qtd: 10, status_pagamento: 'Pendente', status_aluguel: 'Cancelado', data: '2026-09-28', data_referencia: '2026-09-01', data_retirada: '2026-09-28', data_devolucao: '' },
-  { id_tab: 'v05', fornecedor: 'F02 - Health Equipamentos', cliente: 'C01 - Clínica São Lucas', prodIdx: 1, qtd: 4, status_pagamento: 'Pago', status_aluguel: 'Entregue', data: '2026-10-05', data_referencia: '2026-10-01', data_retirada: '2026-10-05', data_devolucao: '2026-10-15' },
-  { id_tab: 'v06', fornecedor: 'F03 - Life Care Ltda', cliente: 'C02 - Hospital Delta', prodIdx: 3, qtd: 2, status_pagamento: 'Pendente', status_aluguel: 'Cancelado', data: '2026-10-20', data_referencia: '2026-10-01', data_retirada: '2026-10-20', data_devolucao: '' },
-  { id_tab: 'v07', fornecedor: 'F01 - Med Tech Brasil', cliente: 'C04 - Laboratório Exame', prodIdx: 0, qtd: 4, status_pagamento: 'Pago', status_aluguel: 'Entregue', data: '2026-11-08', data_referencia: '2026-11-01', data_retirada: '2026-11-08', data_devolucao: '2026-11-18' },
-  { id_tab: 'v08', fornecedor: 'F02 - Health Equipamentos', cliente: 'C03 - Centro Clínico Sul', prodIdx: 2, qtd: 8, status_pagamento: 'Pendente', status_aluguel: 'Em Realização', data: '2026-11-22', data_referencia: '2026-11-01', data_retirada: '2026-11-22', data_devolucao: '' },
-  { id_tab: 'v09', fornecedor: 'F01 - Med Tech Brasil', cliente: 'C01 - Clínica São Lucas', prodIdx: 3, qtd: 3, status_pagamento: 'Pago', status_aluguel: 'Entregue', data: '2026-12-05', data_referencia: '2026-12-01', data_retirada: '2026-12-05', data_devolucao: '2026-12-15' },
-  { id_tab: 'v10', fornecedor: 'F03 - Life Care Ltda', cliente: 'C02 - Hospital Delta', prodIdx: 1, qtd: 5, status_pagamento: 'Pendente', status_aluguel: 'Cancelado', data: '2026-12-18', data_referencia: '2026-12-01', data_retirada: '2026-12-18', data_devolucao: '' },
+  { id_tab: 'v01', fornecedor: 'F0001 - Legis Connect', cliente: 'C01 - Clínica São Lucas', prodIdx: 0, qtd: 2, status_pagamento: 'Pago', status_aluguel: 'Entregue', data: '2026-08-10', data_referencia: '2026-08-01', data_retirada: '2026-08-10', data_devolucao: '2026-08-20' },
+  { id_tab: 'v02', fornecedor: 'F0001 - Legis Connect', cliente: 'C02 - Hospital Delta', prodIdx: 1, qtd: 5, status_pagamento: 'Pago', status_aluguel: 'Entregue', data: '2026-08-25', data_referencia: '2026-08-01', data_retirada: '2026-08-25', data_devolucao: '2026-09-05' },
+  { id_tab: 'v03', fornecedor: 'F0001 - Legis Connect', cliente: 'C03 - Centro Clínico Sul', prodIdx: 0, qtd: 3, status_pagamento: 'Pago', status_aluguel: 'Entregue', data: '2026-09-12', data_referencia: '2026-09-01', data_retirada: '2026-09-12', data_devolucao: '2026-09-22' },
+  { id_tab: 'v04', fornecedor: 'F0001 - Legis Connect', cliente: 'C04 - Laboratório Exame', prodIdx: 2, qtd: 10, status_pagamento: 'Pendente', status_aluguel: 'Cancelado', data: '2026-09-28', data_referencia: '2026-09-01', data_retirada: '2026-09-28', data_devolucao: '' },
+  { id_tab: 'v05', fornecedor: 'F0001 - Legis Connect', cliente: 'C01 - Clínica São Lucas', prodIdx: 1, qtd: 4, status_pagamento: 'Pago', status_aluguel: 'Entregue', data: '2026-10-05', data_referencia: '2026-10-01', data_retirada: '2026-10-05', data_devolucao: '2026-10-15' },
+  { id_tab: 'v06', fornecedor: 'F0001 - Legis Connect', cliente: 'C02 - Hospital Delta', prodIdx: 3, qtd: 2, status_pagamento: 'Pendente', status_aluguel: 'Cancelado', data: '2026-10-20', data_referencia: '2026-10-01', data_retirada: '2026-10-20', data_devolucao: '' },
+  { id_tab: 'v07', fornecedor: 'F0001 - Legis Connect', cliente: 'C04 - Laboratório Exame', prodIdx: 0, qtd: 4, status_pagamento: 'Pago', status_aluguel: 'Entregue', data: '2026-11-08', data_referencia: '2026-11-01', data_retirada: '2026-11-08', data_devolucao: '2026-11-18' },
+  { id_tab: 'v08', fornecedor: 'F0001 - Legis Connect', cliente: 'C03 - Centro Clínico Sul', prodIdx: 2, qtd: 8, status_pagamento: 'Pendente', status_aluguel: 'Em Realização', data: '2026-11-22', data_referencia: '2026-11-01', data_retirada: '2026-11-22', data_devolucao: '' },
+  { id_tab: 'v09', fornecedor: 'F0001 - Legis Connect', cliente: 'C01 - Clínica São Lucas', prodIdx: 3, qtd: 3, status_pagamento: 'Pago', status_aluguel: 'Entregue', data: '2026-12-05', data_referencia: '2026-12-01', data_retirada: '2026-12-05', data_devolucao: '2026-12-15' },
+  { id_tab: 'v10', fornecedor: 'F0001 - Legis Connect', cliente: 'C02 - Hospital Delta', prodIdx: 1, qtd: 5, status_pagamento: 'Pendente', status_aluguel: 'Cancelado', data: '2026-12-18', data_referencia: '2026-12-01', data_retirada: '2026-12-18', data_devolucao: '' },
 ];
 
 export const mockBiVendas: BiVenda[] = rawBiVendas.map(v => {
