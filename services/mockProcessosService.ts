@@ -256,9 +256,8 @@ const INITIAL_PROCESSOS: Omit<Processo, 'tempo'>[] = [
 ];
 
 export function calcularTempo(dataEntradaStr: string, dataConclusaoStr?: string | null): number {
-  if (!dataConclusaoStr) return 0;
   const start = new Date(dataEntradaStr);
-  const end = new Date(dataConclusaoStr);
+  const end = dataConclusaoStr ? new Date(dataConclusaoStr) : new Date();
   const diffTime = end.getTime() - start.getTime();
   if (diffTime < 0) return 0;
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));

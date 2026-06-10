@@ -16,6 +16,7 @@ import type { MockIntern, MockSecretary } from '../../services/mockDataService';
 import { LegalAiTools } from '../common/LegalAiTools';
 import { EfficiencyServicesPage } from '../client/EfficiencyServicesPage';
 import { mockProcessosService } from '../../services/mockProcessosService';
+import { mockLawyers } from '../../services/mockLawyerService';
 
 const ALL_IA_TOOLS = [
     { key: 'pecas', label: '📄 Peças Jurídicas' },
@@ -190,14 +191,30 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
     const [internPerms, setInternPerms] = useState<string[]>([]);
     const [secretaryPerms, setSecretaryPerms] = useState<string[]>([]);
 
+    // Case delegation state
+    const [delegatedInternCases, setDelegatedInternCases] = useState<string[]>(() => {
+        if (!linkedInternId) return [];
+        const saved = localStorage.getItem(`legis_delegated_cases_intern_${linkedInternId}`);
+        return saved ? JSON.parse(saved) : [];
+    });
+
+    const [delegatedSecretaryCases, setDelegatedSecretaryCases] = useState<string[]>(() => {
+        if (!linkedSecretaryId) return [];
+        const saved = localStorage.getItem(`legis_delegated_cases_secretary_${linkedSecretaryId}`);
+        return saved ? JSON.parse(saved) : [];
+    });
+
     React.useEffect(() => {
         if (linkedInternId !== null) {
             localStorage.setItem(`legis_lawyer_linked_intern_${lawyer.id}`, String(linkedInternId));
             const saved = localStorage.getItem(`legis_perms_intern_${linkedInternId}`);
             setInternPerms(saved ? JSON.parse(saved) : ['pecas', 'pesquisas', 'audios', 'transcricao', 'fundamentacoes', 'revisao', 'jurisprudencia', 'manifestacao']);
+            const savedCases = localStorage.getItem(`legis_delegated_cases_intern_${linkedInternId}`);
+            setDelegatedInternCases(savedCases ? JSON.parse(savedCases) : []);
         } else {
             localStorage.removeItem(`legis_lawyer_linked_intern_${lawyer.id}`);
             setInternPerms([]);
+            setDelegatedInternCases([]);
         }
     }, [linkedInternId, lawyer.id]);
 
@@ -206,11 +223,32 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
             localStorage.setItem(`legis_lawyer_linked_secretary_${lawyer.id}`, String(linkedSecretaryId));
             const saved = localStorage.getItem(`legis_perms_secretary_${linkedSecretaryId}`);
             setSecretaryPerms(saved ? JSON.parse(saved) : ['pecas', 'pesquisas', 'audios', 'transcricao', 'fundamentacoes', 'revisao', 'jurisprudencia', 'manifestacao']);
+            const savedCases = localStorage.getItem(`legis_delegated_cases_secretary_${linkedSecretaryId}`);
+            setDelegatedSecretaryCases(savedCases ? JSON.parse(savedCases) : []);
         } else {
             localStorage.removeItem(`legis_lawyer_linked_secretary_${lawyer.id}`);
             setSecretaryPerms([]);
+            setDelegatedSecretaryCases([]);
         }
     }, [linkedSecretaryId, lawyer.id]);
+
+    const toggleInternCaseDelegation = (caseId: string) => {
+        if (!linkedInternId) return;
+        setDelegatedInternCases(prev => {
+            const next = prev.includes(caseId) ? prev.filter(id => id !== caseId) : [...prev, caseId];
+            localStorage.setItem(`legis_delegated_cases_intern_${linkedInternId}`, JSON.stringify(next));
+            return next;
+        });
+    };
+
+    const toggleSecretaryCaseDelegation = (caseId: string) => {
+        if (!linkedSecretaryId) return;
+        setDelegatedSecretaryCases(prev => {
+            const next = prev.includes(caseId) ? prev.filter(id => id !== caseId) : [...prev, caseId];
+            localStorage.setItem(`legis_delegated_cases_secretary_${linkedSecretaryId}`, JSON.stringify(next));
+            return next;
+        });
+    };
 
     const toggleInternPerm = (perm: string) => {
         setInternPerms(prev => {
@@ -278,7 +316,8 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
     
     const [cases, setCases] = useState<Case[]>(() => {
         const saved = localStorage.getItem('legis_lawyer_cases');
-        return saved ? JSON.parse(saved) : initialActiveCases;
+        const list: Case[] = saved ? JSON.parse(saved) : initialActiveCases;
+        return list.filter(c => c.lawyerId === lawyer.id);
     });
 
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
@@ -370,7 +409,10 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
     };
 
     const handleUpdateCaseStatus = (caseId: string, newCurrentStageName: string) => {
-        const updated = cases.map(c => {
+        const saved = localStorage.getItem('legis_lawyer_cases');
+        const allCases: Case[] = saved ? JSON.parse(saved) : initialActiveCases;
+
+        const updatedAll = allCases.map(c => {
             if (c.id === caseId) {
                 const newCurrentIndex = c.stages.findIndex(s => s.name === newCurrentStageName);
                 if (newCurrentIndex === -1) return c;
@@ -384,8 +426,9 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
             }
             return c;
         });
-        setCases(updated);
-        localStorage.setItem('legis_lawyer_cases', JSON.stringify(updated));
+
+        localStorage.setItem('legis_lawyer_cases', JSON.stringify(updatedAll));
+        setCases(updatedAll.filter(c => c.lawyerId === lawyer.id));
         handleCloseUpdateModal();
     };
 
@@ -452,9 +495,12 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
 
     const handleConfirmAddCase = () => {
         if (!pendingCaseToAdd) return;
-        const updatedCases = [...cases, pendingCaseToAdd.caseData];
-        setCases(updatedCases);
-        localStorage.setItem('legis_lawyer_cases', JSON.stringify(updatedCases));
+        const saved = localStorage.getItem('legis_lawyer_cases');
+        const allCases: Case[] = saved ? JSON.parse(saved) : initialActiveCases;
+        const updatedAllCases = [...allCases, pendingCaseToAdd.caseData];
+        localStorage.setItem('legis_lawyer_cases', JSON.stringify(updatedAllCases));
+
+        setCases(updatedAllCases.filter(c => c.lawyerId === lawyer.id));
 
         // Reset
         setClientData({
@@ -517,6 +563,32 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
             </>
         );
     };
+
+    const isRegisteredLawyer = useMemo(() => {
+        return mockLawyers.some(l => l.id === lawyer.id && l.status === 'verificado');
+    }, [lawyer.id]);
+
+    if (!isRegisteredLawyer) {
+        return (
+            <div className="container mx-auto px-4 py-12 max-w-md text-center">
+                <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-xl p-8 shadow-sm">
+                    <span className="text-5xl block mb-4">🚫</span>
+                    <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-2">Acesso Restrito</h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                        Este painel é de uso exclusivo para advogados cadastrados e com status verificado no sistema.
+                    </p>
+                    {onLogout && (
+                        <button
+                            onClick={onLogout}
+                            className="px-6 py-2.5 bg-primary text-white text-sm font-semibold rounded-lg hover:bg-primary/95 transition-colors"
+                        >
+                            Sair da Conta
+                        </button>
+                    )}
+                </div>
+            </div>
+        );
+    }
 
     return (
         <>
@@ -1036,7 +1108,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
 
                     {/* Legal Management Dashboard section */}
                     {activeSection === 'gestaoJuridica' && (
-                        <LegalManagementDashboard lawyerName={lawyer.name} />
+                        <LegalManagementDashboard lawyerName={lawyer.name} lawyerOab={lawyer.oab} lawyerId={lawyer.id} />
                     )}
 
                     {/* Codes Section */}
@@ -1433,6 +1505,36 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                             );
                                         })}
                                     </div>
+
+                                    {/* Caso Access Delegation */}
+                                    <div className="mt-4 pt-4 border-t border-gray-200 dark:border-[#2A2545]">
+                                        <h5 className="font-bold text-xs text-gray-800 mb-1 flex items-center gap-1.5 dark:text-gray-100">
+                                            <span>📁</span> Casos Delegados (Acesso do Estagiário)
+                                        </h5>
+                                        <p className="text-[11px] text-gray-500 mb-3">Selecione quais dos seus casos ativos este estagiário poderá acessar:</p>
+                                        <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                                            {cases.map(c => {
+                                                const isDelegated = delegatedInternCases.includes(c.id);
+                                                return (
+                                                    <label key={c.id} className="flex items-center gap-2.5 p-2 rounded hover:bg-gray-50 cursor-pointer dark:hover:bg-[#2A2545] border border-gray-150 dark:border-[#2A2545] text-xs">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isDelegated}
+                                                            onChange={() => toggleInternCaseDelegation(c.id)}
+                                                            className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-550"
+                                                        />
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="font-semibold text-gray-800 dark:text-white truncate">{c.title}</p>
+                                                            <p className="text-[10px] text-gray-400">Cliente: {c.clientName} | Proc: #{c.id}</p>
+                                                        </div>
+                                                    </label>
+                                                );
+                                            })}
+                                            {cases.length === 0 && (
+                                                <p className="text-xs text-gray-400 italic">Nenhum caso cadastrado para delegar.</p>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             )}
 
@@ -1575,6 +1677,36 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                 </label>
                                             );
                                         })}
+                                    </div>
+
+                                    {/* Caso Access Delegation */}
+                                    <div className="mt-4 pt-4 border-t border-purple-200 dark:border-[#2A2545]">
+                                        <h5 className="font-bold text-xs text-gray-800 mb-1 flex items-center gap-1.5 dark:text-gray-100">
+                                            <span>📁</span> Casos Delegados (Acesso do(a) Secretário(a))
+                                        </h5>
+                                        <p className="text-[11px] text-gray-500 mb-3">Selecione quais dos seus casos ativos este(a) secretário(a) poderá acessar:</p>
+                                        <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
+                                            {cases.map(c => {
+                                                const isDelegated = delegatedSecretaryCases.includes(c.id);
+                                                return (
+                                                    <label key={c.id} className="flex items-center gap-2.5 p-2 rounded hover:bg-gray-50 cursor-pointer dark:hover:bg-[#2A2545] border border-gray-150 dark:border-[#2A2545] text-xs">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isDelegated}
+                                                            onChange={() => toggleSecretaryCaseDelegation(c.id)}
+                                                            className="rounded border-gray-300 text-purple-650 focus:ring-purple-550"
+                                                        />
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="font-semibold text-gray-800 dark:text-white truncate">{c.title}</p>
+                                                            <p className="text-[10px] text-gray-400">Cliente: {c.clientName} | Proc: #{c.id}</p>
+                                                        </div>
+                                                    </label>
+                                                );
+                                            })}
+                                            {cases.length === 0 && (
+                                                <p className="text-xs text-gray-400 italic">Nenhum caso cadastrado para delegar.</p>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             )}

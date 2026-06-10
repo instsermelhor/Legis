@@ -36,12 +36,20 @@ const TEST_PASSWORD = 'teste';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<View>(() => {
-    const saved = localStorage.getItem('legis_currentView');
-    return (saved as View) || 'landing';
+    const savedView = localStorage.getItem('legis_currentView') as View | null;
+    const savedUser = localStorage.getItem('legis_user');
+    const parsedUser = savedUser ? (() => { try { return JSON.parse(savedUser); } catch { return null; } })() : null;
+    // Validate protected views against persisted user role (security: prevent admin panel on refresh without auth)
+    if (savedView === 'adminDashboard' && parsedUser?.role !== 'admin') return 'landing';
+    if (savedView === 'lawyerDashboard' && parsedUser?.role !== 'lawyer') return 'landing';
+    if (savedView === 'internDashboard' && parsedUser?.role !== 'intern') return 'landing';
+    if (savedView === 'secretariadoDashboard' && parsedUser?.role !== 'secretary') return 'landing';
+    if (savedView === 'dashboard' && !parsedUser) return 'landing';
+    return savedView || 'landing';
   });
   const [user, setUser] = useState<User | null>(() => {
     const saved = localStorage.getItem('legis_user');
-    return saved ? JSON.parse(saved) : null;
+    try { return saved ? JSON.parse(saved) : null; } catch { return null; }
   });
   const [searchResults, setSearchResults] = useState<Lawyer[]>([]);
   const [selectedLawyer, setSelectedLawyer] = useState<Lawyer | null>(null);
@@ -88,6 +96,7 @@ const App: React.FC = () => {
   };
 
   const handleNavigate = useCallback((view: View, overrideUser?: User | null) => {
+    window.scrollTo(0, 0); // Always scroll to top on any navigation
     const activeUser = overrideUser !== undefined ? overrideUser : user;
     // Protected routes
     if (view === 'adminDashboard' && activeUser?.role !== 'admin') {
@@ -124,7 +133,6 @@ const App: React.FC = () => {
       return;
     }
     setCurrentView(view);
-    window.scrollTo(0, 0);
   }, [user]);
 
   const handleLogin = useCallback((credentials: Credentials): boolean => {
@@ -375,7 +383,8 @@ const App: React.FC = () => {
 
   const handleLawyerSignup = (data: Partial<Lawyer>) => {
     const newLawyer: Lawyer = {
-      id: allLawyers.length + 1,
+      // Use max ID to prevent collision if lawyers were removed
+      id: allLawyers.length > 0 ? Math.max(...allLawyers.map(l => l.id)) + 1 : 1,
       name: data.name || 'Novo Advogado',
       oab: data.oab || 'XX000000',
       specialties: data.specialties || ['Direito Civil'],
@@ -392,8 +401,16 @@ const App: React.FC = () => {
       status: 'pendente',
       ...data,
     };
-    setAllLawyers(prev => [...prev, newLawyer]);
-    console.log("New lawyer signup:", newLawyer);
+    const updatedLawyers = [...allLawyers, newLawyer];
+    setAllLawyers(updatedLawyers);
+    // Persist to localStorage so Admin panel can see the new lawyer
+    try {
+      const existing = localStorage.getItem('legis_lawyers');
+      const existingList: Lawyer[] = existing ? JSON.parse(existing) : [];
+      // Avoid duplicate if already exists
+      const deduped = existingList.filter(l => l.id !== newLawyer.id);
+      localStorage.setItem('legis_lawyers', JSON.stringify([...deduped, newLawyer]));
+    } catch { /* ignore storage errors */ }
     const lawyerUser: User = { email: newLawyer.contact.email, role: 'lawyer', data: newLawyer, name: newLawyer.name };
     setUser(lawyerUser);
     handleNavigate('lawyerDashboard', lawyerUser);
@@ -544,11 +561,13 @@ const App: React.FC = () => {
 
   const handleSendChatMessage = async (message: string) => {
     const userMessage: ChatMessage = { role: 'user', parts: [{ text: message }] };
-    setChatHistory(prev => [...prev, userMessage]);
+    // Capture history snapshot BEFORE state update to avoid race condition
+    const currentHistory = [...chatHistory, userMessage];
+    setChatHistory(currentHistory);
     setIsChatbotLoading(true);
 
     try {
-      const responseText = await chatWithGemini(chatHistory, message);
+      const responseText = await chatWithGemini(currentHistory, message);
       const modelMessage: ChatMessage = { role: 'model', parts: [{ text: responseText }] };
       setChatHistory(prev => [...prev, modelMessage]);
     } catch (error) {

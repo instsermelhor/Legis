@@ -83,7 +83,7 @@ export const OverviewTab: React.FC<{
   }), [lawyers, clients, interns, secretaries]);
 
   const specialtyDistribution = useMemo(() => {
-    const counts: { [key: string]: number } = { 'Direito Internacional': 1 };
+    const counts: { [key: string]: number } = {};
     lawyers.forEach(l => l.specialties.forEach(s => { counts[s] = (counts[s] || 0) + 1; }));
     return counts;
   }, [lawyers]);
@@ -440,18 +440,13 @@ export const OverviewTab: React.FC<{
                 {modal.type === 'secretaries' && `${filteredSecretaries.length} secret./assist. jurídicos`}
                 {modal.type === 'services' && `${servicesCount} serviços configurados`}
               </p>
-              {onNavigateToFinance && modal.type !== 'secretaries' && (
-                <button onClick={() => { closeModal(); onNavigateToFinance(modal.type); }} className="text-sm text-primary hover:underline font-medium">
-                  Ver no Financeiro →
-                </button>
-              )}
-              {onNavigateToFinance && modal.type === 'secretaries' && (
-                <button onClick={() => { closeModal(); onNavigateToFinance('secretaries'); }} className="text-sm text-purple-600 hover:underline font-medium">
-                  Ver no Financeiro →
-                </button>
-              )}
-              {onNavigateToFinance && modal.type === 'services' && (
-                <button onClick={() => { closeModal(); onNavigateToFinance('services'); }} className="text-sm text-orange-600 hover:underline font-medium">
+              {onNavigateToFinance && (
+                <button
+                  onClick={() => { closeModal(); onNavigateToFinance(modal.type); }}
+                  className={`text-sm hover:underline font-medium ${
+                    modal.type === 'secretaries' ? 'text-purple-600' : 'text-primary'
+                  }`}
+                >
                   Ver no Financeiro →
                 </button>
               )}

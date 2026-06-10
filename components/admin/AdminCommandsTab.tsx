@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Lawyer, Secretary } from '../../types';
 import { mockLawyers } from '../../services/mockLawyerService';
-import { mockInterns, mockSecretaries, MockIntern } from '../../services/mockDataService';
+import { mockInterns, mockSecretaries, MockIntern, AdminUser, mockAdminUsers } from '../../services/mockDataService';
 import { SectionTitle } from './AdminShared';
 
 interface AdminCommandsTabProps {
@@ -37,6 +37,158 @@ const FEATURES_LIST: PlatformFeature[] = [
   { id: 'api_maps', name: 'API Google Maps / Localização', category: 'api', description: 'Geolocalização de profissionais e indicação de rotas físicas para reuniões presenciais.' },
   { id: 'api_gemini', name: 'API Gemini Pro / Google Cloud', category: 'api', description: 'Motor cognitivo central de processamento para comandos por áudio e revisões.' }
 ];
+
+const APP_FUNCTIONS = [
+  {
+    category: 'Visão Geral & Dashboard',
+    icon: '📊',
+    items: [
+      { id: 'view_overview', label: 'Visualizar Visão Geral' },
+      { id: 'view_kpis', label: 'Visualizar KPIs' },
+      { id: 'view_charts', label: 'Visualizar Gráficos' },
+    ],
+  },
+  {
+    category: 'Gestão de Cadastros',
+    icon: '👥',
+    items: [
+      { id: 'view_lawyers', label: 'Visualizar Advogados' },
+      { id: 'edit_lawyers', label: 'Editar Advogados' },
+      { id: 'delete_lawyers', label: 'Excluir Advogados' },
+      { id: 'view_clients', label: 'Visualizar Clientes' },
+      { id: 'edit_clients', label: 'Editar Clientes' },
+      { id: 'delete_clients', label: 'Excluir Clientes' },
+      { id: 'view_interns', label: 'Visualizar Bacharelandos' },
+      { id: 'edit_interns', label: 'Editar Bacharelandos' },
+      { id: 'delete_interns', label: 'Excluir Bacharelandos' },
+      { id: 'view_secretaries', label: 'Visualizar Secret./Assist. Jurídico' },
+      { id: 'edit_secretaries', label: 'Editar Secret./Assist. Jurídico' },
+      { id: 'delete_secretaries', label: 'Excluir Secret./Assist. Jurídico' },
+      { id: 'upload_docs_registrations', label: 'Upload de Documentos (Cadastros)' },
+    ],
+  },
+  {
+    category: 'Gestão Financeira',
+    icon: '💰',
+    items: [
+      { id: 'view_finance', label: 'Visualizar Financeiro' },
+      { id: 'edit_finance', label: 'Editar Lançamentos' },
+      { id: 'view_finance_lawyers', label: 'Financeiro de Advogados' },
+      { id: 'view_finance_clients', label: 'Financeiro de Clientes' },
+      { id: 'view_finance_interns', label: 'Financeiro de Bacharelandos' },
+      { id: 'view_finance_secretaries', label: 'Financeiro de Secretariado' },
+      { id: 'view_finance_services', label: 'Financeiro de Serviços' },
+      { id: 'export_finance', label: 'Exportar Relatórios Financeiros' },
+    ],
+  },
+  {
+    category: 'Configurações',
+    icon: '⚙️',
+    items: [
+      { id: 'view_settings', label: 'Acessar Configurações' },
+      { id: 'edit_general_settings', label: 'Configurações Gerais' },
+      { id: 'manage_legal_docs', label: 'Documentos Legais' },
+      { id: 'manage_services', label: 'Serviços de Eficiência' },
+      { id: 'manage_admin_users', label: 'Usuários Administrativos' },
+      { id: 'manage_apis', label: 'Conexão com APIs' },
+      { id: 'manage_database', label: 'Banco de Dados' },
+      { id: 'manage_codes', label: 'Códigos da Plataforma' },
+    ],
+  },
+  {
+    category: 'Painéis de Usuários',
+    icon: '🖥️',
+    items: [
+      { id: 'impersonate_lawyer', label: 'Acessar Painel do Advogado' },
+      { id: 'impersonate_client', label: 'Acessar Painel do Cliente' },
+      { id: 'impersonate_intern', label: 'Acessar Painel do Bacharelando' },
+      { id: 'impersonate_secretary', label: 'Acessar Painel do Secret./Assist.' },
+    ],
+  },
+  {
+    category: 'Comunicação & Agenda',
+    icon: '📅',
+    items: [
+      { id: 'view_messages', label: 'Visualizar Mensagens' },
+      { id: 'send_messages', label: 'Enviar Mensagens' },
+      { id: 'view_calendar', label: 'Visualizar Agenda' },
+      { id: 'manage_calendar', label: 'Gerenciar Agenda' },
+      { id: 'manage_videoconference', label: 'Videoconferências' },
+    ],
+  },
+  {
+    category: 'Relatórios & Auditoria',
+    icon: '📋',
+    items: [
+      { id: 'view_reports', label: 'Visualizar Relatórios' },
+      { id: 'export_reports', label: 'Exportar Relatórios' },
+      { id: 'view_audit_log', label: 'Log de Auditoria' },
+    ],
+  },
+  {
+    category: 'Ferramentas de IA Jurídica',
+    icon: '⚡',
+    items: [
+      { id: 'ia_pecas', label: 'Criação de Peças Jurídicas' },
+      { id: 'ia_pesquisas', label: 'Pesquisas Jurídicas' },
+      { id: 'ia_audios', label: 'Comandos por Áudios' },
+      { id: 'ia_transcricao', label: 'Transcrição de Áudios' },
+      { id: 'ia_fundamentacoes', label: 'Fundamentações' },
+      { id: 'ia_revisao', label: 'Revisão de Textos' },
+      { id: 'ia_jurisprudencia', label: 'Busca por Jurisprudências Reais' },
+      { id: 'ia_manifestacao', label: 'Manifestação Processual' },
+    ],
+  },
+];
+
+const ADMIN_DEFAULT_PERMISSIONS: Record<'super' | 'admin' | 'manager' | 'collaborator' | 'viewer', string[]> = {
+  super: APP_FUNCTIONS.flatMap(g => g.items.map(i => i.id)),
+  admin: [
+    'view_overview','view_kpis','view_charts',
+    'view_lawyers','edit_lawyers','view_clients','edit_clients','view_interns','edit_interns','view_secretaries','edit_secretaries','upload_docs_registrations',
+    'view_finance','edit_finance','view_finance_lawyers','view_finance_clients','view_finance_interns','view_finance_secretaries','view_finance_services',
+    'view_settings','edit_general_settings','manage_legal_docs','manage_services','manage_admin_users',
+    'view_messages','send_messages','view_calendar','manage_calendar',
+    'view_reports','export_reports',
+    'ia_pecas', 'ia_pesquisas', 'ia_audios', 'ia_transcricao', 'ia_fundamentacoes', 'ia_revisao', 'ia_jurisprudencia', 'ia_manifestacao',
+  ],
+  manager: [
+    'view_overview','view_kpis','view_charts',
+    'view_lawyers','edit_lawyers','view_clients','edit_clients','view_interns','edit_interns','view_secretaries','edit_secretaries',
+    'view_finance','view_finance_lawyers','view_finance_clients','view_finance_interns','view_finance_secretaries','view_finance_services',
+    'view_messages','send_messages','view_calendar',
+    'view_reports',
+    'ia_pecas', 'ia_pesquisas', 'ia_audios', 'ia_transcricao', 'ia_fundamentacoes', 'ia_revisao', 'ia_jurisprudencia', 'ia_manifestacao',
+  ],
+  collaborator: [
+    'view_overview','view_kpis',
+    'view_lawyers','view_clients','view_interns','view_secretaries',
+    'view_finance','view_finance_lawyers','view_finance_clients',
+    'view_messages','view_calendar',
+  ],
+  viewer: [
+    'view_overview','view_kpis','view_charts',
+    'view_lawyers','view_clients','view_interns','view_secretaries',
+    'view_finance',
+    'view_reports',
+  ],
+};
+
+const roleLabels: Record<string, string> = {
+  super: 'Super Admin',
+  admin: 'Administrador',
+  manager: 'Gerente',
+  collaborator: 'Colaborador',
+  viewer: 'Visualizador',
+};
+
+const roleColors: Record<string, string> = {
+  super: 'bg-red-100 text-red-800 dark:bg-red-950/30 dark:text-red-300',
+  admin: 'bg-purple-100 text-purple-800 dark:bg-purple-950/30 dark:text-purple-300',
+  manager: 'bg-blue-100 text-blue-800 dark:bg-blue-950/30 dark:text-blue-300',
+  collaborator: 'bg-teal-100 text-teal-800 dark:bg-teal-950/30 dark:text-teal-300',
+  viewer: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
+};
 
 export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange }) => {
   // Sub-tabs: 'toggles' | 'assignments' | 'packages'
@@ -113,6 +265,60 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
   const [selectedInternLawyer, setSelectedInternLawyer] = useState<Record<number, number>>({});
   const [selectedSecretaryLawyer, setSelectedSecretaryLawyer] = useState<Record<number, number>>({});
 
+  // Admin users state (with realistic mock administrative users for rich initial setup)
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>(() => {
+    const saved = localStorage.getItem('legis_admin_users');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.length <= 1 && !localStorage.getItem('legis_admin_users_seeded')) {
+        const fullMock = [
+          ...parsed,
+          { id: 101, name: 'Ana Costa', email: 'ana.costa@legisconnect.com.br', password: 'admin', role: 'admin' as const, createdAt: '2024-02-15', active: true },
+          { id: 102, name: 'Carlos Souza', email: 'carlos.souza@legisconnect.com.br', password: 'admin', role: 'manager' as const, createdAt: '2024-03-10', active: true },
+          { id: 103, name: 'Julia Lima', email: 'julia.lima@legisconnect.com.br', password: 'admin', role: 'collaborator' as const, createdAt: '2024-04-01', active: true }
+        ];
+        localStorage.setItem('legis_admin_users', JSON.stringify(fullMock));
+        localStorage.setItem('legis_admin_users_seeded', '1');
+        return fullMock;
+      }
+      return parsed;
+    } else {
+      const defaultAdmins = [
+        ...mockAdminUsers,
+        { id: 101, name: 'Ana Costa', email: 'ana.costa@legisconnect.com.br', password: 'admin', role: 'admin' as const, createdAt: '2024-02-15', active: true },
+        { id: 102, name: 'Carlos Souza', email: 'carlos.souza@legisconnect.com.br', password: 'admin', role: 'manager' as const, createdAt: '2024-03-10', active: true },
+        { id: 103, name: 'Julia Lima', email: 'julia.lima@legisconnect.com.br', password: 'admin', role: 'collaborator' as const, createdAt: '2024-04-01', active: true }
+      ];
+      localStorage.setItem('legis_admin_users', JSON.stringify(defaultAdmins));
+      return defaultAdmins;
+    }
+  });
+
+  // Lawyer custom feature/API permissions state
+  const [lawyerPermissions, setLawyerPermissions] = useState<Record<number, string[]>>(() => {
+    const perms: Record<number, string[]> = {};
+    const lawyersList = (() => {
+      const savedLawyers = localStorage.getItem('legis_lawyers');
+      return savedLawyers ? JSON.parse(savedLawyers) : mockLawyers;
+    })();
+    lawyersList.forEach((l: Lawyer) => {
+      const saved = localStorage.getItem(`legis_perms_lawyer_${l.id}`);
+      if (saved) {
+        perms[l.id] = JSON.parse(saved);
+      } else {
+        const allFeatures = FEATURES_LIST.map(f => f.id);
+        perms[l.id] = allFeatures;
+        localStorage.setItem(`legis_perms_lawyer_${l.id}`, JSON.stringify(allFeatures));
+      }
+    });
+    return perms;
+  });
+
+  const [expandedLawyerId, setExpandedLawyerId] = useState<number | null>(null);
+  const [expandedAdminId, setExpandedAdminId] = useState<number | null>(null);
+  const [lawyerSearch, setLawyerSearch] = useState('');
+  const [adminSearch, setAdminSearch] = useState('');
+
   // Toggles active state of a platform feature or API
   const handleToggleFeature = (id: string) => {
     const updated = { ...featureStates, [id]: !featureStates[id] };
@@ -133,12 +339,9 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
       });
       setLawyers(updated);
       localStorage.setItem('legis_lawyers', JSON.stringify(updated));
-      // Sync mockLawyerService in memory
-      mockLawyers.forEach(l => {
-        if (l.id === id) {
-          l.status = l.status === 'suspenso' ? 'verificado' : 'suspenso';
-        }
-      });
+      setLawyers(prev => prev.map(l =>
+        l.id === id ? { ...l, status: l.status === 'suspenso' ? 'verificado' : 'suspenso' } : l
+      ));
     } else if (role === 'intern') {
       const updated = interns.map(i => {
         if (i.id === id) {
@@ -280,6 +483,107 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
     setSecretaries(updated);
     localStorage.setItem('legis_secretaries', JSON.stringify(updated));
     alert('Atribuição de secretariado cancelada com sucesso.');
+    if (onDataChange) onDataChange();
+  };
+
+  // Toggle lawyer permission
+  const handleToggleLawyerPermission = (lawyerId: number, featureId: string) => {
+    const current = lawyerPermissions[lawyerId] || FEATURES_LIST.map(f => f.id);
+    const updated = current.includes(featureId)
+      ? current.filter(id => id !== featureId)
+      : [...current, featureId];
+
+    const nextPermissions = { ...lawyerPermissions, [lawyerId]: updated };
+    setLawyerPermissions(nextPermissions);
+    localStorage.setItem(`legis_perms_lawyer_${lawyerId}`, JSON.stringify(updated));
+    if (onDataChange) onDataChange();
+  };
+
+  const handleSelectAllLawyerPermissions = (lawyerId: number) => {
+    const allFeatures = FEATURES_LIST.map(f => f.id);
+    const nextPermissions = { ...lawyerPermissions, [lawyerId]: allFeatures };
+    setLawyerPermissions(nextPermissions);
+    localStorage.setItem(`legis_perms_lawyer_${lawyerId}`, JSON.stringify(allFeatures));
+    if (onDataChange) onDataChange();
+  };
+
+  const handleClearAllLawyerPermissions = (lawyerId: number) => {
+    const nextPermissions = { ...lawyerPermissions, [lawyerId]: [] };
+    setLawyerPermissions(nextPermissions);
+    localStorage.setItem(`legis_perms_lawyer_${lawyerId}`, JSON.stringify([]));
+    if (onDataChange) onDataChange();
+  };
+
+  // Change Admin Role
+  const handleChangeAdminRole = (userId: number, newRole: AdminUser['role']) => {
+    const updatedUsers = adminUsers.map(u => {
+      if (u.id === userId) {
+        const copy = { ...u, role: newRole };
+        delete copy.permissions;
+        return copy;
+      }
+      return u;
+    });
+    setAdminUsers(updatedUsers);
+    localStorage.setItem('legis_admin_users', JSON.stringify(updatedUsers));
+    if (onDataChange) onDataChange();
+  };
+
+  // Toggle Admin Permission
+  const handleToggleAdminPermission = (userId: number, permId: string) => {
+    const updatedUsers = adminUsers.map(u => {
+      if (u.id === userId) {
+        const currentPerms = u.permissions || ADMIN_DEFAULT_PERMISSIONS[u.role] || [];
+        const nextPerms = currentPerms.includes(permId)
+          ? currentPerms.filter(id => id !== permId)
+          : [...currentPerms, permId];
+        return { ...u, permissions: nextPerms };
+      }
+      return u;
+    });
+    setAdminUsers(updatedUsers);
+    localStorage.setItem('legis_admin_users', JSON.stringify(updatedUsers));
+    if (onDataChange) onDataChange();
+  };
+
+  // Reset Admin to Role Defaults
+  const handleResetToRoleDefaults = (userId: number) => {
+    const updatedUsers = adminUsers.map(u => {
+      if (u.id === userId) {
+        const copy = { ...u };
+        delete copy.permissions;
+        return copy;
+      }
+      return u;
+    });
+    setAdminUsers(updatedUsers);
+    localStorage.setItem('legis_admin_users', JSON.stringify(updatedUsers));
+    alert('Permissões restauradas para o padrão do cargo com sucesso!');
+    if (onDataChange) onDataChange();
+  };
+
+  const handleSelectAllAdminPermissions = (userId: number) => {
+    const allPerms = APP_FUNCTIONS.flatMap(g => g.items.map(i => i.id));
+    const updatedUsers = adminUsers.map(u => {
+      if (u.id === userId) {
+        return { ...u, permissions: allPerms };
+      }
+      return u;
+    });
+    setAdminUsers(updatedUsers);
+    localStorage.setItem('legis_admin_users', JSON.stringify(updatedUsers));
+    if (onDataChange) onDataChange();
+  };
+
+  const handleClearAllAdminPermissions = (userId: number) => {
+    const updatedUsers = adminUsers.map(u => {
+      if (u.id === userId) {
+        return { ...u, permissions: [] };
+      }
+      return u;
+    });
+    setAdminUsers(updatedUsers);
+    localStorage.setItem('legis_admin_users', JSON.stringify(updatedUsers));
     if (onDataChange) onDataChange();
   };
 
@@ -643,6 +947,364 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                   })}
                 </tbody>
               </table>
+            </div>
+          </div>
+
+          {/* Lawyer Features/APIs Release Panel */}
+          <div>
+            <h3 className="text-base font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2">
+              ⚖️ Recursos & APIs Liberados para Advogados
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+              Gerencie individualmente quais recursos cognitivos (IA, transcrição) e APIs (Jusbrasil, diários oficiais, gateway de pagamentos) estão liberados para cada advogado.
+            </p>
+
+            <div className="bg-white dark:bg-[#1E1B38] border border-gray-200 dark:border-[#2A2545] rounded-xl shadow-sm overflow-hidden p-5 space-y-4">
+              {/* Search Bar */}
+              <div className="max-w-md">
+                <input
+                  type="text"
+                  placeholder="Buscar advogado por nome ou OAB..."
+                  value={lawyerSearch}
+                  onChange={e => setLawyerSearch(e.target.value)}
+                  className="w-full border border-gray-300 dark:border-[#3A3555] rounded-lg px-3 py-2 text-sm bg-white dark:bg-[#2A2545] text-gray-950 dark:text-white focus:outline-none focus:ring-1 focus:ring-purple-500 placeholder-gray-400 dark:placeholder-gray-500"
+                />
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-gray-50 dark:bg-black/10 border-b border-gray-200 dark:border-white/10 text-xs font-bold text-gray-500 uppercase">
+                    <tr>
+                      <th className="px-5 py-3">Advogado</th>
+                      <th className="px-5 py-3">OAB / Contato</th>
+                      <th className="px-5 py-3">Recursos Liberados</th>
+                      <th className="px-5 py-3 text-center">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-white/5 text-gray-700 dark:text-gray-300">
+                    {lawyers
+                      .filter(l => 
+                        l.name.toLowerCase().includes(lawyerSearch.toLowerCase()) || 
+                        l.oab.toLowerCase().includes(lawyerSearch.toLowerCase())
+                      )
+                      .map(l => {
+                        const enabled = lawyerPermissions[l.id] || FEATURES_LIST.map(f => f.id);
+                        const isExpanded = expandedLawyerId === l.id;
+                        return (
+                          <React.Fragment key={l.id}>
+                            <tr className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors">
+                              <td className="px-5 py-3">
+                                <div className="flex items-center gap-3">
+                                  <img src={l.photoUrl} className="w-8 h-8 rounded-full object-cover border border-purple-200 dark:border-purple-900/50" alt="" />
+                                  <div>
+                                    <p className="font-bold text-gray-900 dark:text-white">{l.name}</p>
+                                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                                      l.status === 'verificado' ? 'bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-300' : 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-300'
+                                    }`}>
+                                      {l.status === 'verificado' ? 'Ativo' : 'Suspenso'}
+                                    </span>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-5 py-3">
+                                <p className="text-xs font-semibold">OAB: {l.oab}</p>
+                                <p className="text-[11px] text-gray-400">{l.contact.email}</p>
+                              </td>
+                              <td className="px-5 py-3">
+                                <span className="px-2.5 py-1 bg-purple-50 dark:bg-purple-950/20 text-purple-700 dark:text-purple-300 border border-purple-100 dark:border-purple-900/30 rounded-md text-xs font-bold">
+                                  {enabled.length} de {FEATURES_LIST.length} ativos
+                                </span>
+                              </td>
+                              <td className="px-5 py-3 text-center">
+                                <button
+                                  onClick={() => setExpandedLawyerId(isExpanded ? null : l.id)}
+                                  className={`px-3 py-1.5 font-bold rounded-lg text-xs transition-colors shadow-sm ${
+                                    isExpanded 
+                                      ? 'bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300' 
+                                      : 'bg-purple-600 text-white hover:bg-purple-700'
+                                  }`}
+                                >
+                                  {isExpanded ? 'Fechar' : 'Gerenciar Recursos'}
+                                </button>
+                              </td>
+                            </tr>
+                            {isExpanded && (
+                              <tr>
+                                <td colSpan={4} className="px-5 py-4 bg-gray-50/30 dark:bg-black/10">
+                                  <div className="border border-purple-100 dark:border-[#2A2545] rounded-xl p-5 bg-white dark:bg-[#1E1B38] space-y-4 shadow-inner">
+                                    <div className="flex justify-between items-center border-b border-gray-100 dark:border-white/5 pb-2.5">
+                                      <h4 className="font-extrabold text-sm text-gray-900 dark:text-white flex items-center gap-1.5">
+                                        🛡️ Recursos de Dr(a). {l.name}
+                                      </h4>
+                                      <div className="flex gap-2">
+                                        <button
+                                          type="button"
+                                          onClick={() => handleSelectAllLawyerPermissions(l.id)}
+                                          className="text-[10px] font-bold text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
+                                        >
+                                          ✓ Liberar Tudo
+                                        </button>
+                                        <span className="text-gray-300 dark:text-gray-700">|</span>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleClearAllLawyerPermissions(l.id)}
+                                          className="text-[10px] font-bold text-red-500 hover:text-red-600"
+                                        >
+                                          ✕ Bloquear Tudo
+                                        </button>
+                                      </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                      {/* Funcionalidades */}
+                                      <div className="space-y-3">
+                                        <h5 className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider flex items-center gap-1">
+                                          <span>🧠</span> Funcionalidades & Ferramentas
+                                        </h5>
+                                        <div className="space-y-2">
+                                          {FEATURES_LIST.filter(f => f.category === 'funcionalidade').map(f => {
+                                            const isChecked = enabled.includes(f.id);
+                                            return (
+                                              <label
+                                                key={f.id}
+                                                className={`flex items-start gap-3 p-3 rounded-lg border text-xs cursor-pointer transition-all ${
+                                                  isChecked
+                                                    ? 'bg-purple-50/20 dark:bg-purple-950/10 border-purple-200 dark:border-purple-900/40'
+                                                    : 'bg-white dark:bg-[#1E1B38] border-gray-200 dark:border-[#2A2545] opacity-60 hover:opacity-80'
+                                                }`}
+                                              >
+                                                <input
+                                                  type="checkbox"
+                                                  checked={isChecked}
+                                                  onChange={() => handleToggleLawyerPermission(l.id, f.id)}
+                                                  className="mt-0.5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-3.5 h-3.5"
+                                                />
+                                                <div>
+                                                  <p className="font-bold text-gray-900 dark:text-white">{f.name}</p>
+                                                  <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5 leading-relaxed">{f.description}</p>
+                                                </div>
+                                              </label>
+                                            );
+                                          })}
+                                        </div>
+                                      </div>
+
+                                      {/* APIs */}
+                                      <div className="space-y-3">
+                                        <h5 className="text-xs font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wider flex items-center gap-1">
+                                          <span>🌐</span> Conexões & Integrações de APIs
+                                        </h5>
+                                        <div className="space-y-2">
+                                          {FEATURES_LIST.filter(f => f.category === 'api').map(f => {
+                                            const isChecked = enabled.includes(f.id);
+                                            return (
+                                              <label
+                                                key={f.id}
+                                                className={`flex items-start gap-3 p-3 rounded-lg border text-xs cursor-pointer transition-all ${
+                                                  isChecked
+                                                    ? 'bg-teal-50/20 dark:bg-teal-950/10 border-teal-200 dark:border-teal-900/40'
+                                                    : 'bg-white dark:bg-[#1E1B38] border-gray-200 dark:border-[#2A2545] opacity-60 hover:opacity-80'
+                                                }`}
+                                              >
+                                                <input
+                                                  type="checkbox"
+                                                  checked={isChecked}
+                                                  onChange={() => handleToggleLawyerPermission(l.id, f.id)}
+                                                  className="mt-0.5 rounded border-gray-300 text-teal-600 focus:ring-teal-500 w-3.5 h-3.5"
+                                                />
+                                                <div>
+                                                  <p className="font-bold text-gray-900 dark:text-white">{f.name}</p>
+                                                  <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5 leading-relaxed">{f.description}</p>
+                                                </div>
+                                              </label>
+                                            );
+                                          })}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
+                          </React.Fragment>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          {/* Admin Roles & Functions Panel */}
+          <div>
+            <h3 className="text-base font-bold text-gray-800 dark:text-white mb-3 flex items-center gap-2">
+              👤 Perfis & Funções Administrativas
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+              Altere o cargo/perfil (Administrador, Gerente, Colaborador) e gerencie quais módulos da plataforma estão disponíveis para os membros da equipe administrativa.
+            </p>
+
+            <div className="bg-white dark:bg-[#1E1B38] border border-gray-200 dark:border-[#2A2545] rounded-xl shadow-sm overflow-hidden p-5 space-y-4">
+              {/* Search Bar */}
+              <div className="max-w-md">
+                <input
+                  type="text"
+                  placeholder="Buscar colaborador por nome ou e-mail..."
+                  value={adminSearch}
+                  onChange={e => setAdminSearch(e.target.value)}
+                  className="w-full border border-gray-300 dark:border-[#3A3555] rounded-lg px-3 py-2 text-sm bg-white dark:bg-[#2A2545] text-gray-950 dark:text-white focus:outline-none focus:ring-1 focus:ring-purple-500 placeholder-gray-400 dark:placeholder-gray-500"
+                />
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left">
+                  <thead className="bg-gray-50 dark:bg-black/10 border-b border-gray-200 dark:border-white/10 text-xs font-bold text-gray-500 uppercase">
+                    <tr>
+                      <th className="px-5 py-3">Membro</th>
+                      <th className="px-5 py-3">Cargo / Perfil</th>
+                      <th className="px-5 py-3">Funções Autorizadas</th>
+                      <th className="px-5 py-3 text-center">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-white/5 text-gray-700 dark:text-gray-300">
+                    {adminUsers
+                      .filter(u => 
+                        u.name.toLowerCase().includes(adminSearch.toLowerCase()) || 
+                        u.email.toLowerCase().includes(adminSearch.toLowerCase())
+                      )
+                      .map(u => {
+                        const isSuper = u.role === 'super';
+                        const currentPerms = u.permissions || ADMIN_DEFAULT_PERMISSIONS[u.role] || [];
+                        const isExpanded = expandedAdminId === u.id;
+                        const totalAvailablePerms = APP_FUNCTIONS.flatMap(g => g.items).length;
+
+                        return (
+                          <React.Fragment key={u.id}>
+                            <tr className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors">
+                              <td className="px-5 py-3">
+                                <p className="font-bold text-gray-900 dark:text-white">{u.name}</p>
+                                <p className="text-xs text-gray-400">{u.email}</p>
+                              </td>
+                              <td className="px-5 py-3">
+                                {isSuper ? (
+                                  <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${roleColors.super}`}>
+                                    Super Admin
+                                  </span>
+                                ) : (
+                                  <select
+                                    value={u.role}
+                                    onChange={e => handleChangeAdminRole(u.id, e.target.value as AdminUser['role'])}
+                                    className={`text-xs font-bold border border-gray-300 dark:border-[#3A3555] rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-purple-500 ${roleColors[u.role]}`}
+                                  >
+                                    <option value="admin">Administrador</option>
+                                    <option value="manager">Gerente</option>
+                                    <option value="collaborator">Colaborador</option>
+                                    <option value="viewer">Visualizador</option>
+                                  </select>
+                                )}
+                              </td>
+                              <td className="px-5 py-3">
+                                <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                                  isSuper ? 'bg-red-50 text-red-700 dark:bg-red-950/20' : 'bg-purple-50 text-purple-700 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/30'
+                                }`}>
+                                  {isSuper ? 'Acesso Total' : `${currentPerms.length} de ${totalAvailablePerms} autorizadas`}
+                                </span>
+                              </td>
+                              <td className="px-5 py-3 text-center">
+                                {isSuper ? (
+                                  <span className="text-xs text-gray-400 italic">Inalterável</span>
+                                ) : (
+                                  <button
+                                    onClick={() => setExpandedAdminId(isExpanded ? null : u.id)}
+                                    className={`px-3 py-1.5 font-bold rounded-lg text-xs transition-colors shadow-sm ${
+                                      isExpanded 
+                                        ? 'bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300' 
+                                        : 'bg-purple-600 text-white hover:bg-purple-700'
+                                    }`}
+                                  >
+                                    {isExpanded ? 'Fechar' : 'Gerenciar Funções'}
+                                  </button>
+                                )}
+                              </td>
+                            </tr>
+                            {isExpanded && !isSuper && (
+                              <tr>
+                                <td colSpan={4} className="px-5 py-4 bg-gray-50/30 dark:bg-black/10">
+                                  <div className="border border-purple-100 dark:border-[#2A2545] rounded-xl p-5 bg-white dark:bg-[#1E1B38] space-y-4 shadow-inner">
+                                    <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-gray-100 dark:border-white/5 pb-2.5 gap-2">
+                                      <div>
+                                        <h4 className="font-extrabold text-sm text-gray-900 dark:text-white flex items-center gap-1.5">
+                                          🔒 Customizar Funções de {u.name}
+                                        </h4>
+                                        <p className="text-[10px] text-gray-400 dark:text-gray-500">
+                                          Modificações criam permissões personalizadas (com desvio das configurações originais do cargo).
+                                        </p>
+                                      </div>
+                                      <div className="flex flex-wrap gap-2.5">
+                                        <button
+                                          type="button"
+                                          onClick={() => handleResetToRoleDefaults(u.id)}
+                                          className="px-2.5 py-1.5 bg-yellow-50 dark:bg-yellow-950/20 text-yellow-700 dark:text-yellow-400 border border-yellow-100 dark:border-yellow-900/30 text-[10px] font-bold rounded hover:bg-yellow-100 dark:hover:bg-yellow-950/30 transition-colors"
+                                        >
+                                          ↺ Restaurar Padrão do Cargo ({roleLabels[u.role]})
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleSelectAllAdminPermissions(u.id)}
+                                          className="px-2.5 py-1.5 bg-purple-50 dark:bg-purple-950/20 text-purple-700 dark:text-purple-400 border border-purple-100 dark:border-purple-900/30 text-[10px] font-bold rounded hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
+                                        >
+                                          ✓ Liberar Tudo
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleClearAllAdminPermissions(u.id)}
+                                          className="px-2.5 py-1.5 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/30 text-[10px] font-bold rounded hover:bg-red-100 dark:hover:bg-red-950/30 transition-colors"
+                                        >
+                                          ✕ Bloquear Tudo
+                                        </button>
+                                      </div>
+                                    </div>
+
+                                    {/* Permission Checklist Grid */}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                      {APP_FUNCTIONS.map(group => (
+                                        <div key={group.category} className="space-y-2.5 bg-gray-50/50 dark:bg-black/20 p-3.5 rounded-lg border border-gray-100 dark:border-white/5 flex flex-col h-56">
+                                          <h5 className="text-xs font-bold text-gray-800 dark:text-white flex items-center gap-1.5 border-b border-gray-200/50 dark:border-white/5 pb-2 shrink-0">
+                                            <span>{group.icon}</span>
+                                            <span>{group.category}</span>
+                                          </h5>
+                                          <div className="space-y-2 overflow-y-auto flex-1 pr-1">
+                                            {group.items.map(item => {
+                                              const isChecked = currentPerms.includes(item.id);
+                                              return (
+                                                <label
+                                                  key={item.id}
+                                                  className="flex items-start gap-2.5 text-xs text-gray-700 dark:text-gray-300 cursor-pointer hover:text-purple-600 dark:hover:text-purple-400 transition-colors py-0.5"
+                                                >
+                                                  <input
+                                                    type="checkbox"
+                                                    checked={isChecked}
+                                                    onChange={() => handleToggleAdminPermission(u.id, item.id)}
+                                                    className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-3.5 h-3.5 mt-0.5 shrink-0"
+                                                  />
+                                                  <span className="leading-tight">{item.label}</span>
+                                                </label>
+                                              );
+                                            })}
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </td>
+                              </tr>
+                            )}
+                          </React.Fragment>
+                        );
+                      })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
