@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Lawyer, View } from '../../types';
+import type { Lawyer } from '../../types';
 import { mockLawyers } from '../../services/mockLawyerService';
 import { OverviewTab } from './OverviewTab';
 import { RegistrationsTab } from './RegistrationsTab';
@@ -8,20 +8,9 @@ import { SettingsTab } from './SettingsTab';
 import { ServicesManagementTab } from './ServicesManagementTab';
 import { AdminCommandsTab } from './AdminCommandsTab';
 import {
-  IconMoney, IconSettings, IconChart, IconEdit,
+  IconMoney, IconSettings, IconChart, IconEdit, IconShopBag, IconLock,
 } from './AdminShared';
 
-// Inline icons for sidebar
-const IconShopBag = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 11H4L5 9z" />
-  </svg>
-);
-const IconLock = () => (
-  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-  </svg>
-);
 
 // ─── Tab definitions ──────────────────────────────────────────────────────────
 type Tab = 'overview' | 'admin_commands' | 'registrations' | 'finance' | 'services' | 'settings';
@@ -51,7 +40,6 @@ const TAB_GROUPS = [
 ];
 
 interface AdminDashboardProps {
-  onNavigate?: (view: View) => void;
   onLogout?: () => void;
 }
 
@@ -92,8 +80,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
       </div>
 
       <div className="flex flex-col md:flex-row">
+        {/* Mobile backdrop overlay */}
+        {showMobileMenu && (
+          <div
+            className="fixed inset-0 bg-black/40 z-10 md:hidden"
+            onClick={() => setShowMobileMenu(false)}
+          />
+        )}
         {/* Sidebar nav */}
-        <aside className={`w-full md:w-60 shrink-0 bg-white border-r md:min-h-screen ${showMobileMenu ? 'block' : 'hidden md:block'}`}>
+        <aside className={`w-full md:w-60 shrink-0 bg-white border-r md:min-h-screen relative z-20 ${showMobileMenu ? 'block' : 'hidden md:block'}`}>
           <nav className="p-3 space-y-4">
             {TAB_GROUPS.map((group, groupIdx) => (
               <div key={groupIdx} className="space-y-1">

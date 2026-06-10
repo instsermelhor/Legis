@@ -1110,7 +1110,6 @@ const GeneralSettings: React.FC = () => {
     const parsed = saved ? JSON.parse(saved) : mockBiProdutos;
     if (parsed.length > 0 && parsed[0].codigo && !parsed[0].codigo.startsWith('G')) {
       localStorage.setItem('legis_bi_produtos', JSON.stringify(mockBiProdutos));
-      localStorage.setItem('legis_bi_vendas', JSON.stringify(mockBiVendas));
       return mockBiProdutos;
     }
     return parsed;
@@ -1122,7 +1121,7 @@ const GeneralSettings: React.FC = () => {
     const needsMigration = parsed.some((f: BiFornecedor) => f.codigo === 'F01' || f.codigo === 'F02' || f.codigo === 'F03') || !parsed.some((f: BiFornecedor) => f.codigo === 'F0001');
     if (needsMigration) {
       localStorage.setItem('legis_bi_fornecedores', JSON.stringify(mockBiFornecedores));
-      localStorage.setItem('legis_bi_vendas', JSON.stringify(mockBiVendas));
+      // NOTE: Do NOT reset biVendas here — fornecedor migration should not destroy sales data
       return mockBiFornecedores;
     }
     return parsed;
@@ -1204,7 +1203,7 @@ const GeneralSettings: React.FC = () => {
     const defaults = {
       tab_excel_ums: 'Geral (Excel UMS)',
       tab_servicos_aluguel: 'Config. Serviços',
-      sub_vendas: 'Fato Vendas(Servicos)',
+      sub_vendas: 'Fato Vendas (Serviços)',
       sub_clientes: 'Dim Clientes',
       sub_produtos: 'Dim Produtos',
       sub_fornecedores: 'Dim Fornecedores'
@@ -1214,8 +1213,8 @@ const GeneralSettings: React.FC = () => {
       if (parsed.tab_servicos_aluguel === 'Aluguer de Equipamentos') {
         parsed.tab_servicos_aluguel = 'Config. Serviços';
       }
-      if (parsed.sub_vendas === 'fato_vendas (Alugueres)' || parsed.sub_vendas === 'Fato Vendas(Servicos') {
-        parsed.sub_vendas = 'Fato Vendas(Servicos)';
+      if (parsed.sub_vendas === 'fato_vendas (Alugueres)' || parsed.sub_vendas === 'Fato Vendas(Servicos)' || parsed.sub_vendas === 'Fato Vendas(Servicos') {
+        parsed.sub_vendas = 'Fato Vendas (Serviços)';
       }
       if (parsed.sub_clientes === 'dim_clientes (Clientes)') {
         parsed.sub_clientes = 'Dim Clientes';

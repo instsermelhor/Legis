@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import type { Intern } from '../../types';
+import React, { useState, useRef, useMemo } from 'react';
+import type { Intern, Case } from '../../types';
 import { AcademicCapIcon, ClipboardListIcon, UsersIcon, ChatBubbleIcon, XIcon } from '../common/IconComponents';
 import { AREAS_OF_LAW, BRAZILIAN_STATES } from '../../constants';
 import { ChangePasswordModal } from '../common/ChangePasswordModal';
@@ -431,6 +431,14 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
     const supervisorLawyerId = intern.supervisorLawyerId !== undefined ? intern.supervisorLawyerId : mockInternData?.supervisorLawyerId;
     const supervisorLawyer = supervisorLawyerId ? mockLawyers.find(l => l.id === supervisorLawyerId) || null : null;
 
+    const delegatedCases = useMemo(() => {
+        const savedDelegated = localStorage.getItem(`legis_delegated_cases_intern_${intern.id}`);
+        const delegatedIds: string[] = savedDelegated ? JSON.parse(savedDelegated) : [];
+        const savedCases = localStorage.getItem('legis_lawyer_cases');
+        const allCases: Case[] = savedCases ? JSON.parse(savedCases) : [];
+        return allCases.filter(c => delegatedIds.includes(c.id));
+    }, [intern.id]);
+
     const allowedTools = React.useMemo(() => {
         const saved = localStorage.getItem(`legis_perms_intern_${intern.id}`);
         return saved ? JSON.parse(saved) : ['pecas', 'pesquisas', 'audios', 'transcricao', 'fundamentacoes', 'revisao', 'jurisprudencia', 'manifestacao'];
@@ -607,7 +615,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                         {/* KPIs */}
                         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                             <StatCard icon={<AcademicCapIcon className="w-6 h-6 text-primary" />} label="Horas Complementares" value={`${intern.hoursCompleted} / 200h`} />
-                            <StatCard icon={<ClipboardListIcon className="w-6 h-6 text-primary" />} label="Casos Estudados" value={intern.casesStudied?.length || 0} />
+                            <StatCard icon={<ClipboardListIcon className="w-6 h-6 text-primary" />} label="Casos Estudados" value={delegatedCases.length} />
                             <StatCard icon={<UsersIcon className="w-6 h-6 text-primary" />} label="Docs do Curso" value={totalCourseDocs} />
                             <StatCard icon={<ChatBubbleIcon className="w-6 h-6 text-primary" />} label="Notas Lançadas" value={totalGradedSubjects} />
                         </div>
@@ -870,9 +878,9 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                                         <p className="text-xs text-indigo-600">OAB {supervisorLawyer.oab} — {supervisorLawyer.specialties.slice(0, 2).join(', ')}</p>
                                     </div>
                                 </div>
-                                {intern.casesStudied && intern.casesStudied.length > 0 ? (
+                                {delegatedCases && delegatedCases.length > 0 ? (
                                     <div className="space-y-3">
-                                        {intern.casesStudied.map(c => (
+                                        {delegatedCases.map(c => (
                                             <div key={c.id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                                                 <div className="flex items-start justify-between gap-3">
                                                     <div>

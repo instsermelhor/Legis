@@ -76,3 +76,33 @@ export const internStatusBadge = (s: 'ativo' | 'pendente' | 'inativo') => {
   const map = { ativo: ['Ativo', 'bg-green-100 text-green-800'], pendente: ['Pendente', 'bg-yellow-100 text-yellow-800'], inativo: ['Inativo', 'bg-gray-100 text-gray-600'] } as const;
   return <Badge label={map[s][0]} color={map[s][1]} />;
 };
+
+// ─── Shared Role Config ──────────────────────────────────────────────────────
+export const roleLabels: Record<string, string> = {
+  super: 'Super Admin',
+  admin: 'Administrador',
+  manager: 'Gerente',
+  collaborator: 'Colaborador',
+  viewer: 'Visualizador',
+};
+
+export const roleColors: Record<string, string> = {
+  super: 'bg-purple-100 text-purple-800',
+  admin: 'bg-blue-100 text-blue-800',
+  manager: 'bg-indigo-100 text-indigo-800',
+  collaborator: 'bg-green-100 text-green-800',
+  viewer: 'bg-gray-100 text-gray-700',
+};
+
+export const IconShopBag: React.FC = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 11H4L5 9z" />
+  </svg>
+);
+
+export const IconLock: React.FC = () => (
+  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+  </svg>
+);
+

@@ -1,16 +1,23 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { mockProcessosService, Processo } from '../../services/mockProcessosService';
+import { mockLawyers } from '../../services/mockLawyerService';
+import { mockInterns, mockSecretaries } from '../../services/mockDataService';
 
 const fmtCurrency = (v: number) =>
   v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
 interface LegalManagementDashboardProps {
   lawyerName?: string;
+  lawyerOab?: string;
+  lawyerId?: number;
 }
 
-export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> = ({ lawyerName }) => {
+export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> = ({ lawyerName, lawyerOab }) => {
   // Load data from mock service
-  const [processos, setProcessos] = useState<Processo[]>(() => mockProcessosService.getProcessos());
+  const [processos, setProcessos] = useState<Processo[]>(() => {
+    const list = mockProcessosService.getProcessos();
+    return lawyerName ? list.filter(p => p.advogado === lawyerName) : list;
+  });
   
   // Access role: 'gestor' or 'advogado_comum'
   const [userRole, setUserRole] = useState<'gestor' | 'advogado_comum'>('gestor');
@@ -31,6 +38,142 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProcesso, setEditingProcesso] = useState<Processo | null>(null);
 
+  // Console Command states
+  const [commandText, setCommandText] = useState('');
+  const [commandError, setCommandError] = useState('');
+  const [showSubestabelecerModal, setShowSubestabelecerModal] = useState(false);
+  const [showAutorizarModal, setShowAutorizarModal] = useState(false);
+
+  // Subestabelecer form states
+  const [subProcessId, setSubProcessId] = useState('');
+  const [subTargetLawyerId, setSubTargetLawyerId] = useState<number | ''>('');
+  const [subFile, setSubFile] = useState<{ name: string; fileType: string; size: string } | null>(null);
+  const [subPassword, setSubPassword] = useState('');
+  const [subError, setSubError] = useState('');
+  const [subSuccess, setSubSuccess] = useState(false);
+  const subFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Autorizar Acesso form states
+  const [authProcessId, setAuthProcessId] = useState('');
+  const [authCategory, setAuthCategory] = useState<'intern' | 'secretary'>('intern');
+  const [authTargetId, setAuthTargetId] = useState<number | ''>('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [authSuccess, setAuthSuccess] = useState(false);
+
+  const handleExecuteCommand = () => {
+    const cmd = commandText.trim().toLowerCase();
+    if (cmd === 'subestabelecer') {
+      setShowSubestabelecerModal(true);
+      setCommandError('');
+    } else if (cmd === 'autorizar acesso') {
+      setShowAutorizarModal(true);
+      setCommandError('');
+    } else {
+      setCommandError('Comando não reconhecido. Digite "Subestabelecer" ou "Autorizar Acesso" (ou use as sugestões rápidas).');
+    }
+  };
+
+  const handleSubestabelecerSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubError('');
+
+    if (!subProcessId) {
+      setSubError('Por favor, selecione um processo.');
+      return;
+    }
+    if (!subTargetLawyerId) {
+      setSubError('Por favor, selecione o advogado de destino.');
+      return;
+    }
+    if (!subFile) {
+      setSubError('Por favor, faça o upload da Procuração de Subestabelecimento.');
+      return;
+    }
+    if (!subPassword) {
+      setSubError('Por favor, digite sua senha particular para confirmar.');
+      return;
+    }
+
+    const expectedPassword = lawyerOab || 'senha123';
+    if (subPassword !== expectedPassword && subPassword !== '123456' && subPassword !== 'senha123') {
+      setSubError('Senha particular incorreta. Tente novamente.');
+      return;
+    }
+
+    const targetLawyer = mockLawyers.find(l => l.id === Number(subTargetLawyerId));
+    if (!targetLawyer) {
+      setSubError('Advogado selecionado não encontrado.');
+      return;
+    }
+
+    mockProcessosService.updateProcesso(Number(subProcessId), { advogado: targetLawyer.name });
+    
+    const savedDocMeta = {
+      processId: subProcessId,
+      fileName: subFile.name,
+      fileType: subFile.fileType,
+      fileSize: subFile.size,
+      date: new Date().toLocaleDateString('pt-BR'),
+      byLawyer: lawyerName || 'Advogado Gestor'
+    };
+    localStorage.setItem(`legis_subestablishment_doc_${subProcessId}`, JSON.stringify(savedDocMeta));
+
+    setSubSuccess(true);
+    setTimeout(() => {
+      setShowSubestabelecerModal(false);
+      setSubProcessId('');
+      setSubTargetLawyerId('');
+      setSubFile(null);
+      setSubPassword('');
+      setSubSuccess(false);
+      setCommandText('');
+      loadData();
+    }, 1500);
+  };
+
+  const handleAutorizarSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError('');
+
+    if (!authProcessId) {
+      setAuthError('Por favor, selecione um processo.');
+      return;
+    }
+    if (!authTargetId) {
+      setAuthError('Por favor, selecione o profissional.');
+      return;
+    }
+    if (!authPassword) {
+      setAuthError('Por favor, digite sua senha particular para confirmar.');
+      return;
+    }
+
+    const expectedPassword = lawyerOab || 'senha123';
+    if (authPassword !== expectedPassword && authPassword !== '123456' && authPassword !== 'senha123') {
+      setAuthError('Senha particular incorreta. Tente novamente.');
+      return;
+    }
+
+    const key = `legis_delegated_cases_${authCategory}_${authTargetId}`;
+    const saved = localStorage.getItem(key);
+    const delegatedList: string[] = saved ? JSON.parse(saved) : [];
+    if (!delegatedList.includes(authProcessId)) {
+      delegatedList.push(authProcessId);
+      localStorage.setItem(key, JSON.stringify(delegatedList));
+    }
+
+    setAuthSuccess(true);
+    setTimeout(() => {
+      setShowAutorizarModal(false);
+      setAuthProcessId('');
+      setAuthTargetId('');
+      setAuthPassword('');
+      setAuthSuccess(false);
+      setCommandText('');
+    }, 1500);
+  };
+
   // Form states
   const [formDept, setFormDept] = useState<'Cível' | 'Trabalhista' | 'Societário'>('Cível');
   const [formAdvogado, setFormAdvogado] = useState('');
@@ -42,7 +185,8 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
 
   // Reload data
   const loadData = () => {
-    setProcessos(mockProcessosService.getProcessos());
+    const list = mockProcessosService.getProcessos();
+    setProcessos(lawyerName ? list.filter(p => p.advogado === lawyerName) : list);
   };
 
   // Save or edit handler
@@ -80,7 +224,7 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
   const handleOpenAdd = () => {
     setEditingProcesso(null);
     setFormDept('Cível');
-    setFormAdvogado('');
+    setFormAdvogado(lawyerName || '');
     setFormGestor('');
     const today = new Date().toISOString().split('T')[0];
     setFormDataEntrada(today);
@@ -374,6 +518,75 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
         </div>
       </div>
 
+      {/* Console de Comandos do Gestor (Full Access) */}
+      {userRole === 'gestor' && (
+        <div className="bg-gradient-to-r from-[#1E1B38] to-[#120F24] p-5 rounded-xl border border-primary/30 shadow-md space-y-3 text-white">
+          <div className="flex items-center justify-between border-b border-white/10 pb-2">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-primary-light flex items-center gap-1.5">
+              <span>💻</span> Console de Comandos do Gestor
+            </h3>
+            <span className="text-[10px] text-gray-400 font-mono">Modo: Full Access</span>
+          </div>
+          
+          <div className="space-y-2">
+            <label className="block text-xs font-semibold text-gray-300">Digite um comando e pressione Enter ou clique em Executar:</label>
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-primary-light font-mono text-sm">&gt;</span>
+                <input
+                  type="text"
+                  placeholder='Ex: "Subestabelecer" ou "Autorizar Acesso"'
+                  value={commandText}
+                  onChange={e => {
+                    setCommandText(e.target.value);
+                    setCommandError('');
+                  }}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      handleExecuteCommand();
+                    }
+                  }}
+                  className="w-full text-sm bg-black/40 border border-white/10 rounded-lg pl-8 pr-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder-white/30"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleExecuteCommand}
+                className="px-4 py-2 bg-primary hover:bg-primary/90 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5"
+              >
+                <span>⚙</span> Executar
+              </button>
+            </div>
+            {commandError && <p className="text-[11px] text-red-400 font-semibold">{commandError}</p>}
+            
+            {/* Command Suggestions / Autocomplete */}
+            <div className="flex flex-wrap items-center gap-2 pt-1.5 text-[11px] text-gray-400">
+              <span>Sugestões rápidas:</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setCommandText('Subestabelecer');
+                  setCommandError('');
+                }}
+                className="px-2 py-1 bg-white/5 hover:bg-white/10 text-white/90 border border-white/10 rounded font-semibold transition-colors animate-pulse"
+              >
+                Subestabelecer
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setCommandText('Autorizar Acesso');
+                  setCommandError('');
+                }}
+                className="px-2 py-1 bg-white/5 hover:bg-white/10 text-white/90 border border-white/10 rounded font-semibold transition-colors animate-pulse"
+              >
+                Autorizar Acesso
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Alerts & Operational Bottlenecks Panel */}
       {(alertProcessosParados.length > 0 || kpis.aguardandoDoc > 0) && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -436,7 +649,7 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
                 setFilterStatus('All');
                 setFilterDept('All');
                 setFilterGestor('All');
-                setFilterAdvogado('All');
+                setFilterAdvogado(lawyerName || 'All');
                 setSearchQuery('');
                 setDrillDown(null);
               }}
@@ -519,10 +732,17 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
             <select
               value={filterAdvogado}
               onChange={e => setFilterAdvogado(e.target.value)}
-              className="w-full text-xs border border-gray-300 dark:border-[#332E55] rounded-lg px-2.5 py-1.5 bg-white dark:bg-[#1A1730]"
+              className="w-full text-xs border border-gray-300 dark:border-[#332E55] rounded-lg px-2.5 py-1.5 bg-white dark:bg-[#1A1730] disabled:opacity-85 disabled:cursor-not-allowed"
+              disabled={!!lawyerName}
             >
-              <option value="All">Todos Advogados</option>
-              {advogadosList.map(a => <option key={a} value={a}>{a}</option>)}
+              {lawyerName ? (
+                <option value={lawyerName}>{lawyerName}</option>
+              ) : (
+                <>
+                  <option value="All">Todos Advogados</option>
+                  {advogadosList.map(a => <option key={a} value={a}>{a}</option>)}
+                </>
+              )}
             </select>
           </div>
 
@@ -1087,8 +1307,9 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
                   placeholder="Nome do advogado"
                   value={formAdvogado}
                   onChange={e => setFormAdvogado(e.target.value)}
-                  className="w-full text-xs border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full text-xs border border-gray-300 rounded-lg px-3 py-2 bg-gray-50 disabled:opacity-85 disabled:cursor-not-allowed"
                   required
+                  disabled={!!lawyerName}
                 />
               </div>
 
@@ -1173,6 +1394,307 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
                   className="px-4 py-2 bg-primary text-white text-xs font-semibold rounded-lg hover:bg-primary-dark"
                 >
                   Salvar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Procuração Subestabelecimento Modal */}
+      {showSubestabelecerModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#1A1730] rounded-2xl shadow-2xl w-full max-w-md border border-gray-200 dark:border-[#2A2545] overflow-hidden">
+            <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-[#2A2545]">
+              <div>
+                <h2 className="text-base font-bold text-gray-800 dark:text-white">Procuração Subestabelecimento</h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Subestabeleça a gestão do processo para outro advogado</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowSubestabelecerModal(false);
+                  setSubError('');
+                }}
+                className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-[#2A2545] text-gray-400"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <form onSubmit={handleSubestabelecerSubmit} className="p-5 space-y-4">
+              {/* Select Process */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase mb-1">1. Selecionar Processo *</label>
+                <select
+                  value={subProcessId}
+                  onChange={e => setSubProcessId(e.target.value)}
+                  className="w-full text-xs border border-gray-300 dark:border-[#2A2545] rounded-lg px-3 py-2 bg-white dark:bg-[#1A1730] dark:text-white"
+                  required
+                >
+                  <option value="">Selecione um processo...</option>
+                  {processos.map(p => (
+                    <option key={p.id_processo} value={p.id_processo}>
+                      Proc #{p.id_processo} - Dept: {p.departamento} ({p.status})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Select Target Lawyer */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase mb-1">2. Advogado de Destino *</label>
+                <select
+                  value={subTargetLawyerId}
+                  onChange={e => setSubTargetLawyerId(e.target.value === '' ? '' : Number(e.target.value))}
+                  className="w-full text-xs border border-gray-300 dark:border-[#2A2545] rounded-lg px-3 py-2 bg-white dark:bg-[#1A1730] dark:text-white"
+                  required
+                >
+                  <option value="">Selecione o advogado...</option>
+                  {mockLawyers
+                    .filter(l => l.name !== lawyerName)
+                    .map(l => (
+                      <option key={l.id} value={l.id}>
+                        {l.name} - OAB {l.oab} ({l.specialties[0]})
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              {/* Upload Document */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase mb-2">3. Procuração de Subestabelecimento (.pdf, .jpg, .jpeg, .png) *</label>
+                <input
+                  type="file"
+                  ref={subFileInputRef}
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  className="hidden"
+                  onChange={e => {
+                    const f = e.target.files?.[0];
+                    if (!f) return;
+                    const allowed = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png'];
+                    if (!allowed.includes(f.type)) {
+                      setSubError('Formato não permitido. Use PDF, JPG, JPEG ou PNG.');
+                      return;
+                    }
+                    setSubFile({
+                      name: f.name,
+                      fileType: f.type.includes('pdf') ? 'PDF' : 'Imagem',
+                      size: `${(f.size / (1024 * 1024)).toFixed(2)} MB`
+                    });
+                    setSubError('');
+                  }}
+                />
+                {!subFile ? (
+                  <button
+                    type="button"
+                    onClick={() => subFileInputRef.current?.click()}
+                    className="w-full border-2 border-dashed border-primary/20 dark:border-primary/40 rounded-xl py-5 text-center hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors"
+                  >
+                    <p className="text-2xl mb-1">📤</p>
+                    <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Carregar arquivo da procuração</p>
+                    <p className="text-xs text-gray-400 mt-0.5">PDF, JPG, JPEG ou PNG</p>
+                  </button>
+                ) : (
+                  <div className="flex items-center gap-3 bg-primary/10 border border-primary/30 rounded-xl px-4 py-3">
+                    <span className="text-xl shrink-0">{subFile.fileType === 'PDF' ? '📄' : '🖼️'}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-800 dark:text-white truncate">{subFile.name}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-400">{subFile.fileType} · {subFile.size}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSubFile(null)}
+                      className="shrink-0 text-red-500 hover:text-red-700 text-xs font-bold"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Password field */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase mb-1">4. Senha Particular para Confirmar *</label>
+                <input
+                  type="password"
+                  placeholder="Digite sua senha particular (ex: sua OAB ou 123456)"
+                  value={subPassword}
+                  onChange={e => setSubPassword(e.target.value)}
+                  className="w-full text-xs border border-gray-300 dark:border-[#2A2545] rounded-lg px-3 py-2 bg-white dark:bg-[#1A1730] dark:text-white focus:ring-2 focus:ring-primary/50 focus:outline-none"
+                  required
+                />
+              </div>
+
+              {subError && <p className="text-xs text-red-500 font-semibold">{subError}</p>}
+
+              {subSuccess && (
+                <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 rounded-xl px-4 py-2.5 text-green-800 dark:text-green-400 text-xs font-semibold">
+                  ✅ Subestabelecimento realizado! O processo foi transferido.
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-3 border-t border-gray-200 dark:border-[#2A2545]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSubestabelecerModal(false);
+                    setSubError('');
+                  }}
+                  className="flex-1 px-4 py-2 text-xs font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 dark:text-white dark:bg-transparent dark:border-[#2A2545] dark:hover:bg-[#2A2545]"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={subSuccess}
+                  className="flex-1 px-4 py-2 text-xs font-semibold text-white bg-primary rounded-xl hover:bg-primary/95 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Confirmar Subestabelecimento
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Autorizar Acesso ao Caso Modal */}
+      {showAutorizarModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#1A1730] rounded-2xl shadow-2xl w-full max-w-md border border-gray-200 dark:border-[#2A2545] overflow-hidden">
+            <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-[#2A2545]">
+              <div>
+                <h2 className="text-base font-bold text-gray-800 dark:text-white">Autorizar Acesso ao Caso</h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Delegue acesso de um processo para sua equipe</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAutorizarModal(false);
+                  setAuthError('');
+                }}
+                className="p-1.5 rounded-full hover:bg-gray-100 dark:hover:bg-[#2A2545] text-gray-400"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <form onSubmit={handleAutorizarSubmit} className="p-5 space-y-4">
+              {/* Select Process */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase mb-1">1. Selecionar Processo *</label>
+                <select
+                  value={authProcessId}
+                  onChange={e => setAuthProcessId(e.target.value)}
+                  className="w-full text-xs border border-gray-300 dark:border-[#2A2545] rounded-lg px-3 py-2 bg-white dark:bg-[#1A1730] dark:text-white"
+                  required
+                >
+                  <option value="">Selecione um processo...</option>
+                  {processos.map(p => (
+                    <option key={p.id_processo} value={p.id_processo}>
+                      Proc #{p.id_processo} - Dept: {p.departamento} ({p.status})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Select Category */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase mb-2">2. Categoria do Profissional *</label>
+                <div className="flex gap-4">
+                  <label className="flex items-center gap-2 text-xs cursor-pointer dark:text-white">
+                    <input
+                      type="radio"
+                      name="authCategory"
+                      checked={authCategory === 'intern'}
+                      onChange={() => {
+                        setAuthCategory('intern');
+                        setAuthTargetId('');
+                      }}
+                      className="text-primary focus:ring-primary"
+                    />
+                    <span>Estagiário</span>
+                  </label>
+                  <label className="flex items-center gap-2 text-xs cursor-pointer dark:text-white">
+                    <input
+                      type="radio"
+                      name="authCategory"
+                      checked={authCategory === 'secretary'}
+                      onChange={() => {
+                        setAuthCategory('secretary');
+                        setAuthTargetId('');
+                      }}
+                      className="text-primary focus:ring-primary"
+                    />
+                    <span>Secretário / Assist. Jurídico</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Select Target Professional */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase mb-1">3. Selecionar Profissional *</label>
+                <select
+                  value={authTargetId}
+                  onChange={e => setAuthTargetId(e.target.value === '' ? '' : Number(e.target.value))}
+                  className="w-full text-xs border border-gray-300 dark:border-[#2A2545] rounded-lg px-3 py-2 bg-white dark:bg-[#1A1730] dark:text-white"
+                  required
+                >
+                  <option value="">Selecione o profissional...</option>
+                  {authCategory === 'intern'
+                    ? mockInterns.map(i => (
+                        <option key={i.id} value={i.id}>
+                          {i.name} ({i.university})
+                        </option>
+                      ))
+                    : mockSecretaries.map(s => (
+                        <option key={s.id} value={s.id}>
+                          {s.name} ({s.availability === 'integral' ? 'Integral' : 'Meio Período'})
+                        </option>
+                      ))}
+                </select>
+              </div>
+
+              {/* Password field */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase mb-1">4. Senha Particular para Confirmar *</label>
+                <input
+                  type="password"
+                  placeholder="Digite sua senha particular (ex: sua OAB ou 123456)"
+                  value={authPassword}
+                  onChange={e => setAuthPassword(e.target.value)}
+                  className="w-full text-xs border border-gray-300 dark:border-[#2A2545] rounded-lg px-3 py-2 bg-white dark:bg-[#1A1730] dark:text-white focus:ring-2 focus:ring-primary/50 focus:outline-none"
+                  required
+                />
+              </div>
+
+              {authError && <p className="text-xs text-red-500 font-semibold">{authError}</p>}
+
+              {authSuccess && (
+                <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 rounded-xl px-4 py-2.5 text-green-800 dark:text-green-400 text-xs font-semibold">
+                  ✅ Autorização de acesso concedida com sucesso!
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-3 border-t border-gray-200 dark:border-[#2A2545]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAutorizarModal(false);
+                    setAuthError('');
+                  }}
+                  className="flex-1 px-4 py-2 text-xs font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 dark:text-white dark:bg-transparent dark:border-[#2A2545] dark:hover:bg-[#2A2545]"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={authSuccess}
+                  className="flex-1 px-4 py-2 text-xs font-semibold text-white bg-primary rounded-xl hover:bg-primary/95 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  Confirmar Autorização
                 </button>
               </div>
             </form>

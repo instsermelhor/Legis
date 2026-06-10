@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import type { Secretary } from '../../types';
+import React, { useState, useRef, useMemo } from 'react';
+import type { Secretary, Case } from '../../types';
 import { ChangePasswordModal } from '../common/ChangePasswordModal';
 import { ChangeEmailModal } from '../common/ChangeEmailModal';
 import { LawyerInfoPopup } from '../common/LawyerInfoPopup';
@@ -157,15 +157,31 @@ const PersonalDocModal: React.FC<PersonalDocModalProps> = ({ onClose, onConfirm 
 interface ProcessDocModalProps {
   onClose: () => void;
   onConfirm: (doc: ProcessDoc) => void;
+  delegatedCases: Case[];
 }
 
-const ProcessDocModal: React.FC<ProcessDocModalProps> = ({ onClose, onConfirm }) => {
+const ProcessDocModal: React.FC<ProcessDocModalProps> = ({ onClose, onConfirm, delegatedCases }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [pendingFile, setPendingFile] = useState<{ name: string; fileType: 'PDF' | 'Imagem'; size: string } | null>(null);
   const [processNumber, setProcessNumber] = useState('');
   const [oab, setOab] = useState('');
   const [lawyerName, setLawyerName] = useState('');
   const [sent, setSent] = useState(false);
+
+  const handleSelectCase = (caseId: string) => {
+    setProcessNumber(caseId);
+    if (!caseId) {
+      setOab('');
+      setLawyerName('');
+      return;
+    }
+    const matched = delegatedCases.find(c => c.id === caseId);
+    if (matched) {
+      const matchedLawyer = mockLawyers.find(l => l.id === matched.lawyerId || l.name === matched.lawyerName);
+      setOab(matchedLawyer ? matchedLawyer.oab : 'OAB N/D');
+      setLawyerName(matched.lawyerName);
+    }
+  };
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -186,54 +202,76 @@ const ProcessDocModal: React.FC<ProcessDocModalProps> = ({ onClose, onConfirm })
     }, 900);
   };
 
-  const fieldCls = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300';
+  const fieldCls = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:text-white';
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center justify-between p-5 border-b">
+        <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-[#2A2545]">
           <div>
-            <h2 className="text-base font-bold text-gray-800">📂 Enviar Documento de Processo</h2>
-            <p className="text-xs text-gray-500 mt-0.5">Vincule o documento ao processo e ao advogado</p>
+            <h2 className="text-base font-bold text-gray-800 dark:text-white">📂 Enviar Documento de Processo</h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Vincule o documento ao processo e ao advogado</p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100"><XIcon className="w-5 h-5 text-gray-500" /></button>
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-[#2A2545]"><XIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" /></button>
         </div>
         <div className="p-5 space-y-4">
           {/* Process info */}
           <div className="space-y-3">
-            <p className="text-xs font-bold text-gray-600 uppercase">Identificação do Processo</p>
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Número do Processo *</label>
-              <input value={processNumber} onChange={e => setProcessNumber(e.target.value)} placeholder="Ex: 0000000-00.0000.0.00.0000" className={fieldCls} />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">OAB do Advogado *</label>
-                <input value={oab} onChange={e => setOab(e.target.value)} placeholder="Ex: SP123456" className={fieldCls} />
+            <p className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">Identificação do Processo</p>
+            {delegatedCases.length === 0 ? (
+              <div className="p-3 bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 text-xs border border-red-200 dark:border-red-900 rounded-lg">
+                Nenhum caso foi delegado a você ainda. Não é possível vincular documentos sem casos delegados.
               </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Nome do Advogado *</label>
-                <input value={lawyerName} onChange={e => setLawyerName(e.target.value)} placeholder="Dr. Nome" className={fieldCls} />
-              </div>
-            </div>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Selecionar Processo Delegado *</label>
+                  <select
+                    value={processNumber}
+                    onChange={e => handleSelectCase(e.target.value)}
+                    className={fieldCls}
+                  >
+                    <option value="" className="text-gray-500">Selecione um processo...</option>
+                    {delegatedCases.map(c => (
+                      <option key={c.id} value={c.id}>
+                        {c.title} (Proc: #{c.id})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                {processNumber && (
+                  <div className="grid grid-cols-2 gap-3 animate-fade-in">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">OAB do Advogado</label>
+                      <input value={oab} readOnly className={`${fieldCls} bg-gray-50 dark:bg-black/40 cursor-not-allowed`} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Nome do Advogado</label>
+                      <input value={lawyerName} readOnly className={`${fieldCls} bg-gray-50 dark:bg-black/40 cursor-not-allowed`} />
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </div>
           {/* File */}
           <div>
-            <label className="block text-xs font-bold text-gray-600 uppercase mb-2">Arquivo do Documento</label>
+            <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 uppercase mb-2">Arquivo do Documento</label>
             <input ref={fileInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={handleFile} />
             {!pendingFile ? (
               <button onClick={() => fileInputRef.current?.click()}
-                className="w-full border-2 border-dashed border-purple-200 rounded-xl py-5 text-center hover:bg-purple-50 hover:border-purple-400 transition-colors">
+                disabled={delegatedCases.length === 0}
+                className="w-full border-2 border-dashed border-purple-200 dark:border-purple-900/60 rounded-xl py-5 text-center hover:bg-purple-50 dark:hover:bg-purple-950/20 hover:border-purple-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 <p className="text-2xl mb-1">📁</p>
-                <p className="text-sm font-medium text-gray-600">Clique para selecionar o arquivo</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Clique para selecionar o arquivo</p>
                 <p className="text-xs text-gray-400 mt-0.5">{ALLOWED_LABEL}</p>
               </button>
             ) : (
-              <div className="flex items-center gap-3 bg-purple-50 border border-purple-200 rounded-xl px-4 py-3">
+              <div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900 rounded-xl px-4 py-3">
                 <span className="text-xl shrink-0">{pendingFile.fileType === 'PDF' ? '📄' : '🖼️'}</span>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold text-gray-800 truncate">{pendingFile.name}</p>
-                  <p className="text-xs text-gray-400">{pendingFile.fileType} · {pendingFile.size}</p>
+                  <p className="text-sm font-semibold text-gray-800 dark:text-white truncate">{pendingFile.name}</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-400">{pendingFile.fileType} · {pendingFile.size}</p>
                 </div>
                 <button onClick={() => setPendingFile(null)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
               </div>
@@ -241,17 +279,17 @@ const ProcessDocModal: React.FC<ProcessDocModalProps> = ({ onClose, onConfirm })
           </div>
           {/* Confirmation summary */}
           {pendingFile && processNumber && oab && lawyerName && !sent && (
-            <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 space-y-1 text-xs">
-              <p className="font-bold text-purple-800 text-sm mb-2">✔ Confirme os dados antes de enviar</p>
-              <p><span className="font-semibold text-gray-600">Arquivo:</span> {pendingFile.name}</p>
-              <p><span className="font-semibold text-gray-600">Processo:</span> {processNumber}</p>
-              <p><span className="font-semibold text-gray-600">OAB:</span> {oab}</p>
-              <p><span className="font-semibold text-gray-600">Advogado:</span> {lawyerName}</p>
+            <div className="bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900 rounded-xl p-4 space-y-1 text-xs animate-fade-in">
+              <p className="font-bold text-purple-800 dark:text-purple-400 text-sm mb-2">✔ Confirme os dados antes de enviar</p>
+              <p><span className="font-semibold text-gray-600 dark:text-gray-400">Arquivo:</span> {pendingFile.name}</p>
+              <p><span className="font-semibold text-gray-600 dark:text-gray-400">Processo:</span> {processNumber}</p>
+              <p><span className="font-semibold text-gray-600 dark:text-gray-400">OAB:</span> {oab}</p>
+              <p><span className="font-semibold text-gray-600 dark:text-gray-400">Advogado:</span> {lawyerName}</p>
             </div>
           )}
-          {sent && <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-2 text-green-800 text-sm font-semibold">✅ Documento enviado e vinculado ao processo!</div>}
+          {sent && <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 rounded-xl px-4 py-2 text-green-800 dark:text-green-400 text-sm font-semibold">✅ Documento enviado e vinculado ao processo!</div>}
         </div>
-        <div className="flex gap-3 px-5 py-4 border-t bg-gray-50 rounded-b-2xl">
+        <div className="flex gap-3 px-5 py-4 border-t border-gray-200 dark:border-[#2A2545] bg-gray-50 dark:bg-black/20 rounded-b-2xl">
           <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">Cancelar</button>
           <button onClick={handleSend} disabled={!canSend || sent}
             className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
@@ -324,6 +362,14 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
   const allowedTools = React.useMemo(() => {
     const saved = localStorage.getItem(`legis_perms_secretary_${secretary.id}`);
     return saved ? JSON.parse(saved) : ['pecas', 'pesquisas', 'audios', 'transcricao', 'fundamentacoes', 'revisao', 'jurisprudencia', 'manifestacao'];
+  }, [secretary.id]);
+
+  const delegatedCases = useMemo(() => {
+    const savedDelegated = localStorage.getItem(`legis_delegated_cases_secretary_${secretary.id}`);
+    const delegatedIds: string[] = savedDelegated ? JSON.parse(savedDelegated) : [];
+    const savedCases = localStorage.getItem('legis_lawyer_cases');
+    const allCases: Case[] = savedCases ? JSON.parse(savedCases) : [];
+    return allCases.filter(c => delegatedIds.includes(c.id));
   }, [secretary.id]);
 
   const [showEmailModal, setShowEmailModal] = useState(false);
@@ -881,6 +927,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
         <ProcessDocModal
           onClose={() => setShowProcessDocModal(false)}
           onConfirm={doc => setProcessDocs(prev => [...prev, doc])}
+          delegatedCases={delegatedCases}
         />
       )}
       {showPasswordModal && <ChangePasswordModal onClose={() => setShowPasswordModal(false)} onSave={(pwd, newPwd) => { if (newPwd.length < 4) return false; alert("Senha alterada com sucesso!"); return true; }} />}
