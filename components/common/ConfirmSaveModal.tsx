@@ -36,7 +36,7 @@ export const ConfirmSaveModal: React.FC<ConfirmSaveModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fade-in" onClick={onCancel}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative dark:bg-[#1A1730] dark:border dark:border-[#2A2545]" onClick={e => e.stopPropagation()}>
         <div className="p-6 space-y-5">
           {/* Header */}
           <div className="flex items-start justify-between">
@@ -88,7 +88,7 @@ export const ConfirmSaveModal: React.FC<ConfirmSaveModalProps> = ({
                 type="password"
                 value={adminPassword}
                 onChange={e => setAdminPassword(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500"
                 placeholder="Confirme com sua senha admin"
               />
             </div>
