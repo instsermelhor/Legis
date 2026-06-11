@@ -40,33 +40,34 @@ html.dark .bg-white.rounded-xl {
 
 /* ═══════════════════════════════════════════════════════
    CAMPOS DE DIGITAÇÃO — LIGHT MODE (fundo branco/claro)
-   Garante texto escuro em todos os inputs com fundo claro,
-   independente de classes Tailwind ou herança de cor.
-   -webkit-text-fill-color prevalece sobre color no Chrome.
+   Fallback sem !important — deixa as regras do dark mode
+   e classes Tailwind sobrescreverem normalmente.
+   O -webkit-text-fill-color SEM !important é suficiente
+   como fallback quando nenhuma outra regra define a cor.
 ═══════════════════════════════════════════════════════ */
 
 /* ── Base global: todos os inputs em modo claro ──────── */
 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
 textarea,
 select {
-  color: #111827 !important;
-  -webkit-text-fill-color: #111827 !important;
+  color: #111827;
+  -webkit-text-fill-color: #111827;
 }
 
 /* ── Placeholder em modo claro ───────────────────────── */
 input::placeholder,
 textarea::placeholder {
-  color: #9CA3AF !important;
-  -webkit-text-fill-color: #9CA3AF !important;
-  opacity: 1 !important;
+  color: #9CA3AF;
+  -webkit-text-fill-color: #9CA3AF;
+  opacity: 1;
 }
 
 /* ── Focus em modo claro ─────────────────────────────── */
 input:focus:not([type="checkbox"]):not([type="radio"]),
 textarea:focus,
 select:focus {
-  color: #111827 !important;
-  -webkit-text-fill-color: #111827 !important;
+  color: #111827;
+  -webkit-text-fill-color: #111827;
 }
 
 /* ── Inputs com fundo branco explícito (bg-white) ────── */
@@ -76,15 +77,8 @@ select[class*="bg-white"],
 [class*="bg-white"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
 [class*="bg-white"] textarea,
 [class*="bg-white"] select {
-  color: #111827 !important;
-  -webkit-text-fill-color: #111827 !important;
-}
-
-/* ── Inputs sem fundo declarado (herdam fundo branco da página) */
-input:not([class*="bg-\["]):not([class*="input-dark"]):not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
-textarea:not([class*="bg-\["]):not([class*="input-dark"]) {
-  color: #111827 !important;
-  -webkit-text-fill-color: #111827 !important;
+  color: #111827;
+  -webkit-text-fill-color: #111827;
 }
 
 /* ── Autofill em modo claro ──────────────────────────── */
@@ -97,6 +91,26 @@ select:-webkit-autofill:not(.input-dark) {
   caret-color: #7C3AED !important;
   transition: background-color 9999s ease-in-out 0s !important;
 }
+
+/* ═══════════════════════════════════════════════════════
+   UTILITÁRIO: .select-text-dark
+   Força fonte escura (#111827) em qualquer contexto,
+   incluindo dark mode. Usar na Disponibilidade e campos
+   semelhantes que devem manter texto escuro sempre.
+═══════════════════════════════════════════════════════ */
+.select-text-dark,
+.select-text-dark:focus {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+}
+html.dark .select-text-dark,
+html.dark .select-text-dark:focus {
+  color: #111827 !important;
+  -webkit-text-fill-color: #111827 !important;
+  background-color: #ffffff !important;
+  border-color: #D1D5DB !important;
+}
+
 
 /* ═══════════════════════════════════════════════════════
    CAMPOS DE DIGITAÇÃO — DARK MODE
