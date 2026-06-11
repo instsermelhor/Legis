@@ -240,7 +240,7 @@ export const SecretariadoSignupForm: React.FC<SecretariadoSignupFormProps> = ({ 
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Estado (UF) *</label>
-                <select value={data.state} onChange={f('state')} className={`${inputCls(errors.state)} bg-white`}>
+                <select value={data.state} onChange={f('state')} className={`${inputCls(errors.state)} bg-white text-gray-900`}>
                   <option value="">Selecione...</option>
                   {BRAZILIAN_STATES.map(s => <option key={s.uf} value={s.uf}>{s.name} ({s.uf})</option>)}
                 </select>
@@ -261,7 +261,7 @@ export const SecretariadoSignupForm: React.FC<SecretariadoSignupFormProps> = ({ 
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Disponibilidade</label>
-                <select value={data.availability} onChange={f('availability')} className={`${inputCls()} bg-white`}>
+                <select value={data.availability} onChange={f('availability')} className={`${inputCls()} bg-white text-gray-900`}>
                   <option value="integral">Tempo Integral</option>
                   <option value="meio-periodo">Meio Período</option>
                   <option value="freelancer">Freelancer</option>
