@@ -8,6 +8,8 @@ import { ChangePasswordModal } from '../common/ChangePasswordModal';
 import { ChangeEmailModal } from '../common/ChangeEmailModal';
 import { BRAZILIAN_STATES } from '../../constants';
 import { EfficiencyServicesPage } from './EfficiencyServicesPage';
+import SocialLinksEditor from '../common/SocialLinksEditor';
+import type { SocialLink } from '../common/SocialLinksEditor';
 
 interface ClientDashboardProps {
   user: User;
@@ -394,6 +396,16 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
     const [showEmailModal, setShowEmailModal] = useState(false);
     const [profileDocs, setProfileDocs] = useState<UploadedDoc[]>([]);
     const profileFileRef = useRef<HTMLInputElement>(null);
+    // Redes Sociais — mesmo padrão do admin (array { provider, url })
+    const [clientSocialLinks, setClientSocialLinks] = useState<SocialLink[]>(
+        () => {
+            try {
+                const saved = localStorage.getItem('legis_user');
+                if (saved) { const u = JSON.parse(saved); return u.socialLinks || []; }
+            } catch {}
+            return [];
+        }
+    );
 
     const messagesEndRef = useRef<null | HTMLDivElement>(null);
     const activeCase = user.caseHistory?.find(c => c.status === 'Ativo');
@@ -810,6 +822,14 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                                 </div>
                             </div>
 
+                            {/* Redes Sociais */}
+                            <div className="pt-4 border-t">
+                                <SocialLinksEditor
+                                    value={clientSocialLinks}
+                                    onChange={setClientSocialLinks}
+                                />
+                            </div>
+
                             <button onClick={() => {
                                 // Persist profile form to localStorage
                                 try {
@@ -821,6 +841,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ user, onUpdate
                                             name: profileForm.name || u.name,
                                             phone: profileForm.phone || u.phone,
                                             address: profileForm.street || u.address,
+                                            socialLinks: clientSocialLinks,
                                         }));
                                     }
                                 } catch {

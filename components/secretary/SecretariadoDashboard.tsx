@@ -8,6 +8,8 @@ import { mockLawyers } from '../../services/mockLawyerService';
 import { XIcon } from '../common/IconComponents';
 import { LegalAiTools } from '../common/LegalAiTools';
 import { EfficiencyServicesPage } from '../client/EfficiencyServicesPage';
+import SocialLinksEditor from '../common/SocialLinksEditor';
+import type { SocialLink } from '../common/SocialLinksEditor';
 
 
 interface SecretariadoDashboardProps {
@@ -394,7 +396,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
   const [syncMsg, setSyncMsg] = useState('');
 
   // Profile form — mirrors all fields shown in Meu Perfil
-  const [profile, setProfile] = useState({
+    const [profile, setProfile] = useState({
     name: secretary.name || '',
     phone: secretary.phone || '',
     city: secretary.city || '',
@@ -405,13 +407,21 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
     bio: secretary.bio || '',
     areasOfKnowledge: secretary.areasOfKnowledge || [],
   });
+  // Redes Sociais — mesmo padrão do admin (array { provider, url })
+  const [secretarySocialLinks, setSecretarySocialLinks] = useState<SocialLink[]>(
+    () => (secretary as any).socialLinks || []
+  );
 
   const assignedLawyer = secretary.assignedLawyerId
     ? mockLawyers.find(l => l.id === secretary.assignedLawyerId) || null
     : null;
 
   const handleSaveProfile = () => {
-    if (onUpdateSecretary) onUpdateSecretary({ ...profile, experience: Number(profile.experience) });
+    if (onUpdateSecretary) onUpdateSecretary({
+      ...profile,
+      experience: Number(profile.experience),
+      socialLinks: secretarySocialLinks,
+    } as any);
     setProfileSaved(true);
     setTimeout(() => setProfileSaved(false), 2500);
   };
@@ -643,6 +653,16 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
                   );
                 })}
               </div>
+            </div>
+
+            {/* Redes Sociais */}
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-2 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545]">
+              <h3 className="text-base font-bold text-gray-800 border-b pb-2">🌐 Redes Sociais</h3>
+              <p className="text-xs text-gray-500 mb-3">Links visíveis para o advogado ao qual você está vinculado.</p>
+              <SocialLinksEditor
+                value={secretarySocialLinks}
+                onChange={setSecretarySocialLinks}
+              />
             </div>
 
             {/* Personal documents upload — with type identification */}
