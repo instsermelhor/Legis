@@ -286,7 +286,7 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1">Período</label>
-            <select value={period} onChange={e => setPeriod(e.target.value as typeof period)} className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+            <select value={period} onChange={e => setPeriod(e.target.value as typeof period)} className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <option value="all">Todos</option>
               <option value="30">Últimos 30 dias</option>
               <option value="60">Últimos 60 dias</option>
@@ -297,7 +297,7 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1">Status</label>
-            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value as typeof statusFilter)} className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value as typeof statusFilter)} className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <option value="all">Todos</option>
               <option value="recebido">Recebido</option>
               <option value="pendente">Pendente</option>
