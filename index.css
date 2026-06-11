@@ -97,6 +97,23 @@ html.dark select optgroup {
   color: #F1F0FF !important;
 }
 
+/* ── Containers com style de cor escura inline ───────── */
+/* (ex: LoginForm com background: rgba(26,17,48,...))    */
+[style*="rgba(26"] input:not([type="checkbox"]):not([type="radio"]),
+[style*="rgba(26"] textarea,
+[style*="rgba(26"] select {
+  color: #F1F0FF !important;
+  -webkit-text-fill-color: #F1F0FF !important;
+  caret-color: #A855F7 !important;
+}
+[style*="rgba(26"] input::placeholder,
+[style*="rgba(26"] textarea::placeholder {
+  color: rgba(255,255,255,0.35) !important;
+  -webkit-text-fill-color: rgba(255,255,255,0.35) !important;
+  opacity: 1 !important;
+}
+
+
 /* ── Disabled ────────────────────────────────────────── */
 html.dark input:disabled,
 html.dark textarea:disabled,
@@ -187,6 +204,72 @@ html.dark [class*="SearchInput"] input {
   color: rgba(255,255,255,0.32) !important;
   -webkit-text-fill-color: rgba(255,255,255,0.32) !important;
 }
+
+/* ═══════════════════════════════════════════════════════
+   INPUTS COM FUNDO ESCURO DIRETO (sem depender do html.dark)
+   Cobre: formulários de auth, painéis com fundo fixo escuro,
+   e qualquer input que carregue a classe de bg escuro direto.
+   Garantia: texto digitado SEMPRE branco em caixas escuras.
+═══════════════════════════════════════════════════════ */
+
+/* Inputs que possuem diretamente uma classe de fundo escuro */
+input[class*="bg-\[#1A1730\]"]:not([type="checkbox"]):not([type="radio"]),
+input[class*="bg-\[#0F0D1A\]"]:not([type="checkbox"]):not([type="radio"]),
+input[class*="bg-\[#17142C\]"]:not([type="checkbox"]):not([type="radio"]),
+input[class*="bg-\[#1F1C36\]"]:not([type="checkbox"]):not([type="radio"]),
+input[class*="bg-\[#13112A\]"]:not([type="checkbox"]):not([type="radio"]),
+input[class*="bg-\[#121212\]"]:not([type="checkbox"]):not([type="radio"]),
+textarea[class*="bg-\[#1A1730\]"],
+textarea[class*="bg-\[#0F0D1A\]"],
+textarea[class*="bg-\[#17142C\]"],
+textarea[class*="bg-\[#1F1C36\]"],
+textarea[class*="bg-\[#13112A\]"],
+select[class*="bg-\[#1A1730\]"],
+select[class*="bg-\[#0F0D1A\]"],
+select[class*="bg-\[#17142C\]"],
+select[class*="bg-\[#1F1C36\]"] {
+  color: #F1F0FF !important;
+  -webkit-text-fill-color: #F1F0FF !important;
+  caret-color: #A855F7 !important;
+}
+
+/* Inputs dentro de containers com fundo escuro direto */
+.dark\:bg-\[#1A1730\] input:not([type="checkbox"]):not([type="radio"]),
+.dark\:bg-\[#1A1730\] textarea,
+.dark\:bg-\[#1A1730\] select,
+[class*="bg-\[#1A1730\]"] input:not([type="checkbox"]):not([type="radio"]),
+[class*="bg-\[#1A1730\]"] textarea,
+[class*="bg-\[#1A1730\]"] select,
+[class*="bg-\[#0F0D1A\]"] input:not([type="checkbox"]):not([type="radio"]),
+[class*="bg-\[#0F0D1A\]"] textarea,
+[class*="bg-\[#0F0D1A\]"] select,
+[class*="bg-\[#17142C\]"] input:not([type="checkbox"]):not([type="radio"]),
+[class*="bg-\[#17142C\]"] textarea,
+[class*="bg-\[#13112A\]"] input:not([type="checkbox"]):not([type="radio"]),
+[class*="bg-\[#13112A\]"] textarea,
+[class*="bg-\[#1F1C36\]"] input:not([type="checkbox"]):not([type="radio"]),
+[class*="bg-\[#1F1C36\]"] textarea {
+  color: #F1F0FF !important;
+  -webkit-text-fill-color: #F1F0FF !important;
+  caret-color: #A855F7 !important;
+}
+
+/* Placeholders dentro de containers escuros */
+.dark\:bg-\[#1A1730\] input::placeholder,
+.dark\:bg-\[#1A1730\] textarea::placeholder,
+[class*="bg-\[#1A1730\]"] input::placeholder,
+[class*="bg-\[#1A1730\]"] textarea::placeholder,
+[class*="bg-\[#0F0D1A\]"] input::placeholder,
+[class*="bg-\[#0F0D1A\]"] textarea::placeholder,
+[class*="bg-\[#13112A\]"] input::placeholder,
+[class*="bg-\[#13112A\]"] textarea::placeholder,
+[class*="bg-\[#1F1C36\]"] input::placeholder,
+[class*="bg-\[#1F1C36\]"] textarea::placeholder {
+  color: rgba(255,255,255,0.35) !important;
+  -webkit-text-fill-color: rgba(255,255,255,0.35) !important;
+  opacity: 1 !important;
+}
+
 
 /* ── Typography: apply Montserrat to h1–h4 ───────────── */
 h1, h2 {
