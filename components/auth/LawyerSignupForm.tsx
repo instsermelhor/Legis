@@ -370,7 +370,7 @@ const InputField: React.FC<{ label: string, name: string, value?: string, onChan
     ({ label, name, value, onChange, type = 'text', required = false, placeholder }) => (
         <div>
             <label htmlFor={name} className="block text-sm font-medium text-gray-700">{label}</label>
-            <input id={name} name={name} type={type} value={value} onChange={onChange} required={required} placeholder={placeholder} className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary focus:border-primary p-2 border" />
+            <input id={name} name={name} type={type} value={value} onChange={onChange} required={required} placeholder={placeholder} className="mt-1 block w-full shadow-sm text-gray-900 sm:text-sm border-gray-300 rounded-md focus:ring-primary focus:border-primary p-2 border" />
         </div>
     );
 
@@ -378,7 +378,7 @@ const SelectField: React.FC<{ label: string, name: string, value?: string, onCha
     ({ label, name, value, onChange, options }) => (
         <div>
             <label htmlFor={name} className="block text-sm font-medium text-gray-700">{label}</label>
-            <select id={name} name={name} value={value} onChange={onChange} className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary focus:border-primary p-2 border">
+            <select id={name} name={name} value={value} onChange={onChange} className="mt-1 block w-full shadow-sm text-gray-900 sm:text-sm border-gray-300 rounded-md focus:ring-primary focus:border-primary p-2 border">
                 {options.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
             </select>
         </div>

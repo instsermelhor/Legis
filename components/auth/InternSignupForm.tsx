@@ -120,11 +120,11 @@ export const InternSignupForm: React.FC<InternSignupFormProps> = ({ onSignup, on
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Nome Completo *</label>
-                        <input type="text" name="name" required value={formData.name || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                        <input type="text" name="name" required value={formData.name || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-gray-900 sm:text-sm p-2 border" />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">CPF *</label>
-                        <input type="text" name="cpf" required value={formData.cpf || ''} onChange={handleChange} placeholder="000.000.000-00" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                        <input type="text" name="cpf" required value={formData.cpf || ''} onChange={handleChange} placeholder="000.000.000-00" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-gray-900 sm:text-sm p-2 border" />
                     </div>
                 </div>
 
@@ -148,15 +148,15 @@ export const InternSignupForm: React.FC<InternSignupFormProps> = ({ onSignup, on
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4 p-4 bg-gray-50 border border-gray-200 rounded-lg animate-fade-in">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Documento de Estrangeiro *</label>
-                                <input type="text" name="foreignerDocument" required value={formData.foreignerDocument || ''} onChange={handleChange} placeholder="RNE ou Passaporte" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                                <input type="text" name="foreignerDocument" required value={formData.foreignerDocument || ''} onChange={handleChange} placeholder="RNE ou Passaporte" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-gray-900 sm:text-sm p-2 border" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">País de Origem *</label>
-                                <input type="text" name="countryOfOrigin" required value={formData.countryOfOrigin || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                                <input type="text" name="countryOfOrigin" required value={formData.countryOfOrigin || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-gray-900 sm:text-sm p-2 border" />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700">Tempo no Brasil *</label>
-                                <input type="text" name="timeInBrazil" required value={formData.timeInBrazil || ''} onChange={handleChange} placeholder="Ex: 2 anos" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                                <input type="text" name="timeInBrazil" required value={formData.timeInBrazil || ''} onChange={handleChange} placeholder="Ex: 2 anos" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-gray-900 sm:text-sm p-2 border" />
                             </div>
                         </div>
                     )}
@@ -165,18 +165,18 @@ export const InternSignupForm: React.FC<InternSignupFormProps> = ({ onSignup, on
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700">E-mail *</label>
-                        <input type="email" name="email" required value={formData.email || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                        <input type="email" name="email" required value={formData.email || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-gray-900 sm:text-sm p-2 border" />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Telefone (WhatsApp)</label>
-                        <input type="tel" name="phone" value={formData.contact?.phone || ''} onChange={handleChange} placeholder="(00) 00000-0000" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                        <input type="tel" name="phone" value={formData.contact?.phone || ''} onChange={handleChange} placeholder="(00) 00000-0000" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-gray-900 sm:text-sm p-2 border" />
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label className="block text-sm font-medium text-gray-700">Senha *</label>
-                        <input type="password" name="password" required value={formData.password || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                        <input type="password" name="password" required value={formData.password || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-gray-900 sm:text-sm p-2 border" />
                     </div>
                 </div>
 
@@ -186,35 +186,35 @@ export const InternSignupForm: React.FC<InternSignupFormProps> = ({ onSignup, on
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700">CEP *</label>
-                            <input type="text" name="cep" required value={formData.cep || ''} onChange={handleChange} placeholder="00000-000" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                            <input type="text" name="cep" required value={formData.cep || ''} onChange={handleChange} placeholder="00000-000" className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-gray-900 sm:text-sm p-2 border" />
                         </div>
                         <div className="md:col-span-2">
                             <label className="block text-sm font-medium text-gray-700">Logradouro (Rua, Avenida...) *</label>
-                            <input type="text" name="street" required value={formData.street || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                            <input type="text" name="street" required value={formData.street || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-gray-900 sm:text-sm p-2 border" />
                         </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Número *</label>
-                            <input type="text" name="number" required value={formData.number || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                            <input type="text" name="number" required value={formData.number || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-gray-900 sm:text-sm p-2 border" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Complemento</label>
-                            <input type="text" name="complement" value={formData.complement || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                            <input type="text" name="complement" value={formData.complement || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-gray-900 sm:text-sm p-2 border" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Bairro *</label>
-                            <input type="text" name="neighborhood" required value={formData.neighborhood || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                            <input type="text" name="neighborhood" required value={formData.neighborhood || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-gray-900 sm:text-sm p-2 border" />
                         </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Cidade *</label>
-                            <input type="text" name="city" required value={formData.city || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                            <input type="text" name="city" required value={formData.city || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-gray-900 sm:text-sm p-2 border" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Estado (UF) *</label>
-                            <select name="state" required value={formData.state || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border">
+                            <select name="state" required value={formData.state || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-gray-900 sm:text-sm p-2 border">
                                 <option value="">Selecione...</option>
                                 {BRAZILIAN_STATES.map(s => <option key={s.uf} value={s.uf}>{s.uf} - {s.name}</option>)}
                             </select>
@@ -228,11 +228,11 @@ export const InternSignupForm: React.FC<InternSignupFormProps> = ({ onSignup, on
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="md:col-span-2">
                             <label className="block text-sm font-medium text-gray-700">Universidade / Instituição de Ensino *</label>
-                            <input type="text" name="university" required value={formData.university || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border" />
+                            <input type="text" name="university" required value={formData.university || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-gray-900 sm:text-sm p-2 border" />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Semestre Atual</label>
-                            <select name="semester" value={formData.semester || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border">
+                            <select name="semester" value={formData.semester || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-gray-900 sm:text-sm p-2 border">
                                 <option value="">Selecione...</option>
                                 <option value="1 a 3">1º ao 3º semestre</option>
                                 <option value="4 a 6">4º ao 6º semestre</option>
@@ -243,7 +243,7 @@ export const InternSignupForm: React.FC<InternSignupFormProps> = ({ onSignup, on
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Área de Maior Interesse</label>
-                            <select name="specialtyInterest" value={formData.specialtyInterest || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary sm:text-sm p-2 border">
+                            <select name="specialtyInterest" value={formData.specialtyInterest || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring-primary text-gray-900 sm:text-sm p-2 border">
                                 <option value="">Selecione...</option>
                                 <option value="Direito Civil">Direito Civil</option>
                                 <option value="Direito Penal">Direito Penal</option>
