@@ -17,6 +17,8 @@ import { LegalAiTools } from '../common/LegalAiTools';
 import { EfficiencyServicesPage } from '../client/EfficiencyServicesPage';
 import { mockProcessosService } from '../../services/mockProcessosService';
 import { mockLawyers } from '../../services/mockLawyerService';
+import SocialLinksEditor from '../common/SocialLinksEditor';
+import type { SocialLink } from '../common/SocialLinksEditor';
 
 const ALL_IA_TOOLS = [
     { key: 'pecas', label: '📄 Peças Jurídicas' },
@@ -309,6 +311,10 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
         primarySpecialties: lawyer.primarySpecialties || lawyer.specialties.slice(0, 3),
         secondarySpecialties: lawyer.secondarySpecialties || lawyer.specialties.slice(3),
     });
+    // Redes Sociais — mesmo padrão do admin (array { provider, url })
+    const [lawyerSocialLinks, setLawyerSocialLinks] = useState<SocialLink[]>(
+        () => lawyer.socialLinks || []
+    );
     const [sameAddress, setSameAddress] = useState(false);
     const [profileSaved, setProfileSaved] = useState(false);
     const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -1430,7 +1436,15 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                 </div>
                             </div>
 
-                            {/* Segurança */}
+                            {/* Redes Sociais */}
+                            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-2 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545]">
+                                <h3 className="text-base font-bold text-gray-800 border-b pb-2">🌐 Redes Sociais</h3>
+                                <p className="text-xs text-gray-500 mb-3">Links visíveis pelos clientes e estagiários vinculados ao seu escritório.</p>
+                                <SocialLinksEditor
+                                    value={lawyerSocialLinks}
+                                    onChange={setLawyerSocialLinks}
+                                />
+                            </div>
                             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                                 <h3 className="text-base font-bold text-gray-800 border-b pb-2">🔐 Segurança de Acesso</h3>
                                 <p className="text-sm text-gray-500">Mantenha seus dados de acesso seguros e atualizados.</p>
@@ -1453,7 +1467,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                     onClick={() => { setProfileSaved(true); setTimeout(() => setProfileSaved(false), 2500); }}
                                     className="px-6 py-3 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary/90 transition-colors shadow-md"
                                 >
-                                    {profileSaved ? '✓ Perfil Salvo!' : 'Salvar Perfil'}
+                                {profileSaved ? '\u2713 Perfil Salvo!' : 'Salvar Perfil'}
                                 </button>
                             </div>
                         </div>
