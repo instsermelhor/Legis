@@ -124,11 +124,11 @@ const LegalDocuments: React.FC = () => {
           <div className="space-y-3">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Título do Documento *</label>
-              <input value={newTitle} onChange={e => setNewTitle(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" placeholder="Ex: Política de Cookies" />
+              <input value={newTitle} onChange={e => setNewTitle(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" placeholder="Ex: Política de Cookies" />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Conteúdo do Documento *</label>
-              <textarea value={newContent} onChange={e => setNewContent(e.target.value)} rows={5} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-y bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" placeholder="Escreva o conteúdo do documento..." />
+              <textarea value={newContent} onChange={e => setNewContent(e.target.value)} rows={5} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-y bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" placeholder="Escreva o conteúdo do documento..." />
             </div>
           </div>
           <div className="flex gap-2">
@@ -1640,21 +1640,21 @@ const GeneralSettings: React.FC = () => {
               <button type="button" onClick={() => setAppName('Legis Connect')} className="text-[10px] font-bold text-primary hover:underline">Restaurar Padrão</button>
             </div>
           </div>
-          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" value={appName} onChange={e => setAppName(e.target.value)} placeholder="Ex: Legis Connect" />
+          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" value={appName} onChange={e => setAppName(e.target.value)} placeholder="Ex: Legis Connect" />
         </div>
         <div>
           <div className="flex justify-between items-center mb-1">
             <label className="block text-xs font-semibold text-gray-600 uppercase">Slogan Principal</label>
             <button type="button" onClick={() => setSiteTagline('')} className="text-[10px] font-bold text-red-600 hover:underline">Excluir Slogan</button>
           </div>
-          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" value={siteTagline} onChange={e => setSiteTagline(e.target.value)} placeholder="Slogan do aplicativo" />
+          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" value={siteTagline} onChange={e => setSiteTagline(e.target.value)} placeholder="Slogan do aplicativo" />
         </div>
         <div>
           <div className="flex justify-between items-center mb-1">
             <label className="block text-xs font-semibold text-gray-600 uppercase">Texto do Rodapé</label>
             <button type="button" onClick={() => setFooterText('')} className="text-[10px] font-bold text-red-600 hover:underline">Excluir Copyright</button>
           </div>
-          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" value={footerText} onChange={e => setFooterText(e.target.value)} placeholder="Ex: © 2026 Legis Connect. Todos os direitos reservados." />
+          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" value={footerText} onChange={e => setFooterText(e.target.value)} placeholder="Ex: © 2026 Legis Connect. Todos os direitos reservados." />
         </div>
       </div>
 
@@ -1667,14 +1667,14 @@ const GeneralSettings: React.FC = () => {
               <label className="block text-xs font-medium text-gray-600">E-mail de Contato</label>
               {contactEmail && <button type="button" onClick={() => setContactEmail('')} className="text-[10px] font-bold text-red-600 hover:underline">Excluir</button>}
             </div>
-            <input type="email" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" value={contactEmail} onChange={e => setContactEmail(e.target.value)} placeholder="contato@empresa.com" />
+            <input type="email" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" value={contactEmail} onChange={e => setContactEmail(e.target.value)} placeholder="contato@empresa.com" />
           </div>
           <div>
             <div className="flex justify-between items-center mb-1">
               <label className="block text-xs font-medium text-gray-600">Telefone de Contato</label>
               {contactPhone && <button type="button" onClick={() => setContactPhone('')} className="text-[10px] font-bold text-red-600 hover:underline">Excluir</button>}
             </div>
-            <input type="tel" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" value={contactPhone} onChange={e => setContactPhone(e.target.value)} placeholder="+55 11 99999-9999" />
+            <input type="tel" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" value={contactPhone} onChange={e => setContactPhone(e.target.value)} placeholder="+55 11 99999-9999" />
           </div>
         </div>
       </div>
@@ -2313,23 +2313,23 @@ const GeneralSettings: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Código *</label>
-                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={clientForm.codigo} onChange={e => setClientForm(p => ({ ...p, codigo: e.target.value }))} />
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white mt-1" value={clientForm.codigo} onChange={e => setClientForm(p => ({ ...p, codigo: e.target.value }))} />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Nome *</label>
-                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={clientForm.nome} onChange={e => setClientForm(p => ({ ...p, nome: e.target.value }))} />
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white mt-1" value={clientForm.nome} onChange={e => setClientForm(p => ({ ...p, nome: e.target.value }))} />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">CPF/CNPJ *</label>
-                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={clientForm.cpf_cnpj} onChange={e => setClientForm(p => ({ ...p, cpf_cnpj: e.target.value }))} />
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white mt-1" value={clientForm.cpf_cnpj} onChange={e => setClientForm(p => ({ ...p, cpf_cnpj: e.target.value }))} />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Cidade *</label>
-                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={clientForm.cidade} onChange={e => setClientForm(p => ({ ...p, cidade: e.target.value }))} />
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white mt-1" value={clientForm.cidade} onChange={e => setClientForm(p => ({ ...p, cidade: e.target.value }))} />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Estado (UF) *</label>
-                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={clientForm.estado} onChange={e => setClientForm(p => ({ ...p, estado: e.target.value }))} />
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white mt-1" value={clientForm.estado} onChange={e => setClientForm(p => ({ ...p, estado: e.target.value }))} />
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -2367,23 +2367,23 @@ const GeneralSettings: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Código *</label>
-                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={productForm.codigo} onChange={e => setProductForm(p => ({ ...p, codigo: e.target.value }))} />
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white mt-1" value={productForm.codigo} onChange={e => setProductForm(p => ({ ...p, codigo: e.target.value }))} />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Nome *</label>
-                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={productForm.nome} onChange={e => setProductForm(p => ({ ...p, nome: e.target.value }))} />
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white mt-1" value={productForm.nome} onChange={e => setProductForm(p => ({ ...p, nome: e.target.value }))} />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Descrição *</label>
-                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={productForm.descricao} onChange={e => setProductForm(p => ({ ...p, descricao: e.target.value }))} />
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white mt-1" value={productForm.descricao} onChange={e => setProductForm(p => ({ ...p, descricao: e.target.value }))} />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">com Desc. *</label>
-                    <input type="number" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={productForm.custo} onChange={e => setProductForm(p => ({ ...p, custo: Number(e.target.value) }))} />
+                    <input type="number" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white mt-1" value={productForm.custo} onChange={e => setProductForm(p => ({ ...p, custo: Number(e.target.value) }))} />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Preço Tabela *</label>
-                    <input type="number" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={productForm.preco_tabela} onChange={e => setProductForm(p => ({ ...p, preco_tabela: Number(e.target.value) }))} />
+                    <input type="number" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white mt-1" value={productForm.preco_tabela} onChange={e => setProductForm(p => ({ ...p, preco_tabela: Number(e.target.value) }))} />
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -2421,19 +2421,19 @@ const GeneralSettings: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Código *</label>
-                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={supplierForm.codigo} onChange={e => setSupplierForm(p => ({ ...p, codigo: e.target.value }))} />
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white mt-1" value={supplierForm.codigo} onChange={e => setSupplierForm(p => ({ ...p, codigo: e.target.value }))} />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Nome *</label>
-                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={supplierForm.nome} onChange={e => setSupplierForm(p => ({ ...p, nome: e.target.value }))} />
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white mt-1" value={supplierForm.nome} onChange={e => setSupplierForm(p => ({ ...p, nome: e.target.value }))} />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">CPF/CNPJ *</label>
-                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={supplierForm.cpf_cnpj} onChange={e => setSupplierForm(p => ({ ...p, cpf_cnpj: e.target.value }))} />
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white mt-1" value={supplierForm.cpf_cnpj} onChange={e => setSupplierForm(p => ({ ...p, cpf_cnpj: e.target.value }))} />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Estado (UF) *</label>
-                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={supplierForm.estado} onChange={e => setSupplierForm(p => ({ ...p, estado: e.target.value }))} />
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white mt-1" value={supplierForm.estado} onChange={e => setSupplierForm(p => ({ ...p, estado: e.target.value }))} />
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -2471,7 +2471,7 @@ const GeneralSettings: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">ID Lançamento *</label>
-                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={saleForm.id_tab} onChange={e => setSaleForm(p => ({ ...p, id_tab: e.target.value }))} disabled={!!editingAluguelId} />
+                    <input className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white mt-1" value={saleForm.id_tab} onChange={e => setSaleForm(p => ({ ...p, id_tab: e.target.value }))} disabled={!!editingAluguelId} />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Fornecedor *</label>
@@ -2588,19 +2588,19 @@ const GeneralSettings: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Data Pedido *</label>
-                    <input type="date" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={saleForm.data} onChange={e => setSaleForm(p => ({ ...p, data: e.target.value }))} />
+                    <input type="date" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white mt-1" value={saleForm.data} onChange={e => setSaleForm(p => ({ ...p, data: e.target.value }))} />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Data Entrada *</label>
-                    <input type="date" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={saleForm.data_referencia} onChange={e => setSaleForm(p => ({ ...p, data_referencia: e.target.value }))} />
+                    <input type="date" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white mt-1" value={saleForm.data_referencia} onChange={e => setSaleForm(p => ({ ...p, data_referencia: e.target.value }))} />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Data Entrega *</label>
-                    <input type="date" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={saleForm.data_retirada} onChange={e => setSaleForm(p => ({ ...p, data_retirada: e.target.value }))} />
+                    <input type="date" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white mt-1" value={saleForm.data_retirada} onChange={e => setSaleForm(p => ({ ...p, data_retirada: e.target.value }))} />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Data Pagto</label>
-                    <input type="date" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] dark:text-white mt-1" value={saleForm.data_devolucao} onChange={e => setSaleForm(p => ({ ...p, data_devolucao: e.target.value }))} />
+                    <input type="date" className="w-full border border-gray-300 dark:border-[#2A2545] rounded px-2 py-1 text-xs focus:outline-none bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white mt-1" value={saleForm.data_devolucao} onChange={e => setSaleForm(p => ({ ...p, data_devolucao: e.target.value }))} />
                   </div>
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Status Pagamento *</label>
@@ -3352,7 +3352,7 @@ const ServiceGroupsSettings: React.FC = () => {
       {showForm && (
         <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
           <label className="block text-xs font-medium text-gray-600 mb-1">{editingId ? 'Editar Nome do Grupo' : 'Nome do Novo Grupo'}</label>
-          <input value={formName} onChange={e => setFormName(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" placeholder="Ex: Gestão Documental" />
+          <input value={formName} onChange={e => setFormName(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" placeholder="Ex: Gestão Documental" />
           <div className="flex gap-2">
             <button onClick={handleSave} className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90">Salvar Grupo</button>
             <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300">Cancelar</button>

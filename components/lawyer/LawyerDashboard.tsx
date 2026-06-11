@@ -1231,53 +1231,53 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Nome Completo</label>
-                                        <input value={profileData.name} onChange={e => setProfileData(p => ({ ...p, name: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                        <input value={profileData.name} onChange={e => setProfileData(p => ({ ...p, name: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">CPF</label>
-                                        <input value={profileData.cpf} onChange={e => setProfileData(p => ({ ...p, cpf: e.target.value }))} placeholder="000.000.000-00" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                        <input value={profileData.cpf} onChange={e => setProfileData(p => ({ ...p, cpf: e.target.value }))} placeholder="000.000.000-00" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">RG</label>
-                                        <input value={profileData.rg} onChange={e => setProfileData(p => ({ ...p, rg: e.target.value }))} placeholder="00.000.000-0" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                        <input value={profileData.rg} onChange={e => setProfileData(p => ({ ...p, rg: e.target.value }))} placeholder="00.000.000-0" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Data de Nascimento</label>
-                                        <input type="date" value={profileData.dataNasc} onChange={e => setProfileData(p => ({ ...p, dataNasc: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                        <input type="date" value={profileData.dataNasc} onChange={e => setProfileData(p => ({ ...p, dataNasc: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Estado Civil</label>
-                                        <select value={profileData.estadoCivil} onChange={e => setProfileData(p => ({ ...p, estadoCivil: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                                        <select value={profileData.estadoCivil} onChange={e => setProfileData(p => ({ ...p, estadoCivil: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white select-text-dark">
                                             <option value="">Selecione...</option>
                                             {['Solteiro(a)', 'Casado(a)', 'Divorciado(a)', 'Viúvo(a)', 'União Estável'].map(v => <option key={v}>{v}</option>)}
                                         </select>
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Naturalidade</label>
-                                        <input value={profileData.naturalidade} onChange={e => setProfileData(p => ({ ...p, naturalidade: e.target.value }))} placeholder="Cidade - UF" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                        <input value={profileData.naturalidade} onChange={e => setProfileData(p => ({ ...p, naturalidade: e.target.value }))} placeholder="Cidade - UF" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Nº OAB</label>
-                                        <input value={profileData.oab} onChange={e => setProfileData(p => ({ ...p, oab: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                        <input value={profileData.oab} onChange={e => setProfileData(p => ({ ...p, oab: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Estado OAB (UF)</label>
-                                        <select value={profileData.oabUF} onChange={e => setProfileData(p => ({ ...p, oabUF: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                                        <select value={profileData.oabUF} onChange={e => setProfileData(p => ({ ...p, oabUF: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white select-text-dark">
                                             <option value="">Selecione...</option>
                                             {BRAZILIAN_STATES.map(s => <option key={s.uf} value={s.uf}>{s.uf}</option>)}
                                         </select>
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Telefone</label>
-                                        <input value={profileData.phone} onChange={e => setProfileData(p => ({ ...p, phone: e.target.value }))} placeholder="(11) 99999-9999" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                        <input value={profileData.phone} onChange={e => setProfileData(p => ({ ...p, phone: e.target.value }))} placeholder="(11) 99999-9999" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Valor Consulta (R$)</label>
-                                        <input type="number" value={profileData.consultationFee} onChange={e => setProfileData(p => ({ ...p, consultationFee: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                        <input type="number" value={profileData.consultationFee} onChange={e => setProfileData(p => ({ ...p, consultationFee: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                     </div>
                                     <div className="md:col-span-2">
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Biografia / Apresentação Profissional</label>
-                                        <textarea value={profileData.bio} onChange={e => setProfileData(p => ({ ...p, bio: e.target.value }))} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                        <textarea value={profileData.bio} onChange={e => setProfileData(p => ({ ...p, bio: e.target.value }))} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                     </div>
                                 </div>
                             </div>
@@ -1339,31 +1339,31 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">CEP</label>
-                                            <input value={profileData.resCep} onChange={e => setProfileData(p => ({ ...p, resCep: e.target.value }))} placeholder="00000-000" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.resCep} onChange={e => setProfileData(p => ({ ...p, resCep: e.target.value }))} placeholder="00000-000" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                         </div>
                                         <div className="md:col-span-2">
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Rua / Logradouro</label>
-                                            <input value={profileData.resStreet} onChange={e => setProfileData(p => ({ ...p, resStreet: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.resStreet} onChange={e => setProfileData(p => ({ ...p, resStreet: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Número</label>
-                                            <input value={profileData.resNumber} onChange={e => setProfileData(p => ({ ...p, resNumber: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.resNumber} onChange={e => setProfileData(p => ({ ...p, resNumber: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Complemento</label>
-                                            <input value={profileData.resComplement} onChange={e => setProfileData(p => ({ ...p, resComplement: e.target.value }))} placeholder="Apto, Bloco..." className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.resComplement} onChange={e => setProfileData(p => ({ ...p, resComplement: e.target.value }))} placeholder="Apto, Bloco..." className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Bairro</label>
-                                            <input value={profileData.resNeighborhood} onChange={e => setProfileData(p => ({ ...p, resNeighborhood: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.resNeighborhood} onChange={e => setProfileData(p => ({ ...p, resNeighborhood: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Cidade</label>
-                                            <input value={profileData.resCity} onChange={e => setProfileData(p => ({ ...p, resCity: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.resCity} onChange={e => setProfileData(p => ({ ...p, resCity: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Estado (UF)</label>
-                                            <select value={profileData.resState} onChange={e => setProfileData(p => ({ ...p, resState: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                                            <select value={profileData.resState} onChange={e => setProfileData(p => ({ ...p, resState: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white select-text-dark">
                                                 <option value="">Selecione...</option>
                                                 {BRAZILIAN_STATES.map(s => <option key={s.uf} value={s.uf}>{s.name} ({s.uf})</option>)}
                                             </select>
@@ -1403,31 +1403,31 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                     <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 transition-opacity ${sameAddress ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">CEP</label>
-                                            <input value={profileData.comCep} onChange={e => setProfileData(p => ({ ...p, comCep: e.target.value }))} placeholder="00000-000" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.comCep} onChange={e => setProfileData(p => ({ ...p, comCep: e.target.value }))} placeholder="00000-000" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                         </div>
                                         <div className="md:col-span-2">
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Rua / Logradouro</label>
-                                            <input value={profileData.comStreet} onChange={e => setProfileData(p => ({ ...p, comStreet: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.comStreet} onChange={e => setProfileData(p => ({ ...p, comStreet: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Número</label>
-                                            <input value={profileData.comNumber} onChange={e => setProfileData(p => ({ ...p, comNumber: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.comNumber} onChange={e => setProfileData(p => ({ ...p, comNumber: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Complemento / Sala</label>
-                                            <input value={profileData.comComplement} onChange={e => setProfileData(p => ({ ...p, comComplement: e.target.value }))} placeholder="Sala, Andar..." className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.comComplement} onChange={e => setProfileData(p => ({ ...p, comComplement: e.target.value }))} placeholder="Sala, Andar..." className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Bairro</label>
-                                            <input value={profileData.comNeighborhood} onChange={e => setProfileData(p => ({ ...p, comNeighborhood: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.comNeighborhood} onChange={e => setProfileData(p => ({ ...p, comNeighborhood: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Cidade</label>
-                                            <input value={profileData.comCity} onChange={e => setProfileData(p => ({ ...p, comCity: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.comCity} onChange={e => setProfileData(p => ({ ...p, comCity: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Estado (UF)</label>
-                                            <select value={profileData.comState} onChange={e => setProfileData(p => ({ ...p, comState: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                                            <select value={profileData.comState} onChange={e => setProfileData(p => ({ ...p, comState: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white select-text-dark">
                                                 <option value="">Selecione...</option>
                                                 {BRAZILIAN_STATES.map(s => <option key={s.uf} value={s.uf}>{s.name} ({s.uf})</option>)}
                                             </select>

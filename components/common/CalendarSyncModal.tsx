@@ -48,7 +48,7 @@ export const CalendarSyncModal: React.FC<CalendarSyncModalProps> = ({ lawyer, on
                                 type="text"
                                 readOnly
                                 value={syncUrl}
-                                className="flex-grow bg-gray-100 border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600 focus:outline-none dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                className="flex-grow bg-gray-100 border border-gray-300 rounded-md px-3 py-2 text-sm text-gray-600 focus:outline-none text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                              />
                              <button
                                 onClick={handleCopy}

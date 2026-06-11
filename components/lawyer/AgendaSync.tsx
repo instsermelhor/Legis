@@ -187,7 +187,7 @@ export const AgendaSync: React.FC = () => {
               ))}
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Tipo</label>
-                <select value={newEvent.type} onChange={e => setNewEvent(p => ({ ...p, type: e.target.value as AgendaEvent['type'] }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                <select value={newEvent.type} onChange={e => setNewEvent(p => ({ ...p, type: e.target.value as AgendaEvent['type'] }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                   <option value="consulta">Consulta</option>
                   <option value="reuniao">Reunião</option>
                   <option value="audiencia">Audiência</option>
@@ -196,7 +196,7 @@ export const AgendaSync: React.FC = () => {
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Plataforma</label>
-                <select value={newEvent.platform} onChange={e => setNewEvent(p => ({ ...p, platform: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                <select value={newEvent.platform} onChange={e => setNewEvent(p => ({ ...p, platform: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                   <option>Google Meet</option>
                   <option>Microsoft Teams</option>
                   <option>Zoom</option>
