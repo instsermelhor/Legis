@@ -132,12 +132,12 @@ export const SecretariadoSignupForm: React.FC<SecretariadoSignupFormProps> = ({ 
   };
 
   const inputCls = (err?: string) =>
-    `w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 ${err ? 'border-red-400 bg-red-50' : 'border-gray-300'}`;
+    `w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:placeholder-gray-500 dark:caret-purple-500 ${err ? 'border-red-400 bg-red-50 dark:bg-red-900/20 dark:border-red-500' : 'border-gray-300 dark:border-[#2A2545]'}`;
 
   const progressBars = ['Dados Pessoais', 'Endereço', 'Experiência'];
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden dark:bg-[#1A1730] dark:border-[#2A2545]">
       {/* Progress */}
       <div className="bg-gradient-to-r from-purple-600 to-purple-500 p-5">
         <h2 className="text-lg font-bold text-white mb-3">Cadastro de Secret./Assist. Jurídico</h2>
@@ -308,7 +308,7 @@ export const SecretariadoSignupForm: React.FC<SecretariadoSignupFormProps> = ({ 
                             <select
                                 value={link.provider}
                                 onChange={e => updateSocialLink(index, 'provider', e.target.value)}
-                                className="block w-1/3 px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-white focus:outline-none focus:ring-primary focus:border-primary text-xs p-1"
+                                className="block w-1/3 px-3 py-2 border border-gray-300 rounded-lg shadow-sm bg-white text-gray-900 focus:outline-none focus:ring-primary focus:border-primary text-xs p-1 dark:bg-[#1A1730] dark:border-[#2A2545] dark:text-white"
                             >
                                 <option value="LinkedIn">LinkedIn</option>
                                 <option value="Instagram">Instagram</option>
@@ -323,7 +323,7 @@ export const SecretariadoSignupForm: React.FC<SecretariadoSignupFormProps> = ({ 
                                 value={link.url}
                                 onChange={e => updateSocialLink(index, 'url', e.target.value)}
                                 placeholder="https://link-da-rede-social.com/seu-perfil"
-                                className="block flex-1 px-3 py-1.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-xs"
+                                className="block flex-1 px-3 py-1.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-primary focus:border-primary text-xs text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500"
                             />
                             <button
                                 type="button"
