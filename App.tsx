@@ -17,6 +17,7 @@ import { InternSignupData } from './components/auth/InternSignupForm';
 import { CompleteProfilePage } from './components/client/CompleteProfilePage';
 import { ForClientsPage } from './components/client/ForClientsPage';
 import { EfficiencyServicesPage } from './components/client/EfficiencyServicesPage';
+import { ServicesPublicPage } from './components/public/ServicesPublicPage';
 import { ForSecretariadoPage } from './components/secretary/ForSecretariadoPage';
 import { SecretariadoDashboard } from './components/secretary/SecretariadoDashboard';
 import { SecretarySignupData } from './components/secretary/SecretariadoSignupForm';
@@ -630,7 +631,7 @@ const App: React.FC = () => {
           />
         ) : <ForSecretariadoPage onLogin={handleSecretaryPageLogin} onSignup={handleSecretarySignup} />;
       case 'services':
-        return <EfficiencyServicesPage />;
+        return <ServicesPublicPage onNavigate={handleNavigate} />;
       case 'landing':
       default:
         return <LandingPage onNavigate={handleNavigate} onSearch={handleSearch} />;
