@@ -4,6 +4,94 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="LEGIS CONNECT — Plataforma jurídica premium que conecta Advogados, Clientes, Bacharelandos e Assistentes Jurídicos com tecnologia avançada." />
+
+    <!-- JSON-LD: Organization -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Legis Connect",
+      "url": "https://legisconnect.com.br",
+      "logo": "https://legisconnect.com.br/logo.png",
+      "description": "Plataforma jurídica que conecta advogados especialistas a clientes com tecnologia de ponta, IA e preço fixo.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "São Paulo",
+        "addressRegion": "SP",
+        "addressCountry": "BR"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "3200",
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer support",
+        "availableLanguage": "Portuguese"
+      }
+    }
+    </script>
+
+    <!-- JSON-LD: Service ItemList -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "ItemList",
+      "name": "Serviços Jurídicos — Legis Connect",
+      "description": "Catálogo completo de serviços jurídicos com preço fixo e prazo determinado",
+      "numberOfItems": 12,
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "item": {
+            "@type": "Service",
+            "name": "Consultoria Jurídica Expressa",
+            "description": "Sessão de 60 minutos com advogado especialista em até 24 horas",
+            "offers": { "@type": "Offer", "price": "97.00", "priceCurrency": "BRL", "availability": "https://schema.org/InStock" },
+            "provider": { "@type": "Organization", "name": "Legis Connect" }
+          }
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "item": {
+            "@type": "Service",
+            "name": "Análise de Contrato de Aluguel",
+            "description": "Revisão completa de contratos residenciais e comerciais em 48 horas",
+            "offers": { "@type": "Offer", "price": "147.00", "priceCurrency": "BRL", "availability": "https://schema.org/InStock" },
+            "provider": { "@type": "Organization", "name": "Legis Connect" }
+          }
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "item": {
+            "@type": "Service",
+            "name": "Registro de Marca no INPI",
+            "description": "Proteção completa da sua marca junto ao INPI com acompanhamento integral",
+            "offers": { "@type": "Offer", "price": "597.00", "priceCurrency": "BRL", "availability": "https://schema.org/InStock" },
+            "provider": { "@type": "Organization", "name": "Legis Connect" }
+          }
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "item": {
+            "@type": "Service",
+            "name": "Termos de Uso + Política LGPD",
+            "description": "Documentos de conformidade com a LGPD personalizados para o seu negócio",
+            "offers": { "@type": "Offer", "price": "697.00", "priceCurrency": "BRL", "availability": "https://schema.org/InStock" },
+            "provider": { "@type": "Organization", "name": "Legis Connect" }
+          }
+        }
+      ]
+    }
+    </script>
+
     <title>LEGIS CONNECT — Plataforma Jurídica</title>
 
     <!-- Google Fonts: Inter + Montserrat + Cinzel -->
