@@ -19,6 +19,8 @@ import { mockProcessosService } from '../../services/mockProcessosService';
 import { mockLawyers } from '../../services/mockLawyerService';
 import SocialLinksEditor from '../common/SocialLinksEditor';
 import type { SocialLink } from '../common/SocialLinksEditor';
+import { InternApprovalQueue } from '../lawyer/interns/InternApprovalQueue';
+import { SecretaryWorkspace } from '../lawyer/secretary/SecretaryWorkspace';
 
 const ALL_IA_TOOLS = [
     { key: 'pecas', label: '📄 Peças Jurídicas' },
@@ -173,6 +175,8 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
     const [activeSection, setActiveSection] = useState<'overview' | 'meusCasos' | 'gestaoJuridica' | 'codigos' | 'financeiro' | 'perfil' | 'estagiarios' | 'secretariado' | 'apis' | 'iaTools' | 'efficiency_services'>('overview');
     const [showMobileMenu, setShowMobileMenu] = useState(false);
     const [meusCasosSubTab, setMeusCasosSubTab] = useState<'crm' | 'processos'>('crm');
+    const [internSubTab, setInternSubTab] = useState<'vincular' | 'aprovacao'>('vincular');
+    const [secretarySubTab, setSecretarySubTab] = useState<'vincular' | 'workspace'>('vincular');
 
     // Intern/Secretary selection state
     const [linkedInternId, setLinkedInternId] = useState<number | null>(() => {
@@ -1476,6 +1480,22 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                     {/* ─── ESTAGIÁRIOS SECTION ─────────────────────────────────────── */}
                     {activeSection === 'estagiarios' && (
                         <div className="space-y-5 animate-fade-in">
+                            {/* Sub-tabs */}
+                            <div className="flex gap-2">
+                                <button onClick={() => setInternSubTab('vincular')}
+                                    className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all ${internSubTab === 'vincular' ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-white dark:bg-transparent border-gray-200 dark:border-[#2A2545] text-gray-600 dark:text-gray-400'}`}>
+                                    🎓 Vinculação de Estagiário
+                                </button>
+                                <button onClick={() => setInternSubTab('aprovacao')}
+                                    className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all ${internSubTab === 'aprovacao' ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm' : 'bg-white dark:bg-transparent border-gray-200 dark:border-[#2A2545] text-gray-600 dark:text-gray-400'}`}>
+                                    ⏳ Fila de Aprovação
+                                </button>
+                            </div>
+                            {internSubTab === 'aprovacao' && (
+                                <InternApprovalQueue lawyerId={lawyer.id} />
+                            )}
+                            {internSubTab !== 'aprovacao' && (
+                            <>
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h3 className="text-lg font-bold text-gray-800">🎓 Escolher Estagiário</h3>
@@ -1643,12 +1663,30 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                     </div>
                                 </div>
                             )}
+                            </>
+                            )}
                         </div>
                     )}
 
                     {/* ─── SECRETARIADO SECTION ────────────────────────────────────── */}
                     {activeSection === 'secretariado' && (
                         <div className="space-y-5 animate-fade-in">
+                            {/* Sub-tabs */}
+                            <div className="flex gap-2">
+                                <button onClick={() => setSecretarySubTab('vincular')}
+                                    className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all ${secretarySubTab === 'vincular' ? 'bg-purple-600 text-white border-purple-600 shadow-sm' : 'bg-white dark:bg-transparent border-gray-200 dark:border-[#2A2545] text-gray-600 dark:text-gray-400'}`}>
+                                    🗂️ Vinculação / Permissões
+                                </button>
+                                <button onClick={() => setSecretarySubTab('workspace')}
+                                    className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all ${secretarySubTab === 'workspace' ? 'bg-purple-600 text-white border-purple-600 shadow-sm' : 'bg-white dark:bg-transparent border-gray-200 dark:border-[#2A2545] text-gray-600 dark:text-gray-400'}`}>
+                                    📊 Central Operacional
+                                </button>
+                            </div>
+                            {secretarySubTab === 'workspace' && (
+                                <SecretaryWorkspace />
+                            )}
+                            {secretarySubTab !== 'workspace' && (
+                            <>
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h3 className="text-lg font-bold text-gray-800">🗂️ Secret./Assist. Jurídico</h3>
@@ -1825,6 +1863,8 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                         </div>
                                     </div>
                                 </div>
+                            )}
+                            </>
                             )}
                         </div>
                     )}

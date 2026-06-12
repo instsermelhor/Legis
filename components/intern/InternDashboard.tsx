@@ -12,6 +12,11 @@ import { LegalAiTools } from '../common/LegalAiTools';
 import { EfficiencyServicesPage } from '../client/EfficiencyServicesPage';
 import SocialLinksEditor from '../common/SocialLinksEditor';
 import type { SocialLink } from '../common/SocialLinksEditor';
+import { InternOverview } from './sections/InternOverview';
+import { InternCases } from './sections/InternCases';
+import { InternStudies } from './sections/InternStudies';
+import { InternMentorship } from './sections/InternMentorship';
+import { InternApis } from './sections/InternApis';
 
 
 interface InternDashboardProps {
@@ -618,6 +623,16 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
 
                 {/* ─── OVERVIEW ─── */}
                 {activeTab === 'overview' && (
+                    <InternOverview
+                        intern={intern}
+                        supervisorLawyer={supervisorLawyer}
+                        delegatedCases={delegatedCases}
+                        grades={grades}
+                        courseDocs={courseDocs}
+                        onOpenSupervisor={() => setShowLawyerPopup(true)}
+                    />
+                )}
+                {activeTab === 'overview_legacy' && (
                     <div className="space-y-6 animate-fade-in">
 
                         {/* ── KPIs Compactos ── */}
@@ -1007,92 +1022,25 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
 
                 {/* ─── MURAL DE ESTUDOS ─── */}
                 {activeTab === 'studies' && (
-                    <div className="space-y-4 animate-fade-in">
-                        {[
-                            { title: 'Simulação: Direito Trabalhista #452', desc: 'Análise de petição inicial de acúmulo de função. Valendo 5 horas extracurriculares.' },
-                            { title: 'Simulação: Contratos Civis #108', desc: 'Revisão de cláusulas abusivas em contrato de adesão. Valendo 3 horas extracurriculares.' },
-                        ].map((item, i) => (
-                            <div key={i} className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm flex flex-col sm:flex-row justify-between items-center text-center sm:text-left gap-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-                                <div>
-                                    <h4 className="font-bold text-gray-800 text-lg">{item.title}</h4>
-                                    <p className="text-sm text-gray-500 mt-1">{item.desc}</p>
-                                </div>
-                                <button className="px-6 py-2 bg-primary text-white font-medium rounded-md hover:bg-primary-dark transition text-sm whitespace-nowrap">Acessar Estudo</button>
-                            </div>
-                        ))}
-                    </div>
+                    <InternStudies grades={grades} />
                 )}
 
-                {/* ─── MENTORIAS ─── */}
+                {/* ─── MENTORIAS & CLÍNICAS ─── */}
                 {activeTab === 'hours' && (
-                    <div className="text-center bg-gray-50 p-10 rounded-lg border border-dashed border-gray-300 animate-fade-in dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-                        <AcademicCapIcon className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                        <h3 className="text-lg font-medium text-gray-900">Nenhuma mentoria agendada.</h3>
-                        <p className="text-gray-500 mt-2 max-w-md mx-auto">Explore advogados parceiros e envie solicitações de acompanhamento prático e mentoria.</p>
-                    </div>
+                    <InternMentorship />
                 )}
 
                 {/* ─── MEUS CASOS ─── */}
                 {activeTab === 'casos' && (
-                    <div className="space-y-5 animate-fade-in">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-lg font-bold text-gray-800">📋 Meus Casos</h3>
-                            {supervisorLawyer && (
-                                <button onClick={() => setShowLawyerPopup(true)} className="text-xs font-semibold text-indigo-600 hover:underline flex items-center gap-1">
-                                    👤 Ver Advogado Supervisor
-                                </button>
-                            )}
-                        </div>
-                        {supervisorLawyer ? (
-                            <>
-                                <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4 flex items-center gap-3">
-                                    <img src={supervisorLawyer.photoUrl} alt={supervisorLawyer.name} className="w-10 h-10 rounded-full object-cover ring-2 ring-indigo-200" />
-                                    <div>
-                                        <p className="text-sm font-bold text-indigo-900">Supervisionado por: Dr(a). {supervisorLawyer.name}</p>
-                                        <p className="text-xs text-indigo-600">OAB {supervisorLawyer.oab} — {supervisorLawyer.specialties.slice(0, 2).join(', ')}</p>
-                                    </div>
-                                </div>
-                                {delegatedCases && delegatedCases.length > 0 ? (
-                                    <div className="space-y-3">
-                                        {delegatedCases.map(c => (
-                                            <div key={c.id} className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-                                                <div className="flex items-start justify-between gap-3">
-                                                    <div>
-                                                        <h4 className="font-bold text-gray-900">{c.title}</h4>
-                                                        <p className="text-xs text-gray-500 mt-0.5">Cliente: {c.clientName} — Advogado: {c.lawyerName}</p>
-                                                    </div>
-                                                    <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${c.status === 'Ativo' ? 'bg-green-50 text-green-700 border border-green-200' : c.status === 'Concluído' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
-                                                        {c.status}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <div className="bg-gray-50 border border-dashed border-gray-200 rounded-xl p-8 text-center dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-                                        <p className="text-3xl mb-2">📂</p>
-                                        <p className="text-sm font-semibold text-gray-700">Nenhum caso atribuído ainda</p>
-                                        <p className="text-xs text-gray-500 mt-1">Quando seu advogado supervisor atribuir casos, eles aparecerão aqui.</p>
-                                    </div>
-                                )}
-                            </>
-                        ) : (
-                            <div className="bg-gray-50 border border-dashed border-gray-300 rounded-xl p-10 text-center dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-                                <p className="text-3xl mb-2">⏳</p>
-                                <h4 className="font-bold text-gray-700">Aguardando vínculo com advogado</h4>
-                                <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">Seus casos de estágio aparecerão aqui quando um advogado vinculá-lo(a) ao seu escritório.</p>
-                            </div>
-                        )}
-                    </div>
+                    <InternCases
+                        delegatedCases={delegatedCases}
+                        supervisorLawyer={supervisorLawyer}
+                        internId={intern.id}
+                        onOpenSupervisor={() => setShowLawyerPopup(true)}
+                    />
                 )}
                 {activeTab === 'apis' && (
-                    <div className="space-y-6 animate-fade-in">
-                        <div>
-                            <h2 className="text-lg font-bold text-gray-800">🔌 APIs Habilitadas</h2>
-                            <p className="text-sm text-gray-500 mt-0.5">Veja quais integrações estão ativas na plataforma para seu perfil.</p>
-                        </div>
-                        <ApiStatusPanel />
-                    </div>
+                    <InternApis />
                 )}
                 {activeTab === 'iaTools' && (
                     <div className="space-y-6 animate-fade-in">

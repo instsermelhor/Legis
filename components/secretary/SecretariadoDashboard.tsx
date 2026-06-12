@@ -3,13 +3,16 @@ import type { Secretary, Case } from '../../types';
 import { ChangePasswordModal } from '../common/ChangePasswordModal';
 import { ChangeEmailModal } from '../common/ChangeEmailModal';
 import { LawyerInfoPopup } from '../common/LawyerInfoPopup';
-import { ApiStatusPanel } from '../common/ApiStatusPanel';
 import { mockLawyers } from '../../services/mockLawyerService';
 import { XIcon } from '../common/IconComponents';
-import { LegalAiTools } from '../common/LegalAiTools';
-import { EfficiencyServicesPage } from '../client/EfficiencyServicesPage';
 import SocialLinksEditor from '../common/SocialLinksEditor';
 import type { SocialLink } from '../common/SocialLinksEditor';
+import { SecretaryOverview } from './sections/SecretaryOverview';
+import { SecretaryScheduler } from './sections/SecretaryScheduler';
+import { SecretaryDocuments } from './sections/SecretaryDocuments';
+import { SecretaryApis } from './sections/SecretaryApis';
+import { SecretaryAi } from './sections/SecretaryAi';
+import { SecretaryEfficiency } from './sections/SecretaryEfficiency';
 
 
 interface SecretariadoDashboardProps {
@@ -409,7 +412,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
   });
   // Redes Sociais — mesmo padrão do admin (array { provider, url })
   const [secretarySocialLinks, setSecretarySocialLinks] = useState<SocialLink[]>(
-    () => (secretary as any).socialLinks || []
+    () => (secretary.socialLinks as SocialLink[] | undefined) || []
   );
 
   const assignedLawyer = secretary.assignedLawyerId
@@ -523,75 +526,11 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
 
         {/* ─── OVERVIEW ─── */}
         {activeTab === 'overview' && (
-          <div className="space-y-6 animate-fade-in">
-            {/* KPI cards — reflect live profile values */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-4">
-              <StatCard icon="⭐" label="Experiência" value={overviewExperience} color="purple" />
-              <StatCard icon="📋" label="Disponibilidade" value={overviewAvailLabel} color="blue" />
-              <StatCard icon="🏙️" label="Localização" value={overviewLocation} color="green" />
-              <StatCard icon="📎" label="Docs Pessoais" value={`${personalDocs.length} enviado(s)`} color="amber" />
-              <StatCard icon="📂" label="Docs de Processos" value={`${processDocs.length} vinculado(s)`} color="indigo" />
-            </div>
-
-            {/* Phone & address summary */}
-            {(profile.phone || profile.address) && (
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-                <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">📌 Informações de Contato</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
-                  {profile.phone && <div className="flex items-center gap-2"><span className="text-base">📞</span> {profile.phone}</div>}
-                  {profile.address && <div className="flex items-center gap-2"><span className="text-base">🏠</span> {profile.address}</div>}
-                  {profile.city && <div className="flex items-center gap-2"><span className="text-base">📍</span> {overviewLocation}</div>}
-                </div>
-              </div>
-            )}
-
-            {/* Areas of Knowledge */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-              <h3 className="text-base font-bold text-gray-800 mb-4">🎯 Áreas de Conhecimento</h3>
-              <div className="flex flex-wrap gap-2">
-                {overviewAreas.map(area => (
-                  <span key={area} className="px-3 py-1.5 bg-purple-50 text-purple-700 border border-purple-200 rounded-full text-xs font-semibold">{area}</span>
-                ))}
-                {overviewAreas.length === 0 && <p className="text-sm text-gray-400">Nenhuma área cadastrada. Edite seu perfil.</p>}
-              </div>
-            </div>
-
-            {/* Bio */}
-            {overviewBio && (
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-                <h3 className="text-base font-bold text-gray-800 mb-2">📝 Apresentação Profissional</h3>
-                <p className="text-sm text-gray-600 leading-relaxed">{overviewBio}</p>
-              </div>
-            )}
-
-            {/* Sync status chips */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-              <h3 className="text-sm font-bold text-gray-700 mb-3">🔗 Status de Sincronização de Agenda</h3>
-              <div className="flex flex-wrap gap-2 text-xs">
-                {Object.entries(calendarSynced).map(([key, synced]) => {
-                  const labels: Record<string, string> = {
-                    googleProfessional: 'Google Profissional',
-                    googlePersonal: 'Google Pessoal',
-                    microsoftProfessional: 'Outlook Profissional',
-                    microsoftPersonal: 'Outlook Pessoal',
-                  };
-                  return (
-                    <span key={key} className={`px-3 py-1 rounded-full font-semibold ${synced ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                      {synced ? '✓' : '○'} {labels[key]}
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-
-            {!assignedLawyer && (
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 text-center">
-                <p className="text-2xl mb-2">⏳</p>
-                <h4 className="font-bold text-blue-900 text-sm">Aguardando vinculação</h4>
-                <p className="text-xs text-blue-700 mt-1">Seu perfil está disponível para advogados. Assim que você for selecionado, as informações do profissional aparecerão aqui.</p>
-              </div>
-            )}
-          </div>
+          <SecretaryOverview
+            secretary={secretary}
+            assignedLawyer={assignedLawyer}
+            onGoToScheduler={() => setActiveTab('agenda')}
+          />
         )}
 
         {/* ─── PERFIL ─── */}
@@ -730,208 +669,27 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
 
         {/* ─── AGENDA ─── */}
         {activeTab === 'agenda' && (
-          <div className="space-y-6 animate-fade-in">
-            {syncMsg && (
-              <div className="bg-green-50 border border-green-200 text-green-800 rounded-xl px-5 py-3 text-sm font-semibold flex items-center gap-2">
-                {syncMsg}
-              </div>
-            )}
-
-            {/* Professional calendar */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-              <div>
-                <h3 className="text-base font-bold text-gray-800">💼 Agenda Profissional</h3>
-                <p className="text-xs text-gray-500 mt-0.5">Sincronize compromissos profissionais, reuniões e atendimentos do escritório.</p>
-              </div>
-              <div className="space-y-3">
-                {/* Google Professional */}
-                <SyncCard
-                  title="Google Calendar — Profissional"
-                  subtitle="Sincronize sua agenda profissional com o Google Calendar"
-                  synced={calendarSynced.googleProfessional}
-                  syncedLabel="Sincronizado"
-                  unSyncedLabel="Conectar"
-                  borderColor="text-red-500 border-red-200"
-                  hoverColor="hover:border-red-300 hover:bg-red-50"
-                  syncedColor="border-green-400 bg-green-50"
-                  onClick={() => handleCalendarSync('googleProfessional')}
-                  icon={
-                    <svg viewBox="0 0 48 48" className="w-8 h-8" fill="none">
-                      <path d="M44 20H24v8h11.4C34 33.2 29.5 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 20-9 20-20 0-1.3-.1-2.7-.4-4z" fill="#FFC107"/>
-                      <path d="M6.3 14.7l6.6 4.8C14.6 15.1 18.9 12 24 12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4c-7.6 0-14.2 4.3-17.7 10.7z" fill="#FF3D00"/>
-                      <path d="M24 44c5.2 0 9.8-1.9 13.3-5l-6.2-5.2C29.4 35.6 26.8 36 24 36c-5.4 0-9.9-2.8-11.3-7L6 33.6C9.5 39.7 16.2 44 24 44z" fill="#4CAF50"/>
-                      <path d="M44 20H24v8h11.4c-.9 2.5-2.5 4.6-4.6 6l6.2 5.2C40.1 36.3 44 30.6 44 24c0-1.3-.1-2.7-.4-4z" fill="#1976D2"/>
-                    </svg>
-                  }
-                />
-                {/* Microsoft Professional */}
-                <SyncCard
-                  title="Microsoft Outlook — Profissional"
-                  subtitle="Sincronize com o Outlook do escritório ou conta corporativa"
-                  synced={calendarSynced.microsoftProfessional}
-                  syncedLabel="Sincronizado"
-                  unSyncedLabel="Conectar"
-                  borderColor="text-blue-500 border-blue-200"
-                  hoverColor="hover:border-blue-300 hover:bg-blue-50"
-                  syncedColor="border-green-400 bg-green-50"
-                  onClick={() => handleCalendarSync('microsoftProfessional')}
-                  icon={
-                    <svg viewBox="0 0 48 48" className="w-8 h-8" fill="none">
-                      <rect width="22" height="22" x="3" y="3" rx="2" fill="#0078D4"/>
-                      <rect width="22" height="22" x="25" y="3" rx="2" fill="#50D9FF"/>
-                      <rect width="22" height="22" x="3" y="25" rx="2" fill="#FFB900"/>
-                      <rect width="22" height="22" x="25" y="25" rx="2" fill="#7FBA00"/>
-                    </svg>
-                  }
-                />
-              </div>
-            </div>
-
-            {/* Personal calendar */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-              <div>
-                <h3 className="text-base font-bold text-gray-800">🏠 Agenda Pessoal</h3>
-                <p className="text-xs text-gray-500 mt-0.5">Sincronize sua agenda pessoal para gerenciar compromissos particulares.</p>
-              </div>
-              <div className="space-y-3">
-                {/* Google Personal */}
-                <SyncCard
-                  title="Google Calendar — Pessoal"
-                  subtitle="Sincronize sua agenda pessoal com o Google Calendar"
-                  synced={calendarSynced.googlePersonal}
-                  syncedLabel="Sincronizado"
-                  unSyncedLabel="Conectar"
-                  borderColor="text-red-500 border-red-200"
-                  hoverColor="hover:border-red-300 hover:bg-red-50"
-                  syncedColor="border-green-400 bg-green-50"
-                  onClick={() => handleCalendarSync('googlePersonal')}
-                  icon={
-                    <svg viewBox="0 0 48 48" className="w-8 h-8" fill="none">
-                      <path d="M44 20H24v8h11.4C34 33.2 29.5 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20c11 0 20-9 20-20 0-1.3-.1-2.7-.4-4z" fill="#FFC107"/>
-                      <path d="M6.3 14.7l6.6 4.8C14.6 15.1 18.9 12 24 12c3 0 5.7 1.1 7.8 2.9l5.7-5.7C34 6.5 29.3 4 24 4c-7.6 0-14.2 4.3-17.7 10.7z" fill="#FF3D00"/>
-                      <path d="M24 44c5.2 0 9.8-1.9 13.3-5l-6.2-5.2C29.4 35.6 26.8 36 24 36c-5.4 0-9.9-2.8-11.3-7L6 33.6C9.5 39.7 16.2 44 24 44z" fill="#4CAF50"/>
-                      <path d="M44 20H24v8h11.4c-.9 2.5-2.5 4.6-4.6 6l6.2 5.2C40.1 36.3 44 30.6 44 24c0-1.3-.1-2.7-.4-4z" fill="#1976D2"/>
-                    </svg>
-                  }
-                />
-                {/* Microsoft Personal */}
-                <SyncCard
-                  title="Microsoft Outlook — Pessoal"
-                  subtitle="Sincronize com sua conta pessoal do Outlook / Hotmail"
-                  synced={calendarSynced.microsoftPersonal}
-                  syncedLabel="Sincronizado"
-                  unSyncedLabel="Conectar"
-                  borderColor="text-blue-500 border-blue-200"
-                  hoverColor="hover:border-blue-300 hover:bg-blue-50"
-                  syncedColor="border-green-400 bg-green-50"
-                  onClick={() => handleCalendarSync('microsoftPersonal')}
-                  icon={
-                    <svg viewBox="0 0 48 48" className="w-8 h-8" fill="none">
-                      <rect width="22" height="22" x="3" y="3" rx="2" fill="#0078D4"/>
-                      <rect width="22" height="22" x="25" y="3" rx="2" fill="#50D9FF"/>
-                      <rect width="22" height="22" x="3" y="25" rx="2" fill="#FFB900"/>
-                      <rect width="22" height="22" x="25" y="25" rx="2" fill="#7FBA00"/>
-                    </svg>
-                  }
-                />
-              </div>
-            </div>
-
-            {/* Placeholder agenda */}
-            <div className="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-10 text-center dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-              <p className="text-3xl mb-2">📅</p>
-              <h3 className="text-lg font-bold text-gray-700">Agenda em construção</h3>
-              <p className="text-sm text-gray-500 mt-1">Aqui você poderá visualizar compromissos agendados pelo advogado vinculado.</p>
-            </div>
-          </div>
+          <SecretaryScheduler />
         )}
 
         {/* ─── DOCUMENTOS ─── */}
         {activeTab === 'documentos' && (
-          <div className="space-y-6 animate-fade-in">
-            {/* Process Documents */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-base font-bold text-gray-800">📂 Documentos de Processos</h3>
-                  <p className="text-xs text-gray-500 mt-0.5">Documentos vinculados a processos jurídicos, com confirmação do número do processo, OAB e nome do advogado.</p>
-                </div>
-                <button onClick={() => setShowProcessDocModal(true)}
-                  className="px-4 py-2 text-xs font-semibold bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2 shrink-0">
-                  ➕ Adicionar
-                </button>
-              </div>
-              <p className="text-xs text-gray-400">Formatos aceitos: {ALLOWED_LABEL} · Cada documento deve ser identificado com seu processo.</p>
-
-              {processDocs.length === 0 ? (
-                <button onClick={() => setShowProcessDocModal(true)}
-                  className="w-full border-2 border-dashed border-purple-200 rounded-xl py-8 text-center hover:bg-purple-50 hover:border-purple-400 transition-colors">
-                  <p className="text-3xl mb-2">📁</p>
-                  <p className="text-sm font-medium text-gray-500">Clique para adicionar e vincular um documento ao processo</p>
-                  <p className="text-xs text-gray-400 mt-1">Você precisará informar o número do processo, OAB e nome do advogado</p>
-                </button>
-              ) : (
-                <div className="space-y-3">
-                  {processDocs.map((d, i) => (
-                    <div key={i} className="flex items-start justify-between bg-indigo-50 border border-indigo-100 rounded-xl px-4 py-3 gap-3">
-                      <div className="flex items-start gap-3 min-w-0">
-                        <span className="text-xl shrink-0 mt-0.5">{d.fileType === 'PDF' ? '📄' : '🖼️'}</span>
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-gray-800 truncate">{d.name}</p>
-                          <p className="text-[10px] text-gray-400">{d.fileType} · {d.size} · {d.date}</p>
-                          <div className="flex flex-wrap gap-1 mt-1">
-                            <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 text-[10px] font-bold rounded-full">Proc: {d.processNumber}</span>
-                            <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-bold rounded-full">OAB: {d.oab}</span>
-                            <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-full">{d.lawyerName}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <button onClick={() => setProcessDocs(prev => prev.filter((_, idx) => idx !== i))} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold p-1 mt-0.5">✕</button>
-                    </div>
-                  ))}
-                  <button onClick={() => setShowProcessDocModal(true)} className="text-xs text-purple-600 hover:underline font-semibold py-1">+ Adicionar mais documentos</button>
-                </div>
-              )}
-            </div>
-
-            {/* Personal docs (read-only cross-reference from Meu Perfil) */}
-            {personalDocs.length > 0 && (
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-3 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-                <h3 className="text-sm font-bold text-gray-700">📎 Documentos Pessoais <span className="text-xs text-gray-400 font-normal">(gerenciados em Meu Perfil)</span></h3>
-                {personalDocs.map((d, i) => (
-                  <div key={i} className="flex items-center gap-3 bg-purple-50 border border-purple-100 rounded-xl px-4 py-3">
-                    <span className="text-lg shrink-0">{d.fileType === 'PDF' ? '📄' : '🖼️'}</span>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-gray-800 truncate">{d.name}</p>
-                      <p className="text-[10px] text-gray-400">{d.fileType} · {d.size} · {d.date}</p>
-                    </div>
-                    <span className="shrink-0 px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-bold rounded-full">{d.docType}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <SecretaryDocuments />
         )}
 
-        {/* ─── APIs Tab ─── */}
+        {/* ─── APIs ─── */}
         {activeTab === 'apis' && (
-          <div className="space-y-6 animate-fade-in">
-            <div>
-              <h2 className="text-lg font-bold text-gray-800">🔌 APIs Habilitadas</h2>
-              <p className="text-sm text-gray-500 mt-0.5">Veja quais integrações estão ativas na plataforma para seu perfil.</p>
-            </div>
-            <ApiStatusPanel />
-          </div>
+          <SecretaryApis />
         )}
+
+        {/* ─── IA JURÍDICA ─── */}
         {activeTab === 'iaTools' && (
-          <div className="space-y-6 animate-fade-in">
-            <LegalAiTools role="secretary" allowedTools={allowedTools} />
-          </div>
+          <SecretaryAi />
         )}
+
+        {/* ─── SERVIÇOS DE EFICIÊNCIA ─── */}
         {activeTab === 'efficiency_services' && (
-          <div className="space-y-6 animate-fade-in">
-            <EfficiencyServicesPage embedded={true} />
-          </div>
+          <SecretaryEfficiency />
         )}
 
       </div>
