@@ -1,0 +1,77 @@
+name: 🚀 Deploy Legis Connect
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # permite acionar manualmente pelo painel do GitHub
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🏗️ Build
+        run: npm run build
+
+      - name: 🔧 Create .htaccess for SPA routing
+        run: |
+          cat > dist/.htaccess << 'EOF'
+          Options -MultiViews
+          RewriteEngine On
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule ^ index.html [QSA,L]
+          Options -Indexes
+          <IfModule mod_headers.c>
+              Header always set X-Frame-Options "SAMEORIGIN"
+              Header always set X-Content-Type-Options "nosniff"
+              Header always set X-XSS-Protection "1; mode=block"
+          </IfModule>
+          <IfModule mod_deflate.c>
+              AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript
+          </IfModule>
+          <IfModule mod_expires.c>
+              ExpiresActive On
+              ExpiresByType application/javascript "access plus 1 year"
+              ExpiresByType text/css "access plus 1 year"
+              ExpiresByType text/html "access plus 0 seconds"
+          </IfModule>
+          EOF
+
+      - name: 📊 Build info
+        run: |
+          echo "=== Build gerado com sucesso ==="
+          ls -la dist/
+          du -sh dist/
+          echo "================================"
+
+      - name: 🌐 Deploy para Netlify
+        uses: nwtgck/actions-netlify@v3.0
+        with:
+          publish-dir: './dist'
+          production-branch: main
+          production-deploy: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          deploy-message: "Deploy do commit ${{ github.sha }}"
+          enable-pull-request-comment: false
+          enable-commit-comment: false
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        timeout-minutes: 5
