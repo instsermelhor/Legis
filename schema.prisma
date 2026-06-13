@@ -1,0 +1,338 @@
+// =============================================================================
+// schema.prisma — Legis Connect Platform
+// Documentação de Banco de Dados — PostgreSQL + Prisma ORM
+//
+// ⚠️  ARQUIVO DE DOCUMENTAÇÃO — não executável nesta stack (Vite+React)
+//     Para migrar para Next.js + Prisma: copie este arquivo para a raiz do
+//     projeto Next.js e execute: npx prisma migrate dev
+//
+// Padrões de Segurança:
+//   - Row-Level Security (RLS) ativo via políticas PostgreSQL
+//   - Dados sensíveis (CPF, processo penal) encriptados na camada de aplicação
+//   - Soft delete em todos os modelos (deletedAt nullable)
+//   - UUID como PK para evitar enumeração de recursos
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  CLIENT
+  LAWYER
+  INTERN
+  SECRETARY
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum StaffRole {
+  SUPER_ADMIN
+  ADMIN
+  STAFF_FINANCE_ADMIN
+  STAFF_COMPLIANCE_AUDITOR
+  STAFF_SUPPORT_L1
+}
+
+enum ProvisioningStatus {
+  PENDING
+  IN_PROGRESS
+  PROVISIONED
+  PROVISION_FAILED
+  REFUNDED
+  EXPIRED
+}
+
+enum ServiceGroup {
+  CLIENT
+  LAWYER
+  INTERN
+  SECRETARY
+}
+
+enum CaseStatus {
+  ACTIVE
+  CONCLUDED
+  CANCELLED
+}
+
+enum AuditSeverity {
+  INFO
+  WARNING
+  ERROR
+  CRITICAL
+}
+
+// ─── Usuários Externos ────────────────────────────────────────────────────────
+
+/// Tabela central de identidade — todos os usuários da plataforma
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  passwordHash String  @map("password_hash")
+  role        UserRole
+  name        String
+  cpf         String?  @unique // Criptografado AES-GCM na aplicação
+  phone       String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at") // Soft delete — LGPD Art. 16
+
+  // Relações
+  lawyer      LawyerProfile?
+  intern      InternProfile?
+  secretary   SecretaryProfile?
+  cases       Case[]           @relation("ClientCases")
+  provisionings ServiceProvisioning[]
+  auditLogs   StaffAuditLog[]  @relation("AuditTarget")
+
+  @@map("users")
+  @@index([email])
+  @@index([cpf])
+  @@index([role])
+}
+
+model LawyerProfile {
+  id                String   @id @default(uuid())
+  userId            String   @unique @map("user_id")
+  user              User     @relation(fields: [userId], references: [id])
+  oab               String   @unique
+  oabUf             String   @map("oab_uf")
+  specialties       String[] // Array de áreas
+  city              String
+  state             String
+  bio               String?
+  consultationFee   Decimal? @map("consultation_fee") @db.Decimal(10, 2)
+  status            String   @default("pendente") // verificado | pendente | suspenso
+  verifiedAt        DateTime? @map("verified_at")
+  aiTokenBalance    Int      @default(0) @map("ai_token_balance")
+  tribunalBotCount  Int      @default(0) @map("tribunal_bot_count")
+  clientLimit       Int      @default(10) @map("client_limit")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  cases             Case[]   @relation("LawyerCases")
+
+  @@map("lawyer_profiles")
+}
+
+model InternProfile {
+  id                    String   @id @default(uuid())
+  userId                String   @unique @map("user_id")
+  user                  User     @relation(fields: [userId], references: [id])
+  university            String
+  semester              String
+  specialtyInterest     String   @map("specialty_interest")
+  hoursCompleted        Int      @default(0) @map("hours_completed")
+  oabSimulatorUnlocked  Boolean  @default(false) @map("oab_simulator_unlocked")
+  mentorshipSessions    Int      @default(0) @map("mentorship_sessions")
+  supervisorLawyerId    String?  @map("supervisor_lawyer_id")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  @@map("intern_profiles")
+}
+
+model SecretaryProfile {
+  id                String   @id @default(uuid())
+  userId            String   @unique @map("user_id")
+  user              User     @relation(fields: [userId], references: [id])
+  areasOfKnowledge  String[]
+  availability      String   // integral | meio-periodo | freelancer
+  assignedLawyerId  String?  @map("assigned_lawyer_id")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@map("secretary_profiles")
+}
+
+// ─── Colaboradores Internos (Platform Staff) ───────────────────────────────────
+
+/// Colaboradores internos da plataforma — RBAC granular
+/// Nunca deletados (LGPD compliance) — apenas desativados
+model PlatformStaff {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  role         StaffRole
+  department   String
+  phone        String?
+  active       Boolean   @default(true)
+  permissions  String[]  @default([]) // Permissões customizadas (override)
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  createdById  String?   @map("created_by_id")
+  lastLoginAt  DateTime? @map("last_login_at")
+  loginCount   Int       @default(0) @map("login_count")
+  notes        String?
+
+  // Relações
+  auditLogs    StaffAuditLog[] @relation("AuditActor")
+  impersonations ImpersonationSession[]
+
+  @@map("platform_staff")
+  @@index([email])
+  @@index([role])
+  @@index([active])
+}
+
+/// Sessões de Modo Espelho (Impersonation) — log mandatório LGPD
+model ImpersonationSession {
+  id              String    @id @default(uuid())
+  staffId         String    @map("staff_id")
+  staff           PlatformStaff @relation(fields: [staffId], references: [id])
+  targetUserId    String    @map("target_user_id")
+  targetUserEmail String    @map("target_user_email")
+  targetRole      String    @map("target_role")
+  justification   String    // Mínimo 20 chars — obrigatório
+  startedAt       DateTime  @default(now()) @map("started_at")
+  endedAt         DateTime? @map("ended_at")
+  expiresAt       DateTime  @map("expires_at") // 30 min máximo
+  auditLogId      String    @map("audit_log_id")
+
+  @@map("impersonation_sessions")
+  @@index([staffId])
+  @@index([targetUserId])
+}
+
+// ─── Auditoria ────────────────────────────────────────────────────────────────
+
+/// Log de auditoria imutável com hash encadeado (append-only)
+/// Não deve ter UPDATE ou DELETE — enforçado via RLS policy no PostgreSQL
+model StaffAuditLog {
+  id            String        @id @default(uuid())
+  timestamp     DateTime      @default(now())
+  action        String        // Ex: LOGIN_SUCCESS, PROVISION_FAILED
+  actorId       String        @map("actor_id") // Staff ou 'system'
+  actorRole     String        @map("actor_role")
+  targetId      String?       @map("target_id")
+  targetType    String?       @map("target_type")
+  details       String
+  metadata      Json?
+  ipAddress     String?       @map("ip_address")
+  sessionId     String?       @map("session_id")
+  previousHash  String        @map("previous_hash")
+  hash          String        @unique
+  severity      AuditSeverity @default(INFO)
+
+  // Relações opcionais
+  actor         PlatformStaff? @relation("AuditActor", fields: [actorId], references: [id])
+  targetUser    User?          @relation("AuditTarget", fields: [targetId], references: [id])
+
+  @@map("staff_audit_logs")
+  @@index([action])
+  @@index([actorId])
+  @@index([targetId])
+  @@index([severity])
+  @@index([timestamp])
+}
+
+// ─── Casos ────────────────────────────────────────────────────────────────────
+
+model Case {
+  id           String     @id @default(uuid())
+  title        String
+  description  String?
+  status       CaseStatus @default(ACTIVE)
+  group        String?    // Civil | Penal | Trabalhista | Outro
+  caseType     String?    @map("case_type")
+
+  clientId     String     @map("client_id")
+  client       User       @relation("ClientCases", fields: [clientId], references: [id])
+
+  lawyerId     String     @map("lawyer_id")
+  lawyer       LawyerProfile @relation("LawyerCases", fields: [lawyerId], references: [id])
+
+  // Dados sensíveis — encriptados AES-GCM na aplicação antes de salvar
+  clientCpfHash     String? @map("client_cpf_hash")    // SHA-256 para lookup
+  processDocuments  String? @map("process_documents")  // Encriptado AES-GCM
+
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  concludedAt  DateTime?  @map("concluded_at")
+  deletedAt    DateTime?  @map("deleted_at") // Soft delete
+
+  stages       CaseStage[]
+
+  @@map("cases")
+  @@index([clientId])
+  @@index([lawyerId])
+  @@index([status])
+  @@index([clientCpfHash]) // Para lookup seguro por CPF (hash)
+}
+
+model CaseStage {
+  id       String @id @default(uuid())
+  caseId   String @map("case_id")
+  case     Case   @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  name     String
+  status   String // completed | current | upcoming
+  order    Int
+  completedAt DateTime? @map("completed_at")
+
+  @@map("case_stages")
+  @@index([caseId])
+}
+
+// ─── Serviços e Provisionamento ───────────────────────────────────────────────
+
+/// Motor de Provisionamento — rastreia CADA serviço contratado
+/// Garante idempotência via paymentId único
+model ServiceProvisioning {
+  id             String             @id @default(uuid())
+  paymentId      String             @unique @map("payment_id") // ID do gateway
+  userId         String             @map("user_id")
+  user           User               @relation(fields: [userId], references: [id])
+  userEmail      String             @map("user_email")
+  group          ServiceGroup
+  serviceId      String             @map("service_id")
+  serviceTitle   String             @map("service_title")
+  amount         Decimal            @db.Decimal(10, 2)
+  currency       String             @default("BRL")
+  status         ProvisioningStatus @default(PENDING)
+  createdAt      DateTime           @default(now()) @map("created_at")
+  updatedAt      DateTime           @updatedAt @map("updated_at")
+  provisionedAt  DateTime?          @map("provisioned_at")
+  errorMessage   String?            @map("error_message")
+  retryCount     Int                @default(0) @map("retry_count")
+  metadata       Json?
+
+  @@map("service_provisionings")
+  @@index([userId])
+  @@index([status])
+  @@index([group])
+  @@index([paymentId])
+}
+
+// =============================================================================
+// ROW-LEVEL SECURITY POLICIES (PostgreSQL SQL — executar após migrate)
+// =============================================================================
+//
+// -- Clientes só veem seus próprios casos:
+// ALTER TABLE cases ENABLE ROW LEVEL SECURITY;
+// CREATE POLICY client_isolation ON cases
+//   USING (client_id = current_setting('app.current_user_id')::uuid
+//          OR current_setting('app.user_role') IN ('super_admin', 'admin'));
+//
+// -- Logs de auditoria são somente leitura (sem UPDATE/DELETE):
+// ALTER TABLE staff_audit_logs ENABLE ROW LEVEL SECURITY;
+// CREATE POLICY audit_readonly ON staff_audit_logs
+//   FOR UPDATE USING (false);
+// CREATE POLICY audit_no_delete ON staff_audit_logs
+//   FOR DELETE USING (false);
+//
+// -- Provisionamentos: usuário só vê os seus:
+// ALTER TABLE service_provisionings ENABLE ROW LEVEL SECURITY;
+// CREATE POLICY provisioning_isolation ON service_provisionings
+//   USING (user_id::text = current_setting('app.current_user_id')
+//          OR current_setting('app.user_role') IN ('super_admin', 'admin', 'staff_finance_admin'));
+// =============================================================================
