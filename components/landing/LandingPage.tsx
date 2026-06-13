@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { CaseDescriptionForm } from './CaseDescriptionForm';
-import type { Lawyer, MapsSearchResult } from '../../types';
+import type { Lawyer, MapsSearchResult, View } from '../../types';
+import { CaseStore } from '../../utils/sessionStore';
 
 interface LandingPageProps {
   onSearch: (results: Lawyer[], mapsData: MapsSearchResult | null) => void;
+  onNavigate: (view: View) => void;
 }
 
 // ── Animated counter hook ─────────────────────────────────────────────────
@@ -135,8 +137,13 @@ const audiences = [
   { icon: '📋', title: 'Secret./Assist. Jurídico', desc: 'Profissionalize sua atuação e conecte-se a escritórios que valorizam a expertise em secretariado e assistência jurídica.', cta: 'Sou Assist. Jurídico', view: 'forSecretariado' as const },
 ];
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onSearch }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate }) => {
   const { ref: statsRef, visible: statsVisible } = useVisible();
+
+  const handleCaseRedirect = (description: string, city: string) => {
+    CaseStore.set({ description, city });
+    onNavigate('signup');
+  };
 
   return (
     <div className="min-h-screen bg-surface-dark text-white overflow-x-hidden">
@@ -226,7 +233,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch }) => {
                     <p className="text-sm text-gray-400">Nossa IA encontrará o advogado ideal</p>
                   </div>
                 </div>
-                <CaseDescriptionForm onSearch={onSearch} />
+                <CaseDescriptionForm
+                  onSearch={onSearch}
+                  captureMode={false}
+                  onRedirectToSignup={handleCaseRedirect}
+                />
               </div>
             </div>
           </div>
@@ -347,7 +358,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch }) => {
               <div
                 key={i}
                 className={`reveal-section card-dark p-8 text-center hover-lift cursor-pointer group delay-${(i + 1) * 100}`}
-                onClick={() => {}}
+                onClick={() => onNavigate(a.view)}
               >
                 <div className="text-5xl mb-5 group-hover:scale-110 transition-transform duration-300">{a.icon}</div>
                 <h3 className="font-montserrat text-xl font-bold text-white mb-3">{a.title}</h3>
@@ -429,12 +440,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch }) => {
               Junte-se a mais de 1.200 advogados e 8.500 clientes que já transformaram sua relação com o universo jurídico.
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
-              <button className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary font-montserrat font-bold text-base rounded-xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+              <button
+                onClick={() => onNavigate('signup')}
+                className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary font-montserrat font-bold text-base rounded-xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+              >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 Criar Conta Gratuita
               </button>
-              <button className="inline-flex items-center gap-2 px-8 py-4 bg-transparent text-white font-montserrat font-semibold text-base rounded-xl border-2 border-white/30 hover:bg-white/10 hover:border-white/50 transition-all duration-300">
-                Saber mais
+              <button
+                onClick={() => onNavigate('search')}
+                className="inline-flex items-center gap-2 px-8 py-4 bg-transparent text-white font-montserrat font-semibold text-base rounded-xl border-2 border-white/30 hover:bg-white/10 hover:border-white/50 transition-all duration-300"
+              >
+                Buscar Advogados
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
               </button>
             </div>

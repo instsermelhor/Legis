@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { b2cServices, b2bServices, ServiceItem } from '../../data/servicesData';
 import type { View } from '../../types';
+import { ServiceStore } from '../../utils/sessionStore';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type TabId = 'B2C' | 'B2B';

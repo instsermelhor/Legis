@@ -7,6 +7,8 @@ interface HeaderProps {
   onNavigate: (view: View) => void;
   user: User | null;
   onLogout: () => void;
+  onOpenLoginModal: () => void;
+  onOpenProfileSelector: () => void;
 }
 
 // Scales icon
@@ -44,7 +46,7 @@ const MoonIcon = () => (
   </svg>
 );
 
-export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, onLogout }) => {
+export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, onLogout, onOpenLoginModal, onOpenProfileSelector }) => {
   const { config } = useAppConfig();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -190,7 +192,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
             ) : (
               <>
                 <button
-                  onClick={() => onNavigate('login')}
+                  onClick={onOpenLoginModal}
                   className={`hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
                     isLandingOrPublic
                       ? 'text-white/80 hover:text-white border border-white/15 hover:bg-white/10'
@@ -201,7 +203,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
                   Entrar
                 </button>
                 <button
-                  onClick={() => onNavigate('signup')}
+                  onClick={onOpenProfileSelector}
                   className="btn-primary text-sm py-2 px-4"
                 >
                   Cadastrar-se
@@ -256,7 +258,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
             ))}
             {!user && (
               <button
-                onClick={() => { onNavigate('login'); setMobileOpen(false); }}
+                onClick={() => { onOpenLoginModal(); setMobileOpen(false); }}
                 className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium sm:hidden transition-colors ${
                   isLandingOrPublic ? 'text-white/75 hover:text-white hover:bg-white/8' : 'text-gray-700 hover:bg-gray-50 hover:text-primary'
                 }`}
