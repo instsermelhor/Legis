@@ -1,67 +1,74 @@
 import React, { useState, useCallback } from 'react';
 import { analyzeCaseWithGemini, findPlacesWithMaps } from '../../services/geminiService';
 import { mockLawyers } from '../../services/mockLawyerService';
-// FIX: Corrected import path for local module.
 import type { Lawyer, MapsSearchResult } from '../../types';
 import { LocationMarkerIcon } from '../common/IconComponents';
+import { CaseStore } from '../../utils/sessionStore';
 
 interface CaseDescriptionFormProps {
   onSearch: (results: Lawyer[], mapsData: MapsSearchResult | null) => void;
+  /** Called when user clicks "Buscar" but wants to be redirected to signup instead */
+  onRedirectToSignup?: (description: string, city: string) => void;
+  /** If true, redirect to signup after saving to sessionStorage (used on landing hero) */
+  captureMode?: boolean;
+  /** Pre-fill values from sessionStorage intent */
+  initialDescription?: string;
+  initialCity?: string;
 }
 
-export const CaseDescriptionForm: React.FC<CaseDescriptionFormProps> = ({ onSearch }) => {
-  const [description, setDescription] = useState('');
-  const [location, setLocation] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [coords, setCoords] = useState<{latitude: number, longitude: number} | null>(null);
+export const CaseDescriptionForm: React.FC<CaseDescriptionFormProps> = ({
+  onSearch,
+  onRedirectToSignup,
+  captureMode = false,
+  initialDescription = '',
+  initialCity = '',
+}) => {
+  const [description, setDescription] = useState(initialDescription);
+  const [location, setLocation]       = useState(initialCity);
+  const [isLoading, setIsLoading]     = useState(false);
+  const [error, setError]             = useState('');
+  const [coords, setCoords]           = useState<{ latitude: number; longitude: number } | null>(null);
 
   const handleGeolocation = useCallback(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setCoords({
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
-          });
-          setLocation('Usando localização atual'); 
+        pos => {
+          setCoords({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+          setLocation('Usando localização atual');
         },
-        () => {
-          setError('Não foi possível obter a geolocalização. Por favor, digite sua cidade.');
-        }
+        () => setError('Não foi possível obter a geolocalização. Por favor, digite sua cidade.')
       );
     }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!description.trim()) {
-      setError('Por favor, descreva seu caso.');
+    if (!description.trim()) { setError('Por favor, descreva seu caso.'); return; }
+    setError('');
+
+    // Always persist to sessionStorage before any action
+    CaseStore.set({ description: description.trim(), city: location.trim() });
+
+    // Capture mode: redirect to signup with pre-filled data
+    if (captureMode && onRedirectToSignup) {
+      onRedirectToSignup(description.trim(), location.trim());
       return;
     }
-    setError('');
+
     setIsLoading(true);
-
     try {
-      // Run both API calls in parallel for better performance
       const [analysis, mapsData] = await Promise.all([
-          analyzeCaseWithGemini(description),
-          findPlacesWithMaps(description, coords || undefined)
+        analyzeCaseWithGemini(description),
+        findPlacesWithMaps(description, coords || undefined),
       ]);
-      
-      // Filter mock lawyers based on Gemini's analysis
       const relevantSpecialties = [analysis.primaryArea, ...analysis.specializations];
-      const results = mockLawyers.filter(lawyer => 
-        lawyer.specialties.some(spec => relevantSpecialties.includes(spec))
+      const results = mockLawyers.filter(l =>
+        l.specialties.some(s => relevantSpecialties.includes(s))
       );
-      
-      // Pass both results to parent to navigate
       onSearch(results.length > 0 ? results : mockLawyers, mapsData);
-
     } catch (err) {
       console.error(err);
       setError('Ocorreu um erro ao analisar seu caso. Exibindo resultados gerais.');
-      // Fallback to showing all lawyers and no maps data
       onSearch(mockLawyers, null);
     } finally {
       setIsLoading(false);
@@ -69,60 +76,115 @@ export const CaseDescriptionForm: React.FC<CaseDescriptionFormProps> = ({ onSear
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <h2 className="text-2xl font-bold text-center text-gray-800">Encontre um advogado especialista</h2>
-      <p className="text-sm text-gray-500 text-center -mt-2">
-        Descreva seu caso e nossa inteligência artificial encontrará os advogados mais qualificados e próximos de você. Simples, rápido e confidencial.
-      </p>
-      <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-700">Descreva sua necessidade jurídica</label>
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {/* Description */}
+      <div className="space-y-1.5">
+        <label
+          htmlFor="case-description"
+          className="block text-xs font-semibold text-gray-300 tracking-wide uppercase"
+        >
+          Descreva sua necessidade jurídica
+        </label>
         <textarea
-          id="description"
+          id="case-description"
           name="description"
-          rows={5}
-          className="mt-1 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md focus:ring-primary focus:border-primary"
-          placeholder="Ex: Preciso de ajuda com um processo de divórcio e partilha de bens."
+          rows={4}
+          className="
+            w-full px-4 py-3 rounded-xl
+            bg-white/6 border border-white/12
+            text-white placeholder-white/35
+            text-sm leading-relaxed
+            resize-none
+            transition-all duration-200
+            focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 focus:bg-white/8
+            hover:border-white/20
+          "
+          style={{ colorScheme: 'dark' }}
+          placeholder="Ex: Preciso de ajuda com um processo de divórcio e partilha de bens. Tenho dois filhos menores..."
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={e => setDescription(e.target.value)}
           required
         />
       </div>
-      <div>
-        <label htmlFor="location" className="block text-sm font-medium text-gray-700">Sua cidade ou estado</label>
-        <div className="mt-1 relative rounded-md shadow-sm">
-            <input
+
+      {/* Location */}
+      <div className="space-y-1.5">
+        <label
+          htmlFor="case-location"
+          className="block text-xs font-semibold text-gray-300 tracking-wide uppercase"
+        >
+          Sua cidade ou estado
+        </label>
+        <div className="relative">
+          <input
             type="text"
-            id="location"
+            id="case-location"
             name="location"
-            className="block w-full sm:text-sm border-gray-300 rounded-md focus:ring-primary focus:border-primary pl-3 pr-10 py-2"
+            className="
+              w-full px-4 py-3 pr-11 rounded-xl
+              bg-white/6 border border-white/12
+              text-white placeholder-white/35
+              text-sm
+              transition-all duration-200
+              focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 focus:bg-white/8
+              hover:border-white/20
+            "
+            style={{ colorScheme: 'dark' }}
             placeholder="Ex: São Paulo, SP"
             value={location}
-            onChange={(e) => setLocation(e.target.value)}
-            />
-            <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                <button type="button" onClick={handleGeolocation} className="text-gray-400 hover:text-primary">
-                    <LocationMarkerIcon className="h-5 w-5" />
-                </button>
-            </div>
+            onChange={e => setLocation(e.target.value)}
+          />
+          <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+            <button
+              type="button"
+              onClick={handleGeolocation}
+              className="text-gray-500 hover:text-primary transition-colors"
+              title="Usar minha localização"
+              aria-label="Usar localização atual"
+            >
+              <LocationMarkerIcon className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      <div>
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-primary hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-light disabled:bg-primary/50 disabled:cursor-not-allowed transition-all duration-200"
-        >
-          {isLoading ? (
-            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+
+      {/* Error */}
+      {error && (
+        <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/25">
+          <svg className="w-4 h-4 text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <p className="text-sm text-red-400">{error}</p>
+        </div>
+      )}
+
+      {/* Submit */}
+      <button
+        type="submit"
+        disabled={isLoading}
+        className="btn-primary w-full py-3.5 text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+      >
+        {isLoading ? (
+          <>
+            <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
             </svg>
-          ) : 'Buscar Advogados'}
-        </button>
-      </div>
-      <p className="text-xs text-gray-500 text-center">
-        Suas informações são confidenciais e protegidas de acordo com a Lei nº 8.906/1994 e Lei nº 14.365/2022, Código de Ética e Disciplina da OAB, Art. 133 da CF e LGPD.
+            Analisando com IA…
+          </>
+        ) : (
+          <>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            Buscar Advogados
+          </>
+        )}
+      </button>
+
+      {/* Legal notice */}
+      <p className="text-[10px] text-gray-600 text-center leading-relaxed">
+        Informações protegidas por sigilo profissional (Lei nº 8.906/94, Art. 7º), Código de Ética OAB e LGPD (Lei nº 13.709/18).
       </p>
     </form>
   );

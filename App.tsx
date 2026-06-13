@@ -30,6 +30,8 @@ import { chatWithGemini } from './services/geminiService';
 import type { View, Lawyer, Intern, Secretary, ChatMessage, User, Case, Appointment, Review, MapsSearchResult } from './types';
 import { mockLawyers } from './services/mockLawyerService';
 import { hashPassword, AdminUser } from './services/mockDataService';
+import { LoginModal } from './components/common/LoginModal';
+import { ProfileSelectorModal } from './components/common/ProfileSelectorModal';
 
 const TEST_EMAIL = 'teste@legisconnect.com.br';
 const TEST_PASSWORD = 'teste';
@@ -75,9 +77,12 @@ const App: React.FC = () => {
   const [isChatbotLoading, setIsChatbotLoading] = useState(false);
 
   // Modal State
-  const [isTermsModalOpen, setIsTermsModalOpen] = useState(false);
+  const [isTermsModalOpen, setIsTermsModalOpen]     = useState(false);
   const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
-  const [isEticaModalOpen, setIsEticaModalOpen] = useState(false);
+  const [isEticaModalOpen, setIsEticaModalOpen]     = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen]     = useState(false);
+  const [isProfileSelectorOpen, setIsProfileSelectorOpen] = useState(false);
+  const [loginPendingAction, setLoginPendingAction] = useState<{ type: 'service'; label: string } | null>(null);
 
 
   useEffect(() => {
@@ -256,8 +261,20 @@ const App: React.FC = () => {
       return true;
     }
 
+    // After successful login via modal, any pending service intent in
+    // sessionStorage will be processed by the dashboard component on mount.
     return false;
   }, [allLawyers, handleNavigate]);
+
+  // Open login modal (optionally with a pending action context)
+  const handleOpenLoginModal = (pendingAction?: { type: 'service'; label: string }) => {
+    setLoginPendingAction(pendingAction || null);
+    setIsLoginModalOpen(true);
+  };
+
+  const handleOpenProfileSelector = () => {
+    setIsProfileSelectorOpen(true);
+  };
 
   // Context-specific login for Lawyers page: test user gets Lawyer Dashboard
   const handleLawyerPageLogin = useCallback((credentials: Credentials): boolean => {
@@ -655,7 +672,14 @@ const App: React.FC = () => {
 
   return (
     <div className={`flex flex-col min-h-screen bg-neutral-light font-sans ${getThemeClass()}`}>
-      <Header currentView={currentView} onNavigate={handleNavigate} user={user} onLogout={handleLogout} />
+      <Header
+        currentView={currentView}
+        onNavigate={handleNavigate}
+        user={user}
+        onLogout={handleLogout}
+        onOpenLoginModal={handleOpenLoginModal}
+        onOpenProfileSelector={handleOpenProfileSelector}
+      />
       <main className="flex-grow">
         {renderView()}
       </main>
@@ -668,9 +692,23 @@ const App: React.FC = () => {
         onSendMessage={handleSendChatMessage}
         isLoading={isChatbotLoading}
       />
-      {isTermsModalOpen && <TermsOfServiceModal onClose={() => setIsTermsModalOpen(false)} />}
-      {isPrivacyModalOpen && <PrivacyPolicyModal onClose={() => setIsPrivacyModalOpen(false)} />}
-      {isEticaModalOpen && <EticaOABModal onClose={() => setIsEticaModalOpen(false)} />}
+      {isTermsModalOpen   && <TermsOfServiceModal  onClose={() => setIsTermsModalOpen(false)} />}
+      {isPrivacyModalOpen && <PrivacyPolicyModal   onClose={() => setIsPrivacyModalOpen(false)} />}
+      {isEticaModalOpen   && <EticaOABModal        onClose={() => setIsEticaModalOpen(false)} />}
+
+      {/* ── Auth Modals ───────────────────────────────────────────────────── */}
+      <LoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onLoginSuccess={handleLogin}
+        onNavigate={handleNavigate}
+        pendingAction={loginPendingAction}
+      />
+      <ProfileSelectorModal
+        isOpen={isProfileSelectorOpen}
+        onClose={() => setIsProfileSelectorOpen(false)}
+        onNavigate={handleNavigate}
+      />
     </div>
   );
 };
