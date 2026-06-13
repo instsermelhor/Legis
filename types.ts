@@ -297,3 +297,109 @@ export interface BiVenda {
   status_pagamento: string;
   status_aluguel: 'Entregue' | 'Cancelado' | 'Em Realização';
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Security & RBAC Types
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Roles dos colaboradores internos da plataforma */
+export type StaffRole =
+  | 'super_admin'
+  | 'admin'
+  | 'staff_finance_admin'
+  | 'staff_compliance_auditor'
+  | 'staff_support_l1';
+
+/** Colaborador interno da plataforma Legis Connect */
+export interface PlatformStaff {
+  id: string;
+  name: string;
+  email: string;
+  password: string; // hasheado via hashPassword()
+  role: StaffRole;
+  department: string;
+  phone?: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string; // ID ou 'system'
+  permissions: string[]; // Permissões customizadas (override)
+  lastLogin?: string;
+  loginCount?: number;
+  notes?: string;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Service Provisioning Types
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Grupos que podem contratar serviços */
+export type ServiceProvisioningGroup = 'client' | 'lawyer' | 'intern' | 'secretary';
+
+/** Estados da máquina de estados do provisionamento */
+export type ProvisioningStatus =
+  | 'PENDING'           // Pagamento recebido, aguardando processamento
+  | 'IN_PROGRESS'       // Provisionando (chamando APIs externas)
+  | 'PROVISIONED'       // Entregue com sucesso
+  | 'PROVISION_FAILED'  // Falha — requer atenção do admin
+  | 'REFUNDED'          // Reembolsado após falha não recuperável
+  | 'EXPIRED';          // Serviço com prazo expirado
+
+/** Registro de um serviço contratado e seu status de entrega */
+export interface ServiceProvisioning {
+  id: string;                         // ID único do provisionamento
+  paymentId: string;                  // ID do pagamento no gateway (Stripe/PagarMe)
+  userId: string;                     // Email ou ID do usuário que comprou
+  userEmail: string;
+  group: ServiceProvisioningGroup;    // Grupo do comprador
+  serviceId: string;                  // ID do serviço contratado
+  serviceTitle: string;               // Nome legível do serviço
+  amount: number;                     // Valor em reais
+  currency: string;                   // 'BRL'
+  status: ProvisioningStatus;
+  createdAt: string;                  // ISO timestamp da compra
+  updatedAt: string;                  // ISO timestamp da última atualização
+  provisionedAt?: string;             // Quando foi entregue
+  errorMessage?: string;              // Mensagem de erro em caso de falha
+  retryCount?: number;                // Número de tentativas de retry
+  metadata?: Record<string, string>;  // Dados extras do gateway
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Audit Log Types
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Entrada do log de auditoria imutável */
+export interface StaffAuditLog {
+  id: string;
+  timestamp: number;
+  isoTimestamp: string;
+  action: string;
+  actorId: string;
+  actorRole: string;
+  targetId?: string;
+  targetType?: string;
+  details: string;
+  metadata?: Record<string, unknown>;
+  previousHash: string;
+  hash: string;
+  severity: 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Impersonation Session Types
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Sessão de modo espelho (impersonation) ativa */
+export interface ImpersonationSession {
+  id: string;
+  adminId: string;        // Quem iniciou o espelho
+  adminEmail: string;
+  targetUserId: string;   // Quem está sendo espelhado
+  targetUserEmail: string;
+  targetRole: string;
+  justification: string;  // Obrigatória — mínimo 20 caracteres
+  startedAt: string;
+  expiresAt: string;      // 30 minutos máximo
+  auditLogId: string;     // Referência ao log de auditoria gerado
+}
