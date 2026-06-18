@@ -393,6 +393,18 @@ const AdminUsers: React.FC = () => {
   const [resetMethod, setResetMethod] = useState<'email' | 'secondary' | 'sms' | 'whatsapp'>('email');
   const [resetSent, setResetSent] = useState(false);
 
+  // Edit user modal state
+  const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: '',
+    phone: '',
+    secondaryEmail: '',
+    confirmSecondaryEmail: '',
+    newPassword: '',
+    confirmNewPassword: '',
+  });
+  const [editErrors, setEditErrors] = useState<Record<string, string>>({});
+
   // Role default permissions modal
   const [showRoleDefaults, setShowRoleDefaults] = useState(false);
   const [roleDefaultsDraft, setRoleDefaultsDraft] = useState<Record<AdminUser['role'], string[]>>(() => {
@@ -446,6 +458,56 @@ const AdminUsers: React.FC = () => {
 
   const toggleActive = (id: number) => {
     saveUsers(users.map(u => u.id === id ? { ...u, active: !u.active } : u));
+  };
+
+  const openEdit = (u: AdminUser) => {
+    setEditingUser(u);
+    setEditForm({
+      name: u.name || '',
+      phone: u.phone || '',
+      secondaryEmail: u.secondaryEmail || '',
+      confirmSecondaryEmail: u.secondaryEmail || '',
+      newPassword: '',
+      confirmNewPassword: '',
+    });
+    setEditErrors({});
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingUser) return;
+    const errors: Record<string, string> = {};
+    if (!editForm.name.trim()) errors.name = 'Nome obrigatório';
+    if (editForm.secondaryEmail && editForm.secondaryEmail !== editForm.confirmSecondaryEmail) {
+      errors.confirmSecondaryEmail = 'E-mails secundários não coincidem';
+    }
+    if (editForm.newPassword && editForm.newPassword !== editForm.confirmNewPassword) {
+      errors.confirmNewPassword = 'As senhas não coincidem';
+    }
+    if (editForm.phone && !/^\(?\d{2}\)?\s?\d{4,5}-?\d{4}$/.test(editForm.phone.replace(/\s/g, ''))) {
+      errors.phone = 'Número inválido (ex: (11) 99999-9999)';
+    }
+
+    if (Object.keys(errors).length > 0) {
+      setEditErrors(errors);
+      return;
+    }
+
+    const updated = users.map(u => {
+      if (u.id === editingUser.id) {
+        return {
+          ...u,
+          name: editForm.name.trim(),
+          phone: editForm.phone.trim() || undefined,
+          secondaryEmail: editForm.secondaryEmail.trim() || undefined,
+          password: editForm.newPassword ? hashPassword(editForm.newPassword) : u.password,
+        };
+      }
+      return u;
+    });
+
+    saveUsers(updated);
+    setEditingUser(null);
+    setEditErrors({});
   };
 
   const handleDelete = (id: number) => {
@@ -686,6 +748,12 @@ const AdminUsers: React.FC = () => {
                     {u.role !== 'super' ? (
                       <div className="flex gap-1.5 justify-center flex-wrap">
                         <button
+                          onClick={() => openEdit(u)}
+                          className="text-xs font-semibold px-2 py-1 rounded-lg border border-blue-200 text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors"
+                        >
+                          ⚙️ Editar
+                        </button>
+                        <button
                           onClick={() => toggleActive(u.id)}
                           className={`text-xs font-semibold px-2 py-1 rounded-lg border transition-colors ${u.active ? 'text-amber-700 bg-amber-50 border-amber-200 hover:bg-amber-100' : 'text-green-700 bg-green-50 border-green-200 hover:bg-green-100'}`}
                         >
@@ -711,7 +779,14 @@ const AdminUsers: React.FC = () => {
                         </button>
                       </div>
                     ) : (
-                      <span className="text-xs text-gray-400 italic text-center block">Protegido</span>
+                      <div className="flex gap-1.5 justify-center flex-wrap">
+                        <button
+                          onClick={() => openEdit(u)}
+                          className="text-xs font-semibold px-2 py-1 rounded-lg border border-purple-200 text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors"
+                        >
+                          ⚙️ Editar Acesso
+                        </button>
+                      </div>
                     )}
                   </td>
                 </tr>
@@ -809,6 +884,89 @@ const AdminUsers: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* ────────────────────────────────────────────────────────────────────────
+          MODAL: Edit Admin User (Edit Access)
+      ──────────────────────────────────────────────────────────────────────── */}
+      {editingUser && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setEditingUser(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-[#2A2545]">
+              <div>
+                <h2 className="text-base font-bold text-gray-900 dark:text-white">⚙️ Editar Acesso</h2>
+                <p className="text-xs text-gray-500 mt-0.5 dark:text-gray-400">Usuário: <strong>{editingUser.email}</strong></p>
+              </div>
+              <button onClick={() => setEditingUser(null)} className="text-gray-400 hover:text-gray-700 text-xl leading-none">×</button>
+            </div>
+
+            <div className="px-6 py-5 space-y-4">
+              {/* Name */}
+              <Field label="Nome *" error={editErrors.name}>
+                <input value={editForm.name} onChange={e => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] p-2"
+                  placeholder="Nome completo" />
+              </Field>
+
+              {/* Phone */}
+              <Field label="Celular / WhatsApp" error={editErrors.phone}>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base">📱</span>
+                  <input value={editForm.phone} onChange={e => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
+                    className="w-full border border-gray-300 rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] p-2"
+                    placeholder="(11) 99999-9999" />
+                </div>
+              </Field>
+
+              {/* Secondary Email section */}
+              <div className="bg-blue-50/50 border border-dashed border-blue-200 rounded-xl p-3 space-y-3 dark:bg-purple-950/20 dark:border-purple-900">
+                <p className="text-xs font-bold text-blue-800 dark:text-purple-300 flex items-center gap-1.5">✉️ E-mail Secundário <span className="font-normal text-gray-400 dark:text-gray-500">(usado para recuperar a senha em caso de esquecimento)</span></p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Field label="E-mail Secundário" error={editErrors.secondaryEmail}>
+                    <input type="email" value={editForm.secondaryEmail} onChange={e => setEditForm(prev => ({ ...prev, secondaryEmail: e.target.value }))}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] p-2"
+                      placeholder="email.secundario@exemplo.com" />
+                  </Field>
+                  <Field label="Confirmar E-mail Secundário" error={editErrors.confirmSecondaryEmail}>
+                    <input type="email" value={editForm.confirmSecondaryEmail} onChange={e => setEditForm(prev => ({ ...prev, confirmSecondaryEmail: e.target.value }))}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] p-2"
+                      placeholder="Confirmar e-mail secundário" />
+                  </Field>
+                </div>
+              </div>
+
+              {/* Password Section (Optional) */}
+              <div className="bg-amber-50/50 border border-dashed border-amber-200 rounded-xl p-3 space-y-3 dark:bg-amber-950/10 dark:border-amber-900">
+                <p className="text-xs font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">🔒 Nova Senha <span className="font-normal text-gray-400 dark:text-gray-500">(deixe em branco para manter a atual)</span></p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Field label="Nova Senha" error={editErrors.newPassword}>
+                    <input type="password" value={editForm.newPassword} onChange={e => setEditForm(prev => ({ ...prev, newPassword: e.target.value }))}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] p-2"
+                      placeholder="Nova senha" />
+                  </Field>
+                  <Field label="Confirmar Nova Senha" error={editErrors.confirmNewPassword}>
+                    <input type="password" value={editForm.confirmNewPassword} onChange={e => setEditForm(prev => ({ ...prev, confirmNewPassword: e.target.value }))}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/30 bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] p-2"
+                      placeholder="Confirmar nova senha" />
+                  </Field>
+                </div>
+              </div>
+
+              {/* Save / Cancel buttons */}
+              <div className="flex gap-2 pt-2 border-t border-gray-200 dark:border-[#2A2545]">
+                <button onClick={handleSaveEdit}
+                  className="flex-1 py-2.5 text-sm font-bold text-white bg-primary rounded-xl hover:bg-primary/90 transition-colors shadow">
+                  💾 Salvar Alterações
+                </button>
+                <button onClick={() => setEditingUser(null)}
+                  className="px-4 py-2.5 text-sm text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200 font-semibold dark:bg-[#2A2545] dark:text-gray-300 dark:hover:bg-[#3A355A]">
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )/* ──────────────────────────────────────────────────────────────────────── */}
 
       {/* ────────────────────────────────────────────────────────────────────────
           MODAL: Per-user permission manager
