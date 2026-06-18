@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { mockLawyers } from '../../services/mockLawyerService';
+import { hashPassword } from '../../services/mockDataService';
 
 export interface Credentials {
     email: string;
@@ -89,6 +90,105 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
     const [error, setError]                   = useState('');
     const [isLoading, setIsLoading]           = useState(false);
 
+    // Password Recovery States
+    const [isRecovering, setIsRecovering] = useState(false);
+    const [recoveryStep, setRecoveryStep] = useState<'input' | 'sent' | 'reset'>('input');
+    const [recoveryEmail, setRecoveryEmail] = useState('');
+    const [matchedUser, setMatchedUser] = useState<any | null>(null);
+    const [inputCode, setInputCode] = useState('');
+    const [recNewPassword, setRecNewPassword] = useState('');
+    const [recConfirmNewPassword, setRecConfirmNewPassword] = useState('');
+    const [recoveryError, setRecoveryError] = useState('');
+    const [showSimulatedEmail, setShowSimulatedEmail] = useState(false);
+
+    const handleStartRecovery = () => {
+        setIsRecovering(true);
+        setRecoveryStep('input');
+        setRecoveryEmail(email || '');
+        setMatchedUser(null);
+        setInputCode('');
+        setRecNewPassword('');
+        setRecConfirmNewPassword('');
+        setRecoveryError('');
+        setShowSimulatedEmail(false);
+    };
+
+    const handleFindUserForRecovery = (e: React.FormEvent) => {
+        e.preventDefault();
+        setRecoveryError('');
+        
+        const lowerEmail = recoveryEmail.toLowerCase().trim();
+        if (!lowerEmail) {
+            setRecoveryError('Por favor, informe seu e-mail.');
+            return;
+        }
+
+        // Search in localStorage admin users
+        const adminUsersRaw = localStorage.getItem('legis_admin_users');
+        const adminUsersList = adminUsersRaw ? JSON.parse(adminUsersRaw) : [
+            { id: 1, name: 'Super Admin', email: 'admin@legisconnect.com.br', password: hashPassword('@@Rk08266570#'), role: 'super', createdAt: '2024-01-01', active: true }
+        ];
+        const foundAdmin = adminUsersList.find((u: any) => u.email.toLowerCase() === lowerEmail);
+
+        if (foundAdmin) {
+            if (!foundAdmin.secondaryEmail) {
+                setRecoveryError('Este usuário não possui um e-mail secundário de recuperação cadastrado. Entre em contato com o suporte.');
+                return;
+            }
+            setMatchedUser({ ...foundAdmin, type: 'admin' });
+            setRecoveryStep('sent');
+            setShowSimulatedEmail(true);
+            return;
+        }
+
+        setRecoveryError('E-mail de administrador não encontrado na base de dados.');
+    };
+
+    const handleVerifyCode = (e: React.FormEvent) => {
+        e.preventDefault();
+        setRecoveryError('');
+        if (inputCode.trim().toUpperCase() === 'LC-8266') {
+            setRecoveryStep('reset');
+            setRecoveryError('');
+        } else {
+            setRecoveryError('Código incorreto. Digite LC-8266 conforme simulação.');
+        }
+    };
+
+    const handleResetPassword = (e: React.FormEvent) => {
+        e.preventDefault();
+        setRecoveryError('');
+        if (!recNewPassword) {
+            setRecoveryError('Digite a nova senha.');
+            return;
+        }
+        if (recNewPassword !== recConfirmNewPassword) {
+            setRecoveryError('As senhas não coincidem.');
+            return;
+        }
+
+        if (matchedUser && matchedUser.type === 'admin') {
+            const adminUsersRaw = localStorage.getItem('legis_admin_users');
+            const adminUsersList = adminUsersRaw ? JSON.parse(adminUsersRaw) : [
+                { id: 1, name: 'Super Admin', email: 'admin@legisconnect.com.br', password: hashPassword('@@Rk08266570#'), role: 'super', createdAt: '2024-01-01', active: true }
+            ];
+            
+            const updated = adminUsersList.map((u: any) => {
+                if (u.id === matchedUser.id) {
+                    return { ...u, password: hashPassword(recNewPassword) };
+                }
+                return u;
+            });
+            localStorage.setItem('legis_admin_users', JSON.stringify(updated));
+            alert('Senha alterada com sucesso!');
+            setIsRecovering(false);
+            setEmail(matchedUser.email);
+            setPassword('');
+            setUserType('admin');
+            setIsPasswordVisible(true);
+        }
+    };
+
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newEmail = e.target.value;
         setEmail(newEmail);
@@ -147,97 +247,253 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
               className="rounded-2xl border border-white/8 p-8 sm:p-10"
               style={{ background: 'rgba(26, 23, 48, 0.85)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
             >
-              {/* Header */}
-              <div className="text-center mb-8">
-                {/* Logo mark */}
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/20 border border-primary/30 text-2xl mb-5 animate-pulse-glow">
-                  ⚖️
-                </div>
-                <h1 className="font-montserrat text-2xl font-bold text-white mb-1.5">
-                  Acesse sua conta
-                </h1>
-                <p className="text-sm text-gray-400">
-                  Plataforma jurídica <span className="font-cinzel text-accent/80 font-semibold tracking-wider">LEGIS CONNECT</span>
-                </p>
-              </div>
-
-              {/* Role badge */}
-              {role && (
-                <div className={`mb-5 flex items-center justify-center gap-2 px-4 py-2 rounded-xl border text-xs font-semibold animate-fade-in ${role.color}`}>
-                  {role.label}
-                </div>
-              )}
-
-              <form onSubmit={handleSubmit} className="space-y-5">
-                {/* Email */}
-                <InputField
-                  id="email-address"
-                  label="E-mail"
-                  type="email"
-                  value={email}
-                  onChange={handleEmailChange}
-                  placeholder="seu@email.com"
-                  autoComplete="email"
-                  required
-                />
-
-                {/* Password — aparece após e-mail válido */}
-                {isPasswordVisible && (
-                  <div className="animate-slide-up">
-                    <InputField
-                      id="password"
-                      label="Senha"
-                      type={showPassword ? 'text' : 'password'}
-                      value={password}
-                      onChange={e => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      autoComplete="current-password"
-                      required
-                      rightElement={
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(v => !v)}
-                          className="text-gray-500 hover:text-gray-300 transition-colors"
-                          aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
-                        >
-                          <EyeIcon open={showPassword} />
-                        </button>
-                      }
-                    />
+              {isRecovering ? (
+                <div className="space-y-5">
+                  {/* Header */}
+                  <div className="text-center mb-5">
+                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-orange-500/20 border border-orange-500/30 text-xl mb-3">
+                      🔒
+                    </div>
+                    <h2 className="font-montserrat text-lg font-bold text-white mb-1 font-semibold">Recuperar Senha</h2>
+                    <p className="text-xs text-gray-400">
+                      {recoveryStep === 'input' && 'Insira o e-mail da sua conta de administrador para prosseguir.'}
+                      {recoveryStep === 'sent' && 'Insira o código de validação que enviamos para o e-mail secundário.'}
+                      {recoveryStep === 'reset' && 'Crie uma nova senha segura para sua conta.'}
+                    </p>
                   </div>
-                )}
 
-                {/* Error */}
-                {error && (
-                  <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/25 animate-fade-in">
-                    <svg className="w-4 h-4 text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <p className="text-sm text-red-400">{error}</p>
-                  </div>
-                )}
-
-                {/* Submit */}
-                <button
-                  type="submit"
-                  disabled={isLoading || !isPasswordVisible}
-                  className="btn-primary w-full py-3.5 text-sm mt-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
-                >
-                  {isLoading ? (
-                    <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                    </svg>
-                  ) : (
-                    <>
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
-                      </svg>
-                      Entrar na plataforma
-                    </>
+                  {recoveryError && (
+                    <div className="px-4 py-2.5 rounded-xl bg-red-500/10 border border-red-500/25 text-red-400 text-xs font-semibold">
+                      ⚠️ {recoveryError}
+                    </div>
                   )}
-                </button>
-              </form>
+
+                  {/* Step 1: Input Email */}
+                  {recoveryStep === 'input' && (
+                    <form onSubmit={handleFindUserForRecovery} className="space-y-4">
+                      <div className="space-y-1.5">
+                        <label htmlFor="rec-email" className="block text-xs font-semibold text-gray-300 tracking-wide uppercase">
+                          E-mail do Administrador
+                        </label>
+                        <input
+                          id="rec-email"
+                          type="email"
+                          value={recoveryEmail}
+                          onChange={e => setRecoveryEmail(e.target.value)}
+                          placeholder="admin@legisconnect.com.br"
+                          required
+                          className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 text-sm focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all"
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-sm shadow hover:from-orange-600 hover:to-amber-600 transition-all hover:shadow-lg flex items-center justify-center gap-2"
+                      >
+                        Prosseguir
+                      </button>
+                    </form>
+                  )}
+
+                  {/* Step 2: Sent Code & Verification */}
+                  {recoveryStep === 'sent' && (
+                    <div className="space-y-4">
+                      {showSimulatedEmail && matchedUser && (
+                        <div className="p-4 bg-orange-500/5 border border-dashed border-orange-500/35 rounded-xl text-xs space-y-2 text-gray-300">
+                          <p className="font-bold text-orange-400">📬 [Simulação de Envio de E-mail]</p>
+                          <p><strong>De:</strong> no-reply@legisconnect.com.br</p>
+                          <p><strong>Para:</strong> {matchedUser.secondaryEmail}</p>
+                          <hr className="border-white/10" />
+                          <p>Olá, <strong>{matchedUser.name}</strong>!</p>
+                          <p>Recebemos uma solicitação de redefinição de senha para a conta <strong>{matchedUser.email}</strong>.</p>
+                          <p>Use o código de validação a seguir no formulário:</p>
+                          <p className="text-center text-sm font-mono font-bold bg-white/10 py-1.5 rounded tracking-widest text-white font-semibold">LC-8266</p>
+                        </div>
+                      )}
+
+                      <form onSubmit={handleVerifyCode} className="space-y-4">
+                        <div className="space-y-1.5">
+                          <label htmlFor="rec-code" className="block text-xs font-semibold text-gray-300 tracking-wide uppercase">
+                            Código de Validação
+                          </label>
+                          <input
+                            id="rec-code"
+                            type="text"
+                            value={inputCode}
+                            onChange={e => setInputCode(e.target.value)}
+                            placeholder="LC-8266"
+                            required
+                            className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 text-sm focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all font-mono text-center tracking-widest"
+                          />
+                        </div>
+
+                        <button
+                          type="submit"
+                          className="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-sm shadow hover:from-orange-600 hover:to-amber-600 transition-all hover:shadow-lg flex items-center justify-center gap-2"
+                        >
+                          Verificar Código
+                        </button>
+                      </form>
+                    </div>
+                  )}
+
+                  {/* Step 3: Reset Password */}
+                  {recoveryStep === 'reset' && (
+                    <form onSubmit={handleResetPassword} className="space-y-4">
+                      <div className="space-y-1.5">
+                        <label htmlFor="rec-newpwd" className="block text-xs font-semibold text-gray-300 tracking-wide uppercase">
+                          Nova Senha
+                        </label>
+                        <input
+                          id="rec-newpwd"
+                          type="password"
+                          value={recNewPassword}
+                          onChange={e => setRecNewPassword(e.target.value)}
+                          placeholder="Mínimo 6 caracteres"
+                          required
+                          className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 text-sm focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label htmlFor="rec-confpwd" className="block text-xs font-semibold text-gray-300 tracking-wide uppercase">
+                          Confirmar Nova Senha
+                        </label>
+                        <input
+                          id="rec-confpwd"
+                          type="password"
+                          value={recConfirmNewPassword}
+                          onChange={e => setRecConfirmNewPassword(e.target.value)}
+                          placeholder="Repita a senha"
+                          required
+                          className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 text-sm focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all"
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="w-full py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-sm shadow hover:from-green-600 hover:to-emerald-700 transition-all hover:shadow-lg flex items-center justify-center gap-2"
+                      >
+                        Alterar Senha
+                      </button>
+                    </form>
+                  )}
+
+                  {/* Cancel Recovery */}
+                  <div className="text-center pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsRecovering(false)}
+                      className="text-xs text-gray-400 hover:text-white transition-colors"
+                    >
+                      ← Voltar para o Login
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Header */}
+                  <div className="text-center mb-8">
+                    {/* Logo mark */}
+                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary/20 border border-primary/30 text-2xl mb-5 animate-pulse-glow">
+                      ⚖️
+                    </div>
+                    <h1 className="font-montserrat text-2xl font-bold text-white mb-1.5">
+                      Acesse sua conta
+                    </h1>
+                    <p className="text-sm text-gray-400">
+                      Plataforma jurídica <span className="font-cinzel text-accent/80 font-semibold tracking-wider">LEGIS CONNECT</span>
+                    </p>
+                  </div>
+
+                  {/* Role badge */}
+                  {role && (
+                    <div className={`mb-5 flex items-center justify-center gap-2 px-4 py-2 rounded-xl border text-xs font-semibold animate-fade-in ${role.color}`}>
+                      {role.label}
+                    </div>
+                  )}
+
+                  <form onSubmit={handleSubmit} className="space-y-5">
+                    {/* Email */}
+                    <InputField
+                      id="email-address"
+                      label="E-mail"
+                      type="email"
+                      value={email}
+                      onChange={handleEmailChange}
+                      placeholder="seu@email.com"
+                      autoComplete="email"
+                      required
+                    />
+
+                    {/* Password — aparece após e-mail válido */}
+                    {isPasswordVisible && (
+                      <div className="animate-slide-up space-y-2">
+                        <InputField
+                          id="password"
+                          label="Senha"
+                          type={showPassword ? 'text' : 'password'}
+                          value={password}
+                          onChange={e => setPassword(e.target.value)}
+                          placeholder="••••••••"
+                          autoComplete="current-password"
+                          required
+                          rightElement={
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(v => !v)}
+                              className="text-gray-500 hover:text-gray-300 transition-colors"
+                              aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                            >
+                              <EyeIcon open={showPassword} />
+                            </button>
+                          }
+                        />
+                        <div className="text-right">
+                          <button
+                            type="button"
+                            onClick={handleStartRecovery}
+                            className="text-xs text-primary/70 hover:text-primary transition-colors font-semibold"
+                          >
+                            Esqueci a senha
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Error */}
+                    {error && (
+                      <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/25 animate-fade-in">
+                        <svg className="w-4 h-4 text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <p className="text-sm text-red-400">{error}</p>
+                      </div>
+                    )}
+
+                    {/* Submit */}
+                    <button
+                      type="submit"
+                      disabled={isLoading || !isPasswordVisible}
+                      className="btn-primary w-full py-3.5 text-sm mt-2 disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+                    >
+                      {isLoading ? (
+                        <svg className="animate-spin h-5 w-5 text-white mx-auto" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                        </svg>
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+                          </svg>
+                          Entrar na plataforma
+                        </>
+                      )}
+                    </button>
+                  </form>
+                </>
+              )}
 
               {/* Divider + hint */}
               <div className="mt-6 pt-6 border-t border-white/6 text-center">
