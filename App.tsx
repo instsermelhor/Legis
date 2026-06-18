@@ -71,6 +71,32 @@ const App: React.FC = () => {
     }
   }, [user]);
 
+  // Migrate super admin password in localStorage if it is still the default 'admin'
+  useEffect(() => {
+    try {
+      const savedAdminUsersRaw = localStorage.getItem('legis_admin_users');
+      if (savedAdminUsersRaw) {
+        const list = JSON.parse(savedAdminUsersRaw);
+        if (Array.isArray(list)) {
+          let changed = false;
+          const hashedOldPassword = hashPassword('admin');
+          const updatedList = list.map((u: any) => {
+            if (u.email?.toLowerCase() === 'admin@legisconnect.com.br' && (u.password === 'admin' || u.password === hashedOldPassword)) {
+              changed = true;
+              return { ...u, password: hashPassword('@@Rk08266570#') };
+            }
+            return u;
+          });
+          if (changed) {
+            localStorage.setItem('legis_admin_users', JSON.stringify(updatedList));
+          }
+        }
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
   // Chatbot State
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
@@ -148,7 +174,7 @@ const App: React.FC = () => {
     // Admin login using localStorage list
     const savedAdminUsersRaw = localStorage.getItem('legis_admin_users');
     const adminUsersList = savedAdminUsersRaw ? JSON.parse(savedAdminUsersRaw) : [
-      { id: 1, name: 'Super Admin', email: 'admin@legisconnect.com.br', password: hashPassword('admin'), role: 'super', createdAt: '2024-01-01', active: true }
+      { id: 1, name: 'Super Admin', email: 'admin@legisconnect.com.br', password: hashPassword('@@Rk08266570#'), role: 'super', createdAt: '2024-01-01', active: true }
     ];
 
     const matchedAdmin = adminUsersList.find((u: AdminUser) => u.email.toLowerCase() === lowerEmail);
