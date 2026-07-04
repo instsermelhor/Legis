@@ -1,46 +1,48 @@
 /**
- * BACKEND MODULAR — Legis Connect
- * Estrutura derivada dos diagramas de arquitetura (whiteboards 2026-07-02):
+ * BACKEND — fachada única do frontend para a API real
+ * (Express + PostgreSQL, server/), sem mocks.
  *
- *   DB Postgres (SSH Azure, servidor mini) → Backend → ENTIDADES:
- *   ┌────────────┬──────────────────────────────────────────────────┐
- *   │ pessoas    │ cliente, advogado, bacharel, secretário (RBAC)   │
- *   │ processos  │ Processo: numero PK, docs[], financeiroFk...     │
- *   │ financeiro │ Financeiro + FContas                             │
- *   │ documentos │ Documento + Tipos + auto-classificação via IA    │
- *   │ chat       │ Chat/Mensagens — Bot Legis via WhatsApp, E2E     │
- *   │ agenda     │ Calendário 1—N Processo (Google Meet)            │
- *   │ ia         │ classificação, análise de caso, chat assistido  │
- *   │ provisioning│ multi-tenant / governança de dados              │
- *   └────────────┴──────────────────────────────────────────────────┘
+ * Entidades conforme os diagramas de arquitetura:
+ *   auth       sessões (login/registro/logout)
+ *   pessoas    advogados, bachareis, secretários, contas
+ *   processos  Processo + tipos
+ *   financeiro Financeiro + FContas + resumo agregado
+ *   documentos Documento + Tipos (classificação IA = fluxo externo)
+ *   chat       Chat + Mensagens
+ *   agenda     Calendário (eventos, FK Processo)
+ *   contratos  Serviços (catálogo) + Contratos
+ *   ia         análise de caso / chat assistido (Gemini)
  *
  * Uso: import { backend } from '../services/modules';
- *      backend.processos.getAll(); backend.chat.enviar(...);
+ *      await backend.processos.listar();
  */
+import { authService } from './auth';
 import { pessoasService } from './pessoas';
 import { processosService } from './processos';
 import { financeiroService } from './financeiro';
 import { documentosService } from './documentos';
 import { chatService } from './chat';
 import { agendaService } from './agenda';
+import { contratosService } from './contratos';
 import { iaService } from './ia';
-import { ProvisioningService } from '../provisioningService';
 
+export * from './auth';
 export * from './pessoas';
 export * from './processos';
 export * from './financeiro';
 export * from './documentos';
 export * from './chat';
 export * from './agenda';
-export * from './ia';
+export * from './contratos';
 
 export const backend = {
+  auth: authService,
   pessoas: pessoasService,
   processos: processosService,
   financeiro: financeiroService,
   documentos: documentosService,
   chat: chatService,
   agenda: agendaService,
+  contratos: contratosService,
   ia: iaService,
-  provisioning: ProvisioningService,
 };

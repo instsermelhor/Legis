@@ -567,9 +567,8 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
         );
     };
 
-    const isRegisteredLawyer = useMemo(() => {
-        return mockLawyers.some(l => l.id === lawyer.id && l.status === 'verificado');
-    }, [lawyer.id]);
+    // O status de verificacao vem do banco (perfil do advogado logado).
+    const isRegisteredLawyer = lawyer.status === 'verificado';
 
     if (!isRegisteredLawyer) {
         return (

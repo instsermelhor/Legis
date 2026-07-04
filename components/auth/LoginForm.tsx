@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { mockLawyers } from '../../services/mockLawyerService';
-import { hashPassword } from '../../services/mockDataService';
+import { api } from '../../services/api';
 
 export interface Credentials {
     email: string;
@@ -8,11 +7,11 @@ export interface Credentials {
 }
 
 interface LoginFormProps {
-    onLogin: (credentials: Credentials) => boolean;
+    /** Autentica na API; retorna se o login foi aceito. */
+    onLogin: (credentials: Credentials) => boolean | Promise<boolean>;
 }
 
 const ADMIN_EMAIL = 'admin@legisconnect.com.br';
-const TEST_EMAIL = 'teste@legisconnect.com.br';
 
 // ── Role badge ────────────────────────────────────────────────────────────
 const roleConfig = {
@@ -113,49 +112,38 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
         setShowSimulatedEmail(false);
     };
 
-    const handleFindUserForRecovery = (e: React.FormEvent) => {
+    const handleFindUserForRecovery = async (e: React.FormEvent) => {
         e.preventDefault();
         setRecoveryError('');
-        
+
         const lowerEmail = recoveryEmail.toLowerCase().trim();
         if (!lowerEmail) {
             setRecoveryError('Por favor, informe seu e-mail.');
             return;
         }
 
-        // Search in localStorage admin users
-        const adminUsersRaw = localStorage.getItem('legis_admin_users');
-        const adminUsersList = adminUsersRaw ? JSON.parse(adminUsersRaw) : [
-            { id: 1, name: 'Super Admin', email: 'admin@legisconnect.com.br', password: hashPassword('[senha-removida]'), role: 'super', createdAt: '2024-01-01', active: true }
-        ];
-        const foundAdmin = adminUsersList.find((u: any) => u.email.toLowerCase() === lowerEmail);
-
-        if (foundAdmin) {
-            if (!foundAdmin.secondaryEmail) {
-                setRecoveryError('Este usuário não possui um e-mail secundário de recuperação cadastrado. Entre em contato com o suporte.');
-                return;
-            }
-            setMatchedUser({ ...foundAdmin, type: 'admin' });
+        try {
+            // Gera um codigo real de redefinicao no servidor (tabela recuperacao_senha).
+            const r = await api.post<{ nome: string; codigo: string }>('/auth/recuperar', { email: lowerEmail });
+            setMatchedUser({ nome: r.nome, email: lowerEmail, codigo: r.codigo });
             setRecoveryStep('sent');
             setShowSimulatedEmail(true);
-            return;
+        } catch (erro) {
+            setRecoveryError(erro instanceof Error ? erro.message : 'E-mail nao encontrado.');
         }
-
-        setRecoveryError('E-mail de administrador não encontrado na base de dados.');
     };
 
     const handleVerifyCode = (e: React.FormEvent) => {
         e.preventDefault();
         setRecoveryError('');
-        if (inputCode.trim().toUpperCase() === 'LC-8266') {
+        if (matchedUser && inputCode.trim().toUpperCase() === matchedUser.codigo) {
             setRecoveryStep('reset');
-            setRecoveryError('');
         } else {
-            setRecoveryError('Código incorreto. Digite LC-8266 conforme simulação.');
+            setRecoveryError('Codigo incorreto. Confira o codigo exibido no e-mail.');
         }
     };
 
-    const handleResetPassword = (e: React.FormEvent) => {
+    const handleResetPassword = async (e: React.FormEvent) => {
         e.preventDefault();
         setRecoveryError('');
         if (!recNewPassword) {
@@ -163,29 +151,22 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
             return;
         }
         if (recNewPassword !== recConfirmNewPassword) {
-            setRecoveryError('As senhas não coincidem.');
+            setRecoveryError('As senhas nao coincidem.');
             return;
         }
-
-        if (matchedUser && matchedUser.type === 'admin') {
-            const adminUsersRaw = localStorage.getItem('legis_admin_users');
-            const adminUsersList = adminUsersRaw ? JSON.parse(adminUsersRaw) : [
-                { id: 1, name: 'Super Admin', email: 'admin@legisconnect.com.br', password: hashPassword('[senha-removida]'), role: 'super', createdAt: '2024-01-01', active: true }
-            ];
-            
-            const updated = adminUsersList.map((u: any) => {
-                if (u.id === matchedUser.id) {
-                    return { ...u, password: hashPassword(recNewPassword) };
-                }
-                return u;
+        try {
+            await api.post('/auth/redefinir', {
+                email: matchedUser?.email,
+                codigo: inputCode.trim().toUpperCase(),
+                nova_senha: recNewPassword,
             });
-            localStorage.setItem('legis_admin_users', JSON.stringify(updated));
             alert('Senha alterada com sucesso!');
             setIsRecovering(false);
-            setEmail(matchedUser.email);
+            setEmail(matchedUser?.email ?? '');
             setPassword('');
-            setUserType('admin');
             setIsPasswordVisible(true);
+        } catch (erro) {
+            setRecoveryError(erro instanceof Error ? erro.message : 'Falha ao redefinir a senha.');
         }
     };
 
@@ -194,37 +175,25 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
         setEmail(newEmail);
 
         const lowerEmail = newEmail.toLowerCase().trim();
-
         if (!lowerEmail || !/^\S+@\S+\.\S+$/.test(lowerEmail)) {
             setUserType(null);
             setIsPasswordVisible(false);
             return;
         }
-
         setIsPasswordVisible(true);
-
-        if (lowerEmail === ADMIN_EMAIL) {
-            setUserType('admin');
-        } else if (lowerEmail === TEST_EMAIL) {
-            setUserType('test');
-        } else if (mockLawyers.some(l => l.contact.email.toLowerCase() === lowerEmail)) {
-            setUserType('lawyer');
-        } else {
-            setUserType('client');
-        }
+        // O papel real vem do banco no login; o badge e apenas para o admin conhecido.
+        setUserType(lowerEmail === ADMIN_EMAIL ? 'admin' : null);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
         setIsLoading(true);
-        setTimeout(() => {
-            const success = onLogin({ email, password });
-            if (!success) {
-                setError('E-mail ou senha inválidos. Verifique suas credenciais.');
-            }
-            setIsLoading(false);
-        }, 500);
+        const success = await Promise.resolve(onLogin({ email, password }));
+        if (!success) {
+            setError('E-mail ou senha inválidos. Verifique suas credenciais.');
+        }
+        setIsLoading(false);
     };
 
     const role = userType ? roleConfig[userType] : null;
@@ -302,12 +271,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
                         <div className="p-4 bg-amber-500/5 border border-dashed border-amber-500/35 rounded-xl text-xs space-y-2 text-gray-300">
                           <p className="font-bold text-amber-400">📬 [Simulação de Envio de E-mail]</p>
                           <p><strong>De:</strong> no-reply@legisconnect.com.br</p>
-                          <p><strong>Para:</strong> {matchedUser.secondaryEmail}</p>
+                          <p><strong>Para:</strong> {matchedUser.email}</p>
                           <hr className="border-white/10" />
-                          <p>Olá, <strong>{matchedUser.name}</strong>!</p>
+                          <p>Olá, <strong>{matchedUser.nome}</strong>!</p>
                           <p>Recebemos uma solicitação de redefinição de senha para a conta <strong>{matchedUser.email}</strong>.</p>
                           <p>Use o código de validação a seguir no formulário:</p>
-                          <p className="text-center text-sm font-mono font-bold bg-white/10 py-1.5 rounded tracking-widest text-white font-semibold">LC-8266</p>
+                          <p className="text-center text-sm font-mono font-bold bg-white/10 py-1.5 rounded tracking-widest text-white font-semibold">{matchedUser.codigo}</p>
                         </div>
                       )}
 
@@ -321,7 +290,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
                             type="text"
                             value={inputCode}
                             onChange={e => setInputCode(e.target.value)}
-                            placeholder="LC-8266"
+                            placeholder="LC-0000"
                             required
                             className="w-full px-4 py-3 rounded-xl input-on-dark text-sm focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all font-mono text-center tracking-widest"
                           />

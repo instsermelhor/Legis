@@ -202,9 +202,8 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
       timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
       avatarUrl: 'https://i.pravatar.cc/40?u=client',
     };
-    // Persiste via módulo backend.chat (entidades Chat/Mensagens do diagrama)
-    const chat = backend.chat.getOrCreate(`cliente_${user.email}`, `advogado_${resolvedLawyer.id}`);
-    backend.chat.enviar(chat.id, `cliente_${user.email}`, newMessage);
+    // Persiste no PostgreSQL via API (entidades Chat/Mensagens do diagrama)
+    void backend.chat.enviarPara(resolvedLawyer.id, newMessage).catch(() => {});
     setMessages(prev => [...prev, msg]);
     setNewMessage('');
   };

@@ -1,66 +1,64 @@
 /**
- * Módulo DOCUMENTOS — entidades do diagrama (whiteboard 2):
- *   Documento { id PK, nome, descricao, tipo?, campos, url, data, pessoaFk }
- *   Tipos     { id PK, nome, data, tipoProcesso[] }
+ * Módulo DOCUMENTOS — CRUD real via API (upload em base64 → arquivo no
+ * servidor, servido em /uploads) + tipos com campos de auto-preenchimento.
  *
- * Inclui o fluxo de AUTO-CLASSIFICAÇÃO (em vermelho no diagrama):
- *   cliente sobe doc → classifica documento via IA → extrai informações
- *   relevantes → preenche descrição e tipo → auto-preenchimento de campos
- *   (ex.: CNH → nome, tipo, data de nascimento, validade, número, espelho).
+ * NOTA: a CLASSIFICAÇÃO VIA IA é um fluxo à parte (não implementado aqui,
+ * por decisão do produto). `classificarDocumento` abaixo é apenas o ponto
+ * de integração: preencha `tipo_id`, `descricao` e `campos` e persista com
+ * `documentosService.atualizar`.
  */
-import { dbDocuments, type ReceivedDocument } from '../../dbService';
+import { api } from '../../api';
 
-export type { ReceivedDocument };
-
-/** Tipos de documento (entidade TIPOS) — lista dinâmica baseada no processo */
-export interface TipoDocumento {
-  id: string;
+export interface DocumentoTipoApi {
+  id: number;
   nome: string;
-  data: string;
-  tipoProcesso: string[];
-  /** campos que o tipo exige (ex.: CNH → validade, número...) */
   campos: string[];
 }
 
-export const TIPOS_DOCUMENTO: TipoDocumento[] = [
-  { id: 'cnh', nome: 'CNH', data: '2026-01-01', tipoProcesso: ['Cível', 'Trânsito'], campos: ['nome', 'tipo', 'dataNascimento', 'validade', 'numeroCnh', 'numEspelho'] },
-  { id: 'rg', nome: 'RG', data: '2026-01-01', tipoProcesso: ['Cível', 'Criminal', 'Família'], campos: ['nome', 'numero', 'orgaoEmissor', 'dataExpedicao'] },
-  { id: 'cpf', nome: 'CPF', data: '2026-01-01', tipoProcesso: ['Cível', 'Tributário'], campos: ['nome', 'numero'] },
-  { id: 'contrato', nome: 'Contrato', data: '2026-01-01', tipoProcesso: ['Cível', 'Empresarial'], campos: ['partes', 'objeto', 'valor', 'vigencia'] },
-  { id: 'procuracao', nome: 'Procuração', data: '2026-01-01', tipoProcesso: ['Todos'], campos: ['outorgante', 'outorgado', 'poderes', 'validade'] },
-  { id: 'comprovante', nome: 'Comprovante de Residência', data: '2026-01-01', tipoProcesso: ['Todos'], campos: ['nome', 'endereco', 'dataEmissao'] },
-];
-
-export interface ClassificacaoResultado {
-  tipo: TipoDocumento;
-  descricao: string;
-  /** campos extraídos automaticamente (auto-preenchimento) */
+export interface DocumentoApi {
+  id: number;
+  nome: string;
+  descricao: string | null;
+  tipo_id: number | null;
+  tipo_nome?: string | null;
   campos: Record<string, string>;
-  confianca: number;
-}
-
-/**
- * Classifica documento via IA (mock heurístico por nome de arquivo —
- * o pipeline real usa o CLI sobre o doc + lista de tipos baseada no processo).
- */
-export function classificarDocumento(nomeArquivo: string): ClassificacaoResultado {
-  const lower = nomeArquivo.toLowerCase();
-  const tipo =
-    TIPOS_DOCUMENTO.find(t => lower.includes(t.id) || lower.includes(t.nome.toLowerCase())) ??
-    TIPOS_DOCUMENTO.find(t => t.id === 'contrato')!;
-  return {
-    tipo,
-    descricao: `Documento classificado automaticamente como ${tipo.nome}.`,
-    campos: Object.fromEntries(tipo.campos.map(c => [c, ''])),
-    confianca: lower.includes(tipo.id) ? 0.95 : 0.6,
-  };
+  url: string | null;
+  data: string;
+  pessoa_id: number | null;
+  processo_id: number | null;
 }
 
 export const documentosService = {
-  getAll: (pessoaFk?: number) => dbDocuments.getAll(pessoaFk),
-  add: (doc: ReceivedDocument) => dbDocuments.add(doc),
-  remove: (id: string) => dbDocuments.remove(id),
-  tipos: TIPOS_DOCUMENTO,
-  classificar: classificarDocumento,
-  raw: dbDocuments,
+  tipos: () => api.get<DocumentoTipoApi[]>('/documento-tipos'),
+
+  listar: (filtro?: { processo_id?: number; pessoa_id?: number }) => {
+    const query = new URLSearchParams(
+      Object.entries(filtro ?? {}).filter(([, v]) => v !== undefined).map(([k, v]) => [k, String(v)])
+    ).toString();
+    return api.get<DocumentoApi[]>(`/documentos${query ? `?${query}` : ''}`);
+  },
+
+  /** Envia o documento; `conteudoBase64` grava o arquivo real no servidor. */
+  enviar: (dados: { nome: string; descricao?: string; tipo_id?: number; processo_id?: number; conteudoBase64?: string }) =>
+    api.post<DocumentoApi>('/documentos', {
+      nome: dados.nome,
+      descricao: dados.descricao,
+      tipo_id: dados.tipo_id,
+      processo_id: dados.processo_id,
+      conteudo_base64: dados.conteudoBase64,
+    }),
+
+  /** Persiste classificação/campos (o preenchimento via IA é fluxo externo). */
+  atualizar: (id: number, dados: { descricao?: string; tipo_id?: number; campos?: Record<string, string> }) =>
+    api.put<DocumentoApi>(`/documentos/${id}`, dados),
+
+  remover: (id: number) => api.delete<{ ok: true }>(`/documentos/${id}`),
 };
+
+/**
+ * PONTO DE INTEGRAÇÃO DA IA — implementação fica a cargo do fluxo de
+ * classificação (externo). Não implementar aqui.
+ */
+export function classificarDocumento(_nomeArquivo: string): never {
+  throw new Error('Classificação de documentos via IA é um fluxo externo — integre aqui.');
+}

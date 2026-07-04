@@ -7,20 +7,28 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "db:setup": "tsx server/setup.ts",
+    "server": "tsx watch server/index.ts"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
     "papaparse": "^5.5.3",
+    "pg": "^8.22.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "recharts": "^3.8.1",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
     "@types/node": "^22.14.0",
+    "@types/pg": "^8.20.0",
     "@typescript-eslint/eslint-plugin": "^8.56.1",
     "@typescript-eslint/parser": "^8.56.1",
     "@vitejs/plugin-react": "^5.0.0",
@@ -29,6 +37,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.3.0",
+    "tsx": "^4.23.0",
     "typescript": "~5.8.2",
     "typescript-eslint": "^8.56.1",
     "vite": "^6.2.0"

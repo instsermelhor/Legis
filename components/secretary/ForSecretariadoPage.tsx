@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { SecretariadoSignupForm, SecretarySignupData } from './SecretariadoSignupForm';
 
 interface ForSecretariadoPageProps {
-  onLogin: (credentials: { email: string; password: string }) => boolean;
+  onLogin: (credentials: { email: string; password: string }) => boolean | Promise<boolean>;
   onSignup: (data: SecretarySignupData) => void;
   onShowTerms?: () => void;
 }

@@ -1,42 +1,49 @@
 /**
- * Módulo FINANCEIRO — entidades do diagrama (whiteboard 2):
- *   Financeiro { fcontas[] FK, pessoaFk, dataInicio, dataFim, dataPago, processoFk, id PK }
- *   FContas   { descricao, valor, data, pessoasFk[], pessoaResponsavelFk, id PK }
+ * Módulo FINANCEIRO — Financeiro 1—N FContas (lançamentos) + resumo
+ * agregado real (SQL no servidor).
  */
-import { dbFinancial, type FinancialTransaction } from '../../dbService';
+import { api } from '../../api';
 
-export type { FinancialTransaction };
+export interface FinanceiroApi {
+  id: number;
+  processo_id: number | null;
+  pessoa_id: number;
+  data_inicio: string | null;
+  data_fim: string | null;
+  data_pago: string | null;
+}
 
-/** FConta — lançamento financeiro individual (diagrama: FCONTAS) */
-export interface FConta {
-  id: string;
+export interface FContaApi {
+  id: number;
+  financeiro_id: number;
   descricao: string;
   valor: number;
   data: string;
-  pessoaResponsavelFk: number;
-  status: FinancialTransaction['status'];
+  status: 'pendente' | 'recebido' | 'atrasado';
+  pessoa_responsavel_id: number | null;
+  responsavel_nome?: string | null;
 }
 
-const toFConta = (t: FinancialTransaction): FConta => ({
-  id: t.id,
-  descricao: t.description,
-  valor: t.amount,
-  data: t.date,
-  pessoaResponsavelFk: t.lawyerId,
-  status: t.status,
-});
+export interface ResumoFinanceiroApi {
+  recebido: number;
+  pendente: number;
+  atrasado: number;
+  por_mes: Array<{ mes: string; recebido: number; aberto: number }>;
+}
 
 export const financeiroService = {
-  getAll: (pessoaFk?: number) => dbFinancial.getAll(pessoaFk),
-  getFContas: (pessoaFk?: number): FConta[] => dbFinancial.getAll(pessoaFk).map(toFConta),
-  update: (id: string, changes: Partial<FinancialTransaction>) => dbFinancial.update(id, changes),
-  /** total recebido no mês corrente para uma pessoa */
-  receitaDoMes: (pessoaFk: number): number => {
-    const now = new Date();
-    const key = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    return dbFinancial.getAll(pessoaFk)
-      .filter(t => t.status === 'recebido' && t.date.startsWith(key))
-      .reduce((s, t) => s + t.amount, 0);
-  },
-  raw: dbFinancial,
+  abrirParaProcesso: (processoId: number, dados?: { data_inicio?: string; data_fim?: string }) =>
+    api.post<FinanceiroApi>(`/processos/${processoId}/financeiro`, dados ?? {}),
+
+  doProcesso: (processoId: number) =>
+    api.get<{ financeiros: FinanceiroApi[]; fcontas: FContaApi[] }>(`/processos/${processoId}/financeiro`),
+
+  lancar: (financeiroId: number, dados: { descricao: string; valor: number; data?: string; status?: FContaApi['status'] }) =>
+    api.post<FContaApi>(`/financeiro/${financeiroId}/fcontas`, dados),
+
+  atualizarLancamento: (fcontaId: number, dados: Partial<Pick<FContaApi, 'descricao' | 'valor' | 'status' | 'data'>>) =>
+    api.put<FContaApi>(`/fcontas/${fcontaId}`, dados),
+
+  /** Totais + fluxo de caixa dos últimos 6 meses da pessoa logada. */
+  resumo: () => api.get<ResumoFinanceiroApi>('/financeiro/resumo'),
 };

@@ -29,12 +29,10 @@ import { EticaOABModal } from './components/common/EticaOABModal';
 import { chatWithGemini } from './services/geminiService';
 import type { View, Lawyer, Intern, Secretary, ChatMessage, User, Case, Appointment, Review, MapsSearchResult } from './types';
 import { mockLawyers } from './services/mockLawyerService';
-import { hashPassword, AdminUser } from './services/mockDataService';
 import { LoginModal } from './components/common/LoginModal';
 import { ProfileSelectorModal } from './components/common/ProfileSelectorModal';
-
-const TEST_EMAIL = 'teste@legisconnect.com.br';
-const TEST_PASSWORD = 'teste';
+import { backend } from './services/modules';
+import { sessaoParaUser } from './services/modules/auth/adaptador';
 
 
 const App: React.FC = () => {
@@ -71,31 +69,6 @@ const App: React.FC = () => {
     }
   }, [user]);
 
-  // Migrate super admin password in localStorage if it is still the default 'admin'
-  useEffect(() => {
-    try {
-      const savedAdminUsersRaw = localStorage.getItem('legis_admin_users');
-      if (savedAdminUsersRaw) {
-        const list = JSON.parse(savedAdminUsersRaw);
-        if (Array.isArray(list)) {
-          let changed = false;
-          const hashedOldPassword = hashPassword('admin');
-          const updatedList = list.map((u: any) => {
-            if (u.email?.toLowerCase() === 'admin@legisconnect.com.br' && (u.password === 'admin' || u.password === hashedOldPassword)) {
-              changed = true;
-              return { ...u, password: hashPassword('[senha-removida]') };
-            }
-            return u;
-          });
-          if (changed) {
-            localStorage.setItem('legis_admin_users', JSON.stringify(updatedList));
-          }
-        }
-      }
-    } catch (e) {
-      console.error(e);
-    }
-  }, []);
 
   // Chatbot State
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -167,130 +140,41 @@ const App: React.FC = () => {
     setCurrentView(view);
   }, [user]);
 
-  const handleLogin = useCallback((credentials: Credentials): boolean => {
-    const { email, password } = credentials;
-    const lowerEmail = email.toLowerCase();
+  /**
+   * Login real contra a API (PostgreSQL). O papel vem do banco; o
+   * adaptador converte a sessão para o formato User dos painéis.
+   */
+  const handleLogin = useCallback(async (credentials: Credentials): Promise<boolean> => {
+    try {
+      const { pessoa, perfil } = await backend.auth.login(credentials.email, credentials.password ?? '');
+      const logado = sessaoParaUser(pessoa, perfil);
 
-    // Admin login using localStorage list
-    const savedAdminUsersRaw = localStorage.getItem('legis_admin_users');
-    const adminUsersList = savedAdminUsersRaw ? JSON.parse(savedAdminUsersRaw) : [
-      { id: 1, name: 'Super Admin', email: 'admin@legisconnect.com.br', password: hashPassword('[senha-removida]'), role: 'super', createdAt: '2024-01-01', active: true }
-    ];
-
-    const matchedAdmin = adminUsersList.find((u: AdminUser) => u.email.toLowerCase() === lowerEmail);
-    if (matchedAdmin) {
-      if (matchedAdmin.password === hashPassword(password || '')) {
-        if (!matchedAdmin.active) {
-          // User is inactive, login fails
-          return false;
-        }
-        const adminUser: User = { email: lowerEmail, role: 'admin', name: matchedAdmin.name };
-        setUser(adminUser);
-        handleNavigate('adminDashboard', adminUser);
-        return true;
-      }
-      return false;
-    }
-
-    // Lawyer login
-    const lawyer = allLawyers.find(l => l.contact.email.toLowerCase() === lowerEmail);
-    if (lawyer) {
-      // Dummy password check for mock data
-      if (password) {
-        const lawyerUser: User = { email: lowerEmail, role: 'lawyer', data: lawyer, name: lawyer.name };
-        setUser(lawyerUser);
-        handleNavigate('lawyerDashboard', lawyerUser);
-        return true;
-      }
-      return false;
-    }
-
-    // Test user with incomplete profile
-    if (lowerEmail === 'incomplete@legisconnect.com' && password === 'password') {
-      const incompleteUser: User = {
-        email: lowerEmail,
-        role: 'client',
-        name: 'Cliente Incompleto',
-        // Phone and address are missing
-      };
-      setUser(incompleteUser);
-      handleNavigate('dashboard', incompleteUser);
-      return true;
-    }
-
-    // Client login (any other email)
-    if (password) { // Dummy password check for mock data
-      const mockCases: Case[] = [
-        {
-          id: 'case001',
-          title: 'Processo de Divórcio Consensual',
-          clientName: 'Cliente Exemplo',
-          lawyerName: mockLawyers[0].name,
-          lawyerId: mockLawyers[0].id,
-          status: 'Ativo',
+      // Cliente: carrega processos reais e mapeia para o histórico de casos.
+      if (logado.role === 'client') {
+        const processos = await backend.processos.listar().catch(() => []);
+        logado.caseHistory = processos.map(p => ({
+          id: String(p.id),
+          title: p.nome,
+          clientName: logado.name ?? '',
+          lawyerName: p.advogado_nome,
+          lawyerId: p.advogado_id,
+          status: p.status === 'Concluído' ? 'Concluído' as const : 'Ativo' as const,
           stages: [
-            { name: 'Análise Inicial', status: 'completed' },
-            { name: 'Coleta de Documentos', status: 'completed' },
-            { name: 'Elaboração da Petição', status: 'current' },
-            { name: 'Protocolo Judicial', status: 'upcoming' },
-            { name: 'Sentença', status: 'upcoming' },
+            { name: 'Análise Inicial', status: 'completed' as const },
+            { name: 'Em Andamento', status: p.status === 'Concluído' ? 'completed' as const : 'current' as const },
+            { name: 'Sentença', status: p.status === 'Concluído' ? 'completed' as const : 'upcoming' as const },
           ],
           reviewSubmitted: false,
-        },
-        {
-          id: 'case002',
-          title: 'Ação de Alimentos',
-          clientName: 'Cliente Exemplo',
-          lawyerName: mockLawyers[1].name,
-          lawyerId: mockLawyers[1].id,
-          status: 'Concluído',
-          stages: [
-            { name: 'Análise Inicial', status: 'completed' },
-            { name: 'Petição Inicial', status: 'completed' },
-            { name: 'Audiência', status: 'completed' },
-            { name: 'Sentença', status: 'completed' },
-          ],
-          reviewSubmitted: false,
-        }
-      ];
+        }));
+      }
 
-      const mockAppointments: Appointment[] = [
-        {
-          id: 'apt-client-1',
-          clientName: 'Cliente Exemplo',
-          date: new Date(new Date().setDate(new Date().getDate() + 3)).toISOString().split('T')[0], // 3 days from now
-          time: '15:00',
-          status: 'Confirmado',
-          modality: 'Videochamada',
-          consultationLink: 'https://meet.legisconnect.com/call/aghadf8923',
-        },
-        {
-          id: 'apt-client-2',
-          clientName: 'Cliente Exemplo',
-          date: new Date(new Date().setDate(new Date().getDate() - 5)).toISOString().split('T')[0], // 5 days ago
-          time: '11:00',
-          status: 'Concluído',
-          modality: 'Videochamada',
-        }
-      ];
-      const clientUser: User = {
-        email: lowerEmail,
-        role: 'client',
-        name: 'Cliente Exemplo',
-        phone: '(11) 91234-5678',
-        address: 'Rua das Amostras, 123, São Paulo, SP',
-        caseHistory: mockCases,
-        appointments: mockAppointments
-      };
-      setUser(clientUser);
-      handleNavigate('dashboard', clientUser);
+      setUser(logado);
+      handleNavigate(logado.role === 'admin' ? 'adminDashboard' : 'dashboard', logado);
       return true;
+    } catch {
+      return false;
     }
-
-    // After successful login via modal, any pending service intent in
-    // sessionStorage will be processed by the dashboard component on mount.
-    return false;
-  }, [allLawyers, handleNavigate]);
+  }, [handleNavigate]);
 
   // Open login modal (optionally with a pending action context)
   const handleOpenLoginModal = (pendingAction?: { type: 'service'; label: string }) => {
@@ -302,94 +186,15 @@ const App: React.FC = () => {
     setIsProfileSelectorOpen(true);
   };
 
-  // Context-specific login for Lawyers page: test user gets Lawyer Dashboard
-  const handleLawyerPageLogin = useCallback((credentials: Credentials): boolean => {
-    const lowerEmail = credentials.email.toLowerCase();
-    if (lowerEmail === TEST_EMAIL && credentials.password === TEST_PASSWORD) {
-      const testLawyer = { ...mockLawyers[0], contact: { ...mockLawyers[0].contact, email: TEST_EMAIL }, name: 'Advogado Teste' };
-      const lawyerUser: User = { email: TEST_EMAIL, role: 'lawyer', data: testLawyer, name: testLawyer.name };
-      setUser(lawyerUser);
-      handleNavigate('lawyerDashboard', lawyerUser);
-      return true;
-    }
-    return handleLogin(credentials);
-  }, [handleLogin, handleNavigate]);
+  // O papel vem do banco — o login é o mesmo em todas as páginas.
+  const handleLawyerPageLogin = handleLogin;
 
   // Context-specific login for Interns page: test user gets Intern Dashboard
-  const handleInternPageLogin = useCallback((credentials: Credentials): boolean => {
-    const lowerEmail = credentials.email.toLowerCase();
-    if (lowerEmail === TEST_EMAIL && credentials.password === TEST_PASSWORD) {
-      const testIntern: Intern = {
-        id: 9999,
-        name: 'Bacharelando Teste',
-        cpf: '000.000.000-00',
-        university: 'Universidade Legis Connect',
-        semester: '5º ao 7º semestre',
-        specialtyInterest: 'Direito Civil',
-        contact: { phone: '(11) 99999-9999', email: TEST_EMAIL },
-        hoursCompleted: 85,
-        availableHours: 200,
-        casesStudied: [],
-        status: 'active',
-      };
-      const internUser: User = { email: TEST_EMAIL, role: 'intern', data: testIntern, name: testIntern.name };
-      setUser(internUser);
-      handleNavigate('internDashboard', internUser);
-      return true;
-    }
-    return handleLogin(credentials);
-  }, [handleLogin, handleNavigate]);
-
-  // Context-specific login for Clients page: test user gets Client Dashboard
-  const handleClientPageLogin = useCallback((credentials: Credentials): boolean => {
-    const lowerEmail = credentials.email.toLowerCase();
-    if (lowerEmail === TEST_EMAIL && credentials.password === TEST_PASSWORD) {
-      const mockCases: Case[] = [
-        {
-          id: 'TEST-2024-001',
-          title: 'Processo de Divórcio Consensual (Teste)',
-          clientName: 'Cliente Teste',
-          lawyerName: mockLawyers[0].name,
-          lawyerId: mockLawyers[0].id,
-          status: 'Ativo',
-          stages: [
-            { name: 'Análise Inicial', status: 'completed' },
-            { name: 'Coleta de Documentos', status: 'completed' },
-            { name: 'Elaboração da Petição', status: 'current' },
-            { name: 'Protocolo Judicial', status: 'upcoming' },
-            { name: 'Sentença', status: 'upcoming' },
-          ],
-          reviewSubmitted: false,
-        },
-      ];
-      const mockAppointments: Appointment[] = [
-        {
-          id: 'apt-test-1',
-          clientName: 'Cliente Teste',
-          date: new Date(new Date().setDate(new Date().getDate() + 5)).toISOString().split('T')[0],
-          time: '14:00',
-          status: 'Confirmado',
-          modality: 'Videochamada',
-          consultationLink: 'https://meet.legisconnect.com/call/teste123',
-        },
-      ];
-      const clientUser: User = {
-        email: TEST_EMAIL,
-        role: 'client',
-        name: 'Cliente Teste',
-        phone: '(11) 98765-4321',
-        address: 'Av. Legis Connect, 1000, São Paulo, SP',
-        caseHistory: mockCases,
-        appointments: mockAppointments,
-      };
-      setUser(clientUser);
-      handleNavigate('dashboard', clientUser);
-      return true;
-    }
-    return handleLogin(credentials);
-  }, [handleLogin, handleNavigate]);
+  const handleInternPageLogin = handleLogin;
+  const handleClientPageLogin = handleLogin;
 
   const handleLogout = useCallback(() => {
+    void backend.auth.sair(); // invalida a sessao no servidor
     setUser(null);
     handleNavigate('landing');
   }, [handleNavigate]);
@@ -410,148 +215,96 @@ const App: React.FC = () => {
     handleNavigate('search');
   }, [handleNavigate]);
 
-  const handleClientSignup = (data: ClientSignupData) => {
-    console.log("New client signup:", data);
-    const clientUser: User = {
-      email: data.email,
-      role: 'client',
-      name: data.name,
-      phone: data.phone,
-      address: data.address,
-      caseHistory: [],
-      socialLinks: data.socialLinks,
-    };
-    setUser(clientUser);
-    handleNavigate('dashboard', clientUser);
-  }
-
-  const handleLawyerSignup = (data: Partial<Lawyer>) => {
-    const newLawyer: Lawyer = {
-      // Use max ID to prevent collision if lawyers were removed
-      id: allLawyers.length > 0 ? Math.max(...allLawyers.map(l => l.id)) + 1 : 1,
-      name: data.name || 'Novo Advogado',
-      oab: data.oab || 'XX000000',
-      specialties: data.specialties || ['Direito Civil'],
-      location: { city: 'Cidade', state: data.oabUF || 'SP' },
-      photoUrl: 'https://picsum.photos/seed/newlawyer/400/400',
-      rating: 0,
-      reviewCount: 0,
-      bio: 'Advogado recém-cadastrado na plataforma Legis Connect.',
-      experience: { years: 1, cases: 0 },
-      education: [],
-      contact: { phone: data.contact?.phone || '', email: data.contact?.email || '' },
-      reviews: [],
-      availability: [],
-      status: 'pendente',
-      ...data,
-    };
-    const updatedLawyers = [...allLawyers, newLawyer];
-    setAllLawyers(updatedLawyers);
-    // Persist to localStorage so Admin panel can see the new lawyer
+  /**
+   * Cadastros reais: cada signup cria a pessoa + perfil no PostgreSQL
+   * via /api/auth/registrar e ja entra logado.
+   */
+  const handleClientSignup = async (data: ClientSignupData) => {
     try {
-      const existing = localStorage.getItem('legis_lawyers');
-      const existingList: Lawyer[] = existing ? JSON.parse(existing) : [];
-      // Avoid duplicate if already exists
-      const deduped = existingList.filter(l => l.id !== newLawyer.id);
-      localStorage.setItem('legis_lawyers', JSON.stringify([...deduped, newLawyer]));
-    } catch { /* ignore storage errors */ }
-    const lawyerUser: User = { email: newLawyer.contact.email, role: 'lawyer', data: newLawyer, name: newLawyer.name };
-    setUser(lawyerUser);
-    handleNavigate('lawyerDashboard', lawyerUser);
+      const { pessoa, perfil } = await backend.auth.registrar({
+        tipo: 'cliente',
+        nome: data.name,
+        email: data.email,
+        senha: data.password ?? '',
+        telefone: data.phone,
+      });
+      const logado = sessaoParaUser(pessoa, perfil);
+      logado.address = data.address;
+      setUser(logado);
+      handleNavigate('dashboard', logado);
+    } catch (erro) {
+      alert(erro instanceof Error ? erro.message : 'Falha no cadastro.');
+    }
+  };
+
+  const handleLawyerSignup = (data: Partial<Lawyer> & { password?: string }) => {
+    backend.auth.registrar({
+      tipo: 'advogado',
+      nome: data.name ?? '',
+      email: data.contact?.email ?? '',
+      senha: data.password ?? '',
+      telefone: data.contact?.phone,
+      cidade: data.location?.city,
+      estado: data.oabUF,
+      perfil: {
+        oab: data.oab,
+        especialidades: data.specialties ?? [],
+        bio: data.bio,
+      },
+    }).then(({ pessoa, perfil }) => {
+      const logado = sessaoParaUser(pessoa, perfil);
+      setUser(logado);
+      handleNavigate('lawyerDashboard', logado);
+    }).catch(erro => {
+      alert(erro instanceof Error ? erro.message : 'Falha no cadastro.');
+    });
     return true;
-  }
+  };
 
   const handleInternSignup = (data: InternSignupData) => {
-    const newIntern: Intern = {
-      id: Math.floor(Math.random() * 10000),
-      name: data.name || 'Bacharelando',
-      cpf: data.cpf || '000.000.000-00',
-      university: data.university || 'Universidade',
-      semester: data.semester || '1º ao 3º semestre',
-      specialtyInterest: data.specialtyInterest || 'Não definida',
-      contact: { phone: data.contact?.phone || '', email: data.contact?.email || '' },
-      hoursCompleted: 0,
-      availableHours: 200,
-      casesStudied: [],
-      status: 'active',
-      // Address fields
-      address: data.address,
-      cep: data.cep,
-      street: data.street,
-      number: data.number,
-      complement: data.complement,
-      neighborhood: data.neighborhood,
-      city: data.city,
-      state: data.state,
-      // Foreigner fields
-      isForeigner: data.isForeigner,
-      foreignerDocument: data.foreignerDocument,
-      countryOfOrigin: data.countryOfOrigin,
-      timeInBrazil: data.timeInBrazil,
-      socialLinks: data.socialLinks,
-    };
-    console.log('New intern signup:', newIntern);
-    const internUser: User = { email: newIntern.contact.email, role: 'intern', data: newIntern, name: newIntern.name };
-    setUser(internUser);
-    handleNavigate('internDashboard', internUser);
+    backend.auth.registrar({
+      tipo: 'bacharel',
+      nome: data.name ?? '',
+      email: data.contact?.email ?? '',
+      senha: data.password ?? '',
+      telefone: data.contact?.phone,
+      cidade: data.city,
+      estado: data.state,
+      perfil: {
+        universidade: data.university,
+        semestre: data.semester,
+        interesse: data.specialtyInterest,
+      },
+    }).then(({ pessoa, perfil }) => {
+      const logado = sessaoParaUser(pessoa, perfil);
+      setUser(logado);
+      handleNavigate('internDashboard', logado);
+    }).catch(erro => {
+      alert(erro instanceof Error ? erro.message : 'Falha no cadastro.');
+    });
     return true;
-  }
+  };
 
-  // Secretary login
-  const handleSecretaryPageLogin = useCallback((credentials: Credentials): boolean => {
-    const lowerEmail = credentials.email.toLowerCase();
-    if (lowerEmail === TEST_EMAIL && credentials.password === TEST_PASSWORD) {
-      const testSecretary: Secretary = {
-        id: 9998,
-        name: 'Secretária Teste',
-        email: TEST_EMAIL,
-        phone: '(11) 98888-0000',
-        city: 'São Paulo',
-        state: 'SP',
-        experience: 4,
-        areasOfKnowledge: ['Gestão de Agenda', 'Protocolo Judicial', 'Atendimento ao Cliente'],
-        availability: 'integral',
-        bio: 'Secretária com experiência em escritórios jurídicos de médio porte.',
-        status: 'ativo',
-        joinedDate: new Date().toISOString().split('T')[0],
-        assignedLawyerId: 1, // assigned to first mock lawyer
-      };
-      const secretaryUser: User = { email: TEST_EMAIL, role: 'secretary', data: testSecretary, name: testSecretary.name };
-      setUser(secretaryUser);
-      handleNavigate('secretariadoDashboard', secretaryUser);
-      return true;
-    }
-    return handleLogin(credentials);
-  }, [handleLogin, handleNavigate]);
-
-  // Secretary signup
   const handleSecretarySignup = (data: SecretarySignupData) => {
-    const newSecretary: Secretary = {
-      id: Math.floor(Math.random() * 10000),
-      name: data.name,
+    backend.auth.registrar({
+      tipo: 'secretario',
+      nome: data.name,
       email: data.email,
-      phone: data.phone,
-      cpf: data.cpf,
-      rg: data.rg,
-      city: data.city,
-      state: data.state,
-      address: data.address,
-      experience: data.experience,
-      areasOfKnowledge: data.areasOfKnowledge,
-      availability: data.availability,
-      bio: data.bio,
-      status: 'pendente',
-      joinedDate: new Date().toISOString().split('T')[0],
-      isForeigner: data.isForeigner,
-      foreignerDocument: data.foreignerDocument,
-      countryOfOrigin: data.countryOfOrigin,
-      timeInBrazil: data.timeInBrazil,
-      socialLinks: data.socialLinks,
-    };
-    console.log('New secretary signup:', newSecretary);
-    const secretaryUser: User = { email: newSecretary.email, role: 'secretary', data: newSecretary, name: newSecretary.name };
-    setUser(secretaryUser);
-    handleNavigate('secretariadoDashboard', secretaryUser);
+      senha: data.password,
+      telefone: data.phone,
+      cidade: data.city,
+      estado: data.state,
+      perfil: {
+        experiencia_anos: data.experience,
+        disponibilidade: data.availability,
+      },
+    }).then(({ pessoa, perfil }) => {
+      const logado = sessaoParaUser(pessoa, perfil);
+      setUser(logado);
+      handleNavigate('secretariadoDashboard', logado);
+    }).catch(erro => {
+      alert(erro instanceof Error ? erro.message : 'Falha no cadastro.');
+    });
   };
 
   const handleUpdateProfile = (data: { name: string; phone: string; address: string; }) => {

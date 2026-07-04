@@ -1,37 +1,35 @@
 /**
- * Módulo AGENDA/CALENDÁRIO — diagrama (whiteboard 1):
- *   Calendário 1—N Processo; sincronização Google Meet/Calendar.
+ * Módulo AGENDA — eventos do calendário (1—N com Processo) via API.
  */
+import { api } from '../../api';
 
 export type TipoEvento = 'audiencia' | 'consulta' | 'reuniao' | 'prazo';
 
-export interface EventoAgenda {
-  id: string;
+export interface EventoAgendaApi {
+  id: number;
   titulo: string;
-  data: string;      // ISO
-  hora: string;
+  inicio: string;
+  fim: string | null;
   tipo: TipoEvento;
-  local?: string;
-  processoFk?: string;
-  pessoaFk?: string;
-}
-
-const KEY = 'legis_agenda_eventos';
-
-function load(): EventoAgenda[] {
-  try {
-    const raw = localStorage.getItem(KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch { return []; }
+  local: string | null;
+  processo_id: number | null;
+  processo_numero?: string | null;
+  processo_nome?: string | null;
 }
 
 export const agendaService = {
-  getAll: (): EventoAgenda[] => load(),
-  getByDia: (isoDate: string) => load().filter(e => e.data.startsWith(isoDate)),
-  getByProcesso: (processoFk: string) => load().filter(e => e.processoFk === processoFk),
-  add(evento: Omit<EventoAgenda, 'id'>): EventoAgenda {
-    const ev: EventoAgenda = { ...evento, id: `ev_${Date.now()}` };
-    try { localStorage.setItem(KEY, JSON.stringify([...load(), ev])); } catch { /* noop */ }
-    return ev;
+  listar: (periodo?: { de?: string; ate?: string }) => {
+    const query = new URLSearchParams(
+      Object.entries(periodo ?? {}).filter(([, v]) => v) as [string, string][]
+    ).toString();
+    return api.get<EventoAgendaApi[]>(`/agenda${query ? `?${query}` : ''}`);
   },
+
+  criar: (dados: { titulo: string; inicio: string; fim?: string; tipo?: TipoEvento; local?: string; processo_id?: number }) =>
+    api.post<EventoAgendaApi>('/agenda', dados),
+
+  atualizar: (id: number, dados: Partial<Pick<EventoAgendaApi, 'titulo' | 'inicio' | 'fim' | 'tipo' | 'local'>>) =>
+    api.put<EventoAgendaApi>(`/agenda/${id}`, dados),
+
+  remover: (id: number) => api.delete<{ ok: true }>(`/agenda/${id}`),
 };

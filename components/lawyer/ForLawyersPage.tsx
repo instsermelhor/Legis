@@ -5,7 +5,7 @@ import type { Lawyer } from '../../types';
 import { BriefcaseIcon, BadgeCheckIcon, UsersIcon } from '../common/IconComponents';
 
 interface ForLawyersPageProps {
-  onLogin: (credentials: Credentials) => boolean;
+  onLogin: (credentials: Credentials) => boolean | Promise<boolean>;
   onSignup: (lawyerData: Partial<Lawyer>) => boolean;
   onShowTerms: () => void;
 }

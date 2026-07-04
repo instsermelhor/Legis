@@ -4,7 +4,7 @@ import { InternSignupForm, InternSignupData } from '../auth/InternSignupForm';
 import { AcademicCapIcon, ClipboardListIcon, UsersIcon } from '../common/IconComponents';
 
 interface ForInternsPageProps {
-    onLogin: (credentials: Credentials) => boolean;
+    onLogin: (credentials: Credentials) => boolean | Promise<boolean>;
     onSignup: (internData: InternSignupData) => boolean;
     onShowTerms: () => void;
 }

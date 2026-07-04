@@ -4,7 +4,7 @@ import { ClientSignupForm, ClientSignupData } from '../auth/ClientSignupForm';
 import { UserCircleIcon, BriefcaseIcon, BadgeCheckIcon } from '../common/IconComponents';
 
 interface ForClientsPageProps {
-  onLogin: (credentials: Credentials) => boolean;
+  onLogin: (credentials: Credentials) => boolean | Promise<boolean>;
   onSignup: (data: ClientSignupData) => void;
   onShowTerms: () => void;
 }

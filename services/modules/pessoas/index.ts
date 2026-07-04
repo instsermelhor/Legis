@@ -1,39 +1,75 @@
 /**
- * Módulo PESSOAS — entidade central do diagrama (whiteboard 1).
- * Pessoa → { cliente, advogado, bacharel/estagiário, secretário/assistente }
- * ADVOGADO N—CONTRATO N—PESSOA; integrações via chaves de API.
- *
- * Fachada única sobre os data-services existentes; quando o backend real
- * (Postgres em servidor mini via SSH/Azure) entrar, apenas este módulo muda.
+ * Módulo PESSOAS — advogados (vitrine), bachareis, secretários e
+ * administração de contas. Tudo contra a API real.
  */
-import { mockLawyers } from '../../mockLawyerService';
-import { mockClients, mockInterns, mockAdminUsers } from '../../mockDataService';
-import { StaffService } from '../../staffService';
+import { api } from '../../api';
 
-export type TipoPessoa = 'cliente' | 'advogado' | 'bacharel' | 'secretario' | 'admin';
+export interface AdvogadoApi {
+  id: number;
+  nome: string;
+  email: string;
+  telefone: string | null;
+  cidade: string | null;
+  estado: string | null;
+  oab: string;
+  especialidades: string[];
+  bio: string | null;
+  foto_url: string | null;
+  status: 'pendente' | 'verificado' | 'rejeitado';
+}
+
+export interface BacharelApi {
+  id: number;
+  nome: string;
+  email: string;
+  universidade: string | null;
+  semestre: string | null;
+  interesse: string | null;
+  supervisor_id: number | null;
+}
+
+export interface SecretarioApi {
+  id: number;
+  nome: string;
+  email: string;
+  experiencia_anos: number;
+  disponibilidade: string | null;
+  advogado_id: number | null;
+}
 
 export const pessoasService = {
-  /** Advogados (entidade Advogado do diagrama) */
   advogados: {
-    getAll: () => mockLawyers,
-    getById: (id: number) => mockLawyers.find(l => l.id === id) ?? null,
-    getVerificados: () => mockLawyers.filter(l => l.status === 'verificado'),
+    listar: (filtros?: { especialidade?: string; cidade?: string; estado?: string }) => {
+      const query = new URLSearchParams(
+        Object.entries(filtros ?? {}).filter(([, v]) => v) as [string, string][]
+      ).toString();
+      return api.get<AdvogadoApi[]>(`/advogados${query ? `?${query}` : ''}`);
+    },
+    obter: (id: number) => api.get<AdvogadoApi>(`/advogados/${id}`),
+    atualizar: (id: number, dados: Partial<Pick<AdvogadoApi, 'especialidades' | 'bio' | 'foto_url' | 'status'>>) =>
+      api.put<AdvogadoApi>(`/advogados/${id}`, dados),
   },
 
-  /** Clientes */
-  clientes: {
-    getAll: () => mockClients,
-  },
-
-  /** Bacharelandos / estagiários */
   bachareis: {
-    getAll: () => mockInterns,
-    getBySupervisor: (lawyerId: number) => mockInterns.filter(i => i.supervisorLawyerId === lawyerId),
+    listar: (supervisorId?: number) =>
+      api.get<BacharelApi[]>(`/bachareis${supervisorId ? `?supervisor_id=${supervisorId}` : ''}`),
+    atualizar: (id: number, dados: Partial<Omit<BacharelApi, 'id' | 'nome' | 'email'>>) =>
+      api.put<BacharelApi>(`/bachareis/${id}`, dados),
   },
 
-  /** Equipe interna / administradores (RBAC) */
-  equipe: {
-    staff: StaffService,
-    admins: () => mockAdminUsers,
+  secretarios: {
+    listar: (advogadoId?: number) =>
+      api.get<SecretarioApi[]>(`/secretarios${advogadoId ? `?advogado_id=${advogadoId}` : ''}`),
+    atualizar: (id: number, dados: Partial<Omit<SecretarioApi, 'id' | 'nome' | 'email'>>) =>
+      api.put<SecretarioApi>(`/secretarios/${id}`, dados),
+  },
+
+  /** Dados básicos da própria conta. */
+  atualizarConta: (id: number, dados: { nome?: string; telefone?: string; cidade?: string; estado?: string }) =>
+    api.put(`/pessoas/${id}`, dados),
+
+  admin: {
+    listar: (tipo?: string) => api.get(`/admin/pessoas${tipo ? `?tipo=${tipo}` : ''}`),
+    definirAtivo: (id: number, ativo: boolean) => api.put(`/admin/pessoas/${id}/ativo`, { ativo }),
   },
 };
