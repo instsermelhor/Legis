@@ -8,6 +8,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import type { Intern, Case } from '../../../types';
 import type { Lawyer } from '../../../types';
+import { KpiCard } from '../../ui';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -78,10 +79,10 @@ function formatCountdown(targetDate: Date): { days: number; hours: number; minut
 
 function getAgendaTypeMeta(type: AgendaItem['type']) {
   switch (type) {
-    case 'prova': return { icon: '📝', label: 'Prova', color: 'bg-red-100 text-red-700 border-red-200' };
+    case 'prova': return { icon: '📝', label: 'Prova', color: 'bg-rose-100 text-rose-700 border-rose-200' };
     case 'praca_peca': return { icon: '📄', label: 'Peça', color: 'bg-violet-100 text-violet-700 border-violet-200' };
     case 'audiencia': return { icon: '⚖️', label: 'Audiência', color: 'bg-amber-100 text-amber-700 border-amber-200' };
-    case 'prazo': return { icon: '⏰', label: 'Prazo', color: 'bg-orange-100 text-orange-700 border-orange-200' };
+    case 'prazo': return { icon: '⏰', label: 'Prazo', color: 'bg-amber-100 text-amber-700 border-amber-200' };
     case 'evento': return { icon: '📅', label: 'Evento', color: 'bg-blue-100 text-blue-700 border-blue-200' };
   }
 }
@@ -95,24 +96,7 @@ function getDaysUntil(dateStr: string): number {
 }
 
 // ─── Sub-Components ───────────────────────────────────────────────────────────
-
-const KpiCard: React.FC<{
-  icon: string;
-  label: string;
-  value: string | number;
-  sub?: string;
-  colorClass: string;
-  textClass: string;
-}> = ({ icon, label, value, sub, colorClass, textClass }) => (
-  <div className={`${colorClass} border rounded-2xl p-4 flex flex-col gap-2`}>
-    <div className="flex items-center gap-2">
-      <span className="text-xl">{icon}</span>
-      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{label}</p>
-    </div>
-    <p className={`text-2xl font-black ${textClass}`}>{value}</p>
-    {sub && <p className="text-xs text-gray-400">{sub}</p>}
-  </div>
-);
+// KpiCard vem do UI kit compartilhado (components/ui) — padrão do módulo Advogado.
 
 // ─── Internship Hours Timer ───────────────────────────────────────────────────
 
@@ -183,7 +167,7 @@ const InternshipTimerWidget: React.FC<{ internId: number | string }> = ({ intern
       <div className="flex gap-2">
         <button
           onClick={() => setRunning(r => !r)}
-          className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all ${running ? 'bg-red-500 text-white hover:bg-red-600' : 'bg-emerald-500 text-white hover:bg-emerald-600'}`}
+          className={`flex-1 py-2.5 text-sm font-bold rounded-xl transition-all ${running ? 'bg-rose-500 text-white hover:bg-rose-600' : 'bg-emerald-500 text-white hover:bg-emerald-600'}`}
         >
           {running ? '⏸ Pausar' : '▶ Iniciar'}
         </button>
@@ -213,8 +197,8 @@ const OabCountdownWidget: React.FC = () => {
     ? Math.round(MOCK_SIMULADOS.reduce((a, s) => a + s.pct, 0) / MOCK_SIMULADOS.length)
     : 0;
 
-  const performanceColor = avgPct >= 70 ? 'text-emerald-600' : avgPct >= 50 ? 'text-amber-600' : 'text-red-600';
-  const performanceBg = avgPct >= 70 ? 'bg-emerald-50 dark:bg-emerald-900/20' : avgPct >= 50 ? 'bg-amber-50 dark:bg-amber-900/20' : 'bg-red-50 dark:bg-red-900/20';
+  const performanceColor = avgPct >= 70 ? 'text-emerald-600' : avgPct >= 50 ? 'text-amber-600' : 'text-rose-600';
+  const performanceBg = avgPct >= 70 ? 'bg-emerald-50 dark:bg-emerald-900/20' : avgPct >= 50 ? 'bg-amber-50 dark:bg-amber-900/20' : 'bg-rose-50 dark:bg-rose-900/20';
 
   return (
     <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 space-y-4">
@@ -223,7 +207,7 @@ const OabCountdownWidget: React.FC = () => {
       </h4>
 
       {/* Countdown */}
-      <div className="bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl p-4 text-white">
+      <div className="bg-gradient-to-br from-violet-500 to-violet-700 rounded-xl p-4 text-white">
         <p className="text-xs font-semibold text-white/70 mb-2">🗓 Exame da Ordem — 1ª Fase · Aug 2025</p>
         <div className="grid grid-cols-3 gap-2 text-center">
           {[
@@ -261,7 +245,7 @@ const OabCountdownWidget: React.FC = () => {
             <span className="text-[10px] text-gray-400 w-24 shrink-0">{sim.area}</span>
             <div className="flex-1 bg-gray-100 dark:bg-black/20 rounded-full h-4 overflow-hidden">
               <div
-                className={`h-4 rounded-full flex items-center justify-end pr-1.5 ${sim.pct >= 70 ? 'bg-emerald-500' : sim.pct >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
+                className={`h-4 rounded-full flex items-center justify-end pr-1.5 ${sim.pct >= 70 ? 'bg-emerald-500' : sim.pct >= 50 ? 'bg-amber-500' : 'bg-rose-500'}`}
                 style={{ width: `${sim.pct}%` }}
               >
                 <span className="text-white text-[9px] font-bold">{sim.pct}%</span>
@@ -314,16 +298,16 @@ const AgendaHibrida: React.FC<{ agendaItems?: AgendaItem[] }> = ({ agendaItems =
             const daysUntil = getDaysUntil(item.date);
             const isUrgent = daysUntil <= 3;
             return (
-              <div key={item.id} className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${isUrgent ? 'border-red-200 bg-red-50 dark:bg-red-900/10 dark:border-red-900/30' : 'border-gray-100 dark:border-[#2A2545] hover:border-gray-200 dark:hover:border-indigo-900/40'}`}>
+              <div key={item.id} className={`flex items-center gap-3 p-3 rounded-xl border transition-all ${isUrgent ? 'border-rose-200 bg-rose-50 dark:bg-rose-900/10 dark:border-rose-900/30' : 'border-gray-100 dark:border-[#2A2545] hover:border-gray-200 dark:hover:border-indigo-900/40'}`}>
                 <div className="text-xl shrink-0">{meta?.icon}</div>
                 <div className="flex-1 min-w-0">
-                  <p className={`text-xs font-bold ${isUrgent ? 'text-red-700 dark:text-red-400' : 'text-gray-800 dark:text-gray-200'} truncate`}>{item.title}</p>
+                  <p className={`text-xs font-bold ${isUrgent ? 'text-rose-700 dark:text-rose-400' : 'text-gray-800 dark:text-gray-200'} truncate`}>{item.title}</p>
                   {(item.subject || item.caseRef) && (
                     <p className="text-[10px] text-gray-400 truncate">{item.subject || item.caseRef}</p>
                   )}
                 </div>
                 <div className="shrink-0 text-right">
-                  <span className={`block text-xs font-bold ${isUrgent ? 'text-red-600' : daysUntil <= 7 ? 'text-amber-600' : 'text-gray-500'}`}>
+                  <span className={`block text-xs font-bold ${isUrgent ? 'text-rose-600' : daysUntil <= 7 ? 'text-amber-600' : 'text-gray-500'}`}>
                     {daysUntil === 0 ? 'Hoje!' : daysUntil === 1 ? 'Amanhã' : `${daysUntil}d`}
                   </span>
                   <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${meta?.color}`}>{meta?.label}</span>
@@ -357,7 +341,7 @@ const GradeEvolutionChart: React.FC<{ grades: Record<string, Record<string, stri
       <div className="flex items-end gap-2 h-32">
         {data.map(({ sem, avg }) => {
           const height = avg !== null ? Math.round((avg / 10) * 100) : 5;
-          const color = avg === null ? 'bg-gray-200 dark:bg-gray-700' : avg >= 7 ? 'bg-emerald-500' : avg >= 5 ? 'bg-amber-500' : 'bg-red-500';
+          const color = avg === null ? 'bg-gray-200 dark:bg-gray-700' : avg >= 7 ? 'bg-emerald-500' : avg >= 5 ? 'bg-amber-500' : 'bg-rose-500';
           return (
             <div key={sem} className="flex-1 flex flex-col items-center gap-1">
               <span className="text-[9px] font-bold text-gray-500">{avg !== null ? avg.toFixed(1) : '—'}</span>
@@ -375,7 +359,7 @@ const GradeEvolutionChart: React.FC<{ grades: Record<string, Record<string, stri
       <div className="flex items-center gap-4 text-[10px] text-gray-400">
         <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block" /> ≥ 7.0</span>
         <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block" /> 5.0–6.9</span>
-        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-red-500 inline-block" /> {'< 5.0'}</span>
+        <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block" /> {'< 5.0'}</span>
       </div>
     </div>
   );
@@ -426,32 +410,28 @@ export const InternOverview: React.FC<InternOverviewProps> = ({
           label="Progresso do Curso"
           value={`${semesterNumber}°/10°`}
           sub={`Semestre — ${semesterProgress}% concluído`}
-          colorClass="bg-indigo-50 dark:bg-indigo-950/30 border-indigo-100 dark:border-indigo-900/40"
-          textClass="text-indigo-700 dark:text-indigo-400"
+          color="indigo"
         />
         <KpiCard
           icon="📈"
           label="CR / IRA"
           value={crIra !== null ? crIra.toFixed(2) : '—'}
           sub={totalGradedSubjects > 0 ? `${totalGradedSubjects} nota(s) lançada(s)` : 'Lance notas no Mural'}
-          colorClass={`${crIra !== null ? crIra >= 7 ? 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-100 dark:border-emerald-900/40' : crIra >= 5 ? 'bg-amber-50 dark:bg-amber-950/30 border-amber-100 dark:border-amber-900/40' : 'bg-red-50 dark:bg-red-950/30 border-red-100 dark:border-red-900/40' : 'bg-gray-50 dark:bg-gray-800/30 border-gray-100 dark:border-gray-700'}`}
-          textClass={crIra !== null ? crIra >= 7 ? 'text-emerald-700 dark:text-emerald-400' : crIra >= 5 ? 'text-amber-700 dark:text-amber-400' : 'text-red-700 dark:text-red-400' : 'text-gray-400'}
+          color={crIra === null ? 'violet' : crIra >= 7 ? 'emerald' : crIra >= 5 ? 'amber' : 'rose'}
         />
         <KpiCard
           icon="📋"
           label="Casos de Estágio"
-          value={delegatedCases.length}
+          value={String(delegatedCases.length)}
           sub={`${delegatedCases.filter(c => c.status === 'Ativo').length} ativo(s)`}
-          colorClass="bg-blue-50 dark:bg-blue-950/30 border-blue-100 dark:border-blue-900/40"
-          textClass="text-blue-700 dark:text-blue-400"
+          color="blue"
         />
         <KpiCard
           icon="⏰"
           label="Hs. Complementares"
           value={`${intern.hoursCompleted || 0}/200h`}
           sub={`${Math.round(((intern.hoursCompleted || 0) / 200) * 100)}% validado`}
-          colorClass="bg-violet-50 dark:bg-violet-950/30 border-violet-100 dark:border-violet-900/40"
-          textClass="text-violet-700 dark:text-violet-400"
+          color="violet"
         />
       </div>
 
@@ -502,7 +482,7 @@ export const InternOverview: React.FC<InternOverviewProps> = ({
 
       {/* Supervisor Banner */}
       {supervisorLawyer && (
-        <div className="bg-gradient-to-r from-indigo-500 to-violet-600 rounded-2xl p-4 text-white flex items-center gap-4">
+        <div className="bg-gradient-to-r from-violet-500 to-violet-700 rounded-2xl p-4 text-white flex items-center gap-4">
           <img src={supervisorLawyer.photoUrl} alt={supervisorLawyer.name} className="w-12 h-12 rounded-full object-cover ring-2 ring-white/30 shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="font-bold text-sm">Estagiando em: Dr(a). {supervisorLawyer.name}</p>

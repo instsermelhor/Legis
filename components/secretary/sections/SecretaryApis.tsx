@@ -48,8 +48,8 @@ const MOCK_EMAILS: EmailStatus[] = [
 ];
 
 const CALL_META = {
-  recebida:  { icon: '📲', label: 'Recebida',  color: 'text-green-600 dark:text-green-400',  bg: 'bg-green-100 dark:bg-green-900/20' },
-  perdida:   { icon: '📵', label: 'Perdida',   color: 'text-red-600 dark:text-red-400',      bg: 'bg-red-100 dark:bg-red-900/20'   },
+  recebida:  { icon: '📲', label: 'Recebida',  color: 'text-emerald-600 dark:text-emerald-400',  bg: 'bg-emerald-100 dark:bg-emerald-900/20' },
+  perdida:   { icon: '📵', label: 'Perdida',   color: 'text-rose-600 dark:text-rose-400',      bg: 'bg-rose-100 dark:bg-rose-900/20'   },
   realizada: { icon: '📞', label: 'Realizada', color: 'text-blue-600 dark:text-blue-400',   bg: 'bg-blue-100 dark:bg-blue-900/20' },
 };
 
@@ -79,8 +79,8 @@ const WhatsAppPanel: React.FC = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {status === 'connected' && <span className="flex items-center gap-1 text-[10px] font-bold text-green-600 bg-green-100 dark:bg-green-900/20 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />Online</span>}
-          {status === 'disconnected' && <span className="flex items-center gap-1 text-[10px] font-bold text-red-600 bg-red-100 dark:bg-red-900/20 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 bg-red-500 rounded-full" />Offline</span>}
+          {status === 'connected' && <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-900/20 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />Online</span>}
+          {status === 'disconnected' && <span className="flex items-center gap-1 text-[10px] font-bold text-rose-600 bg-rose-100 dark:bg-rose-900/20 px-2.5 py-1 rounded-full"><span className="w-1.5 h-1.5 bg-rose-500 rounded-full" />Offline</span>}
           {status === 'connecting' && <span className="flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-100 dark:bg-amber-900/20 px-2.5 py-1 rounded-full animate-pulse">⟳ Conectando</span>}
         </div>
       </div>
@@ -88,8 +88,8 @@ const WhatsAppPanel: React.FC = () => {
       {/* Stats */}
       <div className="grid grid-cols-3 divide-x divide-gray-100 dark:divide-[#2A2545]">
         {[
-          { label: 'Não Lidas', value: unreadCount, color: 'text-red-600' },
-          { label: 'Conversas Ativas', value: messages.length, color: 'text-green-600' },
+          { label: 'Não Lidas', value: unreadCount, color: 'text-rose-600' },
+          { label: 'Conversas Ativas', value: messages.length, color: 'text-emerald-600' },
           { label: 'Resp. Pendentes', value: 3, color: 'text-amber-600' },
         ].map(({ label, value, color }) => (
           <div key={label} className="p-3 text-center">
@@ -103,7 +103,7 @@ const WhatsAppPanel: React.FC = () => {
       <div className="p-4 space-y-2">
         <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Mensagens Recentes</p>
         {messages.map(msg => (
-          <div key={msg.id} className={`flex items-center gap-3 p-2.5 rounded-xl ${msg.unread ? 'bg-green-50 dark:bg-green-900/10' : ''}`}>
+          <div key={msg.id} className={`flex items-center gap-3 p-2.5 rounded-xl ${msg.unread ? 'bg-emerald-50 dark:bg-emerald-900/10' : ''}`}>
             <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-gray-300 shrink-0">
               {msg.from.charAt(0)}
             </div>
@@ -113,7 +113,7 @@ const WhatsAppPanel: React.FC = () => {
             </div>
             <div className="shrink-0 flex flex-col items-end gap-1">
               <span className="text-[9px] text-gray-400">{msg.time}</span>
-              {msg.unread && <span className="w-4 h-4 bg-green-500 text-white text-[8px] font-black rounded-full flex items-center justify-center">!</span>}
+              {msg.unread && <span className="w-4 h-4 bg-emerald-500 text-white text-[8px] font-black rounded-full flex items-center justify-center">!</span>}
             </div>
           </div>
         ))}
@@ -123,16 +123,16 @@ const WhatsAppPanel: React.FC = () => {
       <div className="p-4 pt-0 flex gap-2">
         {status === 'connected' ? (
           <button onClick={() => { setStatus('disconnected'); setShowQr(false); }}
-            className="flex-1 py-2 text-xs font-bold text-red-600 border border-red-200 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">
+            className="flex-1 py-2 text-xs font-bold text-rose-600 border border-rose-200 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-colors">
             🔌 Desconectar
           </button>
         ) : (
           <button onClick={() => { setStatus('connecting'); setShowQr(true); setTimeout(() => setStatus('connected'), 3000); }}
-            className="flex-1 py-2 text-xs font-bold text-white bg-[#25D366] rounded-xl hover:bg-green-500 transition-colors">
+            className="flex-1 py-2 text-xs font-bold text-white bg-[#25D366] rounded-xl hover:bg-emerald-500 transition-colors">
             📲 Reconectar (QR Code)
           </button>
         )}
-        <button className="flex-1 py-2 text-xs font-bold text-[#25D366] border border-[#25D366]/30 rounded-xl hover:bg-green-50 dark:hover:bg-green-900/10 transition-colors">
+        <button className="flex-1 py-2 text-xs font-bold text-[#25D366] border border-[#25D366]/30 rounded-xl hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-colors">
           💬 Abrir Chat
         </button>
       </div>
@@ -172,11 +172,11 @@ const VoipPanel: React.FC = () => {
       <div className="p-4 border-b border-gray-100 dark:border-[#2A2545] flex items-center justify-between">
         <div>
           <h4 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-2">📞 Telefonia VoIP</h4>
-          {lostCount > 0 && <p className="text-[10px] text-red-500 mt-0.5">{lostCount} chamada(s) perdida(s) hoje</p>}
+          {lostCount > 0 && <p className="text-[10px] text-rose-500 mt-0.5">{lostCount} chamada(s) perdida(s) hoje</p>}
         </div>
         <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1 text-[10px] font-bold text-green-600 bg-green-100 dark:bg-green-900/20 px-2 py-1 rounded-full">
-            <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />Ramal 201 — Online
+          <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-100 dark:bg-emerald-900/20 px-2 py-1 rounded-full">
+            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />Ramal 201 — Online
           </span>
         </div>
       </div>
@@ -185,7 +185,7 @@ const VoipPanel: React.FC = () => {
       <div className="flex gap-2 p-4 pb-2">
         {(['todos', 'recebida', 'realizada', 'perdida'] as const).map(f => (
           <button key={f} onClick={() => setFilter(f)}
-            className={`px-2.5 py-1 text-[10px] font-bold rounded-lg transition-all ${filter === f ? 'bg-purple-600 text-white' : 'bg-gray-100 dark:bg-black/20 text-gray-500 hover:bg-gray-200'}`}>
+            className={`px-2.5 py-1 text-[10px] font-bold rounded-lg transition-all ${filter === f ? 'bg-violet-600 text-white' : 'bg-gray-100 dark:bg-black/20 text-gray-500 hover:bg-gray-200'}`}>
             {f === 'todos' ? 'Todos' : CALL_META[f].icon + ' ' + CALL_META[f].label + 's'}
           </button>
         ))}
@@ -206,12 +206,12 @@ const VoipPanel: React.FC = () => {
               <div className="flex gap-1.5 shrink-0">
                 {call.hasRecording && (
                   <button onClick={() => handlePlay(call.id)}
-                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${isPlaying ? 'bg-purple-600 text-white' : 'bg-gray-200 dark:bg-black/30 text-gray-600 dark:text-gray-300 hover:bg-purple-100'}`}
+                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${isPlaying ? 'bg-violet-600 text-white' : 'bg-gray-200 dark:bg-black/30 text-gray-600 dark:text-gray-300 hover:bg-violet-100'}`}
                     title="Ouvir gravação">
                     {isPlaying ? '⏸' : '▶'}
                   </button>
                 )}
-                <button className="w-7 h-7 bg-green-100 dark:bg-green-900/20 text-green-600 rounded-full flex items-center justify-center hover:bg-green-200 transition-all" title="Ligar de volta">
+                <button className="w-7 h-7 bg-emerald-100 dark:bg-emerald-900/20 text-emerald-600 rounded-full flex items-center justify-center hover:bg-emerald-200 transition-all" title="Ligar de volta">
                   📞
                 </button>
               </div>
@@ -222,12 +222,12 @@ const VoipPanel: React.FC = () => {
 
       {/* Audio player mock */}
       {playingId && (
-        <div className="mx-4 mb-4 bg-purple-50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-900/30 rounded-xl p-3">
-          <p className="text-[10px] font-bold text-purple-700 dark:text-purple-400 mb-2">🎵 Reproduzindo gravação...</p>
+        <div className="mx-4 mb-4 bg-violet-50 dark:bg-violet-900/10 border border-violet-200 dark:border-violet-900/30 rounded-xl p-3">
+          <p className="text-[10px] font-bold text-violet-700 dark:text-violet-400 mb-2">🎵 Reproduzindo gravação...</p>
           <div className="flex items-center gap-2">
             <span className="text-[10px] text-gray-400">0:00</span>
             <div className="flex-1 bg-gray-200 dark:bg-black/20 rounded-full h-2">
-              <div className="bg-purple-500 h-2 rounded-full animate-pulse" style={{ width: '35%' }} />
+              <div className="bg-violet-500 h-2 rounded-full animate-pulse" style={{ width: '35%' }} />
             </div>
             <span className="text-[10px] text-gray-400">{MOCK_CALLS.find(c => c.id === playingId)?.duration}</span>
           </div>
@@ -251,26 +251,26 @@ const EmailPanel: React.FC = () => {
       <h4 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-2">📧 E-mail Corporativo</h4>
       <div className="space-y-3">
         {emails.map(email => (
-          <div key={email.account} className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all ${email.connected ? 'border-green-200 dark:border-green-900/30 bg-green-50 dark:bg-green-900/10' : 'border-red-200 dark:border-red-900/30 bg-red-50 dark:bg-red-900/10'}`}>
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-black shrink-0 ${email.protocol === 'Exchange' ? 'bg-blue-600' : email.protocol === 'IMAP' ? 'bg-red-500' : 'bg-gray-600'}`}>
+          <div key={email.account} className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all ${email.connected ? 'border-emerald-200 dark:border-emerald-900/30 bg-emerald-50 dark:bg-emerald-900/10' : 'border-rose-200 dark:border-rose-900/30 bg-rose-50 dark:bg-rose-900/10'}`}>
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-white text-sm font-black shrink-0 ${email.protocol === 'Exchange' ? 'bg-blue-600' : email.protocol === 'IMAP' ? 'bg-rose-500' : 'bg-gray-600'}`}>
               {email.protocol.charAt(0)}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-bold text-gray-800 dark:text-white truncate">{email.account}</p>
               <p className="text-[10px] text-gray-400">{email.protocol} · {email.server}</p>
               {email.connected && (
-                <p className="text-[10px] text-green-600 dark:text-green-400">✓ Sincronizado {email.lastSync} · {email.unread} não lida(s)</p>
+                <p className="text-[10px] text-emerald-600 dark:text-emerald-400">✓ Sincronizado {email.lastSync} · {email.unread} não lida(s)</p>
               )}
-              {!email.connected && <p className="text-[10px] text-red-500">✕ Desconectado</p>}
+              {!email.connected && <p className="text-[10px] text-rose-500">✕ Desconectado</p>}
             </div>
             <button onClick={() => toggleConnect(email.account)}
-              className={`shrink-0 px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all ${email.connected ? 'text-red-600 border border-red-200 hover:bg-red-100' : 'text-white bg-blue-600 hover:bg-blue-700'}`}>
+              className={`shrink-0 px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all ${email.connected ? 'text-rose-600 border border-rose-200 hover:bg-rose-100' : 'text-white bg-blue-600 hover:bg-blue-700'}`}>
               {email.connected ? 'Desconectar' : 'Conectar'}
             </button>
           </div>
         ))}
       </div>
-      <button className="w-full py-2 text-xs font-bold text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-900/40 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-colors">
+      <button className="w-full py-2 text-xs font-bold text-violet-600 dark:text-violet-400 border border-violet-200 dark:border-violet-900/40 rounded-xl hover:bg-violet-50 dark:hover:bg-violet-900/10 transition-colors">
         ➕ Adicionar Conta de E-mail
       </button>
     </div>

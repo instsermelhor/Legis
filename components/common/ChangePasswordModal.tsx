@@ -26,7 +26,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ onClos
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fade-in" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm relative dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm relative dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" onClick={e => e.stopPropagation()}>
         <div className="p-6">
           <div className="flex items-center justify-between mb-5">
             <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">🔑 Alterar Senha</h2>
@@ -36,7 +36,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ onClos
           {success ? (
             <div className="text-center py-6">
               <p className="text-4xl mb-2">✅</p>
-              <p className="font-semibold text-green-700">Senha alterada com sucesso!</p>
+              <p className="font-semibold text-emerald-700">Senha alterada com sucesso!</p>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -46,7 +46,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ onClos
                   type="password"
                   value={current}
                   onChange={e => setCurrent(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                   placeholder="Digite sua senha atual"
                 />
               </div>
@@ -56,7 +56,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ onClos
                   type="password"
                   value={next}
                   onChange={e => setNext(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                   placeholder="Mínimo 6 caracteres"
                 />
               </div>
@@ -66,11 +66,11 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ onClos
                   type="password"
                   value={confirm}
                   onChange={e => setConfirm(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                   placeholder="Repita a nova senha"
                 />
               </div>
-              {error && <p className="text-xs text-red-600 font-semibold bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>}
+              {error && <p className="text-xs text-rose-600 font-semibold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">{error}</p>}
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={onClose} className="flex-1 py-2 text-sm font-semibold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">
                   Cancelar

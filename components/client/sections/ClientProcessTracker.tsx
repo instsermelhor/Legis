@@ -67,7 +67,7 @@ const getStatusBadge = (status: Case['status']) => {
     case 'Concluído':
       return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700';
     case 'Cancelado':
-      return 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300 border border-red-200 dark:border-red-700';
+      return 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 border border-rose-200 dark:border-rose-700';
     default:
       return 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300';
   }
@@ -77,16 +77,16 @@ const getAreaBadge = (area: string) => {
   const lower = area.toLowerCase();
   if (lower.includes('trabalhist')) return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300';
   if (lower.includes('cív') || lower.includes('civil')) return 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300';
-  if (lower.includes('penal') || lower.includes('criminal')) return 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300';
+  if (lower.includes('penal') || lower.includes('criminal')) return 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300';
   if (lower.includes('famíl') || lower.includes('familia')) return 'bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300';
   if (lower.includes('previdenci')) return 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300';
-  if (lower.includes('imobili')) return 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300';
-  return 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300';
+  if (lower.includes('imobili')) return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300';
+  return 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300';
 };
 
 const getFavoravelBadge = (favoravel: boolean | null) => {
   if (favoravel === true) return { label: '✅ Favorável', cls: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' };
-  if (favoravel === false) return { label: '⚠️ Desfavorável', cls: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300' };
+  if (favoravel === false) return { label: '⚠️ Desfavorável', cls: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300' };
   return { label: '⏳ Em andamento', cls: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' };
 };
 
@@ -134,7 +134,7 @@ const TranslationModal: React.FC<TranslationModalProps> = ({ termText, onClose }
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-4 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-violet-600 to-violet-800 px-5 py-4 flex items-center justify-between">
           <span className="text-white font-semibold text-sm">🤖 Tradutor Jurídico</span>
           <button
             onClick={onClose}
@@ -170,7 +170,7 @@ const TranslationModal: React.FC<TranslationModalProps> = ({ termText, onClose }
 
           <button
             onClick={onClose}
-            className="mt-5 w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
+            className="mt-5 w-full py-2.5 bg-gradient-to-r from-violet-600 to-violet-800 text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
           >
             Entendido!
           </button>
@@ -201,7 +201,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ caseItem, onSubmit, onClose }
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md border border-gray-200 dark:border-gray-700 overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-5 py-4 flex items-center justify-between">
+        <div className="bg-gradient-to-r from-violet-600 to-violet-800 px-5 py-4 flex items-center justify-between">
           <span className="text-white font-semibold">⭐ Avaliar Serviço</span>
           <button onClick={onClose} className="text-white/70 hover:text-white transition-colors" aria-label="Fechar">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -248,7 +248,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ caseItem, onSubmit, onClose }
             <button
               onClick={handleSubmit}
               disabled={rating === 0}
-              className="flex-1 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-2.5 bg-gradient-to-r from-violet-600 to-violet-800 text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Enviar Avaliação
             </button>
@@ -403,7 +403,7 @@ const CaseCard: React.FC<CaseCardProps> = ({ caseItem, onReview, onTranslate, re
         {caseItem.status === 'Concluído' && !isReviewed && (
           <button
             onClick={() => onReview(caseItem)}
-            className="ml-auto text-xs bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-opacity flex items-center gap-1.5"
+            className="ml-auto text-xs bg-gradient-to-r from-violet-600 to-violet-800 text-white px-3 py-1.5 rounded-lg font-semibold hover:opacity-90 transition-opacity flex items-center gap-1.5"
           >
             ⭐ Avaliar Serviço
           </button>
@@ -505,7 +505,7 @@ const CpfProcessCard: React.FC<CpfProcessCardProps> = ({ proc, onTranslate }) =>
       <div className="px-5 pb-4">
         <button
           onClick={() => alert('🚀 Em breve: você poderá contratar um advogado diretamente pelo Legis Connect!')}
-          className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+          className="w-full py-2.5 bg-gradient-to-r from-violet-600 to-violet-800 text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -626,7 +626,7 @@ export const ClientProcessTracker: React.FC<ClientProcessTrackerProps> = ({
             </p>
             <button
               onClick={() => alert('Redirecionar para busca de advogados')}
-              className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
+              className="px-5 py-2.5 bg-gradient-to-r from-violet-600 to-violet-800 text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity"
             >
               🔍 Buscar Advogado
             </button>
@@ -684,7 +684,7 @@ export const ClientProcessTracker: React.FC<ClientProcessTrackerProps> = ({
                 id="btn-scan-cpf"
                 onClick={handleScan}
                 disabled={scanState === 'loading' || cpfValue.length < 14}
-                className="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-bold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-violet-600 to-violet-800 text-white rounded-xl text-sm font-bold hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {scanState === 'loading' ? (
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />

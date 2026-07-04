@@ -8,7 +8,7 @@ const ROLE_OPTIONS: { value: StaffRole; label: string; color: string; desc: stri
   {
     value: 'super_admin',
     label: '👑 Super Administrador',
-    color: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
+    color: 'bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-300',
     desc: 'Acesso total + Modo Espelho (Impersonation)',
   },
   {
@@ -20,13 +20,13 @@ const ROLE_OPTIONS: { value: StaffRole; label: string; color: string; desc: stri
   {
     value: 'staff_compliance_auditor',
     label: '🔍 Auditor de Compliance',
-    color: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
+    color: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
     desc: 'Logs de auditoria imutáveis, OAB check, denúncias',
   },
   {
     value: 'staff_finance_admin',
     label: '💰 Gestor Financeiro',
-    color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+    color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',
     desc: 'Faturamento, chargebacks, notas fiscais — SEM acesso a processos',
   },
   {
@@ -207,7 +207,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initial, onSave, onCancel, actorI
         </div>
       </div>
 
-      {error && <p className="text-red-500 text-sm bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2">{error}</p>}
+      {error && <p className="text-rose-500 text-sm bg-rose-50 dark:bg-rose-900/20 rounded-lg px-3 py-2">{error}</p>}
 
       <div className="flex gap-3 pt-2">
         <button
@@ -287,9 +287,9 @@ export const StaffManagementTab: React.FC<StaffManagementTabProps> = ({ actorId 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: 'Total', value: stats.total, color: 'text-gray-900 dark:text-white' },
-          { label: 'Ativos', value: stats.active, color: 'text-green-600 dark:text-green-400' },
-          { label: 'Inativos', value: stats.inactive, color: 'text-red-600 dark:text-red-400' },
-          { label: 'Super Admin', value: stats.byRole['super_admin'] || 0, color: 'text-purple-600 dark:text-purple-400' },
+          { label: 'Ativos', value: stats.active, color: 'text-emerald-600 dark:text-emerald-400' },
+          { label: 'Inativos', value: stats.inactive, color: 'text-rose-600 dark:text-rose-400' },
+          { label: 'Super Admin', value: stats.byRole['super_admin'] || 0, color: 'text-violet-600 dark:text-violet-400' },
         ].map(kpi => (
           <div key={kpi.label} className="bg-white dark:bg-[#12102A] rounded-xl border border-gray-200 dark:border-[#2A2545] p-4">
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">{kpi.label}</p>
@@ -381,8 +381,8 @@ export const StaffManagementTab: React.FC<StaffManagementTabProps> = ({ actorId 
                   <td className="px-4 py-3">
                     <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                       s.active
-                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                        : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                        : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
                     }`}>
                       {s.active ? '● Ativo' : '○ Inativo'}
                     </span>
@@ -399,8 +399,8 @@ export const StaffManagementTab: React.FC<StaffManagementTabProps> = ({ actorId 
                         onClick={() => handleToggleActive(s)}
                         className={`text-xs px-2 py-1 rounded transition ${
                           s.active
-                            ? 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 hover:bg-red-100'
-                            : 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 hover:bg-green-100'
+                            ? 'bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 hover:bg-rose-100'
+                            : 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100'
                         }`}
                       >
                         {s.active ? 'Desativar' : 'Ativar'}

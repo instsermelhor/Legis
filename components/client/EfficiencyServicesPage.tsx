@@ -225,7 +225,7 @@ export const EfficiencyServicesPage: React.FC<EfficiencyServicesPageProps> = ({ 
   );
 
   return (
-    <div className={embedded ? "space-y-6" : "bg-white min-h-screen dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"}>
+    <div className={embedded ? "space-y-6" : "bg-white min-h-screen dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"}>
       {!embedded && (
         <div className="bg-primary/5 py-12">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center animate-fade-in">
@@ -288,7 +288,7 @@ export const EfficiencyServicesPage: React.FC<EfficiencyServicesPageProps> = ({ 
                 <button 
                   type="button" 
                   onClick={() => setSelectedGroupFilter('all')}
-                  className="text-xs font-semibold text-primary dark:text-purple-400 hover:underline"
+                  className="text-xs font-semibold text-primary dark:text-violet-400 hover:underline"
                 >
                   Mostrar Todos
                 </button>
@@ -364,7 +364,7 @@ export const EfficiencyServicesPage: React.FC<EfficiencyServicesPageProps> = ({ 
             <button 
               type="button"
               onClick={() => setSearchQuery('')}
-              className="mt-4 text-sm font-semibold text-primary dark:text-purple-400 hover:underline"
+              className="mt-4 text-sm font-semibold text-primary dark:text-violet-400 hover:underline"
             >
               Limpar busca
             </button>
@@ -394,7 +394,7 @@ export const EfficiencyServicesPage: React.FC<EfficiencyServicesPageProps> = ({ 
                         <div key={service.id} className="bg-white rounded-xl shadow-md border border-gray-100 p-6 flex flex-col h-full hover:shadow-lg transition-shadow dark:text-white dark:bg-[#2A2545] dark:border-[#3A3555]">
                           <div className="flex-grow">
                             <div className="flex items-start gap-3 mb-3">
-                              <div className="p-1.5 rounded-lg bg-primary/10 text-primary shrink-0 dark:bg-primary/20 dark:text-purple-300">
+                              <div className="p-1.5 rounded-lg bg-primary/10 text-primary shrink-0 dark:bg-primary/20 dark:text-violet-300">
                                 {getGroupIcon(service.groupId, "w-4 h-4")}
                               </div>
                               <h3 className="text-base font-bold text-gray-900 dark:text-white leading-snug">{service.name}</h3>
@@ -408,10 +408,10 @@ export const EfficiencyServicesPage: React.FC<EfficiencyServicesPageProps> = ({ 
                                   R$ {service.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                 </span>
                               )}
-                              <span className="text-2xl font-bold text-primary dark:text-purple-400 flex items-center gap-2">
+                              <span className="text-2xl font-bold text-primary dark:text-violet-400 flex items-center gap-2">
                                 R$ {finalPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                                 {discountPct > 0 && (
-                                  <span className="text-[10px] bg-red-100 text-red-700 dark:bg-red-950/20 dark:text-red-300 px-1.5 py-0.5 rounded-full font-bold">
+                                  <span className="text-[10px] bg-rose-100 text-rose-700 dark:bg-rose-950/20 dark:text-rose-300 px-1.5 py-0.5 rounded-full font-bold">
                                     {discountPct}% OFF
                                   </span>
                                 )}
@@ -420,7 +420,7 @@ export const EfficiencyServicesPage: React.FC<EfficiencyServicesPageProps> = ({ 
                             <button 
                               type="button"
                               onClick={() => handleOpenContract(service)}
-                              className="px-4 py-2 bg-primary/10 text-primary dark:bg-purple-950/30 dark:text-purple-300 font-medium rounded-lg hover:bg-primary hover:text-white dark:hover:bg-purple-600 dark:hover:text-white transition-colors"
+                              className="px-4 py-2 bg-primary/10 text-primary dark:bg-violet-950/30 dark:text-violet-300 font-medium rounded-lg hover:bg-primary hover:text-white dark:hover:bg-violet-600 dark:hover:text-white transition-colors"
                             >
                               Contratar
                             </button>
@@ -459,7 +459,7 @@ export const EfficiencyServicesPage: React.FC<EfficiencyServicesPageProps> = ({ 
                   <p className="text-xl font-bold text-primary flex items-center gap-2">
                     R$ {(getServiceDiscount(selectedService) > 0 ? selectedService.price * (1 - getServiceDiscount(selectedService) / 100) : selectedService.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     {getServiceDiscount(selectedService) > 0 && (
-                      <span className="text-[10px] bg-red-100 text-red-700 dark:bg-red-950/20 dark:text-red-300 px-1.5 py-0.5 rounded-full font-bold">
+                      <span className="text-[10px] bg-rose-100 text-rose-700 dark:bg-rose-950/20 dark:text-rose-300 px-1.5 py-0.5 rounded-full font-bold">
                         {getServiceDiscount(selectedService)}% OFF
                       </span>
                     )}
@@ -484,10 +484,10 @@ export const EfficiencyServicesPage: React.FC<EfficiencyServicesPageProps> = ({ 
                       type="text" 
                       value={contactForm.name} 
                       onChange={e => setContactForm({ ...contactForm, name: e.target.value })}
-                      className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white text-gray-950 dark:bg-[#2A2545] dark:border-[#3A3555] dark:text-white ${formErrors.name ? 'border-red-500' : 'border-gray-300'}`}
+                      className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white text-gray-950 dark:bg-[#2A2545] dark:border-[#3A3555] dark:text-white ${formErrors.name ? 'border-rose-500' : 'border-gray-300'}`}
                       placeholder="Seu nome completo" 
                     />
-                    {formErrors.name && <p className="text-red-500 text-xs mt-0.5">{formErrors.name}</p>}
+                    {formErrors.name && <p className="text-rose-500 text-xs mt-0.5">{formErrors.name}</p>}
                   </div>
 
                   <div>
@@ -496,10 +496,10 @@ export const EfficiencyServicesPage: React.FC<EfficiencyServicesPageProps> = ({ 
                       type="email" 
                       value={contactForm.email} 
                       onChange={e => setContactForm({ ...contactForm, email: e.target.value })}
-                      className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white text-gray-950 dark:bg-[#2A2545] dark:border-[#3A3555] dark:text-white ${formErrors.email ? 'border-red-500' : 'border-gray-300'}`}
+                      className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white text-gray-950 dark:bg-[#2A2545] dark:border-[#3A3555] dark:text-white ${formErrors.email ? 'border-rose-500' : 'border-gray-300'}`}
                       placeholder="exemplo@email.com" 
                     />
-                    {formErrors.email && <p className="text-red-500 text-xs mt-0.5">{formErrors.email}</p>}
+                    {formErrors.email && <p className="text-rose-500 text-xs mt-0.5">{formErrors.email}</p>}
                   </div>
 
                   <div>
@@ -508,10 +508,10 @@ export const EfficiencyServicesPage: React.FC<EfficiencyServicesPageProps> = ({ 
                       type="text" 
                       value={contactForm.phone} 
                       onChange={e => setContactForm({ ...contactForm, phone: e.target.value })}
-                      className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white text-gray-950 dark:bg-[#2A2545] dark:border-[#3A3555] dark:text-white ${formErrors.phone ? 'border-red-500' : 'border-gray-300'}`}
+                      className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white text-gray-950 dark:bg-[#2A2545] dark:border-[#3A3555] dark:text-white ${formErrors.phone ? 'border-rose-500' : 'border-gray-300'}`}
                       placeholder="(11) 99999-9999" 
                     />
-                    {formErrors.phone && <p className="text-red-500 text-xs mt-0.5">{formErrors.phone}</p>}
+                    {formErrors.phone && <p className="text-rose-500 text-xs mt-0.5">{formErrors.phone}</p>}
                   </div>
                 </div>
               )}
@@ -540,7 +540,7 @@ export const EfficiencyServicesPage: React.FC<EfficiencyServicesPageProps> = ({ 
       {isSuccessModalOpen && selectedService && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setIsSuccessModalOpen(false)}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center space-y-4 dark:bg-[#1A1730]" onClick={e => e.stopPropagation()}>
-            <div className="w-16 h-16 bg-green-100 dark:bg-green-950/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center text-3xl mx-auto mb-2 animate-bounce">
+            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center text-3xl mx-auto mb-2 animate-bounce">
               ✓
             </div>
             <h3 className="text-xl font-bold text-gray-950 dark:text-white">Sucesso!</h3>
@@ -554,7 +554,7 @@ export const EfficiencyServicesPage: React.FC<EfficiencyServicesPageProps> = ({ 
             </p>
             <button 
               onClick={() => setIsSuccessModalOpen(false)}
-              className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition-colors shadow"
+              className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-colors shadow"
             >
               Fechar
             </button>

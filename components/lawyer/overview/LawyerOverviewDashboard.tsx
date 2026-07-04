@@ -12,6 +12,7 @@ import {
 import type { Lawyer, Case } from '../../../types';
 import { mockProcessosService } from '../../../services/mockProcessosService';
 import { dbFinancial } from '../../../services/dbService';
+import { KpiCard, ChartTooltip, SectionHeader, LivePill, GradientHero, HeroButton } from '../../ui';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const fmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -51,83 +52,8 @@ function buildCashflowData(lawyerId: number) {
   });
 }
 
-// ─── KPI Card ─────────────────────────────────────────────────────────────────
-interface KpiCardProps {
-  icon: string;
-  label: string;
-  value: string;
-  sub?: string;
-  trend?: number;    // % MoM
-  color: 'violet' | 'emerald' | 'amber' | 'rose';
-}
-
-const COLOR_MAP = {
-  violet: {
-    bg: 'bg-violet-50 dark:bg-violet-950/20',
-    border: 'border-violet-100 dark:border-violet-900/30',
-    text: 'text-violet-800 dark:text-violet-300',
-    sub: 'text-violet-500 dark:text-violet-400',
-    iconBg: 'bg-violet-100 dark:bg-violet-900/30',
-  },
-  emerald: {
-    bg: 'bg-emerald-50 dark:bg-emerald-950/20',
-    border: 'border-emerald-100 dark:border-emerald-900/30',
-    text: 'text-emerald-800 dark:text-emerald-300',
-    sub: 'text-emerald-500 dark:text-emerald-400',
-    iconBg: 'bg-emerald-100 dark:bg-emerald-900/30',
-  },
-  amber: {
-    bg: 'bg-amber-50 dark:bg-amber-950/20',
-    border: 'border-amber-100 dark:border-amber-900/30',
-    text: 'text-amber-800 dark:text-amber-300',
-    sub: 'text-amber-500 dark:text-amber-400',
-    iconBg: 'bg-amber-100 dark:bg-amber-900/30',
-  },
-  rose: {
-    bg: 'bg-rose-50 dark:bg-rose-950/20',
-    border: 'border-rose-100 dark:border-rose-900/30',
-    text: 'text-rose-800 dark:text-rose-300',
-    sub: 'text-rose-500 dark:text-rose-400',
-    iconBg: 'bg-rose-100 dark:bg-rose-900/30',
-  },
-};
-
-const KpiCard: React.FC<KpiCardProps> = ({ icon, label, value, sub, trend, color }) => {
-  const c = COLOR_MAP[color];
-  const isPositive = trend !== undefined && trend >= 0;
-  return (
-    <div className={`${c.bg} border ${c.border} rounded-2xl p-5 relative overflow-hidden group hover:scale-[1.01] transition-transform duration-200`}>
-      <div className={`w-10 h-10 ${c.iconBg} rounded-xl flex items-center justify-center text-xl mb-3`}>
-        {icon}
-      </div>
-      <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">{label}</p>
-      <p className={`text-2xl font-black ${c.text} mt-1`}>{value}</p>
-      {sub && <p className={`text-xs ${c.sub} mt-0.5`}>{sub}</p>}
-      {trend !== undefined && (
-        <div className={`absolute top-4 right-4 flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full ${isPositive ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'}`}>
-          {isPositive ? '↑' : '↓'} {Math.abs(trend)}%
-        </div>
-      )}
-    </div>
-  );
-};
-
-// ─── Custom Tooltip ───────────────────────────────────────────────────────────
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-xl shadow-xl p-3 text-xs">
-      <p className="font-bold text-gray-700 dark:text-gray-200 mb-2">{label}</p>
-      {payload.map((p: any) => (
-        <div key={p.name} className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full inline-block" style={{ background: p.color }} />
-          <span className="text-gray-500 dark:text-gray-400">{p.name === 'honorarios' ? 'Honorários' : 'Custas'}:</span>
-          <span className="font-bold text-gray-800 dark:text-white">{fmt(p.value)}</span>
-        </div>
-      ))}
-    </div>
-  );
-};
+// KpiCard e ChartTooltip agora vêm do UI kit compartilhado (components/ui) —
+// este módulo é a origem da identidade visual e consome o kit extraído dele.
 
 // ─── Agenda do Dia Widget ─────────────────────────────────────────────────────
 const TIPO_COLORS = {
@@ -204,20 +130,12 @@ export const LawyerOverviewDashboard: React.FC<Props> = ({
     <div className="space-y-6 animate-fade-in">
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-200 dark:border-[#2A2545] pb-4">
-        <div>
-          <h2 className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-            📊 Visão Geral — Central do Escritório
-          </h2>
-          <p className="text-sm text-gray-400 dark:text-gray-500 capitalize mt-0.5">{todayStr}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-900/30 px-3 py-1.5 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
-            Escritório Ativo
-          </span>
-        </div>
-      </div>
+      <SectionHeader
+        emoji="📊"
+        title="Visão Geral — Central do Escritório"
+        subtitle={todayStr}
+        actions={<LivePill label="Escritório Ativo" />}
+      />
 
       {/* ── KPI Cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -293,7 +211,7 @@ export const LawyerOverviewDashboard: React.FC<Props> = ({
                 tickFormatter={v => `${(v / 1000).toFixed(0)}k`}
                 width={35}
               />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<ChartTooltip formatter={v => fmt(v)} nameFormatter={n => (n === 'honorarios' ? 'Honorários' : 'Custas')} />} />
               <Area type="monotone" dataKey="honorarios" stroke="#8b5cf6" strokeWidth={2.5} fill="url(#gradHon)" dot={false} activeDot={{ r: 4, fill: '#8b5cf6' }} />
               <Area type="monotone" dataKey="custas" stroke="#f43f5e" strokeWidth={2} fill="url(#gradCus)" dot={false} activeDot={{ r: 4, fill: '#f43f5e' }} />
             </AreaChart>
@@ -418,19 +336,11 @@ export const LawyerOverviewDashboard: React.FC<Props> = ({
       </div>
 
       {/* ── Resumo Rápido de Casos ── */}
-      <div className="bg-gradient-to-br from-violet-600 to-violet-800 dark:from-violet-900 dark:to-[#12102A] rounded-2xl p-6 text-white shadow-lg">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h3 className="text-base font-bold">Seus Casos Recentes</h3>
-            <p className="text-sm text-violet-200 mt-0.5">Acompanhe o status mais recente dos seus processos</p>
-          </div>
-          <button
-            onClick={onNavigateToCases}
-            className="shrink-0 px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white text-xs font-bold rounded-xl border border-white/20 transition-all"
-          >
-            Ver todos os casos →
-          </button>
-        </div>
+      <GradientHero
+        title="Seus Casos Recentes"
+        subtitle="Acompanhe o status mais recente dos seus processos"
+        action={<HeroButton onClick={onNavigateToCases}>Ver todos os casos →</HeroButton>}
+      >
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
           {cases.slice(0, 3).map((c) => (
             <div key={c.id} className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-xl p-3.5">
@@ -448,7 +358,7 @@ export const LawyerOverviewDashboard: React.FC<Props> = ({
             </div>
           )}
         </div>
-      </div>
+      </GradientHero>
 
     </div>
   );

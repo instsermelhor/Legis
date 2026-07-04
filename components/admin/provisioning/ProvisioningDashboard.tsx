@@ -7,8 +7,8 @@ const StatusBadge: React.FC<{ status: ProvisioningStatus }> = ({ status }) => {
   const config: Record<ProvisioningStatus, { label: string; cls: string; dot: string }> = {
     PENDING:          { label: 'Pendente',   cls: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300', dot: 'bg-yellow-400' },
     IN_PROGRESS:      { label: 'Processando', cls: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',         dot: 'bg-blue-400 animate-pulse' },
-    PROVISIONED:      { label: 'Entregue',    cls: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',     dot: 'bg-green-400' },
-    PROVISION_FAILED: { label: '⚠ Falha',    cls: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',            dot: 'bg-red-500 animate-pulse' },
+    PROVISIONED:      { label: 'Entregue',    cls: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300',     dot: 'bg-emerald-400' },
+    PROVISION_FAILED: { label: '⚠ Falha',    cls: 'bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-400',            dot: 'bg-rose-500 animate-pulse' },
     REFUNDED:         { label: 'Reembolsado', cls: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',            dot: 'bg-gray-400' },
     EXPIRED:          { label: 'Expirado',    cls: 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400',            dot: 'bg-gray-300' },
   };
@@ -25,8 +25,8 @@ const StatusBadge: React.FC<{ status: ProvisioningStatus }> = ({ status }) => {
 const GroupBadge: React.FC<{ group: ServiceProvisioningGroup }> = ({ group }) => {
   const config: Record<ServiceProvisioningGroup, { icon: string; cls: string; label: string }> = {
     client:    { icon: '👤', label: 'Cliente',     cls: 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400' },
-    lawyer:    { icon: '⚖️', label: 'Advogado',    cls: 'bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400' },
-    intern:    { icon: '🎓', label: 'Bacharelando', cls: 'bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400' },
+    lawyer:    { icon: '⚖️', label: 'Advogado',    cls: 'bg-violet-100 text-violet-700 dark:bg-violet-900/20 dark:text-violet-400' },
+    intern:    { icon: '🎓', label: 'Bacharelando', cls: 'bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400' },
     secretary: { icon: '📋', label: 'Secretário',  cls: 'bg-teal-100 text-teal-700 dark:bg-teal-900/20 dark:text-teal-400' },
   };
   const c = config[group];
@@ -42,9 +42,9 @@ const KpiCard: React.FC<{
   label: string; value: string | number; icon: string;
   color: string; sub?: string; urgent?: boolean;
 }> = ({ label, value, icon, color, sub, urgent }) => (
-  <div className={`relative bg-white dark:bg-[#12102A] rounded-xl border ${urgent ? 'border-red-400 dark:border-red-600 shadow-red-100 dark:shadow-red-900/20 shadow-lg' : 'border-gray-200 dark:border-[#2A2545]'} p-4`}>
+  <div className={`relative bg-white dark:bg-[#12102A] rounded-xl border ${urgent ? 'border-rose-400 dark:border-rose-600 shadow-rose-100 dark:shadow-rose-900/20 shadow-lg' : 'border-gray-200 dark:border-[#2A2545]'} p-4`}>
     {urgent && (
-      <span className="absolute -top-2 -right-2 w-4 h-4 bg-red-500 rounded-full animate-ping" />
+      <span className="absolute -top-2 -right-2 w-4 h-4 bg-rose-500 rounded-full animate-ping" />
     )}
     <div className="flex items-start justify-between">
       <div>
@@ -106,7 +106,7 @@ const SimulatePaymentPanel: React.FC<{ onSimulated: () => void }> = ({ onSimulat
     <div className="bg-white dark:bg-[#12102A] rounded-xl border border-dashed border-gray-300 dark:border-[#2A2545] p-5">
       <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
         🧪 Simulador de Pagamento
-        <span className="text-xs bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 px-2 py-0.5 rounded-full font-normal">Modo Demo</span>
+        <span className="text-xs bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full font-normal">Modo Demo</span>
       </h3>
 
       <div className="flex flex-wrap gap-2 mb-4">
@@ -145,7 +145,7 @@ const SimulatePaymentPanel: React.FC<{ onSimulated: () => void }> = ({ onSimulat
       </div>
 
       {result && (
-        <p className={`text-xs mb-3 p-2 rounded-lg ${result.startsWith('✅') ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' : 'bg-red-50 dark:bg-red-900/20 text-red-600'}`}>
+        <p className={`text-xs mb-3 p-2 rounded-lg ${result.startsWith('✅') ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400' : 'bg-rose-50 dark:bg-rose-900/20 text-rose-600'}`}>
           {result}
         </p>
       )}
@@ -229,23 +229,23 @@ export const ProvisioningDashboard: React.FC = () => {
 
       {/* Alertas de Falha */}
       {failures.length > 0 && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-xl p-4">
+        <div className="bg-rose-50 dark:bg-rose-900/20 border border-rose-300 dark:border-rose-700 rounded-xl p-4">
           <div className="flex items-start gap-3">
             <span className="text-2xl">🚨</span>
             <div className="flex-1">
-              <p className="text-sm font-bold text-red-700 dark:text-red-400">
+              <p className="text-sm font-bold text-rose-700 dark:text-rose-400">
                 {failures.length} provisionamento{failures.length > 1 ? 's' : ''} com falha — ação requerida
               </p>
               <div className="mt-2 space-y-1">
                 {failures.slice(0, 3).map(f => (
                   <div key={f.id} className="flex items-center justify-between gap-2">
-                    <p className="text-xs text-red-600 dark:text-red-400 flex-1 truncate">
+                    <p className="text-xs text-rose-600 dark:text-rose-400 flex-1 truncate">
                       <strong>{f.userEmail}</strong> — {f.serviceTitle}: {f.errorMessage || 'Erro desconhecido'}
                     </p>
                     <button
                       onClick={() => handleRetry(f.id)}
                       disabled={retrying === f.id}
-                      className="text-xs px-2 py-1 bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white rounded transition flex-shrink-0"
+                      className="text-xs px-2 py-1 bg-rose-600 hover:bg-rose-700 disabled:opacity-60 text-white rounded transition flex-shrink-0"
                     >
                       {retrying === f.id ? '⏳' : '↺ Retry'}
                     </button>
@@ -260,9 +260,9 @@ export const ProvisioningDashboard: React.FC = () => {
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard label="Total Provisionamentos" value={kpis.total} icon="📦" color="text-gray-900 dark:text-white" />
-        <KpiCard label="Entregues" value={kpis.provisioned} icon="✅" color="text-green-600 dark:text-green-400"
+        <KpiCard label="Entregues" value={kpis.provisioned} icon="✅" color="text-emerald-600 dark:text-emerald-400"
           sub={`R$ ${kpis.totalRevenue.toFixed(2)} em receita`} />
-        <KpiCard label="Em Falha" value={kpis.failed} icon="❌" color="text-red-600 dark:text-red-400"
+        <KpiCard label="Em Falha" value={kpis.failed} icon="❌" color="text-rose-600 dark:text-rose-400"
           sub={`R$ ${kpis.failedRevenue.toFixed(2)} em risco`} urgent={kpis.failed > 0} />
         <KpiCard label="Processando" value={kpis.inProgress + kpis.pending} icon="⏳" color="text-blue-600 dark:text-blue-400" />
       </div>
@@ -334,7 +334,7 @@ export const ProvisioningDashboard: React.FC = () => {
             {detail.status === 'PROVISION_FAILED' && (
               <button
                 onClick={() => { handleRetry(detail.id); setDetail(null); }}
-                className="mt-4 w-full py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg transition"
+                className="mt-4 w-full py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold rounded-lg transition"
               >
                 ↺ Tentar Novamente
               </button>
@@ -366,7 +366,7 @@ export const ProvisioningDashboard: React.FC = () => {
                   </td>
                 </tr>
               ) : filtered.map(p => (
-                <tr key={p.id} className={`transition hover:bg-gray-50 dark:hover:bg-[#1A1730] cursor-pointer ${p.status === 'PROVISION_FAILED' ? 'bg-red-50/30 dark:bg-red-900/5' : ''}`}
+                <tr key={p.id} className={`transition hover:bg-gray-50 dark:hover:bg-[#1A1730] cursor-pointer ${p.status === 'PROVISION_FAILED' ? 'bg-rose-50/30 dark:bg-rose-900/5' : ''}`}
                   onClick={() => setDetail(p)}>
                   <td className="px-4 py-3">
                     <p className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-[200px]">{p.serviceTitle}</p>
@@ -386,13 +386,13 @@ export const ProvisioningDashboard: React.FC = () => {
                       <button
                         onClick={e => { e.stopPropagation(); handleRetry(p.id); }}
                         disabled={retrying === p.id}
-                        className="text-xs px-2 py-1 bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white rounded transition"
+                        className="text-xs px-2 py-1 bg-rose-600 hover:bg-rose-700 disabled:opacity-60 text-white rounded transition"
                       >
                         {retrying === p.id ? '⏳' : '↺ Retry'}
                       </button>
                     )}
                     {p.status === 'PROVISIONED' && (
-                      <span className="text-xs text-green-500">✓</span>
+                      <span className="text-xs text-emerald-500">✓</span>
                     )}
                   </td>
                 </tr>

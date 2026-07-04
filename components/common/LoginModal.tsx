@@ -32,7 +32,7 @@ const TEST_EMAIL  = 'teste@legisconnect.com.br';
 
 const roleConfig = {
   admin:  { label: '🛡️ Administrador', color: 'bg-primary/15 text-primary border-primary/30' },
-  lawyer: { label: '⚖️ Advogado',       color: 'bg-green-500/15 text-green-400 border-green-500/30' },
+  lawyer: { label: '⚖️ Advogado',       color: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30' },
   client: { label: '👤 Cliente',         color: 'bg-blue-500/15 text-blue-400 border-blue-500/30' },
   test:   { label: '🔑 Acesso de Teste', color: 'bg-amber-500/15 text-amber-400 border-amber-500/30' },
 };
@@ -257,7 +257,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
             <div className="space-y-5">
               {/* Header */}
               <div className="text-center mb-5">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-orange-500/20 border border-orange-500/30 text-xl mb-3">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-500/30 text-xl mb-3">
                   🔒
                 </div>
                 <h2 className="font-montserrat text-lg font-bold text-white mb-1">Recuperar Senha</h2>
@@ -269,7 +269,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               </div>
 
               {recoveryError && (
-                <div className="px-4 py-2.5 rounded-xl bg-red-500/10 border border-red-500/25 text-red-400 text-xs font-semibold">
+                <div className="px-4 py-2.5 rounded-xl bg-rose-500/10 border border-rose-500/25 text-rose-400 text-xs font-semibold">
                   ⚠️ {recoveryError}
                 </div>
               )}
@@ -288,13 +288,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                       onChange={e => setRecoveryEmail(e.target.value)}
                       placeholder="admin@legisconnect.com.br"
                       required
-                      className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 text-sm focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all"
+                      className="w-full px-4 py-3 rounded-xl input-on-dark text-sm focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
                     />
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-sm shadow hover:from-orange-600 hover:to-amber-600 transition-all hover:shadow-lg flex items-center justify-center gap-2"
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-violet-800 text-white font-bold text-sm shadow hover:from-violet-700 hover:to-violet-900 transition-all hover:shadow-lg flex items-center justify-center gap-2"
                   >
                     Prosseguir
                   </button>
@@ -305,8 +305,8 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               {recoveryStep === 'sent' && (
                 <div className="space-y-4">
                   {showSimulatedEmail && matchedUser && (
-                    <div className="p-4 bg-orange-500/5 border border-dashed border-orange-500/35 rounded-xl text-xs space-y-2 text-gray-300">
-                      <p className="font-bold text-orange-400">📬 [Simulação de Envio de E-mail]</p>
+                    <div className="p-4 bg-amber-500/5 border border-dashed border-amber-500/35 rounded-xl text-xs space-y-2 text-gray-300">
+                      <p className="font-bold text-amber-400">📬 [Simulação de Envio de E-mail]</p>
                       <p><strong>De:</strong> no-reply@legisconnect.com.br</p>
                       <p><strong>Para:</strong> {matchedUser.secondaryEmail}</p>
                       <hr className="border-white/10" />
@@ -329,13 +329,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                         onChange={e => setInputCode(e.target.value)}
                         placeholder="LC-8266"
                         required
-                        className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 text-sm focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all font-mono text-center tracking-widest"
+                        className="w-full px-4 py-3 rounded-xl input-on-dark text-sm focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all font-mono text-center tracking-widest"
                       />
                     </div>
 
                     <button
                       type="submit"
-                      className="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-sm shadow hover:from-orange-600 hover:to-amber-600 transition-all hover:shadow-lg flex items-center justify-center gap-2"
+                      className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-violet-800 text-white font-bold text-sm shadow hover:from-violet-700 hover:to-violet-900 transition-all hover:shadow-lg flex items-center justify-center gap-2"
                     >
                       Verificar Código
                     </button>
@@ -357,7 +357,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                       onChange={e => setRecNewPassword(e.target.value)}
                       placeholder="Mínimo 6 caracteres"
                       required
-                      className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 text-sm focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all"
+                      className="w-full px-4 py-3 rounded-xl input-on-dark text-sm focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
                     />
                   </div>
 
@@ -372,13 +372,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                       onChange={e => setRecConfirmNewPassword(e.target.value)}
                       placeholder="Repita a senha"
                       required
-                      className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 text-sm focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all"
+                      className="w-full px-4 py-3 rounded-xl input-on-dark text-sm focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
                     />
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold text-sm shadow hover:from-green-600 hover:to-emerald-700 transition-all hover:shadow-lg flex items-center justify-center gap-2"
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-violet-600 to-violet-800 text-white font-bold text-sm shadow hover:from-violet-700 hover:to-violet-900 transition-all hover:shadow-lg flex items-center justify-center gap-2"
                   >
                     Alterar Senha
                   </button>
@@ -430,7 +430,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                     placeholder="seu@email.com"
                     autoComplete="email"
                     required
-                    className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 text-sm focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all"
+                    className="w-full px-4 py-3 rounded-xl input-on-dark text-sm focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
                     style={{ colorScheme: 'dark' }}
                   />
                 </div>
@@ -450,7 +450,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                         placeholder="••••••••"
                         autoComplete="current-password"
                         required
-                        className="w-full px-4 py-3 pr-11 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 text-sm focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all"
+                        className="w-full px-4 py-3 pr-11 rounded-xl input-on-dark text-sm focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
                         style={{ colorScheme: 'dark' }}
                       />
                       <button
@@ -467,11 +467,11 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
                 {/* Error */}
                 {error && (
-                  <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/25 animate-fade-in">
-                    <svg className="w-4 h-4 text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-rose-500/10 border border-rose-500/25 animate-fade-in">
+                    <svg className="w-4 h-4 text-rose-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    <p className="text-sm text-red-400">{error}</p>
+                    <p className="text-sm text-rose-400">{error}</p>
                   </div>
                 )}
 
@@ -498,7 +498,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               </form>
 
               {/* Footer links */}
-              <div className="mt-6 pt-5 border-t border-white/6 flex items-center justify-between text-xs text-gray-500">
+              <div className="mt-6 pt-5 border-t border-white/5 flex items-center justify-between text-xs text-gray-500">
                 <span>
                   Não tem conta?{' '}
                   <button

@@ -115,7 +115,7 @@ const COLUMN_ORDER: KanbanColumn[] = ['todo', 'in_progress', 'review', 'done'];
 const TASK_TYPES: Record<TaskType, { label: string; color: string }> = {
   pesquisa:   { label: 'Pesquisa',   color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' },
   minuta:     { label: 'Minuta',     color: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300' },
-  peticao:    { label: 'Petição',    color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300' },
+  peticao:    { label: 'Petição',    color: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300' },
   recurso:    { label: 'Recurso',    color: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300' },
   diligencia: { label: 'Diligência', color: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300' },
   outro:      { label: 'Outro',      color: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300' },

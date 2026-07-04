@@ -91,12 +91,12 @@ export const CaseDescriptionForm: React.FC<CaseDescriptionFormProps> = ({
           rows={4}
           className="
             w-full px-4 py-3 rounded-xl
-            bg-white/6 border border-white/12
+            bg-white/5 border border-white/15
             text-white placeholder-white/35
             text-sm leading-relaxed
             resize-none
             transition-all duration-200
-            focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 focus:bg-white/8
+            focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 focus:bg-white/10
             hover:border-white/20
           "
           style={{ colorScheme: 'dark' }}
@@ -122,11 +122,11 @@ export const CaseDescriptionForm: React.FC<CaseDescriptionFormProps> = ({
             name="location"
             className="
               w-full px-4 py-3 pr-11 rounded-xl
-              bg-white/6 border border-white/12
+              bg-white/5 border border-white/15
               text-white placeholder-white/35
               text-sm
               transition-all duration-200
-              focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 focus:bg-white/8
+              focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 focus:bg-white/10
               hover:border-white/20
             "
             style={{ colorScheme: 'dark' }}
@@ -150,11 +150,11 @@ export const CaseDescriptionForm: React.FC<CaseDescriptionFormProps> = ({
 
       {/* Error */}
       {error && (
-        <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/25">
-          <svg className="w-4 h-4 text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-rose-500/10 border border-rose-500/25">
+          <svg className="w-4 h-4 text-rose-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
-          <p className="text-sm text-red-400">{error}</p>
+          <p className="text-sm text-rose-400">{error}</p>
         </div>
       )}
 

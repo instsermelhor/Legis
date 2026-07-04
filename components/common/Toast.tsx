@@ -80,7 +80,7 @@ const ICONS: Record<ToastType, string> = {
 
 const STYLES: Record<ToastType, string> = {
   success: 'bg-emerald-600 border-emerald-500',
-  error:   'bg-red-600 border-red-500',
+  error:   'bg-rose-600 border-rose-500',
   warning: 'bg-amber-500 border-amber-400',
   info:    'bg-blue-600 border-blue-500',
 };

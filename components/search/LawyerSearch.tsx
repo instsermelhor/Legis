@@ -121,7 +121,7 @@ export const LawyerSearch: React.FC<LawyerSearchProps> = ({ lawyers, onSelectLaw
   };
 
   return (
-    <div className="relative bg-neutral-light">
+    <div className="relative bg-gray-50 dark:bg-[#17142C]">
       <div className={`${showGate ? 'blur-sm pointer-events-none select-none' : ''} transition-all duration-300`}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {mapsResult && mapsResult.groundingChunks.length > 0 && (
@@ -196,12 +196,12 @@ export const LawyerSearch: React.FC<LawyerSearchProps> = ({ lawyers, onSelectLaw
                 Pesquisar
               </button>
             </div>
-            {geoError && <p className="text-red-600 text-sm mt-2">{geoError}</p>}
+            {geoError && <p className="text-rose-600 text-sm mt-2">{geoError}</p>}
           </div>
 
           {/* Results */}
           <div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-6">{processedLawyers.length} advogados encontrados</h3>
+            <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-6">{processedLawyers.length} advogados encontrados</h3>
             {paginatedLawyers.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

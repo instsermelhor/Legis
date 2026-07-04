@@ -35,7 +35,7 @@ export const LawyerInfoPopup: React.FC<LawyerInfoPopupProps> = ({ lawyer, messag
         <div className="bg-gradient-to-r from-primary to-primary/70 p-6 text-white text-center">
           <p className="text-3xl mb-2">🎉</p>
           <h2 className="text-lg font-bold leading-snug">{message}</h2>
-          <p className="text-xs text-white/80 mt-1">Veja abaixo as informações do profissional responsável</p>
+          <p className="text-xs text-white/100 mt-1">Veja abaixo as informações do profissional responsável</p>
         </div>
 
         <div className="p-6 space-y-4">
@@ -46,7 +46,7 @@ export const LawyerInfoPopup: React.FC<LawyerInfoPopupProps> = ({ lawyer, messag
               <p className="font-bold text-gray-900 text-base">{lawyer.name}</p>
               <p className="text-xs text-primary font-semibold">OAB {lawyer.oab}{lawyer.oabUF ? `/${lawyer.oabUF}` : ''}</p>
               {lawyer.status === 'verificado' && (
-                <span className="inline-flex items-center gap-1 text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold mt-0.5">
+                <span className="inline-flex items-center gap-1 text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-semibold mt-0.5">
                   ✓ Verificado
                 </span>
               )}
@@ -78,13 +78,13 @@ export const LawyerInfoPopup: React.FC<LawyerInfoPopupProps> = ({ lawyer, messag
 
           {/* Confirmation feedback */}
           {confirmed === 'accept' && (
-            <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-center">
-              <p className="text-sm font-bold text-green-700">✅ Proposta aceita! O advogado será notificado.</p>
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3 text-center">
+              <p className="text-sm font-bold text-emerald-700">✅ Proposta aceita! O advogado será notificado.</p>
             </div>
           )}
           {confirmed === 'reject' && (
-            <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-center">
-              <p className="text-sm font-bold text-red-700">❌ Proposta recusada. O advogado será notificado.</p>
+            <div className="bg-rose-50 border border-rose-200 rounded-xl px-4 py-3 text-center">
+              <p className="text-sm font-bold text-rose-700">❌ Proposta recusada. O advogado será notificado.</p>
             </div>
           )}
 
@@ -93,13 +93,13 @@ export const LawyerInfoPopup: React.FC<LawyerInfoPopupProps> = ({ lawyer, messag
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={handleReject}
-                className="py-2.5 text-sm font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-colors"
+                className="py-2.5 text-sm font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-xl hover:bg-rose-100 transition-colors"
               >
                 ✕ Recusar
               </button>
               <button
                 onClick={handleAccept}
-                className="py-2.5 text-sm font-semibold text-white bg-green-600 rounded-xl hover:bg-green-700 transition-colors"
+                className="py-2.5 text-sm font-semibold text-white bg-emerald-600 rounded-xl hover:bg-emerald-700 transition-colors"
               >
                 ✓ Aceitar
               </button>

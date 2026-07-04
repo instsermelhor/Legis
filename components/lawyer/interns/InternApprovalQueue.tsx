@@ -82,7 +82,7 @@ const TYPE_MAP: Record<SubmissionType, { label: string; color: string; icon: str
 const STATUS_MAP: Record<SubmissionStatus, { label: string; icon: string; badge: string }> = {
   pending_approval: { label: 'Aguardando Revisão', icon: '⏳', badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' },
   approved:         { label: 'Aprovado',            icon: '✅', badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' },
-  needs_revision:   { label: 'Solicitar Revisão',   icon: '🔄', badge: 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300' },
+  needs_revision:   { label: 'Solicitar Revisão',   icon: '🔄', badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' },
   rejected:         { label: 'Rejeitado',            icon: '❌', badge: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300' },
 };
 
@@ -336,7 +336,7 @@ export const InternApprovalQueue: React.FC<InternApprovalQueueProps> = ({ lawyer
             <div key={sub.id} className={`bg-white dark:bg-[#1A1730] border rounded-2xl p-5 shadow-sm transition-all hover:shadow-md ${
               sub.status === 'pending_approval' ? 'border-amber-200 dark:border-amber-900/40' :
               sub.status === 'approved' ? 'border-emerald-200 dark:border-emerald-900/40' :
-              sub.status === 'needs_revision' ? 'border-orange-200 dark:border-orange-900/40' :
+              sub.status === 'needs_revision' ? 'border-amber-200 dark:border-amber-900/40' :
               'border-rose-200 dark:border-rose-900/40 opacity-60'
             }`}>
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
@@ -393,7 +393,7 @@ export const InternApprovalQueue: React.FC<InternApprovalQueueProps> = ({ lawyer
                 {sub.status === 'needs_revision' && (
                   <button
                     onClick={() => setReviewing(sub)}
-                    className="px-4 py-2 bg-orange-500 text-white text-xs font-bold rounded-xl hover:bg-orange-600 transition-colors shadow-sm whitespace-nowrap shrink-0"
+                    className="px-4 py-2 bg-amber-500 text-white text-xs font-bold rounded-xl hover:bg-amber-600 transition-colors shadow-sm whitespace-nowrap shrink-0"
                   >
                     📝 Ver Detalhes
                   </button>

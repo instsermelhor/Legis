@@ -58,7 +58,7 @@ const AudioTranscriber: React.FC = () => {
   return (
     <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 space-y-4">
       <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-xl shrink-0">🎙️</div>
+        <div className="w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center text-xl shrink-0">🎙️</div>
         <div>
           <h4 className="text-sm font-bold text-gray-800 dark:text-white">Transcritor de Áudio para Texto</h4>
           <p className="text-xs text-gray-500 dark:text-gray-400">Faça upload de áudios do WhatsApp e gere atas estruturadas automaticamente</p>
@@ -67,33 +67,33 @@ const AudioTranscriber: React.FC = () => {
       <input ref={fileRef} type="file" accept=".mp3,.mp4,.ogg,.wav,.m4a,.opus" className="hidden" onChange={handleFile} />
       {!file ? (
         <button onClick={() => fileRef.current?.click()}
-          className="w-full border-2 border-dashed border-purple-200 dark:border-purple-900/40 rounded-xl py-6 text-center hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-colors">
+          className="w-full border-2 border-dashed border-violet-200 dark:border-violet-900/40 rounded-xl py-6 text-center hover:bg-violet-50 dark:hover:bg-violet-900/10 transition-colors">
           <p className="text-2xl mb-1">🎵</p>
           <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Clique para selecionar o áudio</p>
           <p className="text-xs text-gray-400 mt-0.5">MP3, OGG, WAV, M4A, OPUS (áudios do WhatsApp)</p>
         </button>
       ) : (
-        <div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-900/30 rounded-xl px-4 py-3">
+        <div className="flex items-center gap-3 bg-violet-50 dark:bg-violet-900/10 border border-violet-200 dark:border-violet-900/30 rounded-xl px-4 py-3">
           <span className="text-xl">🎵</span>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-gray-800 dark:text-white truncate">{file.name}</p>
             <p className="text-xs text-gray-400">{file.size}</p>
           </div>
-          <button onClick={() => { setFile(null); setTranscript(''); }} className="text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+          <button onClick={() => { setFile(null); setTranscript(''); }} className="text-rose-400 hover:text-rose-600 text-xs font-bold">✕</button>
         </div>
       )}
       {file && !transcript && (
         <button onClick={handleTranscribe} disabled={loading}
-          className="w-full py-3 text-sm font-bold text-white bg-purple-600 rounded-xl hover:bg-purple-700 disabled:opacity-60 transition-all flex items-center justify-center gap-2">
+          className="w-full py-3 text-sm font-bold text-white bg-violet-600 rounded-xl hover:bg-violet-700 disabled:opacity-60 transition-all flex items-center justify-center gap-2">
           {loading ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Transcrevendo...</> : '✨ Gerar Transcrição com IA'}
         </button>
       )}
       {transcript && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-green-600 dark:text-green-400">✅ Transcrição concluída</span>
+            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">✅ Transcrição concluída</span>
             <div className="flex gap-2">
-              <button onClick={handleCopy} className="px-3 py-1.5 text-[10px] font-bold text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors">
+              <button onClick={handleCopy} className="px-3 py-1.5 text-[10px] font-bold text-violet-600 border border-violet-200 rounded-lg hover:bg-violet-50 transition-colors">
                 {copied ? '✓ Copiado!' : '📋 Copiar'}
               </button>
               <button className="px-3 py-1.5 text-[10px] font-bold text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors">📤 Exportar</button>
@@ -188,7 +188,7 @@ const MessageGenerator: React.FC = () => {
   const handleGenerate = () => setMessage(getTemplate());
   const handleCopy = () => { navigator.clipboard.writeText(message); setCopied(true); setTimeout(() => setCopied(false), 2000); };
 
-  const inputCls = 'w-full border border-gray-300 dark:border-[#2A2545] rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white bg-white dark:bg-[#1A1730] focus:outline-none focus:ring-2 focus:ring-purple-400 dark:placeholder-gray-500';
+  const inputCls = 'w-full border border-gray-300 dark:border-[#2A2545] rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white bg-white dark:bg-[#1A1730] focus:outline-none focus:ring-2 focus:ring-violet-400 dark:placeholder-gray-500';
 
   return (
     <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 space-y-4">
@@ -246,7 +246,7 @@ const MessageGenerator: React.FC = () => {
       <div className="flex gap-2">
         {(['whatsapp', 'email'] as const).map(ch => (
           <button key={ch} onClick={() => setChannel(ch)}
-            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${channel === ch ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 border border-purple-300 dark:border-purple-700' : 'border border-gray-200 dark:border-[#2A2545] text-gray-500'}`}>
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${channel === ch ? 'bg-violet-100 dark:bg-violet-900/20 text-violet-700 dark:text-violet-400 border border-violet-300 dark:border-violet-700' : 'border border-gray-200 dark:border-[#2A2545] text-gray-500'}`}>
             {ch === 'whatsapp' ? '💬 WhatsApp' : '📧 E-mail'}
           </button>
         ))}
@@ -260,13 +260,13 @@ const MessageGenerator: React.FC = () => {
       {message && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-green-600 dark:text-green-400">✅ Mensagem gerada</span>
-            <button onClick={handleCopy} className="px-3 py-1.5 text-[10px] font-bold text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors">
+            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">✅ Mensagem gerada</span>
+            <button onClick={handleCopy} className="px-3 py-1.5 text-[10px] font-bold text-violet-600 border border-violet-200 rounded-lg hover:bg-violet-50 transition-colors">
               {copied ? '✓ Copiado!' : '📋 Copiar'}
             </button>
           </div>
           <textarea value={message} onChange={e => setMessage(e.target.value)} rows={8}
-            className="w-full border border-gray-200 dark:border-[#2A2545] rounded-xl px-4 py-3 text-xs text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-black/20 focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none" />
+            className="w-full border border-gray-200 dark:border-[#2A2545] rounded-xl px-4 py-3 text-xs text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-black/20 focus:outline-none focus:ring-2 focus:ring-violet-400 resize-none" />
           <p className="text-[10px] text-gray-400">Edite o texto acima antes de enviar. Mensagem adaptada para {channel === 'whatsapp' ? 'WhatsApp' : 'e-mail formal'}.</p>
         </div>
       )}
@@ -340,7 +340,7 @@ const OcrParser: React.FC = () => {
             <p className="text-xs font-bold text-gray-800 dark:text-white truncate">{file.name}</p>
             <p className="text-[10px] text-gray-400">{file.type} · {file.size}</p>
           </div>
-          <button onClick={() => { setFile(null); setResult(null); }} className="text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+          <button onClick={() => { setFile(null); setResult(null); }} className="text-rose-400 hover:text-rose-600 text-xs font-bold">✕</button>
         </div>
       )}
 
@@ -354,8 +354,8 @@ const OcrParser: React.FC = () => {
       {result && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-green-600 dark:text-green-400">✅ Dados extraídos</span>
-            <button onClick={handleCopyAll} className="px-3 py-1.5 text-[10px] font-bold text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors">
+            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">✅ Dados extraídos</span>
+            <button onClick={handleCopyAll} className="px-3 py-1.5 text-[10px] font-bold text-violet-600 border border-violet-200 rounded-lg hover:bg-violet-50 transition-colors">
               {copied ? '✓ Copiado!' : '📋 Copiar Tudo'}
             </button>
           </div>
@@ -367,7 +367,7 @@ const OcrParser: React.FC = () => {
               </div>
             ))}
           </div>
-          <button className="w-full py-2 text-xs font-bold text-white bg-purple-600 rounded-xl hover:bg-purple-700 transition-colors">
+          <button className="w-full py-2 text-xs font-bold text-white bg-violet-600 rounded-xl hover:bg-violet-700 transition-colors">
             📋 Preencher Cadastro Automaticamente
           </button>
         </div>

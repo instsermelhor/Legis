@@ -90,7 +90,7 @@ const STATUS_META: Record<ConnectorStatus, { label: string; color: string; dot: 
   connected:    { label: 'Conectado',     color: 'bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-900/40', dot: 'bg-emerald-500', icon: '✅' },
   pending:      { label: 'Pendente',      color: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-900/40',       dot: 'bg-amber-500',    icon: '⏳' },
   disconnected: { label: 'Desconectado', color: 'bg-gray-100 text-gray-500 border-gray-200 dark:bg-gray-800/30 dark:text-gray-500 dark:border-gray-700',                dot: 'bg-gray-300',     icon: '⭕' },
-  error:        { label: 'Erro',          color: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-900/40',                    dot: 'bg-red-500',      icon: '❌' },
+  error:        { label: 'Erro',          color: 'bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:border-rose-900/40',                    dot: 'bg-rose-500',      icon: '❌' },
 };
 
 const TRIBUNAL_TIPO_MAP = {
@@ -126,7 +126,7 @@ export const InternApis: React.FC = () => {
   return (
     <div className="space-y-5 animate-fade-in">
       {/* Stats Banner */}
-      <div className="bg-gradient-to-r from-indigo-500 to-violet-600 rounded-2xl p-5 text-white">
+      <div className="bg-gradient-to-r from-violet-500 to-violet-700 rounded-2xl p-5 text-white">
         <h4 className="text-sm font-bold mb-1">🔌 Central de Integrações</h4>
         <p className="text-xs text-white/70 mb-3">Conecte sua conta a sistemas universitários e tribunais para sincronizar dados automaticamente.</p>
         <div className="flex gap-5">

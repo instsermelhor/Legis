@@ -199,8 +199,11 @@
         --space-3: 24px;
         --space-4: 32px;
         --space-6: 48px;
-        color-scheme: light dark;
+        /* Controles nativos (date picker, select, scrollbar) seguem o tema
+           do SITE (classe .dark), nunca o tema do sistema operacional. */
+        color-scheme: light;
       }
+      html.dark { color-scheme: dark; }
 
       /* ── Typography scale ───────────────────────────── */
       h1, h2 { font-family: 'Montserrat', sans-serif; font-weight: 700; }
@@ -440,10 +443,69 @@
       }
       html.dark label { color: #C8C5F0 !important; }
       html.dark .bg-white { background-color: #1A1730 !important; }
-      html.dark .bg-gray-50  { background-color: #17142C !important; }
-      html.dark .bg-gray-100 { background-color: #1F1C36 !important; }
-      html.dark .border-gray-200 { border-color: #2A2545 !important; }
-      html.dark .border-gray-300 { border-color: #332E55 !important; }
+      html.dark .bg-gray-50,  html.dark .bg-slate-50  { background-color: #17142C !important; }
+      html.dark .bg-gray-100, html.dark .bg-slate-100 { background-color: #1F1C36 !important; }
+      html.dark .bg-gray-200, html.dark .bg-slate-200 { background-color: #262244 !important; }
+      html.dark .border-gray-100, html.dark .border-slate-100 { border-color: #232043 !important; }
+      html.dark .border-gray-200, html.dark .border-slate-200 { border-color: #2A2545 !important; }
+      html.dark .border-gray-300, html.dark .border-slate-300 { border-color: #332E55 !important; }
+
+      /* ── Legibilidade de texto no dark mode ─────────────────────────
+         Garante contraste para classes de texto claras que não têm
+         variante dark: — corrige "texto invisível" em todos os painéis. */
+      html.dark .text-gray-900, html.dark .text-slate-900,
+      html.dark .text-gray-800, html.dark .text-slate-800 { color: #EFEDFB !important; }
+      html.dark .text-gray-700, html.dark .text-slate-700 { color: #DAD7EF !important; }
+      html.dark .text-gray-600, html.dark .text-slate-600 { color: #B9B5D8 !important; }
+      html.dark .text-gray-500, html.dark .text-slate-500 { color: #948FBB !important; }
+
+      /* Hovers claros que ficavam "acesos" no dark mode */
+      html.dark .hover\:bg-gray-50:hover,
+      html.dark .hover\:bg-gray-100:hover,
+      html.dark .hover\:bg-gray-200:hover,
+      html.dark .hover\:bg-slate-50:hover,
+      html.dark .hover\:bg-slate-100:hover { background-color: #232043 !important; }
+      html.dark .hover\:bg-white:hover { background-color: #211E3A !important; }
+
+      /* ── Inputs sobre superfícies escuras (login, painéis premium) ──
+         Independe do tema do site: o painel é sempre escuro, então o
+         input DEVE ser escuro — inclusive quando o navegador faz autofill. */
+      .input-on-dark {
+        background-color: rgba(255,255,255,0.05) !important;
+        border: 1px solid rgba(255,255,255,0.15) !important;
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+        caret-color: #A855F7 !important;
+      }
+      .input-on-dark::placeholder {
+        color: rgba(255,255,255,0.40) !important;
+        -webkit-text-fill-color: rgba(255,255,255,0.40) !important;
+        opacity: 1 !important;
+      }
+      .input-on-dark:focus {
+        border-color: rgba(124,58,237,0.60) !important;
+        box-shadow: 0 0 0 3px rgba(124,58,237,0.22) !important;
+        outline: none !important;
+      }
+      .input-on-dark:-webkit-autofill,
+      .input-on-dark:-webkit-autofill:hover,
+      .input-on-dark:-webkit-autofill:focus,
+      .input-on-dark:-webkit-autofill:active {
+        -webkit-text-fill-color: #FFFFFF !important;
+        -webkit-box-shadow: 0 0 0 1000px #221E3F inset !important;
+        box-shadow: 0 0 0 1000px #221E3F inset !important;
+        caret-color: #A855F7 !important;
+        transition: background-color 9999s ease-in-out 0s !important;
+      }
+
+      /* Autofill no tema claro (inputs padrão) — mantém texto legível */
+      html:not(.dark) input:-webkit-autofill,
+      html:not(.dark) input:-webkit-autofill:hover,
+      html:not(.dark) input:-webkit-autofill:focus {
+        -webkit-text-fill-color: #111827 !important;
+        -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+        box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+      }
     </style>
   </head>
   <body class="bg-white text-gray-900">

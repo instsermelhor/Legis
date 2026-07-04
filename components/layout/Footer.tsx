@@ -96,12 +96,12 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onShowTerms, onShowP
               <div className="space-y-1 pt-1">
                 {config.contactEmail && (
                   <p className="text-sm text-gray-500 flex items-center gap-2">
-                    <span className="text-primary/60">✉</span> {config.contactEmail}
+                    <span className="text-primary/50">✉</span> {config.contactEmail}
                   </p>
                 )}
                 {config.contactPhone && (
                   <p className="text-sm text-gray-500 flex items-center gap-2">
-                    <span className="text-primary/60">📞</span> {config.contactPhone}
+                    <span className="text-primary/50">📞</span> {config.contactPhone}
                   </p>
                 )}
               </div>
@@ -150,7 +150,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onShowTerms, onShowP
         </div>
 
         {/* ── Bottom bar ──────────────────────────────────────────────── */}
-        <div className="mt-14 pt-8 border-t border-white/6 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-14 pt-8 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-gray-600 text-xs">
             {config.footerText || `© ${new Date().getFullYear()} LEGIS CONNECT. Todos os direitos reservados.`}
           </p>

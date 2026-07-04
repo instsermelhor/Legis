@@ -60,14 +60,14 @@ const MOCK_LINKS: AutoRegLink[] = [
 ];
 
 const CHANNEL_META = {
-  whatsapp: { icon: '💬', label: 'WhatsApp', color: 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400' },
+  whatsapp: { icon: '💬', label: 'WhatsApp', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400' },
   email:    { icon: '📧', label: 'E-mail',   color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400' },
   sms:      { icon: '📱', label: 'SMS',      color: 'bg-violet-100 text-violet-700 dark:bg-violet-900/20 dark:text-violet-400' },
 };
 
 const STATUS_LOG = {
-  enviado:  'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400',
-  falhou:   'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400',
+  enviado:  'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400',
+  falhou:   'bg-rose-100 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400',
   pendente: 'bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400',
 };
 
@@ -93,7 +93,7 @@ const NotificationRulesSection: React.FC = () => {
     }, 800);
   };
 
-  const inputCls = 'w-full border border-gray-300 dark:border-[#2A2545] rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white bg-white dark:bg-[#1A1730] focus:outline-none focus:ring-2 focus:ring-purple-400 dark:placeholder-gray-500';
+  const inputCls = 'w-full border border-gray-300 dark:border-[#2A2545] rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white bg-white dark:bg-[#1A1730] focus:outline-none focus:ring-2 focus:ring-violet-400 dark:placeholder-gray-500';
 
   const activeCount = rules.filter(r => r.active).length;
 
@@ -103,20 +103,20 @@ const NotificationRulesSection: React.FC = () => {
         <div>
           <h4 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-2">
             🔔 Régua de Notificação Automática
-            <span className="text-[9px] font-black px-2 py-0.5 bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-full">{activeCount} ativa(s)</span>
+            <span className="text-[9px] font-black px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-full">{activeCount} ativa(s)</span>
           </h4>
           <p className="text-[11px] text-gray-500 dark:text-gray-400">Configure disparos automáticos de lembretes para os clientes</p>
         </div>
         <button onClick={() => setShowNew(!showNew)}
-          className="px-3 py-2 text-xs font-bold text-white bg-purple-600 rounded-xl hover:bg-purple-700 transition-colors">
+          className="px-3 py-2 text-xs font-bold text-white bg-violet-600 rounded-xl hover:bg-violet-700 transition-colors">
           ➕ Nova Regra
         </button>
       </div>
 
       {/* New rule form */}
       {showNew && (
-        <div className="bg-purple-50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-900/30 rounded-2xl p-4 space-y-3">
-          <p className="text-xs font-bold text-purple-700 dark:text-purple-400">Nova Regra de Notificação</p>
+        <div className="bg-violet-50 dark:bg-violet-900/10 border border-violet-200 dark:border-violet-900/30 rounded-2xl p-4 space-y-3">
+          <p className="text-xs font-bold text-violet-700 dark:text-violet-400">Nova Regra de Notificação</p>
           <div>
             <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Nome da Regra</label>
             <input value={newRule.name} onChange={e => setNewRule(r => ({ ...r, name: e.target.value }))} placeholder="Ex: Lembrete de Consulta 12h antes" className={inputCls} />
@@ -147,11 +147,11 @@ const NotificationRulesSection: React.FC = () => {
               rows={3} placeholder="Use {cliente}, {data}, {hora}, {advogado} como variáveis..." className={inputCls} />
             <p className="text-[9px] text-gray-400 mt-1">Variáveis: {'{cliente}'}, {'{data}'}, {'{hora}'}, {'{advogado}'}, {'{local}'}</p>
           </div>
-          {saved && <div className="bg-green-50 border border-green-200 text-green-700 text-xs font-semibold rounded-xl px-3 py-2">✅ Regra criada com sucesso!</div>}
+          {saved && <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold rounded-xl px-3 py-2">✅ Regra criada com sucesso!</div>}
           <div className="flex gap-2">
             <button onClick={() => setShowNew(false)} className="flex-1 py-2 text-xs font-bold text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50">Cancelar</button>
             <button onClick={handleSaveNew} disabled={!newRule.name.trim() || !newRule.template.trim() || saved}
-              className="flex-1 py-2 text-xs font-bold text-white bg-purple-600 rounded-xl hover:bg-purple-700 disabled:opacity-50 transition-all">
+              className="flex-1 py-2 text-xs font-bold text-white bg-violet-600 rounded-xl hover:bg-violet-700 disabled:opacity-50 transition-all">
               {saved ? '✅ Salvo!' : '💾 Salvar Regra'}
             </button>
           </div>
@@ -164,11 +164,11 @@ const NotificationRulesSection: React.FC = () => {
           const ch = CHANNEL_META[rule.channel];
           const isExpanded = expandedId === rule.id;
           return (
-            <div key={rule.id} className={`border rounded-2xl transition-all overflow-hidden ${rule.active ? 'border-green-200 dark:border-green-900/30' : 'border-gray-200 dark:border-[#2A2545] opacity-60'}`}>
+            <div key={rule.id} className={`border rounded-2xl transition-all overflow-hidden ${rule.active ? 'border-emerald-200 dark:border-emerald-900/30' : 'border-gray-200 dark:border-[#2A2545] opacity-60'}`}>
               <div className="flex items-center gap-3 p-4">
                 <button
                   onClick={() => toggleRule(rule.id)}
-                  className={`relative w-10 h-6 rounded-full transition-all shrink-0 ${rule.active ? 'bg-green-500' : 'bg-gray-300 dark:bg-gray-600'}`}>
+                  className={`relative w-10 h-6 rounded-full transition-all shrink-0 ${rule.active ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-600'}`}>
                   <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${rule.active ? 'translate-x-4' : ''}`} />
                 </button>
                 <div className="flex-1 min-w-0">
@@ -186,7 +186,7 @@ const NotificationRulesSection: React.FC = () => {
                 <div className="border-t border-gray-100 dark:border-[#2A2545] px-4 pb-4 pt-3">
                   <p className="text-[10px] font-bold text-gray-500 uppercase mb-1.5">Template</p>
                   <p className="text-xs text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-black/20 rounded-xl p-3 font-mono">{rule.template}</p>
-                  <button className="mt-3 px-3 py-1.5 text-[10px] font-bold text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors">✏️ Editar Template</button>
+                  <button className="mt-3 px-3 py-1.5 text-[10px] font-bold text-violet-600 border border-violet-200 rounded-lg hover:bg-violet-50 transition-colors">✏️ Editar Template</button>
                 </div>
               )}
             </div>
@@ -234,7 +234,7 @@ const AutoRegLinkSection: React.FC = () => {
   };
 
   const STATUS_LINK = {
-    ativo:    'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-900/30',
+    ativo:    'bg-emerald-100 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/30',
     usado:    'bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-900/30',
     expirado: 'bg-gray-100 dark:bg-black/20 text-gray-500 border-gray-200 dark:border-[#2A2545]',
   };
@@ -247,12 +247,12 @@ const AutoRegLinkSection: React.FC = () => {
       </div>
 
       {/* Generate button */}
-      <div className="bg-gradient-to-r from-purple-500 to-indigo-600 rounded-2xl p-5 text-white">
+      <div className="bg-gradient-to-r from-violet-500 to-violet-700 rounded-2xl p-5 text-white">
         <p className="text-sm font-bold mb-1">Novo Link de Triagem</p>
-        <p className="text-xs text-white/80 mb-4">O cliente preenche nome, contato, área de interesse e breve descrição do caso. Validade: 7 dias.</p>
+        <p className="text-xs text-white/100 mb-4">O cliente preenche nome, contato, área de interesse e breve descrição do caso. Validade: 7 dias.</p>
         <button onClick={generateLink} disabled={generating}
-          className="bg-white text-purple-700 font-bold text-sm px-6 py-3 rounded-xl hover:bg-purple-50 transition-all disabled:opacity-60 flex items-center gap-2">
-          {generating ? <><span className="w-4 h-4 border-2 border-purple-300 border-t-purple-700 rounded-full animate-spin" />Gerando...</> : '🔗 Gerar Link Agora'}
+          className="bg-white text-violet-700 font-bold text-sm px-6 py-3 rounded-xl hover:bg-violet-50 transition-all disabled:opacity-60 flex items-center gap-2">
+          {generating ? <><span className="w-4 h-4 border-2 border-violet-300 border-t-violet-700 rounded-full animate-spin" />Gerando...</> : '🔗 Gerar Link Agora'}
         </button>
       </div>
 
@@ -276,11 +276,11 @@ const AutoRegLinkSection: React.FC = () => {
               {link.status === 'ativo' && (
                 <div className="flex flex-col gap-1.5 shrink-0">
                   <button onClick={() => copyLink(link.token, link.id)}
-                    className="px-2.5 py-1.5 text-[10px] font-bold text-purple-600 bg-white dark:bg-black/20 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors whitespace-nowrap">
+                    className="px-2.5 py-1.5 text-[10px] font-bold text-violet-600 bg-white dark:bg-black/20 border border-violet-200 rounded-lg hover:bg-violet-50 transition-colors whitespace-nowrap">
                     {copiedId === link.id ? '✓ Copiado!' : '📋 Copiar'}
                   </button>
                   <button onClick={() => shareWhatsApp(link.token)}
-                    className="px-2.5 py-1.5 text-[10px] font-bold text-white bg-[#25D366] rounded-lg hover:bg-green-600 transition-colors whitespace-nowrap">
+                    className="px-2.5 py-1.5 text-[10px] font-bold text-white bg-[#25D366] rounded-lg hover:bg-emerald-600 transition-colors whitespace-nowrap">
                     💬 WhatsApp
                   </button>
                 </div>
@@ -305,12 +305,12 @@ const DispatchHistory: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h4 className="text-sm font-bold text-gray-800 dark:text-white">📊 Histórico de Disparos</h4>
-          {failedCount > 0 && <p className="text-[10px] text-red-500">{failedCount} disparo(s) com falha</p>}
+          {failedCount > 0 && <p className="text-[10px] text-rose-500">{failedCount} disparo(s) com falha</p>}
         </div>
         <div className="flex gap-1.5">
           {(['todos', 'enviado', 'pendente', 'falhou'] as const).map(f => (
             <button key={f} onClick={() => setFilter(f)}
-              className={`px-2.5 py-1 text-[10px] font-bold rounded-lg transition-all ${filter === f ? 'bg-purple-600 text-white' : 'bg-gray-100 dark:bg-black/20 text-gray-500 hover:bg-gray-200'}`}>
+              className={`px-2.5 py-1 text-[10px] font-bold rounded-lg transition-all ${filter === f ? 'bg-violet-600 text-white' : 'bg-gray-100 dark:bg-black/20 text-gray-500 hover:bg-gray-200'}`}>
               {f.charAt(0).toUpperCase() + f.slice(1)}
             </button>
           ))}
@@ -331,7 +331,7 @@ const DispatchHistory: React.FC = () => {
                 {log.status === 'enviado' ? '✓ Enviado' : log.status === 'falhou' ? '✕ Falha' : '⏳ Pendente'}
               </span>
               {log.status === 'falhou' && (
-                <button className="shrink-0 px-2 py-1 text-[9px] font-bold text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors whitespace-nowrap">
+                <button className="shrink-0 px-2 py-1 text-[9px] font-bold text-white bg-rose-500 rounded-lg hover:bg-rose-600 transition-colors whitespace-nowrap">
                   ↺ Reenviar
                 </button>
               )}

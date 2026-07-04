@@ -88,7 +88,7 @@ const ANDAMENTO_TYPE_MAP: Record<AndamentoType, { icon: string; color: string; b
   audiencia:   { icon: '⚖️', color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-100 dark:bg-rose-900/30 border-rose-200 dark:border-rose-900/40' },
   peticao:     { icon: '📄', color: 'text-violet-600 dark:text-violet-400', bg: 'bg-violet-100 dark:bg-violet-900/30 border-violet-200 dark:border-violet-900/40' },
   sentenca:    { icon: '🏛️', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-100 dark:bg-blue-900/30 border-blue-200 dark:border-blue-900/40' },
-  recurso:     { icon: '↩️', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-100 dark:bg-orange-900/30 border-orange-200 dark:border-orange-900/40' },
+  recurso:     { icon: '↩️', color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-100 dark:bg-amber-900/30 border-amber-200 dark:border-amber-900/40' },
   doc:         { icon: '📎', color: 'text-teal-600 dark:text-teal-400', bg: 'bg-teal-100 dark:bg-teal-900/30 border-teal-200 dark:border-teal-900/40' },
   prazo:       { icon: '⏰', color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-100 dark:bg-amber-900/30 border-amber-200 dark:border-amber-900/40' },
   publicacao:  { icon: '📰', color: 'text-indigo-600 dark:text-indigo-400', bg: 'bg-indigo-100 dark:bg-indigo-900/30 border-indigo-200 dark:border-indigo-900/40' },

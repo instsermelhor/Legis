@@ -63,7 +63,7 @@ const DocUploadModal: React.FC<DocUploadModalProps> = ({ onClose, onConfirm }) =
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between p-5 border-b">
           <div>
             <h2 className="text-base font-bold text-gray-800">📎 Upload de Documento</h2>
@@ -76,14 +76,14 @@ const DocUploadModal: React.FC<DocUploadModalProps> = ({ onClose, onConfirm }) =
           <div>
             <label className="block text-xs font-bold text-gray-600 uppercase mb-2">1. Tipo de Documento *</label>
             <select value={docType} onChange={e => setDocType(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
               <option value="">Selecione o tipo...</option>
               {ADMIN_DOC_TYPES.map(t => <option key={t}>{t}</option>)}
             </select>
             {docType === 'Outro' && (
               <input value={customDocType} onChange={e => setCustomDocType(e.target.value)}
                 placeholder="Descreva o tipo de documento"
-                className="mt-2 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                className="mt-2 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
             )}
           </div>
           {/* Step 2 */}
@@ -104,14 +104,14 @@ const DocUploadModal: React.FC<DocUploadModalProps> = ({ onClose, onConfirm }) =
                   <p className="text-sm font-semibold text-gray-800 truncate">{pendingFile.name}</p>
                   <p className="text-xs text-gray-400">{pendingFile.fileType} · {pendingFile.size}</p>
                 </div>
-                <button onClick={() => setPendingFile(null)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+                <button onClick={() => setPendingFile(null)} className="shrink-0 text-rose-400 hover:text-rose-600 text-xs font-bold">✕</button>
               </div>
             )}
           </div>
-          {sent && <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-2 text-green-800 text-sm font-semibold">✅ Documento enviado com sucesso!</div>}
+          {sent && <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2 text-emerald-800 text-sm font-semibold">✅ Documento enviado com sucesso!</div>}
         </div>
         <div className="flex gap-3 px-5 py-4 border-t bg-gray-50 rounded-b-2xl">
-          <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">Cancelar</button>
+          <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">Cancelar</button>
           <button onClick={handleSend} disabled={!canSend || sent}
             className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
             {sent ? '✅ Enviado!' : '📤 Confirmar Envio'}
@@ -136,7 +136,7 @@ const AdminDocUploadPanel: React.FC = () => {
           <p className="text-xs text-blue-600 mt-0.5">Adicione documentos vinculados a este cadastro (PDF, JPG, JPEG, PNG)</p>
         </div>
         <button onClick={() => setShowModal(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-700 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors shrink-0 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-700 bg-white border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors shrink-0 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
           ➕ Adicionar
         </button>
       </div>
@@ -151,7 +151,7 @@ const AdminDocUploadPanel: React.FC = () => {
       ) : (
         <div className="space-y-2">
           {docs.map((d, i) => (
-            <div key={i} className="flex items-center justify-between bg-white border border-blue-100 rounded-xl px-4 py-2.5 gap-3 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+            <div key={i} className="flex items-center justify-between bg-white border border-blue-100 rounded-xl px-4 py-2.5 gap-3 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
               <div className="flex items-center gap-3 min-w-0">
                 <span className="text-lg shrink-0">{d.fileType === 'PDF' ? '📄' : '🖼️'}</span>
                 <div className="min-w-0">
@@ -160,7 +160,7 @@ const AdminDocUploadPanel: React.FC = () => {
                 </div>
               </div>
               <span className="shrink-0 px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-full whitespace-nowrap">{d.docType}</span>
-              <button onClick={() => setDocs(prev => prev.filter((_, idx) => idx !== i))} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold ml-1">✕</button>
+              <button onClick={() => setDocs(prev => prev.filter((_, idx) => idx !== i))} className="shrink-0 text-rose-400 hover:text-rose-600 text-xs font-bold ml-1">✕</button>
             </div>
           ))}
           <button onClick={() => setShowModal(true)} className="text-xs text-blue-600 hover:underline font-semibold py-1">+ Adicionar mais documentos</button>
@@ -182,7 +182,7 @@ const AdminDocUploadPanel: React.FC = () => {
 const FieldRow: React.FC<{ label: string; value: string; onChange: (v: string) => void; type?: string }> = ({ label, value, onChange, type = 'text' }) => (
   <div>
     <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">{label}</label>
-    <input type={type} value={value} onChange={e => onChange(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+    <input type={type} value={value} onChange={e => onChange(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
   </div>
 );
 
@@ -203,14 +203,14 @@ const ResetPasswordButton: React.FC<{ email: string; name: string }> = ({ email,
 
   if (confirm) {
     return (
-      <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 space-y-3">
-        <p className="text-sm font-semibold text-orange-800">⚠️ Confirmar Reset de Senha</p>
-        <p className="text-xs text-orange-700">
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3">
+        <p className="text-sm font-semibold text-amber-800">⚠️ Confirmar Reset de Senha</p>
+        <p className="text-xs text-amber-700">
           Será enviado um link de redefinição para:<br />
           <strong>{email}</strong> ({name})
         </p>
         <div className="flex gap-2">
-          <button onClick={() => { setSent(true); setConfirm(false); setTimeout(() => setSent(false), 5000); }} className="px-4 py-2 text-xs font-semibold text-white bg-orange-600 rounded-lg hover:bg-orange-700">✉️ Confirmar Envio</button>
+          <button onClick={() => { setSent(true); setConfirm(false); setTimeout(() => setSent(false), 5000); }} className="px-4 py-2 text-xs font-semibold text-white bg-amber-600 rounded-lg hover:bg-amber-700">✉️ Confirmar Envio</button>
           <button onClick={() => setConfirm(false)} className="px-4 py-2 text-xs font-semibold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">Cancelar</button>
         </div>
       </div>
@@ -219,8 +219,8 @@ const ResetPasswordButton: React.FC<{ email: string; name: string }> = ({ email,
 
   return (
     <div className="space-y-2">
-      {sent && <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2 font-semibold">✅ Link enviado para {email}</div>}
-      <button onClick={() => setConfirm(true)} className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-orange-700 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors">
+      {sent && <div className="flex items-center gap-2 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2 font-semibold">✅ Link enviado para {email}</div>}
+      <button onClick={() => setConfirm(true)} className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors">
         🔑 Resetar Senha (enviar link por e-mail)
       </button>
     </div>
@@ -230,7 +230,7 @@ const ResetPasswordButton: React.FC<{ email: string; name: string }> = ({ email,
 // ─── Status badges ────────────────────────────────────────────────────────────
 
 const secretaryStatusBadge = (status: MockSecretary['status']) => {
-  const map: Record<MockSecretary['status'], string> = { ativo: 'bg-green-100 text-green-700', pendente: 'bg-yellow-100 text-yellow-700', inativo: 'bg-red-100 text-red-700' };
+  const map: Record<MockSecretary['status'], string> = { ativo: 'bg-emerald-100 text-emerald-700', pendente: 'bg-yellow-100 text-yellow-700', inativo: 'bg-rose-100 text-rose-700' };
   return <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${map[status]}`}>{status}</span>;
 };
 
@@ -290,7 +290,7 @@ const LawyerEditor: React.FC<{ lawyer: Lawyer; onSave: (l: Lawyer) => void; onBa
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 max-w-2xl space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 max-w-2xl space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
       <button onClick={onBack} className="text-sm text-primary hover:underline">← Voltar</button>
       <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2"><IconEdit /> Editar Advogado</h2>
 
@@ -311,7 +311,7 @@ const LawyerEditor: React.FC<{ lawyer: Lawyer; onSave: (l: Lawyer) => void; onBa
 
       <div>
         <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Bio Profissional</label>
-        <textarea value={data.bio} onChange={e => setData(d => ({ ...d, bio: e.target.value }))} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+        <textarea value={data.bio} onChange={e => setData(d => ({ ...d, bio: e.target.value }))} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
       </div>
 
       {/* Redes Sociais */}
@@ -386,11 +386,11 @@ const LawyerEditor: React.FC<{ lawyer: Lawyer; onSave: (l: Lawyer) => void; onBa
       {/* Admin Notes */}
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
         <label className="block text-xs font-bold text-amber-700 uppercase tracking-wider">📋 Informações Adicionais do Administrador</label>
-        <textarea value={data.adminNotes} onChange={e => setData(d => ({ ...d, adminNotes: e.target.value }))} rows={3} placeholder="Notas internas, observações administrativas, histórico..." className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+        <textarea value={data.adminNotes} onChange={e => setData(d => ({ ...d, adminNotes: e.target.value }))} rows={3} placeholder="Notas internas, observações administrativas, histórico..." className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
       </div>
 
       {/* Password Reset */}
-      <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+      <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
         <p className="text-xs font-bold text-gray-600 uppercase tracking-wider">🔐 Gestão de Acesso</p>
         <ResetPasswordButton email={data.contact.email} name={data.name} />
       </div>
@@ -464,7 +464,7 @@ const ClientEditor: React.FC<{ client: MockClient; onSave: (c: MockClient) => vo
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 max-w-2xl space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 max-w-2xl space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
       <button onClick={onBack} className="text-sm text-primary hover:underline">← Voltar</button>
       <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2"><IconEdit /> Editar Cliente</h2>
 
@@ -482,7 +482,7 @@ const ClientEditor: React.FC<{ client: MockClient; onSave: (c: MockClient) => vo
 
       <div>
         <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Observações do Cadastro</label>
-        <textarea value={data.notes || ''} onChange={e => setData(d => ({ ...d, notes: e.target.value }))} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+        <textarea value={data.notes || ''} onChange={e => setData(d => ({ ...d, notes: e.target.value }))} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
       </div>
 
       {/* Redes Sociais */}
@@ -557,11 +557,11 @@ const ClientEditor: React.FC<{ client: MockClient; onSave: (c: MockClient) => vo
       {/* Admin Notes */}
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
         <label className="block text-xs font-bold text-amber-700 uppercase tracking-wider">📋 Informações Adicionais do Administrador</label>
-        <textarea value={data.adminNotes} onChange={e => setData(d => ({ ...d, adminNotes: e.target.value }))} rows={3} placeholder="Notas internas, histórico..." className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+        <textarea value={data.adminNotes} onChange={e => setData(d => ({ ...d, adminNotes: e.target.value }))} rows={3} placeholder="Notas internas, histórico..." className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
       </div>
 
       {/* Password Reset */}
-      <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+      <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
         <p className="text-xs font-bold text-gray-600 uppercase tracking-wider">🔐 Gestão de Acesso</p>
         <ResetPasswordButton email={data.email} name={data.name} />
       </div>
@@ -637,7 +637,7 @@ const InternEditor: React.FC<{ intern: MockIntern; onSave: (i: MockIntern) => vo
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 max-w-2xl space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 max-w-2xl space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
       <button onClick={onBack} className="text-sm text-primary hover:underline">← Voltar</button>
       <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2"><IconEdit /> Editar Bacharelando(a)</h2>
 
@@ -657,7 +657,7 @@ const InternEditor: React.FC<{ intern: MockIntern; onSave: (i: MockIntern) => vo
 
       <div>
         <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Observações do Cadastro</label>
-        <textarea value={data.notes || ''} onChange={e => setData(d => ({ ...d, notes: e.target.value }))} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+        <textarea value={data.notes || ''} onChange={e => setData(d => ({ ...d, notes: e.target.value }))} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
       </div>
 
       {/* Redes Sociais */}
@@ -732,11 +732,11 @@ const InternEditor: React.FC<{ intern: MockIntern; onSave: (i: MockIntern) => vo
       {/* Admin Notes */}
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
         <label className="block text-xs font-bold text-amber-700 uppercase tracking-wider">📋 Informações Adicionais do Administrador</label>
-        <textarea value={data.adminNotes} onChange={e => setData(d => ({ ...d, adminNotes: e.target.value }))} rows={3} placeholder="Histórico de estágio, recomendações, ocorrências..." className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+        <textarea value={data.adminNotes} onChange={e => setData(d => ({ ...d, adminNotes: e.target.value }))} rows={3} placeholder="Histórico de estágio, recomendações, ocorrências..." className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
       </div>
 
       {/* Password Reset */}
-      <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+      <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
         <p className="text-xs font-bold text-gray-600 uppercase tracking-wider">🔐 Gestão de Acesso</p>
         <ResetPasswordButton email={data.email} name={data.name} />
       </div>
@@ -811,7 +811,7 @@ const SecretaryEditor: React.FC<{ secretary: MockSecretary; onSave: (s: MockSecr
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 max-w-2xl space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 max-w-2xl space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
       <button onClick={onBack} className="text-sm text-primary hover:underline">← Voltar</button>
       <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
         <IconEdit /> Editar Secret./Assist. Jurídico(a)
@@ -832,16 +832,16 @@ const SecretaryEditor: React.FC<{ secretary: MockSecretary; onSave: (s: MockSecr
 
       <div>
         <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Áreas de Conhecimento</label>
-        <div className="flex flex-wrap gap-2 p-3 bg-gray-50 rounded-lg border border-gray-200 min-h-[40px] dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+        <div className="flex flex-wrap gap-2 p-3 bg-gray-50 rounded-2xl border border-gray-200 min-h-[40px] dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
           {data.areasOfKnowledge.length > 0 ? data.areasOfKnowledge.map(a => (
-            <span key={a} className="px-2 py-0.5 bg-purple-50 text-purple-700 border border-purple-200 rounded-full text-xs font-medium">{a}</span>
+            <span key={a} className="px-2 py-0.5 bg-violet-50 text-violet-700 border border-violet-200 rounded-full text-xs font-medium">{a}</span>
           )) : <span className="text-xs text-gray-400">Nenhuma área cadastrada</span>}
         </div>
       </div>
 
       <div>
         <label className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Bio / Apresentação</label>
-        <textarea value={data.bio || ''} onChange={e => setData(d => ({ ...d, bio: e.target.value }))} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+        <textarea value={data.bio || ''} onChange={e => setData(d => ({ ...d, bio: e.target.value }))} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
       </div>
 
       {/* Redes Sociais */}
@@ -916,11 +916,11 @@ const SecretaryEditor: React.FC<{ secretary: MockSecretary; onSave: (s: MockSecr
       {/* Admin Notes */}
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
         <label className="block text-xs font-bold text-amber-700 uppercase tracking-wider">📋 Informações Adicionais do Administrador</label>
-        <textarea value={data.adminNotes} onChange={e => setData(d => ({ ...d, adminNotes: e.target.value }))} rows={3} placeholder="Notas sobre o(a) Secret./Assist. Jurídico(a), histórico de vinculações..." className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+        <textarea value={data.adminNotes} onChange={e => setData(d => ({ ...d, adminNotes: e.target.value }))} rows={3} placeholder="Notas sobre o(a) Secret./Assist. Jurídico(a), histórico de vinculações..." className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
       </div>
 
       {/* Password Reset */}
-      <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+      <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
         <p className="text-xs font-bold text-gray-600 uppercase tracking-wider">🔐 Gestão de Acesso</p>
         <ResetPasswordButton email={data.email} name={data.name} />
       </div>
@@ -1021,7 +1021,7 @@ export const RegistrationsTab: React.FC<{ lawyers: Lawyer[]; onLawyerUpdate: (l:
         {tabs.map(([t, label, icon]) => (
           <button key={t} onClick={() => { setRecordType(t); setSearch(''); }}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${recordType === t
-              ? t === 'secretaries' ? 'bg-purple-600 text-white border-purple-600' : 'bg-primary text-white border-primary'
+              ? t === 'secretaries' ? 'bg-violet-600 text-white border-violet-600' : 'bg-primary text-white border-primary'
               : 'bg-white text-gray-600 border-gray-200 hover:border-primary/40'}`}>
             <span className="w-4 h-4">{icon}</span>{label}
           </button>
@@ -1032,7 +1032,7 @@ export const RegistrationsTab: React.FC<{ lawyers: Lawyer[]; onLawyerUpdate: (l:
 
       {/* Lawyers */}
       {recordType === 'lawyers' && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-x-auto dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
           <table className="w-full text-sm text-left text-gray-600">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
               <tr><th className="px-5 py-3">Advogado</th><th className="px-5 py-3">OAB</th><th className="px-5 py-3">E-mail</th><th className="px-5 py-3">Status</th><th className="px-5 py-3 text-center">Ação</th></tr>
@@ -1055,7 +1055,7 @@ export const RegistrationsTab: React.FC<{ lawyers: Lawyer[]; onLawyerUpdate: (l:
 
       {/* Clients */}
       {recordType === 'clients' && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-x-auto dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
           <table className="w-full text-sm text-left text-gray-600">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
               <tr><th className="px-5 py-3">Nome</th><th className="px-5 py-3">E-mail</th><th className="px-5 py-3">Cidade/UF</th><th className="px-5 py-3">Status</th><th className="px-5 py-3 text-center">Ação</th></tr>
@@ -1078,7 +1078,7 @@ export const RegistrationsTab: React.FC<{ lawyers: Lawyer[]; onLawyerUpdate: (l:
 
       {/* Bacharelandos */}
       {recordType === 'interns' && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-x-auto dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
           <table className="w-full text-sm text-left text-gray-600">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
               <tr><th className="px-5 py-3">Nome</th><th className="px-5 py-3">Universidade</th><th className="px-5 py-3">E-mail</th><th className="px-5 py-3">Status</th><th className="px-5 py-3 text-center">Ação</th></tr>
@@ -1101,10 +1101,10 @@ export const RegistrationsTab: React.FC<{ lawyers: Lawyer[]; onLawyerUpdate: (l:
 
       {/* Secret./Assist Jurídico */}
       {recordType === 'secretaries' && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-          <div className="px-5 py-3 bg-purple-50 border-b border-purple-100 flex items-center gap-2">
-            <span className="text-purple-700">🗂️</span>
-            <span className="text-xs font-bold text-purple-800 uppercase tracking-wider">Gestão de Secret./Assist. Jurídico — {secretaries.length} cadastro(s)</span>
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-x-auto dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
+          <div className="px-5 py-3 bg-violet-50 border-b border-violet-100 flex items-center gap-2">
+            <span className="text-violet-700">🗂️</span>
+            <span className="text-xs font-bold text-violet-800 uppercase tracking-wider">Gestão de Secret./Assist. Jurídico — {secretaries.length} cadastro(s)</span>
           </div>
           <table className="w-full text-sm text-left text-gray-600">
             <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
@@ -1125,7 +1125,7 @@ export const RegistrationsTab: React.FC<{ lawyers: Lawyer[]; onLawyerUpdate: (l:
                   <tr key={s.id} className="border-b hover:bg-gray-50">
                     <td className="px-5 py-3 font-medium text-gray-900">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 text-xs font-bold flex items-center justify-center shrink-0">{s.name.charAt(0)}</div>
+                        <div className="w-8 h-8 rounded-full bg-violet-100 text-violet-700 text-xs font-bold flex items-center justify-center shrink-0">{s.name.charAt(0)}</div>
                         {s.name}
                       </div>
                     </td>
@@ -1139,7 +1139,7 @@ export const RegistrationsTab: React.FC<{ lawyers: Lawyer[]; onLawyerUpdate: (l:
                     </td>
                     <td className="px-5 py-3">{secretaryStatusBadge(s.status)}</td>
                     <td className="px-5 py-3 text-center">
-                      <button onClick={() => setEditing({ type: 'secretaries', id: s.id })} className="flex items-center gap-1 text-purple-600 text-xs font-medium hover:underline mx-auto">
+                      <button onClick={() => setEditing({ type: 'secretaries', id: s.id })} className="flex items-center gap-1 text-violet-600 text-xs font-medium hover:underline mx-auto">
                         <IconEdit /> Editar
                       </button>
                     </td>

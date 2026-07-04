@@ -13,6 +13,7 @@ import { SecretaryDocuments } from './sections/SecretaryDocuments';
 import { SecretaryApis } from './sections/SecretaryApis';
 import { SecretaryAi } from './sections/SecretaryAi';
 import { SecretaryEfficiency } from './sections/SecretaryEfficiency';
+import { DashboardShell, GradientHero, HeroButton, type ShellNavGroup } from '../ui';
 
 
 interface SecretariadoDashboardProps {
@@ -98,7 +99,7 @@ const PersonalDocModal: React.FC<PersonalDocModalProps> = ({ onClose, onConfirm 
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between p-5 border-b">
           <div>
             <h2 className="text-base font-bold text-gray-800">📎 Upload de Documento Pessoal</h2>
@@ -111,14 +112,14 @@ const PersonalDocModal: React.FC<PersonalDocModalProps> = ({ onClose, onConfirm 
           <div>
             <label className="block text-xs font-bold text-gray-600 uppercase mb-2">1. Tipo de Documento</label>
             <select value={docType} onChange={e => setDocType(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
               <option value="">Selecione o tipo...</option>
               {DOC_TYPES_PERSONAL.map(t => <option key={t}>{t}</option>)}
             </select>
             {docType === 'Outro' && (
               <input value={customDocType} onChange={e => setCustomDocType(e.target.value)}
                 placeholder="Descreva o tipo de documento"
-                className="mt-2 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                className="mt-2 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
             )}
           </div>
           {/* Step 2: file */}
@@ -127,28 +128,28 @@ const PersonalDocModal: React.FC<PersonalDocModalProps> = ({ onClose, onConfirm 
             <input ref={fileInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={handleFile} />
             {!pendingFile ? (
               <button onClick={() => fileInputRef.current?.click()}
-                className="w-full border-2 border-dashed border-purple-200 rounded-xl py-6 text-center hover:bg-purple-50 hover:border-purple-400 transition-colors">
+                className="w-full border-2 border-dashed border-violet-200 rounded-xl py-6 text-center hover:bg-violet-50 hover:border-violet-400 transition-colors">
                 <p className="text-2xl mb-1">📁</p>
                 <p className="text-sm font-medium text-gray-600">Clique para selecionar o arquivo</p>
                 <p className="text-xs text-gray-400 mt-0.5">{ALLOWED_LABEL}</p>
               </button>
             ) : (
-              <div className="flex items-center gap-3 bg-purple-50 border border-purple-200 rounded-xl px-4 py-3">
+              <div className="flex items-center gap-3 bg-violet-50 border border-violet-200 rounded-xl px-4 py-3">
                 <span className="text-xl shrink-0">{pendingFile.fileType === 'PDF' ? '📄' : '🖼️'}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-800 truncate">{pendingFile.name}</p>
                   <p className="text-xs text-gray-400">{pendingFile.fileType} · {pendingFile.size}</p>
                 </div>
-                <button onClick={() => setPendingFile(null)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+                <button onClick={() => setPendingFile(null)} className="shrink-0 text-rose-400 hover:text-rose-600 text-xs font-bold">✕</button>
               </div>
             )}
           </div>
-          {sent && <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-2 text-green-800 text-sm font-semibold">✅ Documento enviado com sucesso!</div>}
+          {sent && <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2 text-emerald-800 text-sm font-semibold">✅ Documento enviado com sucesso!</div>}
         </div>
         <div className="flex gap-3 px-5 py-4 border-t bg-gray-50 rounded-b-2xl">
-          <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">Cancelar</button>
+          <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">Cancelar</button>
           <button onClick={handleSend} disabled={!canSend || sent}
-            className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-violet-600 rounded-xl hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
             {sent ? '✅ Enviado!' : '📤 Confirmar Envio'}
           </button>
         </div>
@@ -207,11 +208,11 @@ const ProcessDocModal: React.FC<ProcessDocModalProps> = ({ onClose, onConfirm, d
     }, 900);
   };
 
-  const fieldCls = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 bg-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:text-white';
+  const fieldCls = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300 bg-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:text-white';
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-[#2A2545]">
           <div>
             <h2 className="text-base font-bold text-gray-800 dark:text-white">📂 Enviar Documento de Processo</h2>
@@ -224,7 +225,7 @@ const ProcessDocModal: React.FC<ProcessDocModalProps> = ({ onClose, onConfirm, d
           <div className="space-y-3">
             <p className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase">Identificação do Processo</p>
             {delegatedCases.length === 0 ? (
-              <div className="p-3 bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 text-xs border border-red-200 dark:border-red-900 rounded-lg">
+              <div className="p-3 bg-rose-50 dark:bg-rose-950/20 text-rose-700 dark:text-rose-400 text-xs border border-rose-200 dark:border-rose-900 rounded-lg">
                 Nenhum caso foi delegado a você ainda. Não é possível vincular documentos sem casos delegados.
               </div>
             ) : (
@@ -266,38 +267,38 @@ const ProcessDocModal: React.FC<ProcessDocModalProps> = ({ onClose, onConfirm, d
             {!pendingFile ? (
               <button onClick={() => fileInputRef.current?.click()}
                 disabled={delegatedCases.length === 0}
-                className="w-full border-2 border-dashed border-purple-200 dark:border-purple-900/60 rounded-xl py-5 text-center hover:bg-purple-50 dark:hover:bg-purple-950/20 hover:border-purple-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                className="w-full border-2 border-dashed border-violet-200 dark:border-violet-900/60 rounded-xl py-5 text-center hover:bg-violet-50 dark:hover:bg-violet-950/20 hover:border-violet-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                 <p className="text-2xl mb-1">📁</p>
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Clique para selecionar o arquivo</p>
                 <p className="text-xs text-gray-400 mt-0.5">{ALLOWED_LABEL}</p>
               </button>
             ) : (
-              <div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900 rounded-xl px-4 py-3">
+              <div className="flex items-center gap-3 bg-violet-50 dark:bg-violet-950/20 border border-violet-200 dark:border-violet-900 rounded-xl px-4 py-3">
                 <span className="text-xl shrink-0">{pendingFile.fileType === 'PDF' ? '📄' : '🖼️'}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-800 dark:text-white truncate">{pendingFile.name}</p>
                   <p className="text-xs text-gray-400 dark:text-gray-400">{pendingFile.fileType} · {pendingFile.size}</p>
                 </div>
-                <button onClick={() => setPendingFile(null)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+                <button onClick={() => setPendingFile(null)} className="shrink-0 text-rose-400 hover:text-rose-600 text-xs font-bold">✕</button>
               </div>
             )}
           </div>
           {/* Confirmation summary */}
           {pendingFile && processNumber && oab && lawyerName && !sent && (
-            <div className="bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900 rounded-xl p-4 space-y-1 text-xs animate-fade-in">
-              <p className="font-bold text-purple-800 dark:text-purple-400 text-sm mb-2">✔ Confirme os dados antes de enviar</p>
+            <div className="bg-violet-50 dark:bg-violet-950/20 border border-violet-200 dark:border-violet-900 rounded-xl p-4 space-y-1 text-xs animate-fade-in">
+              <p className="font-bold text-violet-800 dark:text-violet-400 text-sm mb-2">✔ Confirme os dados antes de enviar</p>
               <p><span className="font-semibold text-gray-600 dark:text-gray-400">Arquivo:</span> {pendingFile.name}</p>
               <p><span className="font-semibold text-gray-600 dark:text-gray-400">Processo:</span> {processNumber}</p>
               <p><span className="font-semibold text-gray-600 dark:text-gray-400">OAB:</span> {oab}</p>
               <p><span className="font-semibold text-gray-600 dark:text-gray-400">Advogado:</span> {lawyerName}</p>
             </div>
           )}
-          {sent && <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 rounded-xl px-4 py-2 text-green-800 dark:text-green-400 text-sm font-semibold">✅ Documento enviado e vinculado ao processo!</div>}
+          {sent && <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900 rounded-xl px-4 py-2 text-emerald-800 dark:text-emerald-400 text-sm font-semibold">✅ Documento enviado e vinculado ao processo!</div>}
         </div>
         <div className="flex gap-3 px-5 py-4 border-t border-gray-200 dark:border-[#2A2545] bg-gray-50 dark:bg-black/20 rounded-b-2xl">
-          <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">Cancelar</button>
+          <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">Cancelar</button>
           <button onClick={handleSend} disabled={!canSend || sent}
-            className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+            className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-violet-600 rounded-xl hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
             {sent ? '✅ Enviado!' : '📤 Confirmar e Enviar'}
           </button>
         </div>
@@ -310,9 +311,9 @@ const ProcessDocModal: React.FC<ProcessDocModalProps> = ({ onClose, onConfirm, d
 
 const StatCard: React.FC<{ icon: string; label: string; value: string; color: string }> = ({ icon, label, value, color }) => {
   const colors: Record<string, string> = {
-    purple: 'bg-purple-50 border-purple-100 text-purple-700',
+    purple: 'bg-violet-50 border-violet-100 text-violet-700',
     blue:   'bg-blue-50 border-blue-100 text-blue-700',
-    green:  'bg-green-50 border-green-100 text-green-700',
+    green:  'bg-emerald-50 border-emerald-100 text-emerald-700',
     amber:  'bg-amber-50 border-amber-100 text-amber-700',
     indigo: 'bg-indigo-50 border-indigo-100 text-indigo-700',
   };
@@ -350,7 +351,7 @@ const SyncCard: React.FC<SyncCardProps> = ({ title, subtitle, icon, synced, sync
     </div>
     <div className="shrink-0">
       {synced
-        ? <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold bg-green-100 text-green-700 rounded-full">✓ {syncedLabel}</span>
+        ? <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold bg-emerald-100 text-emerald-700 rounded-full">✓ {syncedLabel}</span>
         : <span className={`inline-flex items-center px-3 py-1 text-xs font-semibold ${borderColor} border rounded-full`}>{unSyncedLabel}</span>}
     </div>
   </button>
@@ -452,13 +453,6 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
     setTimeout(() => setSyncMsg(''), 4000);
   };
 
-  const tabBtn = (id: ActiveTab, label: string) => (
-    <button onClick={() => setActiveTab(id)}
-      className={`py-3 px-2 border-b-2 font-medium text-sm transition-colors ${activeTab === id ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
-      {label}
-    </button>
-  );
-
   // ── Overview values that update from profile state ──────────────────────────
   const overviewAvailLabel = profile.availability === 'integral' ? 'Tempo Integral' : profile.availability === 'meio-periodo' ? 'Meio Período' : 'Freelancer';
   const overviewLocation = [profile.city, profile.state].filter(Boolean).join('/') || `${secretary.city}/${secretary.state}`;
@@ -468,61 +462,47 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
 
   // ─────────────────────────────────────────────────────────────────────────────
 
-  return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="bg-neutral-light p-6 sm:p-8 rounded-xl shadow-sm">
+  // ── Navegação (DashboardShell — identidade unificada do módulo Advogado) ──
+  const navGroups: ShellNavGroup<ActiveTab>[] = [
+    {
+      title: 'Painel & Rotina',
+      items: [
+        { id: 'overview', label: 'Visão Geral', icon: '📊' },
+        { id: 'agenda', label: 'Agenda', icon: '📅' },
+        { id: 'documentos', label: 'Documentos', icon: '📂' },
+        { id: 'perfil', label: 'Meu Perfil', icon: '👤' },
+      ],
+    },
+    {
+      title: 'Inteligência & Serv.',
+      items: [
+        { id: 'iaTools', label: 'IA Jurídica', icon: '⚡' },
+        { id: 'efficiency_services', label: 'Serviços de Eficiência', icon: '💼' },
+        { id: 'apis', label: 'APIs / Conexões', icon: '🔌' },
+      ],
+    },
+  ];
 
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
-          <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 text-2xl font-bold shrink-0">
-            {secretary.name.charAt(0)}
-          </div>
-          <div className="text-center sm:text-left">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Painel do Secret./Assist. Jurídico</h1>
-            <p className="text-gray-600">Bem-vindo(a), {profile.name || secretary.name}!</p>
-            {assignedLawyer && (
-              <button onClick={() => setShowLawyerPopup(true)}
-                className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 text-green-700 text-xs font-semibold rounded-full hover:bg-green-100 transition-colors">
-                🎉 Vinculado: {assignedLawyer.name} — Ver informações
-              </button>
-            )}
-          </div>
-        </div>
+  return (
+    <DashboardShell<ActiveTab>
+      userName={profile.name || secretary.name}
+      panelLabel="Painel do Secret./Assist. Jurídico"
+      groups={navGroups}
+      active={activeTab}
+      onSelect={setActiveTab}
+      onLogout={onLogout}
+    >
+      <div className="animate-fade-in">
 
         {assignedLawyer && (
-          <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-4 mb-6 text-white flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">🎉</span>
-              <div>
-                <p className="font-bold text-sm">Você foi selecionado por um advogado!</p>
-                <p className="text-xs text-white/85">Dr(a). {assignedLawyer.name} — OAB {assignedLawyer.oab}</p>
-              </div>
-            </div>
-            <button onClick={() => setShowLawyerPopup(true)} className="shrink-0 px-4 py-2 bg-white/20 rounded-lg text-xs font-semibold hover:bg-white/30 transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-              Ver Detalhes
-            </button>
-          </div>
+          <GradientHero
+            emoji="🎉"
+            title="Você foi selecionado por um advogado!"
+            subtitle={`Dr(a). ${assignedLawyer.name} — OAB ${assignedLawyer.oab}`}
+            action={<HeroButton onClick={() => setShowLawyerPopup(true)}>Ver Detalhes →</HeroButton>}
+            className="mb-6"
+          />
         )}
-
-        {/* Tab Nav */}
-        <div className="border-b border-gray-200 mb-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-          <nav className="-mb-px flex flex-wrap gap-2 sm:space-x-4">
-            {tabBtn('overview', '📊 Visão Geral')}
-            {tabBtn('perfil', '👤 Meu Perfil')}
-            {tabBtn('agenda', '📅 Agenda')}
-            {tabBtn('documentos', '📂 Documentos')}
-            {tabBtn('apis', '🔌 APIs')}
-            {tabBtn('iaTools', '⚡ IA Jurídica')}
-            {tabBtn('efficiency_services', '💼 Serviços de Eficiência')}
-
-            {onLogout && (
-              <button onClick={onLogout}
-                className="py-3 px-2 border-b-2 border-transparent font-medium text-sm text-red-500 hover:text-red-700 hover:border-red-300 transition-colors ml-auto">
-                🚪 Sair
-              </button>
-            )}
-          </nav>
-        </div>
 
         {/* ─── OVERVIEW ─── */}
         {activeTab === 'overview' && (
@@ -536,28 +516,28 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
         {/* ─── PERFIL ─── */}
         {activeTab === 'perfil' && (
           <div className="space-y-6 animate-fade-in">
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-5 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-5 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
               <h3 className="text-base font-bold text-gray-800 border-b pb-2">Dados Pessoais e Profissionais</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Nome Completo</label>
-                  <input value={profile.name} onChange={e => setProfile(p => ({ ...p, name: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                  <input value={profile.name} onChange={e => setProfile(p => ({ ...p, name: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Telefone</label>
-                  <input value={profile.phone} onChange={e => setProfile(p => ({ ...p, phone: e.target.value }))} placeholder="(11) 99999-9999" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                  <input value={profile.phone} onChange={e => setProfile(p => ({ ...p, phone: e.target.value }))} placeholder="(11) 99999-9999" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Cidade</label>
-                  <input value={profile.city} onChange={e => setProfile(p => ({ ...p, city: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                  <input value={profile.city} onChange={e => setProfile(p => ({ ...p, city: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Estado (UF)</label>
-                  <input value={profile.state} onChange={e => setProfile(p => ({ ...p, state: e.target.value }))} maxLength={2} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 uppercase text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                  <input value={profile.state} onChange={e => setProfile(p => ({ ...p, state: e.target.value }))} maxLength={2} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 uppercase text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Experiência (anos)</label>
-                  <input type="number" min="0" value={profile.experience} onChange={e => setProfile(p => ({ ...p, experience: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                  <input type="number" min="0" value={profile.experience} onChange={e => setProfile(p => ({ ...p, experience: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Disponibilidade</label>
@@ -569,23 +549,23 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Endereço</label>
-                  <input value={profile.address} onChange={e => setProfile(p => ({ ...p, address: e.target.value }))} placeholder="Rua, Número, Bairro, CEP" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                  <input value={profile.address} onChange={e => setProfile(p => ({ ...p, address: e.target.value }))} placeholder="Rua, Número, Bairro, CEP" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Apresentação / Bio</label>
-                  <textarea value={profile.bio} onChange={e => setProfile(p => ({ ...p, bio: e.target.value }))} rows={3} placeholder="Descreva sua experiência e diferenciais..." className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                  <textarea value={profile.bio} onChange={e => setProfile(p => ({ ...p, bio: e.target.value }))} rows={3} placeholder="Descreva sua experiência e diferenciais..." className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                 </div>
               </div>
             </div>
 
             {/* Areas of Knowledge */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
               <h3 className="text-base font-bold text-gray-800 border-b pb-2">🎯 Áreas de Conhecimento</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {AREAS_CONHECIMENTO.map(area => {
                   const selected = profile.areasOfKnowledge.includes(area);
                   return (
-                    <label key={area} className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer text-xs font-medium transition-colors ${selected ? 'bg-purple-50 border-purple-300 text-purple-700' : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-purple-200'}`}>
+                    <label key={area} className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer text-xs font-medium transition-colors ${selected ? 'bg-violet-50 border-violet-300 text-violet-700' : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-violet-200'}`}>
                       <input type="checkbox" checked={selected} onChange={() => toggleArea(area)} className="rounded" />
                       {area}
                     </label>
@@ -595,7 +575,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
             </div>
 
             {/* Redes Sociais */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-2 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545]">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-2 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545]">
               <h3 className="text-base font-bold text-gray-800 border-b pb-2">🌐 Redes Sociais</h3>
               <p className="text-xs text-gray-500 mb-3">Links visíveis para o advogado ao qual você está vinculado.</p>
               <SocialLinksEditor
@@ -605,46 +585,46 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
             </div>
 
             {/* Personal documents upload — with type identification */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-base font-bold text-gray-800">📎 Documentos Pessoais</h3>
                   <p className="text-xs text-gray-500 mt-0.5">Somente para documentos de identificação pessoal (RG, CPF, CNH, etc.)</p>
                 </div>
                 <button onClick={() => setShowPersonalDocModal(true)}
-                  className="px-4 py-2 text-xs font-semibold bg-purple-600 text-white rounded-lg hover:bg-purple-700 flex items-center gap-2">
+                  className="px-4 py-2 text-xs font-semibold bg-violet-600 text-white rounded-lg hover:bg-violet-700 flex items-center gap-2">
                   ➕ Adicionar
                 </button>
               </div>
               <p className="text-xs text-gray-400">Formatos aceitos: {ALLOWED_LABEL} · Cada arquivo deve ser identificado com seu tipo.</p>
               {personalDocs.length === 0 ? (
                 <button onClick={() => setShowPersonalDocModal(true)}
-                  className="w-full border-2 border-dashed border-purple-200 rounded-xl py-7 text-center hover:bg-purple-50 hover:border-purple-400 transition-colors">
+                  className="w-full border-2 border-dashed border-violet-200 rounded-xl py-7 text-center hover:bg-violet-50 hover:border-violet-400 transition-colors">
                   <p className="text-3xl mb-1">📁</p>
                   <p className="text-sm font-medium text-gray-500">Clique para adicionar um documento pessoal</p>
                 </button>
               ) : (
                 <div className="space-y-2">
                   {personalDocs.map((d, i) => (
-                    <div key={i} className="flex items-center justify-between bg-purple-50 border border-purple-100 rounded-xl px-4 py-3 gap-3">
+                    <div key={i} className="flex items-center justify-between bg-violet-50 border border-violet-100 rounded-xl px-4 py-3 gap-3">
                       <div className="flex items-center gap-3 min-w-0">
                         <span className="text-xl shrink-0">{d.fileType === 'PDF' ? '📄' : '🖼️'}</span>
                         <div className="min-w-0">
                           <p className="text-sm font-semibold text-gray-800 truncate">{d.name}</p>
                           <p className="text-[10px] text-gray-400">{d.fileType} · {d.size} · {d.date}</p>
-                          <span className="inline-block mt-0.5 px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-bold rounded-full">{d.docType}</span>
+                          <span className="inline-block mt-0.5 px-2 py-0.5 bg-violet-100 text-violet-700 text-[10px] font-bold rounded-full">{d.docType}</span>
                         </div>
                       </div>
-                      <button onClick={() => setPersonalDocs(prev => prev.filter((_, idx) => idx !== i))} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold p-1">✕</button>
+                      <button onClick={() => setPersonalDocs(prev => prev.filter((_, idx) => idx !== i))} className="shrink-0 text-rose-400 hover:text-rose-600 text-xs font-bold p-1">✕</button>
                     </div>
                   ))}
-                  <button onClick={() => setShowPersonalDocModal(true)} className="text-xs text-purple-600 hover:underline font-semibold py-1">+ Adicionar mais documentos</button>
+                  <button onClick={() => setShowPersonalDocModal(true)} className="text-xs text-violet-600 hover:underline font-semibold py-1">+ Adicionar mais documentos</button>
                 </div>
               )}
             </div>
 
             {/* Security */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
               <h3 className="text-base font-bold text-gray-800">🔐 Segurança de Acesso</h3>
               <div className="flex flex-wrap gap-3">
                 <button onClick={() => setShowPasswordModal(true)} className="px-4 py-2.5 text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200 rounded-lg hover:bg-amber-100">🔑 Alterar Senha</button>
@@ -692,8 +672,6 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
           <SecretaryEfficiency />
         )}
 
-      </div>
-
       {/* ─── Modals ─── */}
       {showPersonalDocModal && (
         <PersonalDocModal
@@ -733,6 +711,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
           }}
         />
       )}
-    </div>
+      </div>
+    </DashboardShell>
   );
 };

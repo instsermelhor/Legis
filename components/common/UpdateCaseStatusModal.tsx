@@ -29,13 +29,13 @@ export const UpdateCaseStatusModal: React.FC<UpdateCaseStatusModalProps> = ({ ca
             onClick={onClose}
         >
             <div 
-                className="bg-white rounded-2xl shadow-xl w-full max-w-md relative animate-slide-up dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                className="bg-white rounded-2xl shadow-xl w-full max-w-md relative animate-slide-up dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="p-6">
                      <div className="flex items-start justify-between">
                         <div>
-                             <h2 className="text-xl font-bold text-gray-800">Atualizar Andamento do Caso</h2>
+                             <h2 className="text-xl font-bold text-gray-800 dark:text-white">Atualizar Andamento do Caso</h2>
                              <p className="text-sm text-gray-500 mt-1">{caseToUpdate.title} - {caseToUpdate.clientName}</p>
                         </div>
                         <button
@@ -61,7 +61,7 @@ export const UpdateCaseStatusModal: React.FC<UpdateCaseStatusModalProps> = ({ ca
                                         value={stage.name}
                                         checked={selectedStageName === stage.name}
                                         onChange={() => setSelectedStageName(stage.name)}
-                                        className="h-4 w-4 text-primary border-gray-300 focus:ring-primary dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                        className="h-4 w-4 text-primary border-gray-300 focus:ring-primary dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                     />
                                     <span className="ml-3 text-sm font-medium text-gray-800">{stage.name}</span>
                                 </label>
@@ -74,7 +74,7 @@ export const UpdateCaseStatusModal: React.FC<UpdateCaseStatusModalProps> = ({ ca
                     <button
                         type="button"
                         onClick={onClose}
-                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                        className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                     >
                         Cancelar
                     </button>

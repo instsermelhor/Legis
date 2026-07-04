@@ -39,8 +39,6 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
   const [editingProcesso, setEditingProcesso] = useState<Processo | null>(null);
 
   // Console Command states
-  const [commandText, setCommandText] = useState('');
-  const [commandError, setCommandError] = useState('');
   const [showSubestabelecerModal, setShowSubestabelecerModal] = useState(false);
   const [showAutorizarModal, setShowAutorizarModal] = useState(false);
 
@@ -60,19 +58,6 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
   const [authPassword, setAuthPassword] = useState('');
   const [authError, setAuthError] = useState('');
   const [authSuccess, setAuthSuccess] = useState(false);
-
-  const handleExecuteCommand = () => {
-    const cmd = commandText.trim().toLowerCase();
-    if (cmd === 'subestabelecer') {
-      setShowSubestabelecerModal(true);
-      setCommandError('');
-    } else if (cmd === 'autorizar acesso') {
-      setShowAutorizarModal(true);
-      setCommandError('');
-    } else {
-      setCommandError('Comando não reconhecido. Digite "Subestabelecer" ou "Autorizar Acesso" (ou use as sugestões rápidas).');
-    }
-  };
 
   const handleSubestabelecerSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -518,69 +503,32 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
         </div>
       </div>
 
-      {/* Console de Comandos do Gestor (Full Access) */}
+      {/* Ações do Gestor (Full Access) — acesso direto, sem console */}
       {userRole === 'gestor' && (
-        <div className="bg-gradient-to-r from-[#1E1B38] to-[#120F24] p-5 rounded-xl border border-primary/30 shadow-md space-y-3 text-white">
-          <div className="flex items-center justify-between border-b border-white/10 pb-2">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-primary-light flex items-center gap-1.5">
-              <span>💻</span> Console de Comandos do Gestor
-            </h3>
-            <span className="text-[10px] text-gray-400 font-mono">Modo: Full Access</span>
-          </div>
-          
-          <div className="space-y-2">
-            <label className="block text-xs font-semibold text-gray-300">Digite um comando e pressione Enter ou clique em Executar:</label>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-primary-light font-mono text-sm">&gt;</span>
-                <input
-                  type="text"
-                  placeholder='Ex: "Subestabelecer" ou "Autorizar Acesso"'
-                  value={commandText}
-                  onChange={e => {
-                    setCommandText(e.target.value);
-                    setCommandError('');
-                  }}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') {
-                      handleExecuteCommand();
-                    }
-                  }}
-                  className="w-full text-sm bg-black/40 border border-white/10 rounded-lg pl-8 pr-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-primary/50 placeholder-white/30"
-                />
-              </div>
-              <button
-                type="button"
-                onClick={handleExecuteCommand}
-                className="px-4 py-2 bg-primary hover:bg-primary/90 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5"
-              >
-                <span>⚙</span> Executar
-              </button>
+        <div className="bg-white dark:bg-[#1A1730] p-5 rounded-2xl border border-gray-200 dark:border-[#2A2545] shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                ⚙️ Ações do Gestor
+              </h3>
+              <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                Operações de delegação e acesso da carteira de processos
+              </p>
             </div>
-            {commandError && <p className="text-[11px] text-red-400 font-semibold">{commandError}</p>}
-            
-            {/* Command Suggestions / Autocomplete */}
-            <div className="flex flex-wrap items-center gap-2 pt-1.5 text-[11px] text-gray-400">
-              <span>Sugestões rápidas:</span>
+            <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => {
-                  setCommandText('Subestabelecer');
-                  setCommandError('');
-                }}
-                className="px-2 py-1 bg-white/5 hover:bg-white/10 text-white/90 border border-white/10 rounded font-semibold transition-colors animate-pulse"
+                onClick={() => setShowSubestabelecerModal(true)}
+                className="px-4 py-2.5 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
               >
-                Subestabelecer
+                📜 Subestabelecer Procuração
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setCommandText('Autorizar Acesso');
-                  setCommandError('');
-                }}
-                className="px-2 py-1 bg-white/5 hover:bg-white/10 text-white/90 border border-white/10 rounded font-semibold transition-colors animate-pulse"
+                onClick={() => setShowAutorizarModal(true)}
+                className="px-4 py-2.5 bg-white dark:bg-[#1A1730] text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-[#2A2545] hover:bg-gray-50 dark:hover:bg-white/5 text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5"
               >
-                Autorizar Acesso
+                🔑 Autorizar Acesso
               </button>
             </div>
           </div>
@@ -668,7 +616,7 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
               type="date"
               value={filterStartDate}
               onChange={e => setFilterStartDate(e.target.value)}
-              className="w-full text-xs border border-gray-300 dark:border-[#332E55] rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-primary/20"
+              className="w-full text-xs border border-gray-300 dark:border-[#332E55] rounded-lg px-2.5 py-1.5 bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/20"
             />
           </div>
 
@@ -678,7 +626,7 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
               type="date"
               value={filterEndDate}
               onChange={e => setFilterEndDate(e.target.value)}
-              className="w-full text-xs border border-gray-300 dark:border-[#332E55] rounded-lg px-2.5 py-1.5 focus:ring-2 focus:ring-primary/20"
+              className="w-full text-xs border border-gray-300 dark:border-[#332E55] rounded-lg px-2.5 py-1.5 bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white focus:ring-2 focus:ring-primary/20"
             />
           </div>
 
@@ -753,7 +701,7 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
               placeholder="Digite o Nº do processo, nome do advogado, gestor ou departamento..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full text-xs border border-gray-300 dark:border-[#332E55] rounded-lg px-2.5 py-1.5"
+              className="w-full text-xs border border-gray-300 dark:border-[#332E55] rounded-lg px-2.5 py-1.5 bg-white dark:bg-[#1A1730] text-gray-900 dark:text-white placeholder-gray-400"
             />
           </div>
         </div>
@@ -813,7 +761,7 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
               {fmtCurrency(kpis.faturamentoTotal)}
             </p>
           ) : (
-            <span className="inline-block mt-2 px-2 py-0.5 bg-red-150 text-red-700 text-[10px] font-bold rounded">
+            <span className="inline-block mt-2 px-2 py-0.5 bg-rose-150 text-rose-700 text-[10px] font-bold rounded">
               🔒 Restrito
             </span>
           )}
@@ -823,7 +771,7 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
         <div className="bg-white dark:bg-[#1A1730] p-4 rounded-xl border border-gray-200 dark:border-[#2A2545] shadow-sm relative overflow-hidden">
           <div className="absolute right-3 top-3 text-lg opacity-40">⏱️</div>
           <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wide">Tempo Médio</p>
-          <p className="text-2xl font-black text-purple-600 dark:text-purple-400 mt-1.5">
+          <p className="text-2xl font-black text-violet-600 dark:text-violet-400 mt-1.5">
             {kpis.tempoMedio} <span className="text-xs font-normal">dias</span>
           </p>
         </div>
@@ -1051,7 +999,7 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
                       {e.count}
                     </span>
                     <div
-                      className="w-3 bg-purple-500 rounded-t-sm hover:bg-purple-600 transition-all duration-300"
+                      className="w-3 bg-violet-500 rounded-t-sm hover:bg-violet-600 transition-all duration-300"
                       style={{ height: `${heightPct}%` }}
                     />
                   </div>
@@ -1109,11 +1057,11 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
                   <div key={item.gestor} className="space-y-1">
                     <div className="flex justify-between text-xs font-semibold">
                       <span className="text-gray-700 dark:text-gray-300">{item.gestor}</span>
-                      <span className="text-purple-600 dark:text-purple-400">{item.avg} dias</span>
+                      <span className="text-violet-600 dark:text-violet-400">{item.avg} dias</span>
                     </div>
                     <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-3.5 overflow-hidden">
                       <div
-                        className="bg-purple-500 h-3.5 rounded-full transition-all duration-550"
+                        className="bg-violet-500 h-3.5 rounded-full transition-all duration-550"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -1199,7 +1147,7 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
                     <td className="px-4 py-3">
                       <span className={`px-2 py-0.5 rounded font-semibold text-[10px] ${
                         p.departamento === 'Cível' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400' :
-                        p.departamento === 'Trabalhista' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400' :
+                        p.departamento === 'Trabalhista' ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/20 dark:text-violet-400' :
                         'bg-teal-100 text-teal-700 dark:bg-teal-900/20 dark:text-teal-400'
                       }`}>
                         {p.departamento}
@@ -1228,7 +1176,7 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
                     </td>
                     <td className="px-4 py-3 text-center font-semibold text-gray-800 dark:text-gray-200">
                       {p.status === 'Concluído' ? (
-                        <span className={p.tempo > 90 ? 'text-red-600 font-bold' : ''}>
+                        <span className={p.tempo > 90 ? 'text-rose-600 font-bold' : ''}>
                           {p.tempo}
                         </span>
                       ) : (
@@ -1246,7 +1194,7 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
                         </button>
                         <button
                           onClick={() => handleDelete(p.id_processo)}
-                          className="p-1 hover:bg-gray-150 dark:hover:bg-gray-800 rounded text-red-600"
+                          className="p-1 hover:bg-gray-150 dark:hover:bg-gray-800 rounded text-rose-600"
                           title="Excluir"
                         >
                           🗑️
@@ -1505,7 +1453,7 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
                     <button
                       type="button"
                       onClick={() => setSubFile(null)}
-                      className="shrink-0 text-red-500 hover:text-red-700 text-xs font-bold"
+                      className="shrink-0 text-rose-500 hover:text-rose-700 text-xs font-bold"
                     >
                       ✕
                     </button>
@@ -1526,10 +1474,10 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
                 />
               </div>
 
-              {subError && <p className="text-xs text-red-500 font-semibold">{subError}</p>}
+              {subError && <p className="text-xs text-rose-500 font-semibold">{subError}</p>}
 
               {subSuccess && (
-                <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 rounded-xl px-4 py-2.5 text-green-800 dark:text-green-400 text-xs font-semibold">
+                <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900 rounded-xl px-4 py-2.5 text-emerald-800 dark:text-emerald-400 text-xs font-semibold">
                   ✅ Subestabelecimento realizado! O processo foi transferido.
                 </div>
               )}
@@ -1669,10 +1617,10 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
                 />
               </div>
 
-              {authError && <p className="text-xs text-red-500 font-semibold">{authError}</p>}
+              {authError && <p className="text-xs text-rose-500 font-semibold">{authError}</p>}
 
               {authSuccess && (
-                <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 rounded-xl px-4 py-2.5 text-green-800 dark:text-green-400 text-xs font-semibold">
+                <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900 rounded-xl px-4 py-2.5 text-emerald-800 dark:text-emerald-400 text-xs font-semibold">
                   ✅ Autorização de acesso concedida com sucesso!
                 </div>
               )}

@@ -136,7 +136,7 @@ export const LegalAiTools: React.FC<LegalAiToolsProps> = ({ role, allowedTools }
                 <div className="flex items-center justify-between">
                   <span className="text-xl">{t.icon}</span>
                   {!isAllowed && (
-                    <span className="px-1.5 py-0.5 bg-red-150 text-red-600 rounded text-[8px] font-bold uppercase tracking-wider">
+                    <span className="px-1.5 py-0.5 bg-rose-150 text-rose-600 rounded text-[8px] font-bold uppercase tracking-wider">
                       Bloqueado
                     </span>
                   )}
@@ -157,7 +157,7 @@ export const LegalAiTools: React.FC<LegalAiToolsProps> = ({ role, allowedTools }
       ) : (
 
         /* Active Tool Detail */
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545]">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545]">
           <div className="flex items-center justify-between border-b pb-4">
             <div className="flex items-center gap-3">
               <span className="text-3xl">{ALL_TOOLS.find(t => t.key === selectedTool)?.icon}</span>
@@ -195,11 +195,11 @@ export const LegalAiTools: React.FC<LegalAiToolsProps> = ({ role, allowedTools }
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Nome do Requerente (Cliente)</label>
-                      <input type="text" value={pecaClient} onChange={e => setPecaClient(e.target.value)} placeholder="Ex: João da Silva" className={`w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500 ${themeColors.border}`} />
+                      <input type="text" value={pecaClient} onChange={e => setPecaClient(e.target.value)} placeholder="Ex: João da Silva" className={`w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500 ${themeColors.border}`} />
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Fatos e Causa de Pedir</label>
-                      <textarea rows={4} value={pecaFacts} onChange={e => setPecaFacts(e.target.value)} placeholder="Descreva os fatos principais..." className={`w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500 ${themeColors.border}`} />
+                      <textarea rows={4} value={pecaFacts} onChange={e => setPecaFacts(e.target.value)} placeholder="Descreva os fatos principais..." className={`w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500 ${themeColors.border}`} />
                     </div>
                   </>
                 )}
@@ -208,7 +208,7 @@ export const LegalAiTools: React.FC<LegalAiToolsProps> = ({ role, allowedTools }
                   <>
                     <div>
                       <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Termo de Pesquisa / Pergunta Jurídica</label>
-                      <input type="text" value={pesquisaQuery} onChange={e => setPesquisaQuery(e.target.value)} placeholder="Ex: Súmula vinculante 10 do STF..." className={`w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500 ${themeColors.border}`} required />
+                      <input type="text" value={pesquisaQuery} onChange={e => setPesquisaQuery(e.target.value)} placeholder="Ex: Súmula vinculante 10 do STF..." className={`w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500 ${themeColors.border}`} required />
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Área do Direito</label>
@@ -231,7 +231,7 @@ export const LegalAiTools: React.FC<LegalAiToolsProps> = ({ role, allowedTools }
                         type="button"
                         onClick={handleSimulateAudioRecording}
                         className={`w-14 h-14 rounded-full flex items-center justify-center text-xl shadow-lg transition-all ${
-                          audioRecording ? 'bg-red-500 text-white animate-pulse' : 'bg-primary text-white hover:scale-105'
+                          audioRecording ? 'bg-rose-500 text-white animate-pulse' : 'bg-primary text-white hover:scale-105'
                         }`}
                       >
                         🎙️
@@ -253,7 +253,7 @@ export const LegalAiTools: React.FC<LegalAiToolsProps> = ({ role, allowedTools }
                   <>
                     <div>
                       <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Arquivo de Áudio (Upload Simulado)</label>
-                      <input type="text" value={transcribeFile} onChange={e => setTranscribeFile(e.target.value)} placeholder="Ex: audiencia_instrucao_10-05.mp3" className={`w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500 ${themeColors.border}`} />
+                      <input type="text" value={transcribeFile} onChange={e => setTranscribeFile(e.target.value)} placeholder="Ex: audiencia_instrucao_10-05.mp3" className={`w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500 ${themeColors.border}`} />
                       <p className="text-[10px] text-gray-400 mt-1">Digite um nome de arquivo de áudio para simular a transcrição inteligente.</p>
                     </div>
                   </>
@@ -263,11 +263,11 @@ export const LegalAiTools: React.FC<LegalAiToolsProps> = ({ role, allowedTools }
                   <>
                     <div>
                       <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Tese / Pedido da Ação</label>
-                      <input type="text" value={fundamentacaoTese} onChange={e => setFundamentacaoTese(e.target.value)} placeholder="Ex: Cumulação de dano estético e moral" className={`w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500 ${themeColors.border}`} required />
+                      <input type="text" value={fundamentacaoTese} onChange={e => setFundamentacaoTese(e.target.value)} placeholder="Ex: Cumulação de dano estético e moral" className={`w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500 ${themeColors.border}`} required />
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Artigos ou Súmulas de Referência</label>
-                      <input type="text" value={fundamentacaoArtigos} onChange={e => setFundamentacaoArtigos(e.target.value)} placeholder="Ex: Art. 186 e 927 do Código Civil" className={`w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500 ${themeColors.border}`} />
+                      <input type="text" value={fundamentacaoArtigos} onChange={e => setFundamentacaoArtigos(e.target.value)} placeholder="Ex: Art. 186 e 927 do Código Civil" className={`w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500 ${themeColors.border}`} />
                     </div>
                   </>
                 )}
@@ -275,7 +275,7 @@ export const LegalAiTools: React.FC<LegalAiToolsProps> = ({ role, allowedTools }
                 {selectedTool === 'revisao' && (
                   <div>
                     <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Texto Jurídico a Ser Revisado</label>
-                      <textarea rows={6} value={revisaoOriginal} onChange={e => setRevisaoOriginal(e.target.value)} placeholder="Cole aqui a petição ou trecho para revisão..." className={`w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500 ${themeColors.border}`} required />
+                      <textarea rows={6} value={revisaoOriginal} onChange={e => setRevisaoOriginal(e.target.value)} placeholder="Cole aqui a petição ou trecho para revisão..." className={`w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500 ${themeColors.border}`} required />
                   </div>
                 )}
 
@@ -283,7 +283,7 @@ export const LegalAiTools: React.FC<LegalAiToolsProps> = ({ role, allowedTools }
                   <>
                     <div>
                       <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Tese de Busca de Jurisprudência</label>
-                      <input type="text" value={jurisprudenciaTermo} onChange={e => setJurisprudenciaTermo(e.target.value)} placeholder="Ex: Exclusão de ICMS base PIS COFINS..." className={`w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500 ${themeColors.border}`} required />
+                      <input type="text" value={jurisprudenciaTermo} onChange={e => setJurisprudenciaTermo(e.target.value)} placeholder="Ex: Exclusão de ICMS base PIS COFINS..." className={`w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500 ${themeColors.border}`} required />
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Tribunal Alvo</label>
@@ -301,7 +301,7 @@ export const LegalAiTools: React.FC<LegalAiToolsProps> = ({ role, allowedTools }
                   <>
                     <div>
                       <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Despacho Judicial Recebido</label>
-                      <textarea rows={4} value={manifestacaoDespacho} onChange={e => setManifestacaoDespacho(e.target.value)} placeholder="Cole o despacho ou intimação judicial..." className={`w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500 ${themeColors.border}`} required />
+                      <textarea rows={4} value={manifestacaoDespacho} onChange={e => setManifestacaoDespacho(e.target.value)} placeholder="Cole o despacho ou intimação judicial..." className={`w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500 ${themeColors.border}`} required />
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Tipo de Manifestação</label>

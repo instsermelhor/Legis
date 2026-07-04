@@ -183,7 +183,7 @@ export const ClientSignupForm: React.FC<ClientSignupFormProps> = ({ onSignup, on
                             <button
                                 type="button"
                                 onClick={() => removeSocialLink(index)}
-                                className="p-2 text-red-500 hover:text-red-700 transition-colors"
+                                className="p-2 text-rose-500 hover:text-rose-700 transition-colors"
                                 title="Remover"
                             >
                                 🗑️
@@ -201,7 +201,7 @@ export const ClientSignupForm: React.FC<ClientSignupFormProps> = ({ onSignup, on
                     <input id="client-confirm-password" name="confirmPassword" type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-primary focus:border-primary text-gray-900 sm:text-sm" />
                 </div>
 
-                {error && <p className="text-sm text-center text-red-600">{error}</p>}
+                {error && <p className="text-sm text-center text-rose-600">{error}</p>}
 
                 <div className="flex items-start pt-2">
                     <div className="flex items-center h-5">

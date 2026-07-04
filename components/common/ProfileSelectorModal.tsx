@@ -31,7 +31,7 @@ const profiles = [
   {
     id: 'lawyer' as const,
     icon: '⚖️',
-    emoji_bg: 'from-violet-600/30 to-purple-900/20',
+    emoji_bg: 'from-violet-600/30 to-violet-900/20',
     border: 'border-primary/25 hover:border-primary/50',
     badge: 'bg-primary/15 text-primary-light border-primary/30',
     glow: 'hover:shadow-[0_0_30px_rgba(124,58,237,0.15)]',
@@ -156,7 +156,7 @@ export const ProfileSelectorModal: React.FC<ProfileSelectorModalProps> = ({
                   relative text-left rounded-xl border p-5 cursor-pointer
                   transition-all duration-300 hover:-translate-y-1 group
                   bg-gradient-to-br ${p.emoji_bg} ${p.border} ${p.glow}
-                  ${preSelected === p.id ? 'ring-2 ring-primary/60' : ''}
+                  ${preSelected === p.id ? 'ring-2 ring-primary/50' : ''}
                 `}
               >
                 {/* Popular badge */}
@@ -178,7 +178,7 @@ export const ProfileSelectorModal: React.FC<ProfileSelectorModalProps> = ({
                     <ul className="space-y-1">
                       {p.features.map(f => (
                         <li key={f} className="flex items-center gap-1.5 text-xs text-gray-400">
-                          <svg className="w-3 h-3 text-green-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-3 h-3 text-emerald-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                           </svg>
                           {f}

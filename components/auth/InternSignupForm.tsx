@@ -110,8 +110,8 @@ export const InternSignupForm: React.FC<InternSignupFormProps> = ({ onSignup, on
             <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">Cadastro de Bacharelando/Estagiário</h2>
 
             {error && (
-                <div className="mb-4 bg-red-50 border-l-4 border-red-500 p-4">
-                    <p className="text-sm text-red-700">{error}</p>
+                <div className="mb-4 bg-rose-50 border-l-4 border-rose-500 p-4">
+                    <p className="text-sm text-rose-700">{error}</p>
                 </div>
             )}
 
@@ -298,7 +298,7 @@ export const InternSignupForm: React.FC<InternSignupFormProps> = ({ onSignup, on
                                 <button
                                     type="button"
                                     onClick={() => removeSocialLink(index)}
-                                    className="p-2 text-red-500 hover:text-red-700 transition-colors"
+                                    className="p-2 text-rose-500 hover:text-rose-700 transition-colors"
                                     title="Remover"
                                 >
                                     🗑️

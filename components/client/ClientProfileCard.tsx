@@ -26,7 +26,7 @@ export const ClientProfileCard: React.FC<ClientProfileCardProps> = ({ user, onUp
     return (
         <div className="bg-white p-6 rounded-lg shadow-lg border border-gray-100 space-y-4">
             <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-gray-800">Meu Perfil</h2>
+                <h2 className="text-xl font-bold text-gray-800 dark:text-white">Meu Perfil</h2>
                 {!isEditing && (
                     <button onClick={() => setIsEditing(true)} className="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
                         ✏️ Editar

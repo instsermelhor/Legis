@@ -76,14 +76,14 @@ const MOCK_SIGNATURES: SignatureDocument[] = [
 const PLATFORM_COLORS = {
   DocuSign:   'bg-yellow-100 text-yellow-700 border-yellow-200',
   Clicksign:  'bg-blue-100 text-blue-700 border-blue-200',
-  eNotariado: 'bg-purple-100 text-purple-700 border-purple-200',
+  eNotariado: 'bg-violet-100 text-violet-700 border-violet-200',
 };
 
 const SIG_STATUS = {
   aguardando: { label: 'Aguardando',   color: 'bg-amber-100 text-amber-700' },
   parcial:    { label: 'Parcialmente', color: 'bg-blue-100 text-blue-700' },
-  concluido:  { label: 'Concluído ✓', color: 'bg-green-100 text-green-700' },
-  expirado:   { label: 'Expirado ✕',  color: 'bg-red-100 text-red-700' },
+  concluido:  { label: 'Concluído ✓', color: 'bg-emerald-100 text-emerald-700' },
+  expirado:   { label: 'Expirado ✕',  color: 'bg-rose-100 text-rose-700' },
 };
 
 const DOC_TYPES = ['RG', 'CPF', 'CNH', 'Passaporte', 'Comprovante de Residência', 'Certidão', 'Contrato de Trabalho', 'Laudo', 'Prova', 'Despacho', 'Outro'];
@@ -113,7 +113,7 @@ const ForwardModal: React.FC<ForwardModalProps> = ({ doc, onClose, onConfirm }) 
     setTimeout(() => { onConfirm(doc.id, to, caseRef); onClose(); }, 800);
   };
 
-  const inputCls = 'w-full border border-gray-300 dark:border-[#2A2545] rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white bg-white dark:bg-[#1A1730] focus:outline-none focus:ring-2 focus:ring-purple-400';
+  const inputCls = 'w-full border border-gray-300 dark:border-[#2A2545] rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white bg-white dark:bg-[#1A1730] focus:outline-none focus:ring-2 focus:ring-violet-400';
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
@@ -134,12 +134,12 @@ const ForwardModal: React.FC<ForwardModalProps> = ({ doc, onClose, onConfirm }) 
             <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Nº do Caso / Processo (opcional)</label>
             <input value={caseRef} onChange={e => setCaseRef(e.target.value)} placeholder="Ex: Caso #0042 ou Proc. nº 0012345..." className={inputCls} />
           </div>
-          {done && <div className="bg-green-50 border border-green-200 text-green-700 text-sm font-semibold rounded-xl px-4 py-2">✅ Documento encaminhado com sucesso!</div>}
+          {done && <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold rounded-xl px-4 py-2">✅ Documento encaminhado com sucesso!</div>}
         </div>
         <div className="flex gap-3 p-5 border-t border-gray-200 dark:border-[#2A2545]">
           <button onClick={onClose} className="flex-1 py-2.5 text-sm font-semibold text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50">Cancelar</button>
           <button onClick={handleConfirm} disabled={!to || done}
-            className="flex-1 py-2.5 text-sm font-bold text-white bg-purple-600 rounded-xl hover:bg-purple-700 disabled:opacity-50 transition-all">
+            className="flex-1 py-2.5 text-sm font-bold text-white bg-violet-600 rounded-xl hover:bg-violet-700 disabled:opacity-50 transition-all">
             {done ? '✅ Encaminhado!' : '📤 Encaminhar'}
           </button>
         </div>
@@ -175,7 +175,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ onClose, onSave }) => {
     }, 800);
   };
 
-  const inputCls = 'w-full border border-gray-300 dark:border-[#2A2545] rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white bg-white dark:bg-[#1A1730] focus:outline-none focus:ring-2 focus:ring-purple-400';
+  const inputCls = 'w-full border border-gray-300 dark:border-[#2A2545] rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white bg-white dark:bg-[#1A1730] focus:outline-none focus:ring-2 focus:ring-violet-400';
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
@@ -199,27 +199,27 @@ const UploadModal: React.FC<UploadModalProps> = ({ onClose, onSave }) => {
             <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Arquivo *</label>
             <input ref={fileRef} type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={handleFile} />
             {!file ? (
-              <button onClick={() => fileRef.current?.click()} className="w-full border-2 border-dashed border-purple-200 dark:border-purple-900/40 rounded-xl py-6 text-center hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-colors">
+              <button onClick={() => fileRef.current?.click()} className="w-full border-2 border-dashed border-violet-200 dark:border-violet-900/40 rounded-xl py-6 text-center hover:bg-violet-50 dark:hover:bg-violet-900/10 transition-colors">
                 <p className="text-2xl mb-1">📁</p>
                 <p className="text-xs font-medium text-gray-500">Clique para selecionar (PDF, JPG, PNG)</p>
               </button>
             ) : (
-              <div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-900/10 border border-purple-200 rounded-xl px-4 py-3">
+              <div className="flex items-center gap-3 bg-violet-50 dark:bg-violet-900/10 border border-violet-200 rounded-xl px-4 py-3">
                 <span className="text-xl">{file.type === 'PDF' ? '📄' : '🖼️'}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-bold text-gray-800 dark:text-white truncate">{file.name}</p>
                   <p className="text-[10px] text-gray-400">{file.type} · {file.size}</p>
                 </div>
-                <button onClick={() => setFile(null)} className="text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+                <button onClick={() => setFile(null)} className="text-rose-400 hover:text-rose-600 text-xs font-bold">✕</button>
               </div>
             )}
           </div>
-          {done && <div className="bg-green-50 border border-green-200 text-green-700 text-sm font-semibold rounded-xl px-4 py-2">✅ Documento recebido!</div>}
+          {done && <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm font-semibold rounded-xl px-4 py-2">✅ Documento recebido!</div>}
         </div>
         <div className="flex gap-3 p-5 border-t border-gray-200 dark:border-[#2A2545]">
           <button onClick={onClose} className="flex-1 py-2.5 text-sm font-semibold text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50">Cancelar</button>
           <button onClick={handleSave} disabled={!file || !sender.trim() || !docType || done}
-            className="flex-1 py-2.5 text-sm font-bold text-white bg-purple-600 rounded-xl hover:bg-purple-700 disabled:opacity-50 transition-all">
+            className="flex-1 py-2.5 text-sm font-bold text-white bg-violet-600 rounded-xl hover:bg-violet-700 disabled:opacity-50 transition-all">
             {done ? '✅ Recebido!' : '📥 Confirmar Recebimento'}
           </button>
         </div>
@@ -252,12 +252,12 @@ export const SecretaryDocuments: React.FC = () => {
       {/* Section tabs */}
       <div className="flex gap-2">
         <button onClick={() => setActiveSection('inbox')}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-bold rounded-xl transition-all ${activeSection === 'inbox' ? 'bg-purple-600 text-white' : 'bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] text-gray-600 dark:text-gray-400'}`}>
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-bold rounded-xl transition-all ${activeSection === 'inbox' ? 'bg-violet-600 text-white' : 'bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] text-gray-600 dark:text-gray-400'}`}>
           📥 Inbox de Documentos
-          {pendingCount > 0 && <span className="w-5 h-5 flex items-center justify-center bg-red-500 text-white text-[9px] font-black rounded-full">{pendingCount}</span>}
+          {pendingCount > 0 && <span className="w-5 h-5 flex items-center justify-center bg-rose-500 text-white text-[9px] font-black rounded-full">{pendingCount}</span>}
         </button>
         <button onClick={() => setActiveSection('assinatura')}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-bold rounded-xl transition-all ${activeSection === 'assinatura' ? 'bg-purple-600 text-white' : 'bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] text-gray-600 dark:text-gray-400'}`}>
+          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-bold rounded-xl transition-all ${activeSection === 'assinatura' ? 'bg-violet-600 text-white' : 'bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] text-gray-600 dark:text-gray-400'}`}>
           ✍️ Assinatura Digital
           {pendingSig > 0 && <span className="w-5 h-5 flex items-center justify-center bg-amber-500 text-white text-[9px] font-black rounded-full">{pendingSig}</span>}
         </button>
@@ -268,7 +268,7 @@ export const SecretaryDocuments: React.FC = () => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-xs text-gray-500 dark:text-gray-400">{pendingCount} documento(s) pendente(s) de encaminhamento</p>
-            <button onClick={() => setShowUpload(true)} className="px-4 py-2 bg-purple-600 text-white text-xs font-bold rounded-xl hover:bg-purple-700 transition-colors flex items-center gap-1.5">
+            <button onClick={() => setShowUpload(true)} className="px-4 py-2 bg-violet-600 text-white text-xs font-bold rounded-xl hover:bg-violet-700 transition-colors flex items-center gap-1.5">
               📥 Receber Documento
             </button>
           </div>
@@ -281,7 +281,7 @@ export const SecretaryDocuments: React.FC = () => {
           ) : (
             <div className="space-y-3">
               {inbox.map(doc => (
-                <div key={doc.id} className={`bg-white dark:bg-[#1A1730] border rounded-2xl p-4 transition-all ${doc.status === 'pendente' ? 'border-amber-200 dark:border-amber-900/30' : doc.status === 'encaminhado' ? 'border-green-200 dark:border-green-900/30' : 'border-gray-200 dark:border-[#2A2545] opacity-60'}`}>
+                <div key={doc.id} className={`bg-white dark:bg-[#1A1730] border rounded-2xl p-4 transition-all ${doc.status === 'pendente' ? 'border-amber-200 dark:border-amber-900/30' : doc.status === 'encaminhado' ? 'border-emerald-200 dark:border-emerald-900/30' : 'border-gray-200 dark:border-[#2A2545] opacity-60'}`}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3 min-w-0">
                       <span className="text-2xl shrink-0">{doc.fileType === 'PDF' ? '📄' : '🖼️'}</span>
@@ -290,18 +290,18 @@ export const SecretaryDocuments: React.FC = () => {
                         <p className="text-[11px] text-gray-500 dark:text-gray-400">De: {doc.sender} · {doc.date}</p>
                         <div className="flex gap-1.5 flex-wrap mt-1">
                           <span className="text-[9px] font-bold px-2 py-0.5 bg-gray-100 dark:bg-black/20 text-gray-600 dark:text-gray-400 rounded-full">{doc.docType}</span>
-                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${doc.status === 'pendente' ? 'bg-amber-100 text-amber-700' : doc.status === 'encaminhado' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${doc.status === 'pendente' ? 'bg-amber-100 text-amber-700' : doc.status === 'encaminhado' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'}`}>
                             {doc.status === 'pendente' ? '⏳ Pendente' : doc.status === 'encaminhado' ? '✅ Encaminhado' : '🗄️ Arquivado'}
                           </span>
                         </div>
                         {doc.forwardedTo && (
-                          <p className="text-[10px] text-green-600 dark:text-green-400 mt-1">→ {doc.forwardedTo}{doc.forwardedCase ? ` · ${doc.forwardedCase}` : ''}</p>
+                          <p className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-1">→ {doc.forwardedTo}{doc.forwardedCase ? ` · ${doc.forwardedCase}` : ''}</p>
                         )}
                       </div>
                     </div>
                     {doc.status === 'pendente' && (
                       <div className="flex flex-col gap-1.5 shrink-0">
-                        <button onClick={() => setForwardingDoc(doc)} className="px-3 py-1.5 text-[10px] font-bold text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors whitespace-nowrap">📤 Encaminhar</button>
+                        <button onClick={() => setForwardingDoc(doc)} className="px-3 py-1.5 text-[10px] font-bold text-white bg-violet-600 rounded-lg hover:bg-violet-700 transition-colors whitespace-nowrap">📤 Encaminhar</button>
                         <button onClick={() => handleArchive(doc.id)} className="px-3 py-1.5 text-[10px] font-bold text-gray-500 bg-gray-100 dark:bg-black/20 rounded-lg hover:bg-gray-200 transition-colors">🗄️ Arquivar</button>
                       </div>
                     )}
@@ -343,10 +343,10 @@ export const SecretaryDocuments: React.FC = () => {
                   <div className="mt-3">
                     <div className="flex justify-between text-[10px] text-gray-500 mb-1">
                       <span>{signedCount} de {sig.signers.length} assinatura(s)</span>
-                      <span className={progress === 100 ? 'text-green-600 font-bold' : 'text-amber-600'}>{progress}%</span>
+                      <span className={progress === 100 ? 'text-emerald-600 font-bold' : 'text-amber-600'}>{progress}%</span>
                     </div>
                     <div className="w-full bg-gray-100 dark:bg-black/20 rounded-full h-2">
-                      <div className={`${progress === 100 ? 'bg-green-500' : 'bg-amber-500'} h-2 rounded-full transition-all`} style={{ width: `${progress}%` }} />
+                      <div className={`${progress === 100 ? 'bg-emerald-500' : 'bg-amber-500'} h-2 rounded-full transition-all`} style={{ width: `${progress}%` }} />
                     </div>
                   </div>
                 </div>
@@ -356,7 +356,7 @@ export const SecretaryDocuments: React.FC = () => {
                     <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Signatários</p>
                     {sig.signers.map((signer, i) => (
                       <div key={i} className="flex items-center gap-3">
-                        <span className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold shrink-0 ${signer.signed ? 'bg-green-100 text-green-700' : 'bg-gray-100 dark:bg-black/20 text-gray-400'}`}>
+                        <span className={`w-6 h-6 flex items-center justify-center rounded-full text-xs font-bold shrink-0 ${signer.signed ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 dark:bg-black/20 text-gray-400'}`}>
                           {signer.signed ? '✓' : '○'}
                         </span>
                         <div className="flex-1 min-w-0">
@@ -364,7 +364,7 @@ export const SecretaryDocuments: React.FC = () => {
                           <p className="text-[10px] text-gray-400">{signer.role}{signer.signedAt ? ` · Assinou em ${signer.signedAt}` : ' · Pendente'}</p>
                         </div>
                         {!signer.signed && (
-                          <button className="px-2.5 py-1 text-[9px] font-bold text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 whitespace-nowrap">
+                          <button className="px-2.5 py-1 text-[9px] font-bold text-violet-600 border border-violet-200 rounded-lg hover:bg-violet-50 whitespace-nowrap">
                             📩 Reenviar
                           </button>
                         )}

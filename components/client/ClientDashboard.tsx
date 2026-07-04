@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import type { User, Message, Case, View } from '../../types';
 import { mockLawyers } from '../../services/mockLawyerService';
 import { PaperAirplaneIcon, BriefcaseIcon, VideoCameraIcon, XIcon } from '../common/IconComponents';
+import { DashboardShell, type ShellNavGroup } from '../ui';
+import { backend } from '../../services/modules';
 import { CaseProgressTracker } from '../common/CaseProgressTracker';
 import { ChangePasswordModal } from '../common/ChangePasswordModal';
 import { ChangeEmailModal } from '../common/ChangeEmailModal';
@@ -83,7 +85,7 @@ const FloatingChat: React.FC<FloatingChatProps> = ({
 }) => (
   <div className="fixed bottom-4 right-4 z-50 w-80 sm:w-96 bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl shadow-2xl flex flex-col h-[480px]">
     {/* Header */}
-    <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-[#2A2545] bg-gradient-to-r from-purple-600 to-indigo-600 rounded-t-2xl">
+    <div className="flex items-center gap-3 px-4 py-3 border-b border-gray-100 dark:border-[#2A2545] bg-gradient-to-r from-violet-600 to-violet-800 rounded-t-2xl">
       <img src={lawyer.photoUrl} className="w-9 h-9 rounded-full border-2 border-white/30" alt="" />
       <div className="flex-1 min-w-0">
         <p className="text-sm font-bold text-white truncate">{lawyer.name}</p>
@@ -103,11 +105,11 @@ const FloatingChat: React.FC<FloatingChatProps> = ({
           )}
           <div className={`max-w-[75%] px-3 py-2 rounded-xl text-sm ${
             msg.sender === 'client'
-              ? 'bg-purple-600 text-white rounded-br-none'
+              ? 'bg-violet-600 text-white rounded-br-none'
               : 'bg-gray-100 dark:bg-black/20 text-gray-800 dark:text-gray-200 rounded-bl-none'
           }`}>
             <p>{msg.text}</p>
-            <p className={`text-[10px] mt-0.5 text-right ${msg.sender === 'client' ? 'text-purple-200' : 'text-gray-400'}`}>
+            <p className={`text-[10px] mt-0.5 text-right ${msg.sender === 'client' ? 'text-violet-200' : 'text-gray-400'}`}>
               {msg.timestamp}
             </p>
           </div>
@@ -123,12 +125,12 @@ const FloatingChat: React.FC<FloatingChatProps> = ({
           value={newMessage}
           onChange={e => onNewMessage(e.target.value)}
           placeholder="Digite sua mensagem..."
-          className="flex-1 px-3 py-2 text-sm border border-gray-200 dark:border-[#2A2545] rounded-xl bg-white dark:bg-black/20 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-400"
+          className="flex-1 px-3 py-2 text-sm border border-gray-200 dark:border-[#2A2545] rounded-xl bg-white dark:bg-black/20 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-violet-400"
         />
         <button
           type="submit"
           disabled={!newMessage.trim()}
-          className="p-2 bg-purple-600 text-white rounded-xl hover:bg-purple-700 disabled:opacity-40 transition-colors"
+          className="p-2 bg-violet-600 text-white rounded-xl hover:bg-violet-700 disabled:opacity-40 transition-colors"
         >
           <PaperAirplaneIcon className="w-4 h-4" />
         </button>
@@ -144,9 +146,8 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
 }) => {
   // ── Navigation ──
   const [activeTab, setActiveTab] = useState<ClientTab>('overview');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // ── Chat (flutuante — disponível globalmente) ──
+  // ── Chat (flutuante — persistido no módulo backend.chat) ──
   const [showChat, setShowChat] = useState(false);
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [newMessage, setNewMessage] = useState('');
@@ -201,133 +202,52 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
       timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
       avatarUrl: 'https://i.pravatar.cc/40?u=client',
     };
+    // Persiste via módulo backend.chat (entidades Chat/Mensagens do diagrama)
+    const chat = backend.chat.getOrCreate(`cliente_${user.email}`, `advogado_${resolvedLawyer.id}`);
+    backend.chat.enviar(chat.id, `cliente_${user.email}`, newMessage);
     setMessages(prev => [...prev, msg]);
     setNewMessage('');
   };
 
-  // ── Sidebar item ──
-  const NavItem: React.FC<{ item: typeof MENU_ITEMS[number] }> = ({ item }) => (
+  // ── Navegação (DashboardShell — identidade unificada) ──
+  const navGroups: ShellNavGroup<ClientTab>[] = [
+    {
+      title: 'Meu Painel',
+      items: MENU_ITEMS.slice(0, 2).map(m => ({ id: m.id, label: m.label, icon: m.emoji })),
+    },
+    {
+      title: 'Contratação & Serviços',
+      items: MENU_ITEMS.slice(2, 4).map(m => ({ id: m.id, label: m.label, icon: m.emoji })),
+    },
+    {
+      title: 'Acompanhamento',
+      items: MENU_ITEMS.slice(4).map(m => ({ id: m.id, label: m.label, icon: m.emoji })),
+    },
+  ];
+
+  const chatSidebarButton = activeCase ? (
     <button
-      onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
-      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
-        activeTab === item.id
-          ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
-          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5'
-      }`}
+      onClick={() => setShowChat(v => !v)}
+      className="mb-4 w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-900/30 text-violet-700 dark:text-violet-300 text-xs font-semibold hover:bg-violet-100 dark:hover:bg-violet-900/30 transition-colors"
     >
-      <span className="text-xl shrink-0">{item.emoji}</span>
-      <div className="flex-1 min-w-0">
-        <p className={`text-sm font-semibold truncate ${activeTab === item.id ? 'text-white' : ''}`}>
-          {item.label}
-        </p>
-        <p className={`text-[10px] truncate ${activeTab === item.id ? 'text-purple-200' : 'text-gray-400'}`}>
-          {item.desc}
-        </p>
-      </div>
-      {activeTab === item.id && (
-        <span className="w-1.5 h-1.5 rounded-full bg-white/80 shrink-0" />
-      )}
+      <span>💬</span>
+      <span className="truncate">Chat com {resolvedLawyer.name.split(' ')[1]}</span>
+      <span className="ml-auto w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
     </button>
-  );
-
-  // ── Sidebar ──
-  const Sidebar = () => (
-    <aside className="flex flex-col h-full bg-white dark:bg-[#1A1730] border-r border-gray-200 dark:border-[#2A2545] w-64 shrink-0">
-      {/* Logo area */}
-      <div className="px-5 py-6 border-b border-gray-100 dark:border-[#2A2545]">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shrink-0">
-            {user.name?.charAt(0)?.toUpperCase() || 'C'}
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-bold text-gray-800 dark:text-white truncate">{user.name || 'Cliente'}</p>
-            <p className="text-[10px] text-gray-400 truncate">{user.email}</p>
-          </div>
-        </div>
-        {/* Chat rápido com advogado */}
-        {activeCase && (
-          <button
-            onClick={() => setShowChat(v => !v)}
-            className="mt-3 w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-semibold hover:bg-purple-100 transition-colors"
-          >
-            <span>💬</span>
-            <span className="truncate">Chat com {resolvedLawyer.name.split(' ')[1]}</span>
-            <span className="ml-auto w-2 h-2 rounded-full bg-green-400 animate-pulse shrink-0" />
-          </button>
-        )}
-      </div>
-
-      {/* Navigation */}
-      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {MENU_ITEMS.map(item => <NavItem key={item.id} item={item} />)}
-      </nav>
-
-      {/* Logout */}
-      {onLogout && (
-        <div className="px-3 py-4 border-t border-gray-100 dark:border-[#2A2545]">
-          <button
-            onClick={onLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
-          >
-            <span className="text-xl">🚪</span>
-            <span className="text-sm font-semibold">Sair</span>
-          </button>
-        </div>
-      )}
-    </aside>
-  );
-
-  // ── Section header ──
-  const currentMenu = MENU_ITEMS.find(m => m.id === activeTab);
+  ) : undefined;
 
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-[#0F0C1E] overflow-hidden">
-
-      {/* ── Desktop Sidebar ── */}
-      <div className="hidden lg:flex">
-        <Sidebar />
-      </div>
-
-      {/* ── Mobile Sidebar Overlay ── */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="absolute inset-0 bg-black/60" onClick={() => setSidebarOpen(false)} />
-          <div className="absolute left-0 top-0 h-full w-64 z-50">
-            <Sidebar />
-          </div>
-        </div>
-      )}
-
-      {/* ── Main content ── */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-
-        {/* Mobile top bar */}
-        <header className="lg:hidden flex items-center gap-3 px-4 py-3 bg-white dark:bg-[#1A1730] border-b border-gray-200 dark:border-[#2A2545] shrink-0">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
-          >
-            <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-          <div className="flex items-center gap-2 flex-1 min-w-0">
-            <span className="text-lg">{currentMenu?.emoji}</span>
-            <p className="text-sm font-bold text-gray-800 dark:text-white truncate">{currentMenu?.label}</p>
-          </div>
-          {activeCase && (
-            <button
-              onClick={() => setShowChat(v => !v)}
-              className="p-2 rounded-xl bg-purple-100 dark:bg-purple-900/30 text-purple-600 hover:bg-purple-200 transition-colors relative"
-            >
-              <span className="text-lg">💬</span>
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            </button>
-          )}
-        </header>
-
-        {/* Scrollable content */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+    <>
+      <DashboardShell<ClientTab>
+        userName={user.name || 'Cliente'}
+        panelLabel="Painel do Cliente"
+        groups={navGroups}
+        active={activeTab}
+        onSelect={setActiveTab}
+        onLogout={onLogout}
+        sidebarExtra={chatSidebarButton}
+      >
+        <div className="animate-fade-in">
 
           {/* ── VISÃO GERAL ── */}
           {activeTab === 'overview' && (
@@ -382,8 +302,8 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
             <ClientFinancial />
           )}
 
-        </main>
-      </div>
+        </div>
+      </DashboardShell>
 
       {/* ── Floating Chat ── */}
       {showChat && (
@@ -397,6 +317,6 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
           messagesEndRef={messagesEndRef}
         />
       )}
-    </div>
+    </>
   );
 };

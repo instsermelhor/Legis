@@ -132,23 +132,23 @@ export const SecretariadoSignupForm: React.FC<SecretariadoSignupFormProps> = ({ 
   };
 
   const inputCls = (err?: string) =>
-    `w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:placeholder-gray-500 dark:caret-purple-500 ${err ? 'border-red-400 bg-red-50 dark:bg-red-900/20 dark:border-red-500' : 'border-gray-300 dark:border-[#2A2545]'}`;
+    `w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:placeholder-gray-500 dark:caret-violet-500 ${err ? 'border-rose-400 bg-rose-50 dark:bg-rose-900/20 dark:border-rose-500' : 'border-gray-300 dark:border-[#2A2545]'}`;
 
   const progressBars = ['Dados Pessoais', 'Endereço', 'Experiência'];
 
   return (
     <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden dark:bg-[#1A1730] dark:border-[#2A2545]">
       {/* Progress */}
-      <div className="bg-gradient-to-r from-purple-600 to-purple-500 p-5">
+      <div className="bg-gradient-to-r from-violet-600 to-violet-500 p-5">
         <h2 className="text-lg font-bold text-white mb-3">Cadastro de Secret./Assist. Jurídico</h2>
         <div className="flex items-center gap-2">
           {progressBars.map((label, i) => (
             <React.Fragment key={label}>
               <div className="flex items-center gap-1.5">
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-colors ${step > i + 1 ? 'bg-white text-purple-600 border-white' : step === i + 1 ? 'bg-white text-purple-600 border-white' : 'bg-transparent text-white border-white/50'}`}>
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2 transition-colors ${step > i + 1 ? 'bg-white text-violet-600 border-white' : step === i + 1 ? 'bg-white text-violet-600 border-white' : 'bg-transparent text-white border-white/50'}`}>
                   {step > i + 1 ? '✓' : i + 1}
                 </div>
-                <span className={`text-xs font-medium hidden sm:inline ${step === i + 1 ? 'text-white' : 'text-white/60'}`}>{label}</span>
+                <span className={`text-xs font-medium hidden sm:inline ${step === i + 1 ? 'text-white' : 'text-white/50'}`}>{label}</span>
               </div>
               {i < 2 && <div className={`flex-1 h-0.5 ${step > i + 1 ? 'bg-white' : 'bg-white/30'}`} />}
             </React.Fragment>
@@ -163,13 +163,13 @@ export const SecretariadoSignupForm: React.FC<SecretariadoSignupFormProps> = ({ 
             <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Dados Pessoais</h3>
 
             {/* Foreigner toggle */}
-            <label className="flex items-center gap-3 p-3 bg-orange-50 border border-orange-200 rounded-xl cursor-pointer hover:bg-orange-100 transition-colors">
+            <label className="flex items-center gap-3 p-3 bg-amber-50 border border-amber-200 rounded-xl cursor-pointer hover:bg-amber-100 transition-colors">
               <input type="checkbox" checked={data.isForeigner} onChange={e => setData(d => ({ ...d, isForeigner: e.target.checked }))} className="rounded" />
-              <span className="text-sm font-semibold text-orange-700">🌍 Estrangeiro(a)</span>
+              <span className="text-sm font-semibold text-amber-700">🌍 Estrangeiro(a)</span>
             </label>
 
             {data.isForeigner && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-orange-50 border border-orange-200 rounded-xl">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Documento de Estrangeiro</label>
                   <input value={data.foreignerDocument || ''} onChange={f('foreignerDocument')} className={inputCls()} placeholder="RNE / RNM" />
@@ -189,12 +189,12 @@ export const SecretariadoSignupForm: React.FC<SecretariadoSignupFormProps> = ({ 
               <div className="sm:col-span-2">
                 <label className="block text-xs font-medium text-gray-600 mb-1">Nome Completo *</label>
                 <input value={data.name} onChange={f('name')} className={inputCls(errors.name)} />
-                {errors.name && <p className="text-xs text-red-600 mt-0.5">{errors.name}</p>}
+                {errors.name && <p className="text-xs text-rose-600 mt-0.5">{errors.name}</p>}
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">CPF *</label>
                 <input value={data.cpf} onChange={f('cpf')} placeholder="000.000.000-00" className={inputCls(errors.cpf)} />
-                {errors.cpf && <p className="text-xs text-red-600 mt-0.5">{errors.cpf}</p>}
+                {errors.cpf && <p className="text-xs text-rose-600 mt-0.5">{errors.cpf}</p>}
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">RG</label>
@@ -203,22 +203,22 @@ export const SecretariadoSignupForm: React.FC<SecretariadoSignupFormProps> = ({ 
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Telefone *</label>
                 <input value={data.phone} onChange={f('phone')} placeholder="(11) 99999-9999" className={inputCls(errors.phone)} />
-                {errors.phone && <p className="text-xs text-red-600 mt-0.5">{errors.phone}</p>}
+                {errors.phone && <p className="text-xs text-rose-600 mt-0.5">{errors.phone}</p>}
               </div>
               <div className="sm:col-span-2">
                 <label className="block text-xs font-medium text-gray-600 mb-1">E-mail *</label>
                 <input type="email" value={data.email} onChange={f('email')} className={inputCls(errors.email)} />
-                {errors.email && <p className="text-xs text-red-600 mt-0.5">{errors.email}</p>}
+                {errors.email && <p className="text-xs text-rose-600 mt-0.5">{errors.email}</p>}
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Senha *</label>
                 <input type="password" value={data.password} onChange={f('password')} className={inputCls(errors.password)} />
-                {errors.password && <p className="text-xs text-red-600 mt-0.5">{errors.password}</p>}
+                {errors.password && <p className="text-xs text-rose-600 mt-0.5">{errors.password}</p>}
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Confirmar Senha *</label>
                 <input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className={inputCls(errors.confirm)} />
-                {errors.confirm && <p className="text-xs text-red-600 mt-0.5">{errors.confirm}</p>}
+                {errors.confirm && <p className="text-xs text-rose-600 mt-0.5">{errors.confirm}</p>}
               </div>
             </div>
           </div>
@@ -236,7 +236,7 @@ export const SecretariadoSignupForm: React.FC<SecretariadoSignupFormProps> = ({ 
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Cidade *</label>
                 <input value={data.city} onChange={f('city')} className={inputCls(errors.city)} />
-                {errors.city && <p className="text-xs text-red-600 mt-0.5">{errors.city}</p>}
+                {errors.city && <p className="text-xs text-rose-600 mt-0.5">{errors.city}</p>}
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Estado (UF) *</label>
@@ -244,7 +244,7 @@ export const SecretariadoSignupForm: React.FC<SecretariadoSignupFormProps> = ({ 
                   <option value="">Selecione...</option>
                   {BRAZILIAN_STATES.map(s => <option key={s.uf} value={s.uf}>{s.name} ({s.uf})</option>)}
                 </select>
-                {errors.state && <p className="text-xs text-red-600 mt-0.5">{errors.state}</p>}
+                {errors.state && <p className="text-xs text-rose-600 mt-0.5">{errors.state}</p>}
               </div>
             </div>
           </div>
@@ -279,7 +279,7 @@ export const SecretariadoSignupForm: React.FC<SecretariadoSignupFormProps> = ({ 
                 {AREAS_CONHECIMENTO.map(area => {
                   const selected = data.areasOfKnowledge.includes(area);
                   return (
-                    <label key={area} className={`flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer text-xs font-medium transition-colors ${selected ? 'bg-purple-50 border-purple-300 text-purple-700' : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-purple-200'}`}>
+                    <label key={area} className={`flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer text-xs font-medium transition-colors ${selected ? 'bg-violet-50 border-violet-300 text-violet-700' : 'bg-gray-50 border-gray-200 text-gray-600 hover:border-violet-200'}`}>
                       <input type="checkbox" checked={selected} onChange={() => toggleArea(area)} className="rounded" />
                       {area}
                     </label>
@@ -328,7 +328,7 @@ export const SecretariadoSignupForm: React.FC<SecretariadoSignupFormProps> = ({ 
                             <button
                                 type="button"
                                 onClick={() => removeSocialLink(index)}
-                                className="p-2 text-red-500 hover:text-red-700 transition-colors text-xs"
+                                className="p-2 text-rose-500 hover:text-rose-700 transition-colors text-xs"
                                 title="Remover"
                             >
                                 🗑️
@@ -352,11 +352,11 @@ export const SecretariadoSignupForm: React.FC<SecretariadoSignupFormProps> = ({ 
             Cancelar
           </button>
           {step < 3 ? (
-            <button type="button" onClick={handleNext} className="flex-1 py-2.5 text-sm font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700 transition-colors">
+            <button type="button" onClick={handleNext} className="flex-1 py-2.5 text-sm font-semibold text-white bg-violet-600 rounded-xl hover:bg-violet-700 transition-colors">
               Próximo →
             </button>
           ) : (
-            <button type="submit" className="flex-1 py-2.5 text-sm font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700 transition-colors">
+            <button type="submit" className="flex-1 py-2.5 text-sm font-semibold text-white bg-violet-600 rounded-xl hover:bg-violet-700 transition-colors">
               ✓ Finalizar Cadastro
             </button>
           )}

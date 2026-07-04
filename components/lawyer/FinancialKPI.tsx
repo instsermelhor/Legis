@@ -102,9 +102,9 @@ const BarChart: React.FC<{ data: { month: string; received: number; pending: num
 // ─── Status Badge ─────────────────────────────────────────────────────────────
 const StatusBadge: React.FC<{ status: FinancialTransaction['status'] }> = ({ status }) => {
   const map = {
-    recebido: 'bg-green-100 text-green-800',
+    recebido: 'bg-emerald-100 text-emerald-800',
     pendente: 'bg-amber-100 text-amber-800',
-    inadimplente: 'bg-red-100 text-red-800',
+    inadimplente: 'bg-rose-100 text-rose-800',
   };
   const label = { recebido: 'Recebido', pendente: 'Pendente', inadimplente: 'Inadimplente' };
   return <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${map[status]}`}>{label[status]}</span>;
@@ -236,11 +236,11 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <h2 className="text-xl font-semibold text-gray-700">Resumo Financeiro</h2>
+        <h2 className="text-xl font-bold text-gray-800 dark:text-white">Resumo Financeiro</h2>
         <div className="flex gap-2">
           <button
             onClick={() => exportCSV(filtered)}
-            className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-300 text-xs font-semibold rounded-lg text-gray-700 hover:bg-gray-50 shadow-sm transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+            className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-gray-300 text-xs font-semibold rounded-lg text-gray-700 hover:bg-gray-50 shadow-sm transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
           >
             ⬇ Exportar CSV
           </button>
@@ -257,11 +257,11 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
           { label: 'Faturamento Total', value: fmt(totalGeral), color: 'text-gray-800', bg: 'bg-white' },
-          { label: 'Recebido', value: fmt(totalRecebido), color: 'text-green-700', bg: 'bg-green-50' },
+          { label: 'Recebido', value: fmt(totalRecebido), color: 'text-emerald-700', bg: 'bg-emerald-50' },
           { label: 'Pendente', value: fmt(totalPendente), color: 'text-amber-700', bg: 'bg-amber-50' },
-          { label: 'Inadimplente', value: fmt(totalInadim), color: 'text-red-700', bg: 'bg-red-50' },
+          { label: 'Inadimplente', value: fmt(totalInadim), color: 'text-rose-700', bg: 'bg-rose-50' },
         ].map(k => (
-          <div key={k.label} className={`${k.bg} p-4 rounded-xl border border-gray-200 shadow-sm`}>
+          <div key={k.label} className={`${k.bg} p-4 rounded-2xl border border-gray-200 shadow-sm`}>
             <p className="text-xs text-gray-500 uppercase tracking-wide">{k.label}</p>
             <p className={`text-xl font-bold mt-1 ${k.color}`}>{k.value}</p>
           </div>
@@ -269,7 +269,7 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
       </div>
 
       {/* Bar Chart */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
         <div className="flex items-center justify-between mb-3">
           <p className="text-sm font-semibold text-gray-700">Histórico — Últimos 6 meses</p>
           <div className="flex gap-3 text-xs">
@@ -281,12 +281,12 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
         <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-3">Filtrar Transações</h3>
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1">Período</label>
-            <select value={period} onChange={e => setPeriod(e.target.value as typeof period)} className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+            <select value={period} onChange={e => setPeriod(e.target.value as typeof period)} className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
               <option value="all">Todos</option>
               <option value="30">Últimos 30 dias</option>
               <option value="60">Últimos 60 dias</option>
@@ -297,7 +297,7 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
           </div>
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1">Status</label>
-            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value as typeof statusFilter)} className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+            <select value={statusFilter} onChange={e => setStatusFilter(e.target.value as typeof statusFilter)} className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
               <option value="all">Todos</option>
               <option value="recebido">Recebido</option>
               <option value="pendente">Pendente</option>
@@ -311,7 +311,7 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
               placeholder="Ex: case001..."
               value={processSearch}
               onChange={e => setProcessSearch(e.target.value)}
-              className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+              className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
             />
           </div>
           <div>
@@ -321,14 +321,14 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
               placeholder="Cliente ou descrição..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+              className="w-full text-sm border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
             />
           </div>
         </div>
       </div>
 
       {/* Transactions table */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-x-auto dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
         <table className="w-full text-sm text-left text-gray-600">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
             <tr>
@@ -358,12 +358,12 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
         </table>
         <div className="px-4 py-3 border-t flex justify-between items-center text-xs text-gray-500">
           <span>{filtered.length} transações</span>
-          <span>Total recebido no filtro: <strong className="text-green-700">{fmt(totalRecebido)}</strong></span>
+          <span>Total recebido no filtro: <strong className="text-emerald-700">{fmt(totalRecebido)}</strong></span>
         </div>
       </div>
 
       {/* Seção de Faturamento de Processos (Gestão Jurídica) */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] space-y-6">
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] space-y-6">
         <div>
           <h3 className="text-base font-bold text-gray-800 dark:text-white flex items-center gap-2">
             ⚖️ Faturamento de Processos (Gestão Jurídica)
@@ -375,9 +375,9 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
 
         {/* KPI cards for processes */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-purple-50/50 dark:bg-purple-950/10 p-4 rounded-xl border border-purple-100 dark:border-purple-900/30">
-            <p className="text-[10px] text-purple-750 dark:text-purple-300 uppercase font-bold tracking-wide">Valor Total da Carteira</p>
-            <p className="text-lg font-black text-purple-800 dark:text-purple-300 mt-1">{fmt(procKpis.totalVal)}</p>
+          <div className="bg-violet-50/50 dark:bg-violet-950/10 p-4 rounded-xl border border-violet-100 dark:border-violet-900/30">
+            <p className="text-[10px] text-violet-750 dark:text-violet-300 uppercase font-bold tracking-wide">Valor Total da Carteira</p>
+            <p className="text-lg font-black text-violet-800 dark:text-violet-300 mt-1">{fmt(procKpis.totalVal)}</p>
             <p className="text-[9px] text-gray-400 mt-0.5">{procKpis.count} processos vinculados</p>
           </div>
           <div className="bg-emerald-50/50 dark:bg-emerald-950/10 p-4 rounded-xl border border-emerald-100 dark:border-emerald-900/30">
@@ -424,7 +424,7 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
                     <td className="px-4 py-2.5">{new Date(p.data_entrada).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
                     <td className="px-4 py-2.5">
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                        p.status === 'Concluído' ? 'bg-green-100 text-green-800' :
+                        p.status === 'Concluído' ? 'bg-emerald-100 text-emerald-800' :
                         p.status === 'Em Andamento' ? 'bg-blue-100 text-blue-800' :
                         'bg-amber-100 text-amber-800'
                       }`}>
@@ -466,7 +466,7 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
       {/* Modal de Validação OAB / CPF */}
       {validatingProcess && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setValidatingProcess(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" onClick={e => e.stopPropagation()}>
             <div className="p-6">
               <div className="flex items-center justify-between mb-5">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
@@ -501,7 +501,7 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
                   />
                 </div>
                 {validationError && (
-                  <p className="text-xs text-red-650 font-semibold bg-red-50 border border-red-200 rounded-lg px-3 py-2 dark:bg-red-950/20 dark:border-red-900/30 dark:text-red-400">
+                  <p className="text-xs text-rose-650 font-semibold bg-rose-50 border border-rose-200 rounded-lg px-3 py-2 dark:bg-rose-950/20 dark:border-rose-900/30 dark:text-rose-400">
                     ⚠️ {validationError}
                   </p>
                 )}
@@ -522,7 +522,7 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
       {/* Modal de Gestão e Administração Financeira */}
       {managingProcess && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setManagingProcess(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" onClick={e => e.stopPropagation()}>
             <div className="p-6">
               <div className="flex items-center justify-between mb-5">
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">

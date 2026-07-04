@@ -375,7 +375,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
           </div>
 
           {viewMode === 'profiles' && (
-            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border shadow-sm dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-lg border shadow-sm dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
               <span className="text-sm font-medium text-gray-700">Período:</span>
               <select value={timeFilter} onChange={e => setTimeFilter(e.target.value)} className="text-sm border-none bg-transparent font-bold text-primary focus:outline-none cursor-pointer">
                 <option>Diário</option>
@@ -408,11 +408,11 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
              <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 shadow-sm space-y-1">
                <div className="flex items-center justify-between">
                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Resultado Líquido</span>
-                 <span className={`text-xs px-2 py-0.5 rounded font-bold ${biKpis.totalRes >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                 <span className={`text-xs px-2 py-0.5 rounded font-bold ${biKpis.totalRes >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
                    {biKpis.totalRes >= 0 ? 'Superávit' : 'Déficit'}
                  </span>
                </div>
-               <p className={`text-2xl font-black ${biKpis.totalRes >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+               <p className={`text-2xl font-black ${biKpis.totalRes >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                  R$ {biKpis.totalRes.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}
                </p>
                <p className="text-[10px] text-gray-400">Receita + Transf - Despesa</p>
@@ -440,7 +440,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                </div>
                <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
                  <div
-                   className={`h-full rounded-full ${biKpis.maxTetoPct > 1 ? 'bg-red-500' : 'bg-primary'}`}
+                   className={`h-full rounded-full ${biKpis.maxTetoPct > 1 ? 'bg-rose-500' : 'bg-primary'}`}
                    style={{ width: `${Math.min(100, biKpis.maxTetoPct * 100)}%` }}
                  />
                </div>
@@ -480,7 +480,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                        return (
                          <g>
                            <line x1="40" y1={targetY} x2="480" y2={targetY} stroke="#EF4444" strokeWidth="1.5" strokeDasharray="5,5" />
-                           <text x="400" y={targetY - 5} className="text-[8px] fill-red-500 font-bold">Meta ({ (biApoio.meta_razao_final * 100).toFixed(1) }%)</text>
+                           <text x="400" y={targetY - 5} className="text-[8px] fill-rose-500 font-bold">Meta ({ (biApoio.meta_razao_final * 100).toFixed(1) }%)</text>
                          </g>
                        );
                      })()}
@@ -559,8 +559,8 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                const sums = [
                  { key: 'Custo Operacional', val: processedData.reduce((sum, d) => sum + d.custo, 0), color: 'bg-indigo-600', fill: '#4F46E5', desc: 'Histórico: ~37.3%' },
                  { key: 'Salários e Ordenados', val: processedData.reduce((sum, d) => sum + d.salarios_ordenados, 0), color: 'bg-emerald-600', fill: '#10B981', desc: 'Histórico: ~24.2%' },
-                 { key: 'Despesas Administrativas', val: processedData.reduce((sum, d) => sum + d.despesaAdministrativa, 0), color: 'bg-purple-600', fill: '#8B5CF6', desc: 'Despesas Gerais de Apoio' },
-                 { key: 'Impostos', val: processedData.reduce((sum, d) => sum + d.imposto, 0), color: 'bg-orange-600', fill: '#F97316', desc: 'Encargos Fiscais' },
+                 { key: 'Despesas Administrativas', val: processedData.reduce((sum, d) => sum + d.despesaAdministrativa, 0), color: 'bg-violet-600', fill: '#8B5CF6', desc: 'Despesas Gerais de Apoio' },
+                 { key: 'Impostos', val: processedData.reduce((sum, d) => sum + d.imposto, 0), color: 'bg-amber-600', fill: '#F97316', desc: 'Encargos Fiscais' },
                  { key: 'Juros', val: processedData.reduce((sum, d) => sum + d.juros, 0), color: 'bg-rose-600', fill: '#F43F5E', desc: 'Despesas Financeiras' },
                  { key: 'Glosas', val: processedData.reduce((sum, d) => sum + d.glosa, 0), color: 'bg-amber-600', fill: '#F59E0B', desc: 'Perdas / Estornos' },
                ];
@@ -780,7 +780,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
              <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 shadow-sm space-y-1">
                <div className="flex items-center justify-between">
                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Margem de Lucro Média</span>
-                 <span className="text-xs text-purple-700 bg-purple-50 px-2 py-0.5 rounded font-bold">Rentabilidade</span>
+                 <span className="text-xs text-violet-700 bg-violet-50 px-2 py-0.5 rounded font-bold">Rentabilidade</span>
                </div>
                <p className="text-2xl font-black text-gray-800 dark:text-white">{(aluguelMetrics.avgMargem * 100).toFixed(1)}%</p>
                <p className="text-[10px] text-gray-400">Lucro Total / Faturamento Total</p>
@@ -800,9 +800,9 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
            </div>
 
            {/* Perspective 1: Performance Financeira e Comercial */}
-           <div className="bg-purple-50/20 dark:bg-purple-950/10 border border-purple-100 dark:border-purple-900/30 rounded-2xl p-5 space-y-6">
-             <div className="border-b dark:border-purple-900/30 pb-2">
-               <h3 className="text-sm font-bold text-purple-800 dark:text-purple-300 uppercase tracking-wide flex items-center gap-1.5">
+           <div className="bg-violet-50/20 dark:bg-violet-950/10 border border-violet-100 dark:border-violet-900/30 rounded-2xl p-5 space-y-6">
+             <div className="border-b dark:border-violet-900/30 pb-2">
+               <h3 className="text-sm font-bold text-violet-800 dark:text-violet-300 uppercase tracking-wide flex items-center gap-1.5">
                  <span>📈</span> PERSPECTIVA 1: Performance Financeira e Comercial
                </h3>
              </div>
@@ -915,7 +915,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                            <span className="text-gray-500 font-mono">R$ {p.value.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</span>
                          </div>
                          <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
-                           <div className="h-full rounded-full bg-purple-600" style={{ width: `${pct}%` }} />
+                           <div className="h-full rounded-full bg-violet-600" style={{ width: `${pct}%` }} />
                          </div>
                        </div>
                      );
@@ -998,7 +998,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                        })()}
                        <circle cx="50" cy="50" r="29" className="fill-white dark:fill-[#1A1730]" />
                        <text x="50" y="48" textAnchor="middle" className="text-[6px] font-bold fill-gray-400 uppercase tracking-wider">Inadimplência</text>
-                       <text x="50" y="58" textAnchor="middle" className="text-[8px] font-black fill-red-600">
+                       <text x="50" y="58" textAnchor="middle" className="text-[8px] font-black fill-rose-600">
                          {((aluguelMetrics.valorNaoDevolvido / (aluguelMetrics.totalFat || 1)) * 100).toFixed(1)}%
                        </text>
                      </svg>
@@ -1009,7 +1009,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                      {statusDistribution.map(s => {
                        const colors: Record<string, string> = {
                          'Entregue': 'bg-emerald-500',
-                         'Cancelado': 'bg-red-500',
+                         'Cancelado': 'bg-rose-500',
                          'Em Realização': 'bg-amber-500',
                        };
                        return (
@@ -1059,7 +1059,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
              <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-6 shadow-sm space-y-4">
                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                  <div>
-                   <h4 className="text-sm font-bold text-red-600 dark:text-red-400 flex items-center gap-1.5">
+                   <h4 className="text-sm font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
                      <span>⚠️</span> Detalhe de Serviços Críticos (Ativos Retidos)
                    </h4>
                    <p className="text-xs text-gray-400 mt-0.5">Lista de equipamentos em atraso ou não devolvidos para cobrança operacional.</p>
@@ -1069,7 +1069,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                    <button
                      type="button"
                      onClick={() => setCriticalFilter('critical')}
-                     className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-150 ${criticalFilter === 'critical' ? 'bg-red-500 text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-red-500'}`}
+                     className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all duration-150 ${criticalFilter === 'critical' ? 'bg-rose-500 text-white shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-rose-500'}`}
                    >
                      Apenas Não Devolvidos
                    </button>
@@ -1103,8 +1103,8 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                          <td className="px-4 py-2 text-right font-bold text-gray-800 dark:text-white">R$ {v.valor_total.toLocaleString('pt-BR')}</td>
                          <td className="px-4 py-2 text-center">
                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                             v.status_aluguel === 'Entregue' ? 'bg-green-100 text-green-800' :
-                             v.status_aluguel === 'Cancelado' ? 'bg-red-100 text-red-800' :
+                             v.status_aluguel === 'Entregue' ? 'bg-emerald-100 text-emerald-800' :
+                             v.status_aluguel === 'Cancelado' ? 'bg-rose-100 text-rose-800' :
                              'bg-yellow-100 text-yellow-800'
                            }`}>
                              {v.status_aluguel}
@@ -1129,11 +1129,11 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
           <div className="flex flex-wrap gap-2">
         {[
           { label: `Receita Base (${timeFilter})`, value: `R$ ${totalRevenue.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`, color: 'border-emerald-200 bg-emerald-50 text-emerald-800' },
-          { label: `Receita Serviços (${timeFilter})`, value: `R$ ${servicesRevenue.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`, color: 'border-orange-200 bg-orange-50 text-orange-800' },
+          { label: `Receita Serviços (${timeFilter})`, value: `R$ ${servicesRevenue.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`, color: 'border-amber-200 bg-amber-50 text-amber-800' },
           { label: 'Pendente Advogados', value: `R$ ${totalPending.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`, color: 'border-yellow-200 bg-yellow-50 text-yellow-800' },
-          { label: 'Pendente Clientes', value: `R$ ${clientPending.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`, color: 'border-red-200 bg-red-50 text-red-800' },
+          { label: 'Pendente Clientes', value: `R$ ${clientPending.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`, color: 'border-rose-200 bg-rose-50 text-rose-800' },
           { label: `Bolsas (${timeFilter})`, value: `R$ ${internStipends.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`, color: 'border-blue-200 bg-blue-50 text-blue-800' },
-          { label: `Secret. (${timeFilter})`, value: `R$ ${secretaryFees.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`, color: 'border-purple-200 bg-purple-50 text-purple-800' },
+          { label: `Secret. (${timeFilter})`, value: `R$ ${secretaryFees.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`, color: 'border-violet-200 bg-violet-50 text-violet-800' },
         ].map(({ label, value, color }) => (
           <div key={label} className={`flex flex-col px-4 py-2.5 rounded-xl border ${color} min-w-[140px]`}>
             <span className="text-[10px] font-semibold uppercase tracking-wide opacity-70 leading-tight">{label}</span>
@@ -1143,7 +1143,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
       </div>
 
       {/* Revenue bar chart */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
         <h3 className="text-base font-bold text-gray-800 mb-5">Evolução de Receita Mensal</h3>
         <div className="flex items-end gap-3 h-40">
           {mockMonthlyRevenue.map(m => {
@@ -1161,7 +1161,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
       </div>
 
       {/* Individualized table */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
         <div className="p-5 border-b flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex gap-2 flex-wrap">
             {tabs.map(([t, label, icon, color]) => (
@@ -1171,7 +1171,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${
                   filterType === t
                     ? color === 'purple'
-                      ? 'bg-purple-600 text-white border-purple-600'
+                      ? 'bg-violet-600 text-white border-violet-600'
                       : 'bg-primary text-white border-primary'
                     : 'bg-white text-gray-600 border-gray-200 hover:border-primary/40'
                 }`}
@@ -1279,7 +1279,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
           {/* ─── Secretaries ─────────────────────────────────────────────────── */}
           {filterType === 'secretaries' && (
             <table className="w-full text-sm text-left text-gray-600">
-              <thead className="text-xs text-gray-700 uppercase bg-purple-50 border-b border-purple-100">
+              <thead className="text-xs text-gray-700 uppercase bg-violet-50 border-b border-violet-100">
                 <tr>
                   <th className="px-5 py-3">Secretário(a)</th>
                   <th className="px-5 py-3">UF</th>
@@ -1295,10 +1295,10 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                 {filteredSecretaries.map(s => {
                   const availLabel = s.availability === 'integral' ? 'Integral' : s.availability === 'meio-periodo' ? 'Meio Período' : 'Freelancer';
                   return (
-                    <tr key={s.id} className="border-b hover:bg-purple-50/40">
+                    <tr key={s.id} className="border-b hover:bg-violet-50/40">
                       <td className="px-5 py-3 font-medium text-gray-900">
                         <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-full bg-purple-100 text-purple-700 text-xs font-bold flex items-center justify-center shrink-0">
+                          <div className="w-7 h-7 rounded-full bg-violet-100 text-violet-700 text-xs font-bold flex items-center justify-center shrink-0">
                             {s.name.charAt(0)}
                           </div>
                           {s.name}
@@ -1317,14 +1317,14 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                       </td>
                       <td className="px-5 py-3">
                         <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                          s.status === 'ativo' ? 'bg-green-100 text-green-700' :
+                          s.status === 'ativo' ? 'bg-emerald-100 text-emerald-700' :
                           s.status === 'pendente' ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-red-100 text-red-700'
+                          'bg-rose-100 text-rose-700'
                         }`}>
                           {s.status}
                         </span>
                       </td>
-                      <td className="px-5 py-3 font-semibold text-purple-700">
+                      <td className="px-5 py-3 font-semibold text-violet-700">
                         {s.monthlyFee ? `R$ ${s.monthlyFee.toLocaleString('pt-BR')}` : '—'}
                       </td>
                       <td className="px-5 py-3 text-yellow-700">
@@ -1340,10 +1340,10 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                   <tr><td colSpan={8} className="text-center py-8 text-gray-400">Nenhum resultado.</td></tr>
                 )}
               </tbody>
-              <tfoot className="bg-purple-50 font-semibold text-sm border-t border-purple-100">
+              <tfoot className="bg-violet-50 font-semibold text-sm border-t border-violet-100">
                 <tr>
                   <td colSpan={5} className="px-5 py-3 text-gray-600">Totais</td>
-                  <td className="px-5 py-3 text-purple-700">
+                  <td className="px-5 py-3 text-violet-700">
                     R$ {filteredSecretaries.reduce((a, s) => a + (s.monthlyFee || 0), 0).toLocaleString('pt-BR')}/mês
                   </td>
                   <td className="px-5 py-3 text-yellow-700">

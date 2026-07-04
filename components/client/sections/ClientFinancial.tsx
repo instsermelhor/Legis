@@ -82,7 +82,7 @@ const statusLabels: Record<FaturaStatus, string> = {
 const statusBadgeStyles: Record<FaturaStatus, string> = {
   aberta: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
   paga: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
-  vencida: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+  vencida: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
 };
 
 // ---------------------------------------------------------------------------
@@ -100,17 +100,17 @@ function KpiCard({ label, icon, value, colorClass, subtext }: KpiCardProps) {
   return (
     <div
       className={`rounded-2xl border shadow-sm p-5 flex flex-col gap-2 animate-fade-in
-        bg-white dark:bg-[#1A1730] border-slate-200 dark:border-[#2A2545]
+        bg-white dark:bg-[#1A1730] border-gray-200 dark:border-[#2A2545]
         hover:shadow-md transition-all duration-300`}
     >
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+        <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
           {label}
         </span>
         <span className={`text-2xl`} aria-hidden="true">{icon}</span>
       </div>
       <p className={`text-2xl font-bold ${colorClass}`}>{value}</p>
-      {subtext && <p className="text-xs text-slate-400 dark:text-slate-500">{subtext}</p>}
+      {subtext && <p className="text-xs text-gray-400 dark:text-gray-500">{subtext}</p>}
     </div>
   );
 }
@@ -131,13 +131,13 @@ function SimulatedQRCode() {
   ];
 
   return (
-    <div className="inline-flex flex-col gap-px p-2 rounded-lg bg-white border border-slate-200 dark:border-slate-600">
+    <div className="inline-flex flex-col gap-px p-2 rounded-lg bg-white border border-gray-200 dark:border-gray-600">
       {pattern.map((row, i) => (
         <div key={i} className="flex gap-px">
           {row.map((cell, j) => (
             <div
               key={j}
-              className={`w-3 h-3 rounded-sm ${cell ? 'bg-slate-900' : 'bg-white'}`}
+              className={`w-3 h-3 rounded-sm ${cell ? 'bg-gray-900' : 'bg-white'}`}
             />
           ))}
         </div>
@@ -201,7 +201,7 @@ function PaymentOptions({ metodos, faturaId }: { metodos: MetodoPagamento[]; fat
               ${
                 activeMethod === m
                   ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                  : 'bg-white dark:bg-[#12102A] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-[#2A2545] hover:border-indigo-400 dark:hover:border-indigo-500'
+                  : 'bg-white dark:bg-[#12102A] text-gray-600 dark:text-gray-300 border-gray-200 dark:border-[#2A2545] hover:border-indigo-400 dark:hover:border-indigo-500'
               }`}
             aria-pressed={activeMethod === m}
           >
@@ -212,16 +212,16 @@ function PaymentOptions({ metodos, faturaId }: { metodos: MetodoPagamento[]; fat
 
       {/* PIX */}
       {activeMethod === 'pix' && (
-        <div className="rounded-xl border border-slate-200 dark:border-[#2A2545] bg-slate-50 dark:bg-[#12102A] p-4 animate-fade-in space-y-3">
-          <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+        <div className="rounded-xl border border-gray-200 dark:border-[#2A2545] bg-gray-50 dark:bg-[#12102A] p-4 animate-fade-in space-y-3">
+          <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 flex items-center gap-1.5">
             <span>📲</span> QR Code Pix
           </p>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <SimulatedQRCode />
             <div className="flex-1 space-y-2">
-              <p className="text-xs text-slate-500 dark:text-slate-400">Ou copie o código abaixo:</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Ou copie o código abaixo:</p>
               <div className="flex items-center gap-2">
-                <code className="flex-1 text-[10px] bg-white dark:bg-[#1A1730] border border-slate-200 dark:border-[#2A2545] rounded-lg px-2 py-1.5 text-slate-600 dark:text-slate-300 overflow-hidden text-ellipsis whitespace-nowrap">
+                <code className="flex-1 text-[10px] bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-lg px-2 py-1.5 text-gray-600 dark:text-gray-300 overflow-hidden text-ellipsis whitespace-nowrap">
                   {FAKE_PIX_CODE.slice(0, 40)}…
                 </code>
                 <button
@@ -242,12 +242,12 @@ function PaymentOptions({ metodos, faturaId }: { metodos: MetodoPagamento[]; fat
 
       {/* Boleto */}
       {activeMethod === 'boleto' && (
-        <div className="rounded-xl border border-slate-200 dark:border-[#2A2545] bg-slate-50 dark:bg-[#12102A] p-4 animate-fade-in space-y-2">
-          <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+        <div className="rounded-xl border border-gray-200 dark:border-[#2A2545] bg-gray-50 dark:bg-[#12102A] p-4 animate-fade-in space-y-2">
+          <p className="text-xs font-semibold text-gray-600 dark:text-gray-300 flex items-center gap-1.5">
             <span>🧾</span> Linha Digitável do Boleto
           </p>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
-            <code className="flex-1 text-xs bg-white dark:bg-[#1A1730] border border-slate-200 dark:border-[#2A2545] rounded-lg px-3 py-2 text-slate-600 dark:text-slate-300 font-mono tracking-wider break-all">
+            <code className="flex-1 text-xs bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-lg px-3 py-2 text-gray-600 dark:text-gray-300 font-mono tracking-wider break-all">
               {FAKE_BOLETO}
             </code>
             <button
@@ -255,7 +255,7 @@ function PaymentOptions({ metodos, faturaId }: { metodos: MetodoPagamento[]; fat
               className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 active:scale-95 whitespace-nowrap
                 ${copiedBoleto
                   ? 'bg-emerald-500 text-white'
-                  : 'bg-slate-700 dark:bg-slate-600 text-white hover:bg-slate-800 dark:hover:bg-slate-500'
+                  : 'bg-gray-700 dark:bg-gray-600 text-white hover:bg-gray-800 dark:hover:bg-gray-500'
                 }`}
             >
               {copiedBoleto ? '✅ Copiado!' : 'Copiar'}
@@ -266,7 +266,7 @@ function PaymentOptions({ metodos, faturaId }: { metodos: MetodoPagamento[]; fat
 
       {/* Cartão */}
       {activeMethod === 'cartao' && (
-        <div className="rounded-xl border border-slate-200 dark:border-[#2A2545] bg-slate-50 dark:bg-[#12102A] p-4 animate-fade-in">
+        <div className="rounded-xl border border-gray-200 dark:border-[#2A2545] bg-gray-50 dark:bg-[#12102A] p-4 animate-fade-in">
           <button
             onClick={handleCartao}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-xl
@@ -292,8 +292,8 @@ function FaturaCard({ fatura }: { fatura: Fatura }) {
       className={`rounded-2xl border shadow-sm p-5 transition-all duration-300 hover:shadow-md animate-fade-in
         bg-white dark:bg-[#1A1730]
         ${fatura.status === 'vencida'
-          ? 'border-red-200 dark:border-red-900/50'
-          : 'border-slate-200 dark:border-[#2A2545]'
+          ? 'border-rose-200 dark:border-rose-900/50'
+          : 'border-gray-200 dark:border-[#2A2545]'
         }`}
     >
       {/* Header row */}
@@ -304,10 +304,10 @@ function FaturaCard({ fatura }: { fatura: Fatura }) {
               <span className="text-base mt-0.5 flex-shrink-0" aria-hidden="true">⚠️</span>
             )}
             <div>
-              <p className="text-sm font-semibold text-slate-800 dark:text-white leading-snug">
+              <p className="text-sm font-semibold text-gray-800 dark:text-white leading-snug">
                 {fatura.descricao}
               </p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                 Parcela {fatura.parcela} &middot; Vence em {formatDate(fatura.vencimento)}
               </p>
             </div>
@@ -315,7 +315,7 @@ function FaturaCard({ fatura }: { fatura: Fatura }) {
         </div>
 
         <div className="flex items-center gap-3 sm:flex-col sm:items-end sm:gap-1.5">
-          <p className="text-lg font-bold text-slate-800 dark:text-white">
+          <p className="text-lg font-bold text-gray-800 dark:text-white">
             {formatCurrency(fatura.valor)}
           </p>
           <span
@@ -328,9 +328,9 @@ function FaturaCard({ fatura }: { fatura: Fatura }) {
 
       {/* Vencida warning */}
       {fatura.status === 'vencida' && (
-        <div className="mt-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50">
-          <span className="text-red-500 text-xs" aria-hidden="true">⚠️</span>
-          <p className="text-xs text-red-600 dark:text-red-400 font-medium">
+        <div className="mt-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800/50">
+          <span className="text-rose-500 text-xs" aria-hidden="true">⚠️</span>
+          <p className="text-xs text-rose-600 dark:text-rose-400 font-medium">
             Regularize para evitar juros e cobranças adicionais.
           </p>
         </div>
@@ -392,8 +392,8 @@ export const ClientFinancial: React.FC = () => {
       {/* ------------------------------------------------------------------ */}
       <section>
         <div className="mb-4">
-          <h2 className="text-xl font-bold text-slate-800 dark:text-white">💰 Resumo Financeiro</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-white">💰 Resumo Financeiro</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
             Visão geral dos seus pagamentos e obrigações.
           </p>
         </div>
@@ -417,7 +417,7 @@ export const ClientFinancial: React.FC = () => {
             label="Próximo Vencimento"
             icon="📅"
             value={proximoVencimento ? formatDate(proximoVencimento.vencimento) : '—'}
-            colorClass="text-red-600 dark:text-red-400"
+            colorClass="text-rose-600 dark:text-rose-400"
             subtext={proximoVencimento ? formatCurrency(proximoVencimento.valor) : 'Nenhuma fatura aberta'}
           />
         </div>
@@ -429,15 +429,15 @@ export const ClientFinancial: React.FC = () => {
       <section>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
           <div>
-            <h2 className="text-xl font-bold text-slate-800 dark:text-white">🧾 Minhas Faturas</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-white">🧾 Minhas Faturas</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
               Gerencie e pague suas faturas com facilidade.
             </p>
           </div>
 
           {/* Filter pills */}
           <div
-            className="flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-[#12102A] border border-slate-200 dark:border-[#2A2545] self-start sm:self-auto flex-wrap"
+            className="flex items-center gap-1 p-1 rounded-xl bg-gray-100 dark:bg-[#12102A] border border-gray-200 dark:border-[#2A2545] self-start sm:self-auto flex-wrap"
             role="group"
             aria-label="Filtrar faturas"
           >
@@ -449,7 +449,7 @@ export const ClientFinancial: React.FC = () => {
                   ${
                     filtro === f
                       ? 'bg-white dark:bg-[#2A2545] text-indigo-700 dark:text-indigo-300 shadow-sm'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                   }`}
                 aria-pressed={filtro === f}
               >
@@ -462,8 +462,8 @@ export const ClientFinancial: React.FC = () => {
         {faturasFiltradas.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-14 text-center animate-fade-in">
             <span className="text-5xl mb-4" aria-hidden="true">🎉</span>
-            <h3 className="text-base font-semibold text-slate-700 dark:text-white">Nenhuma fatura encontrada</h3>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+            <h3 className="text-base font-semibold text-gray-700 dark:text-white">Nenhuma fatura encontrada</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               Não há faturas nesta categoria no momento.
             </p>
           </div>
@@ -483,13 +483,13 @@ export const ClientFinancial: React.FC = () => {
       {/* ------------------------------------------------------------------ */}
       <section>
         <div className="mb-4">
-          <h2 className="text-xl font-bold text-slate-800 dark:text-white">💳 Cartões Salvos</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-white">💳 Cartões Salvos</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
             Seus métodos de pagamento cadastrados.
           </p>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 dark:border-[#2A2545] bg-white dark:bg-[#1A1730] shadow-sm p-5">
+        <div className="rounded-2xl border border-gray-200 dark:border-[#2A2545] bg-white dark:bg-[#1A1730] shadow-sm p-5">
           {/* Mock card */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-4">
@@ -502,16 +502,16 @@ export const ClientFinancial: React.FC = () => {
                 VISA
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-800 dark:text-white">Visa •••• 4242</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Vence em 12/27</p>
+                <p className="text-sm font-semibold text-gray-800 dark:text-white">Visa •••• 4242</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Vence em 12/27</p>
               </div>
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={handleManageCards}
-                className="px-4 py-2 text-xs font-semibold rounded-xl border border-slate-200 dark:border-[#2A2545]
-                  text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-[#2A2545]/50
+                className="px-4 py-2 text-xs font-semibold rounded-xl border border-gray-200 dark:border-[#2A2545]
+                  text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#2A2545]/50
                   transition-all duration-200 active:scale-95"
               >
                 Gerenciar Cartões

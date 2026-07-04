@@ -25,7 +25,7 @@ export const ForInternsPage: React.FC<ForInternsPageProps> = ({ onLogin, onSignu
                 return (
                     <div className="w-full">
                         <button onClick={() => setMode('landing')} className="text-sm text-primary hover:underline mb-4">&larr; Voltar</button>
-                        <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                        <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
                             <InternSignupForm onSignup={onSignup} onShowTerms={onShowTerms} />
                         </div>
                     </div>
@@ -69,7 +69,7 @@ export const ForInternsPage: React.FC<ForInternsPageProps> = ({ onLogin, onSignu
                 </div>
             </div>
             {mode === 'landing' && (
-                <div className="bg-neutral-light py-20">
+                <div className="bg-gray-50 dark:bg-[#17142C] py-20">
                     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                         <h2 className="text-3xl font-bold text-center text-gray-900">Vantagens para Bacharelandos e Estagiários</h2>
                         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-10">

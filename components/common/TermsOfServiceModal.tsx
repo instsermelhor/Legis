@@ -16,7 +16,7 @@ export const TermsOfServiceModal: React.FC<ModalProps> = ({ onClose }) => {
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="p-6 border-b flex items-start justify-between">
-                    <h2 className="text-xl font-bold text-gray-800">Termos de Serviço</h2>
+                    <h2 className="text-xl font-bold text-gray-800 dark:text-white">Termos de Serviço</h2>
                     <button
                         onClick={onClose}
                         className="-mt-2 -mr-2 p-2 rounded-full hover:bg-gray-200 transition-colors"

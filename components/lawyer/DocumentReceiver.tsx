@@ -12,7 +12,7 @@ const fmt = (bytes: number) => bytes < 1024 * 1024
   : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 
 const DocIcon: React.FC<{ type: 'pdf' | 'image' }> = ({ type }) => (
-  <span className={`inline-flex items-center justify-center w-10 h-10 rounded-lg text-white font-bold text-xs ${type === 'pdf' ? 'bg-red-500' : 'bg-blue-500'}`}>
+  <span className={`inline-flex items-center justify-center w-10 h-10 rounded-lg text-white font-bold text-xs ${type === 'pdf' ? 'bg-rose-500' : 'bg-blue-500'}`}>
     {type === 'pdf' ? 'PDF' : 'IMG'}
   </span>
 );
@@ -73,11 +73,11 @@ export const DocumentReceiver: React.FC<DocumentReceiverProps> = ({ lawyerId }) 
   return (
     <div className="space-y-5 animate-fade-in">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <h2 className="text-xl font-semibold text-gray-700">Documentos Recebidos</h2>
+        <h2 className="text-xl font-bold text-gray-800 dark:text-white">Documentos Recebidos</h2>
         <div className="flex gap-2">
           <button
             onClick={() => pdfRef.current?.click()}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 shadow-sm transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-rose-600 text-white text-sm font-medium rounded-lg hover:bg-rose-700 shadow-sm transition-colors"
           >
             ⬆ Enviar PDF
           </button>
@@ -120,7 +120,7 @@ export const DocumentReceiver: React.FC<DocumentReceiverProps> = ({ lawyerId }) 
           <p className="text-gray-400 text-xs mt-1">Use o botão acima para enviar arquivos.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm divide-y">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm divide-y">
           {filtered.map(doc => (
             <div key={doc.id} className="flex items-center gap-4 p-4 hover:bg-gray-50">
               <DocIcon type={doc.type} />
@@ -140,7 +140,7 @@ export const DocumentReceiver: React.FC<DocumentReceiverProps> = ({ lawyerId }) 
                 </button>
                 <button
                   onClick={() => setConfirmDelete(doc.id)}
-                  className="px-2 py-1.5 text-xs font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                  className="px-2 py-1.5 text-xs font-medium text-rose-600 bg-rose-50 rounded-lg hover:bg-rose-100 transition-colors"
                   title="Excluir"
                 >
                   🗑
@@ -159,7 +159,7 @@ export const DocumentReceiver: React.FC<DocumentReceiverProps> = ({ lawyerId }) 
             <h3 className="text-lg font-bold text-gray-900">Excluir documento?</h3>
             <p className="text-sm text-gray-500">Esta ação não pode ser desfeita.</p>
             <div className="flex gap-3">
-              <button onClick={() => handleDelete(confirmDelete)} className="flex-1 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700">Excluir</button>
+              <button onClick={() => handleDelete(confirmDelete)} className="flex-1 py-2 bg-rose-600 text-white font-semibold rounded-lg hover:bg-rose-700">Excluir</button>
               <button onClick={() => setConfirmDelete(null)} className="flex-1 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200">Cancelar</button>
             </div>
           </div>

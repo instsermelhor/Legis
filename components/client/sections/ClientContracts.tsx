@@ -69,7 +69,7 @@ type ContratoFiltro = 'Todos' | 'Ativos' | 'Concluídos';
 
 const statusContratoStyles: Record<ContratoStatus, string> = {
   Ativo: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
-  Concluído: 'bg-slate-100 text-slate-600 dark:bg-slate-700/50 dark:text-slate-300',
+  Concluído: 'bg-gray-100 text-gray-600 dark:bg-gray-700/50 dark:text-gray-300',
 };
 
 const statusServicoStyles: Record<ServicoStatus, string> = {
@@ -79,9 +79,9 @@ const statusServicoStyles: Record<ServicoStatus, string> = {
 
 const areaColors: Record<string, string> = {
   Trabalhista: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
-  Família: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300',
-  Cível: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300',
-  Penal: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+  Família: 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300',
+  Cível: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
+  Penal: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
 };
 
 const historicoIcones: Record<HistoricoTipo, string> = {
@@ -125,8 +125,8 @@ function DocumentoAction({ docUrl }: { docUrl: string }) {
       <button
         onClick={handleAction}
         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg
-          bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200
-          dark:bg-slate-700/40 dark:text-slate-300 dark:hover:bg-slate-700/70 dark:border-slate-600
+          bg-gray-50 text-gray-700 hover:bg-gray-100 border border-gray-200
+          dark:bg-gray-700/40 dark:text-gray-300 dark:hover:bg-gray-700/70 dark:border-gray-600
           transition-all duration-200 active:scale-95"
       >
         ⬇️ Baixar
@@ -137,22 +137,22 @@ function DocumentoAction({ docUrl }: { docUrl: string }) {
 
 function ContratoCard({ contrato }: { contrato: typeof MOCK_CONTRATOS[0] }) {
   const status = contrato.status as ContratoStatus;
-  const areaStyle = areaColors[contrato.area] ?? 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300';
+  const areaStyle = areaColors[contrato.area] ?? 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-300';
   const tipoIcone = contrato.tipo.includes('Procuração') ? '📜' : '📄';
 
   return (
     <div
-      className="group rounded-2xl border border-slate-200 dark:border-[#2A2545] bg-white dark:bg-[#1A1730]
+      className="group rounded-2xl border border-gray-200 dark:border-[#2A2545] bg-white dark:bg-[#1A1730]
         shadow-sm hover:shadow-md transition-all duration-300 p-5 animate-fade-in"
     >
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div className="flex items-start gap-3">
           <span className="text-2xl mt-0.5" aria-hidden="true">{tipoIcone}</span>
           <div>
-            <h3 className="font-semibold text-slate-800 dark:text-white text-sm leading-snug">
+            <h3 className="font-semibold text-gray-800 dark:text-white text-sm leading-snug">
               {contrato.tipo}
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
               {contrato.advogado} &middot; <span className="font-mono">{contrato.oab}</span>
             </p>
           </div>
@@ -172,12 +172,12 @@ function ContratoCard({ contrato }: { contrato: typeof MOCK_CONTRATOS[0] }) {
 
       <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
         <div className="flex flex-col">
-          <span className="text-slate-400 dark:text-slate-500 uppercase tracking-wide font-medium">Assinatura</span>
-          <span className="text-slate-700 dark:text-slate-200 font-medium mt-0.5">{contrato.dataAssinatura}</span>
+          <span className="text-gray-400 dark:text-gray-500 uppercase tracking-wide font-medium">Assinatura</span>
+          <span className="text-gray-700 dark:text-gray-200 font-medium mt-0.5">{contrato.dataAssinatura}</span>
         </div>
         <div className="flex flex-col">
-          <span className="text-slate-400 dark:text-slate-500 uppercase tracking-wide font-medium">Valor</span>
-          <span className="text-slate-700 dark:text-slate-200 font-medium mt-0.5">{contrato.valor}</span>
+          <span className="text-gray-400 dark:text-gray-500 uppercase tracking-wide font-medium">Valor</span>
+          <span className="text-gray-700 dark:text-gray-200 font-medium mt-0.5">{contrato.valor}</span>
         </div>
       </div>
 
@@ -191,18 +191,18 @@ function ServicoItem({ servico }: { servico: typeof MOCK_SERVICOS_CONTRATADOS[0]
   return (
     <div
       className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl
-        border border-slate-100 dark:border-[#2A2545] bg-slate-50/60 dark:bg-[#1A1730]/60
+        border border-gray-100 dark:border-[#2A2545] bg-gray-50/60 dark:bg-[#1A1730]/60
         hover:bg-white dark:hover:bg-[#1A1730] hover:shadow-sm transition-all duration-200 animate-fade-in"
     >
       <div className="flex items-center gap-3">
         <span className="text-xl" aria-hidden="true">📦</span>
         <div>
-          <p className="text-sm font-semibold text-slate-800 dark:text-white">{servico.nome}</p>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Contratado em {servico.data}</p>
+          <p className="text-sm font-semibold text-gray-800 dark:text-white">{servico.nome}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Contratado em {servico.data}</p>
         </div>
       </div>
       <div className="flex items-center gap-3 sm:flex-col sm:items-end sm:gap-1">
-        <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{servico.valor}</span>
+        <span className="text-sm font-bold text-gray-700 dark:text-gray-200">{servico.valor}</span>
         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusServicoStyles[status]}`}>
           {status}
         </span>
@@ -234,14 +234,14 @@ function TimelineItem({
           {icone}
         </div>
         {!isLast && (
-          <div className="w-0.5 flex-1 mt-1 bg-slate-200 dark:bg-[#2A2545] min-h-[1.5rem]" />
+          <div className="w-0.5 flex-1 mt-1 bg-gray-200 dark:bg-[#2A2545] min-h-[1.5rem]" />
         )}
       </div>
 
       {/* Content */}
       <div className={`pb-6 ${isLast ? '' : ''}`}>
-        <p className="text-xs font-medium text-slate-400 dark:text-slate-500 mb-0.5">{item.data}</p>
-        <p className="text-sm text-slate-700 dark:text-slate-200">{item.evento}</p>
+        <p className="text-xs font-medium text-gray-400 dark:text-gray-500 mb-0.5">{item.data}</p>
+        <p className="text-sm text-gray-700 dark:text-gray-200">{item.evento}</p>
       </div>
     </div>
   );
@@ -254,8 +254,8 @@ function EmptyState({ section }: { section: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-14 text-center animate-fade-in">
       <span className="text-5xl mb-4" aria-hidden="true">📭</span>
-      <h3 className="text-base font-semibold text-slate-700 dark:text-white">Nenhum {section} encontrado</h3>
-      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-xs">
+      <h3 className="text-base font-semibold text-gray-700 dark:text-white">Nenhum {section} encontrado</h3>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 max-w-xs">
         Quando você formalizar acordos com advogados, eles aparecerão aqui.
       </p>
     </div>
@@ -285,15 +285,15 @@ export const ClientContracts: React.FC<ClientContractsProps> = ({ user: _user })
       <section>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
           <div>
-            <h2 className="text-xl font-bold text-slate-800 dark:text-white">📄 Meus Contratos</h2>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-white">📄 Meus Contratos</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
               Contratos ativos e histórico com advogados parceiros.
             </p>
           </div>
 
           {/* Filter pills */}
           <div
-            className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-[#12102A] border border-slate-200 dark:border-[#2A2545] self-start sm:self-auto"
+            className="flex items-center gap-1.5 p-1 rounded-xl bg-gray-100 dark:bg-[#12102A] border border-gray-200 dark:border-[#2A2545] self-start sm:self-auto"
             role="group"
             aria-label="Filtrar contratos"
           >
@@ -305,7 +305,7 @@ export const ClientContracts: React.FC<ClientContractsProps> = ({ user: _user })
                   ${
                     filtro === f
                       ? 'bg-white dark:bg-[#2A2545] text-indigo-700 dark:text-indigo-300 shadow-sm'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
                   }`}
                 aria-pressed={filtro === f}
               >
@@ -333,8 +333,8 @@ export const ClientContracts: React.FC<ClientContractsProps> = ({ user: _user })
       {/* ------------------------------------------------------------------ */}
       <section>
         <div className="mb-4">
-          <h2 className="text-xl font-bold text-slate-800 dark:text-white">📦 Meus Serviços Contratados</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-white">📦 Meus Serviços Contratados</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
             Serviços de eficiência jurídica que você adquiriu.
           </p>
         </div>
@@ -357,14 +357,14 @@ export const ClientContracts: React.FC<ClientContractsProps> = ({ user: _user })
       {/* ------------------------------------------------------------------ */}
       <section>
         <div className="mb-5">
-          <h2 className="text-xl font-bold text-slate-800 dark:text-white">📅 Histórico de Atividades</h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-white">📅 Histórico de Atividades</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
             Todos os eventos e marcos da sua jornada jurídica.
           </p>
         </div>
 
         <div
-          className="rounded-2xl border border-slate-200 dark:border-[#2A2545] bg-white dark:bg-[#1A1730]
+          className="rounded-2xl border border-gray-200 dark:border-[#2A2545] bg-white dark:bg-[#1A1730]
             shadow-sm p-6"
         >
           {MOCK_HISTORICO.length === 0 ? (

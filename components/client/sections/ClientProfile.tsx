@@ -120,9 +120,9 @@ function areaColorClasses(color: string): { bg: string; text: string; border: st
     amber:  { bg: 'bg-amber-100 dark:bg-amber-900/30',  text: 'text-amber-800 dark:text-amber-300',  border: 'border-amber-300 dark:border-amber-700' },
     rose:   { bg: 'bg-rose-100 dark:bg-rose-900/30',    text: 'text-rose-800 dark:text-rose-300',    border: 'border-rose-300 dark:border-rose-700'   },
     blue:   { bg: 'bg-blue-100 dark:bg-blue-900/30',    text: 'text-blue-800 dark:text-blue-300',    border: 'border-blue-300 dark:border-blue-700'   },
-    red:    { bg: 'bg-red-100 dark:bg-red-900/30',      text: 'text-red-800 dark:text-red-300',      border: 'border-red-300 dark:border-red-700'     },
-    purple: { bg: 'bg-purple-100 dark:bg-purple-900/30',text: 'text-purple-800 dark:text-purple-300',border: 'border-purple-300 dark:border-purple-700'},
-    green:  { bg: 'bg-green-100 dark:bg-green-900/30',  text: 'text-green-800 dark:text-green-300',  border: 'border-green-300 dark:border-green-700' },
+    red:    { bg: 'bg-rose-100 dark:bg-rose-900/30',      text: 'text-rose-800 dark:text-rose-300',      border: 'border-rose-300 dark:border-rose-700'     },
+    purple: { bg: 'bg-violet-100 dark:bg-violet-900/30',text: 'text-violet-800 dark:text-violet-300',border: 'border-violet-300 dark:border-violet-700'},
+    green:  { bg: 'bg-emerald-100 dark:bg-emerald-900/30',  text: 'text-emerald-800 dark:text-emerald-300',  border: 'border-emerald-300 dark:border-emerald-700' },
     teal:   { bg: 'bg-teal-100 dark:bg-teal-900/30',    text: 'text-teal-800 dark:text-teal-300',    border: 'border-teal-300 dark:border-teal-700'   },
   };
   return map[color] ?? map['purple'];
@@ -354,12 +354,12 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({
   const inputCls =
     'w-full border border-gray-300 dark:border-[#2A2545] rounded-xl px-3 py-2.5 text-sm ' +
     'bg-white text-gray-900 dark:bg-[#1A1730] dark:text-white ' +
-    'focus:outline-none focus:ring-2 focus:ring-purple-500/40 transition-shadow placeholder-gray-400 dark:placeholder-gray-500';
+    'focus:outline-none focus:ring-2 focus:ring-violet-500/40 transition-shadow placeholder-gray-400 dark:placeholder-gray-500';
 
   const selectCls =
     'w-full border border-gray-300 dark:border-[#2A2545] rounded-xl px-3 py-2.5 text-sm ' +
     'bg-white text-gray-900 dark:bg-[#1A1730] dark:text-white ' +
-    'focus:outline-none focus:ring-2 focus:ring-purple-500/40 transition-shadow';
+    'focus:outline-none focus:ring-2 focus:ring-violet-500/40 transition-shadow';
 
   const labelCls =
     'block text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-wider mb-1.5';
@@ -493,7 +493,7 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({
                 id="kyc-btn-buscar-cep"
                 onClick={handleBuscarCEP}
                 disabled={cepLoading || form.cep.replace(/\D/g, '').length < 8}
-                className="shrink-0 px-4 py-2.5 rounded-xl text-sm font-semibold bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white transition-colors flex items-center gap-1.5"
+                className="shrink-0 px-4 py-2.5 rounded-xl text-sm font-semibold bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed text-white transition-colors flex items-center gap-1.5"
               >
                 {cepLoading ? (
                   <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -600,12 +600,12 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({
             id="kyc-btn-salvar"
             type="button"
             onClick={handleSaveForm}
-            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold text-sm hover:from-purple-700 hover:to-indigo-700 active:scale-95 transition-all shadow-md shadow-purple-500/20"
+            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-violet-800 text-white font-semibold text-sm hover:from-violet-700 hover:to-violet-900 active:scale-95 transition-all shadow-md shadow-violet-500/20"
           >
             💾 Salvar Dados
           </button>
           {formSaved && (
-            <span className="flex items-center gap-1.5 text-sm font-semibold text-green-600 dark:text-green-400 animate-fade-in">
+            <span className="flex items-center gap-1.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400 animate-fade-in">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
@@ -651,7 +651,7 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({
             id="doc-btn-enviar"
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold text-sm hover:from-purple-700 hover:to-indigo-700 active:scale-95 transition-all shadow-md shadow-purple-500/20"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-violet-800 text-white font-semibold text-sm hover:from-violet-700 hover:to-violet-900 active:scale-95 transition-all shadow-md shadow-violet-500/20"
           >
             📎 Enviar Documentos
           </button>
@@ -691,7 +691,7 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({
                   id={`doc-btn-remover-${doc.id}`}
                   type="button"
                   onClick={() => handleRemoveDoc(doc.id)}
-                  className="shrink-0 text-red-500 hover:text-red-700 text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                  className="shrink-0 text-rose-500 hover:text-rose-700 text-xs font-semibold px-3 py-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors"
                 >
                   Remover
                 </button>
@@ -716,27 +716,27 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({
       ═══════════════════════════════════════════════════════════════════ */}
       <div className="relative rounded-2xl shadow-lg overflow-hidden">
         {/* Borda gradiente roxa/azul */}
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-600 via-indigo-500 to-blue-600 p-[2px] pointer-events-none" aria-hidden="true" />
-        <div className="relative bg-white dark:bg-[#13112A] rounded-2xl ring-2 ring-purple-500/30 p-6">
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-violet-600 via-indigo-500 to-blue-600 p-[2px] pointer-events-none" aria-hidden="true" />
+        <div className="relative bg-white dark:bg-[#13112A] rounded-2xl ring-2 ring-violet-500/30 p-6">
 
           {/* Cabeçalho */}
           <div className="mb-6">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-xl shadow-lg shadow-purple-500/30">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-600 to-violet-800 flex items-center justify-center text-xl shadow-lg shadow-violet-500/30">
                 🤖
               </div>
               <div>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                   Triagem com Inteligência Artificial
                 </h2>
-                <p className="text-xs text-purple-600 dark:text-purple-400 font-medium">
+                <p className="text-xs text-violet-600 dark:text-violet-400 font-medium">
                   Powered by Legis Connect AI
                 </p>
               </div>
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-300 mt-2 leading-relaxed">
               Descreva seu problema com suas próprias palavras —{' '}
-              <span className="font-semibold text-purple-600 dark:text-purple-400">sem juridiquês</span>.
+              <span className="font-semibold text-violet-600 dark:text-violet-400">sem juridiquês</span>.
               Nossa IA identifica a área jurídica e recomenda os melhores advogados para o seu caso.
             </p>
           </div>
@@ -760,7 +760,7 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({
                   className={
                     'w-full resize-none border border-gray-300 dark:border-[#2A2545] rounded-xl px-4 py-3 text-sm ' +
                     'bg-white text-gray-900 dark:bg-[#1A1730] dark:text-white ' +
-                    'focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-shadow ' +
+                    'focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-shadow ' +
                     'placeholder-gray-400 dark:placeholder-gray-500 ' +
                     (triageLoading ? 'opacity-60 cursor-not-allowed' : '')
                   }
@@ -768,7 +768,7 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({
                 />
                 {/* Contador de caracteres */}
                 <div className="absolute bottom-3 right-3 text-xs text-gray-400 dark:text-gray-500 select-none">
-                  <span className={triageText.length < 20 ? 'text-red-400' : 'text-green-500'}>
+                  <span className={triageText.length < 20 ? 'text-rose-400' : 'text-emerald-500'}>
                     {triageText.length}
                   </span>
                   /500
@@ -777,18 +777,18 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({
 
               {/* Aviso mínimo */}
               {triageText.length > 0 && triageText.length < 20 && (
-                <p className="text-xs text-red-500 mb-3">
+                <p className="text-xs text-rose-500 mb-3">
                   ⚠️ Descreva mais detalhes (mínimo 20 caracteres).
                 </p>
               )}
 
               {/* ── LOADING / ESTÁGIOS ── */}
               {triageLoading && (
-                <div className="mb-5 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border border-purple-200 dark:border-purple-700/50 rounded-xl p-5">
+                <div className="mb-5 bg-gradient-to-br from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 border border-violet-200 dark:border-violet-700/50 rounded-xl p-5">
                   {/* Barra de progresso */}
                   <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mb-5 overflow-hidden">
                     <div
-                      className="h-2 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 transition-all duration-700"
+                      className="h-2 rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 transition-all duration-700"
                       style={{ width: `${(triageStage / 3) * 100}%` }}
                     />
                   </div>
@@ -808,16 +808,16 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({
                         >
                           {/* Ícone de status */}
                           {isDone ? (
-                            <span className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-xs shrink-0">✓</span>
+                            <span className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-white text-xs shrink-0">✓</span>
                           ) : isCurrent ? (
-                            <svg className="w-6 h-6 text-purple-500 animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
+                            <svg className="w-6 h-6 text-violet-500 animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                             </svg>
                           ) : (
                             <span className="w-6 h-6 rounded-full border-2 border-gray-300 dark:border-gray-600 shrink-0" />
                           )}
-                          <span className={`text-sm font-medium ${isCurrent ? 'text-purple-700 dark:text-purple-300' : isDone ? 'text-green-700 dark:text-green-400 line-through' : 'text-gray-500 dark:text-gray-400'}`}>
+                          <span className={`text-sm font-medium ${isCurrent ? 'text-violet-700 dark:text-violet-300' : isDone ? 'text-emerald-700 dark:text-emerald-400 line-through' : 'text-gray-500 dark:text-gray-400'}`}>
                             {stage.icon} {stage.label}
                           </span>
                         </div>
@@ -836,7 +836,7 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({
                 className={
                   'w-full py-3.5 rounded-xl font-bold text-sm transition-all ' +
                   (triageText.trim().length >= 20 && !triageLoading
-                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg shadow-purple-500/30 active:scale-95'
+                    ? 'bg-gradient-to-r from-violet-600 to-violet-800 hover:from-violet-700 hover:to-violet-900 text-white shadow-lg shadow-violet-500/30 active:scale-95'
                     : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed')
                 }
               >
@@ -869,7 +869,7 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({
             id="security-btn-senha"
             type="button"
             onClick={() => setShowPasswordModal(true)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-purple-500 text-purple-600 dark:text-purple-400 font-semibold text-sm hover:bg-purple-50 dark:hover:bg-purple-900/20 active:scale-95 transition-all"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl border-2 border-violet-500 text-violet-600 dark:text-violet-400 font-semibold text-sm hover:bg-violet-50 dark:hover:bg-violet-900/20 active:scale-95 transition-all"
           >
             🔒 Alterar Senha
           </button>
@@ -914,15 +914,15 @@ const TriageResultView: React.FC<TriageResultViewProps> = ({ result, onReset }) 
   const colors = areaColorClasses(classification.color);
 
   const confidenceConfig = {
-    alta:  { label: 'Alta',  cls: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border-green-300 dark:border-green-700' },
+    alta:  { label: 'Alta',  cls: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700' },
     média: { label: 'Média', cls: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border-amber-300 dark:border-amber-700' },
     baixa: { label: 'Baixa', cls: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400 border-gray-300 dark:border-gray-600' },
   };
 
   const complexityDot = {
-    simples:  'bg-green-500',
+    simples:  'bg-emerald-500',
     moderada: 'bg-amber-500',
-    complexa: 'bg-red-500',
+    complexa: 'bg-rose-500',
   };
 
   return (
@@ -963,7 +963,7 @@ const TriageResultView: React.FC<TriageResultViewProps> = ({ result, onReset }) 
             {classification.keywords.map((kw) => (
               <span
                 key={kw}
-                className="text-xs px-2.5 py-1 rounded-full bg-white/60 dark:bg-black/20 border border-current/20 font-medium capitalize"
+                className="text-xs px-2.5 py-1 rounded-full bg-white/50 dark:bg-black/20 border border-current/20 font-medium capitalize"
               >
                 #{kw}
               </span>
@@ -988,7 +988,7 @@ const TriageResultView: React.FC<TriageResultViewProps> = ({ result, onReset }) 
                 <img
                   src={lawyer.photoUrl}
                   alt={lawyer.name}
-                  className="w-12 h-12 rounded-full object-cover ring-2 ring-purple-500/30"
+                  className="w-12 h-12 rounded-full object-cover ring-2 ring-violet-500/30"
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(lawyer.name)}&background=7c3aed&color=fff`;
                   }}
@@ -1014,7 +1014,7 @@ const TriageResultView: React.FC<TriageResultViewProps> = ({ result, onReset }) 
                 {lawyer.specialties.slice(0, 2).map((sp) => (
                   <span
                     key={sp}
-                    className="text-[10px] px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 font-semibold"
+                    className="text-[10px] px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 font-semibold"
                   >
                     {sp}
                   </span>
@@ -1025,7 +1025,7 @@ const TriageResultView: React.FC<TriageResultViewProps> = ({ result, onReset }) 
               {lawyer.consultationFee != null && (
                 <p className="text-xs font-bold text-gray-700 dark:text-gray-200">
                   💰 Consulta a partir de{' '}
-                  <span className="text-purple-600 dark:text-purple-400">
+                  <span className="text-violet-600 dark:text-violet-400">
                     R$ {lawyer.consultationFee.toLocaleString('pt-BR')}
                   </span>
                 </p>
@@ -1036,7 +1036,7 @@ const TriageResultView: React.FC<TriageResultViewProps> = ({ result, onReset }) 
                 id={`triage-btn-agendar-${lawyer.id}`}
                 type="button"
                 onClick={() => alert('Navegando para agendamento...')}
-                className="mt-auto w-full py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-bold hover:from-purple-700 hover:to-indigo-700 active:scale-95 transition-all shadow-md shadow-purple-500/20"
+                className="mt-auto w-full py-2 rounded-xl bg-gradient-to-r from-violet-600 to-violet-800 text-white text-xs font-bold hover:from-violet-700 hover:to-violet-900 active:scale-95 transition-all shadow-md shadow-violet-500/20"
               >
                 📅 Agendar Consulta
               </button>
@@ -1050,7 +1050,7 @@ const TriageResultView: React.FC<TriageResultViewProps> = ({ result, onReset }) 
         id="triage-btn-refazer"
         type="button"
         onClick={onReset}
-        className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 font-medium transition-colors"
+        className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-violet-600 dark:hover:text-violet-400 font-medium transition-colors"
       >
         🔄 Refazer análise
       </button>

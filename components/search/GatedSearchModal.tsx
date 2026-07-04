@@ -78,7 +78,7 @@ export const GatedSearchModal: React.FC<GatedSearchModalProps> = ({
           {done ? (
             /* ─── Success state ────────────────────────────────────────────── */
             <div className="text-center py-4 animate-scale-in">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-500/20 border border-green-500/30 text-3xl mb-4">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-3xl mb-4">
                 ✅
               </div>
               <h3 className="font-montserrat text-xl font-bold text-white mb-2">Acesso Liberado!</h3>
@@ -107,7 +107,7 @@ export const GatedSearchModal: React.FC<GatedSearchModalProps> = ({
                   { icon: '🔒', label: 'Dados LGPD Protegidos' },
                   { icon: '⚡', label: 'Acesso Imediato' },
                 ].map(b => (
-                  <div key={b.label} className="rounded-xl bg-white/4 border border-white/8 p-3">
+                  <div key={b.label} className="rounded-xl bg-white/5 border border-white/10 p-3">
                     <div className="text-lg mb-1">{b.icon}</div>
                     <p className="text-[10px] text-gray-400 leading-tight">{b.label}</p>
                   </div>
@@ -127,7 +127,7 @@ export const GatedSearchModal: React.FC<GatedSearchModalProps> = ({
                     onChange={e => setName(e.target.value)}
                     placeholder="Seu nome completo"
                     required
-                    className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 text-sm focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all"
+                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/30 text-sm focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
                     style={{ colorScheme: 'dark' }}
                   />
                 </div>
@@ -145,7 +145,7 @@ export const GatedSearchModal: React.FC<GatedSearchModalProps> = ({
                     placeholder="000.000.000-00"
                     inputMode="numeric"
                     required
-                    className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 text-sm focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all"
+                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/30 text-sm focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
                     style={{ colorScheme: 'dark' }}
                   />
                 </div>
@@ -162,18 +162,18 @@ export const GatedSearchModal: React.FC<GatedSearchModalProps> = ({
                     onChange={e => setEmail(e.target.value)}
                     placeholder="seu@email.com"
                     required
-                    className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 text-sm focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all"
+                    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/15 text-white placeholder-white/30 text-sm focus:outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all"
                     style={{ colorScheme: 'dark' }}
                   />
                 </div>
 
                 {/* Error */}
                 {error && (
-                  <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/25">
-                    <svg className="w-4 h-4 text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-rose-500/10 border border-rose-500/25">
+                    <svg className="w-4 h-4 text-rose-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
-                    <p className="text-sm text-red-400">{error}</p>
+                    <p className="text-sm text-rose-400">{error}</p>
                   </div>
                 )}
 

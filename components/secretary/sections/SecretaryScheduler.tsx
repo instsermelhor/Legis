@@ -60,14 +60,14 @@ const ROOMS = ['Sala A', 'Sala B', 'Sala de Reuniões', 'Online (Meet)', 'Online
 const TYPE_META = {
   consulta:  { label: 'Consulta',  color: 'bg-emerald-100 text-emerald-700 border-emerald-200', dot: 'bg-emerald-500' },
   reuniao:   { label: 'Reunião',   color: 'bg-blue-100 text-blue-700 border-blue-200',          dot: 'bg-blue-500'    },
-  audiencia: { label: 'Audiência', color: 'bg-red-100 text-red-700 border-red-200',             dot: 'bg-red-500'     },
+  audiencia: { label: 'Audiência', color: 'bg-rose-100 text-rose-700 border-rose-200',             dot: 'bg-rose-500'     },
   online:    { label: 'Online',    color: 'bg-violet-100 text-violet-700 border-violet-200',    dot: 'bg-violet-500'  },
 };
 
 const STATUS_META = {
-  confirmado: 'bg-green-100 text-green-700',
+  confirmado: 'bg-emerald-100 text-emerald-700',
   pendente:   'bg-amber-100 text-amber-700',
-  cancelado:  'bg-red-100 text-red-700',
+  cancelado:  'bg-rose-100 text-rose-700',
 };
 
 // ─── New Appointment Modal ────────────────────────────────────────────────────
@@ -108,7 +108,7 @@ const NewApptModal: React.FC<NewApptModalProps> = ({ onClose, onSave, lawyers, p
     }, 800);
   };
 
-  const inputCls = 'w-full border border-gray-300 dark:border-[#2A2545] rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white bg-white dark:bg-[#1A1730] focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all';
+  const inputCls = 'w-full border border-gray-300 dark:border-[#2A2545] rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white bg-white dark:bg-[#1A1730] focus:outline-none focus:ring-2 focus:ring-violet-400 transition-all';
   const labelCls = 'block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5';
 
   return (
@@ -189,12 +189,12 @@ const NewApptModal: React.FC<NewApptModalProps> = ({ onClose, onSave, lawyers, p
             <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
               rows={2} placeholder="Instruções para o cliente, pauta da reunião..." className={inputCls} />
           </div>
-          {saved && <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900 text-green-700 dark:text-green-400 text-sm font-semibold rounded-xl px-4 py-2">✅ Agendamento confirmado!</div>}
+          {saved && <div className="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-900 text-emerald-700 dark:text-emerald-400 text-sm font-semibold rounded-xl px-4 py-2">✅ Agendamento confirmado!</div>}
         </div>
         <div className="flex gap-3 p-5 border-t border-gray-200 dark:border-[#2A2545]">
           <button onClick={onClose} className="flex-1 py-2.5 text-sm font-semibold text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-[#2A2545] rounded-xl hover:bg-gray-50 dark:hover:bg-black/20">Cancelar</button>
           <button onClick={handleSave} disabled={!form.title.trim() || !form.client.trim() || saved}
-            className="flex-1 py-2.5 text-sm font-bold text-white bg-purple-600 rounded-xl hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+            className="flex-1 py-2.5 text-sm font-bold text-white bg-violet-600 rounded-xl hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
             {saved ? '✅ Agendado!' : '💾 Confirmar Agendamento'}
           </button>
         </div>
@@ -236,9 +236,9 @@ const ApptCard: React.FC<{ appt: Appointment; lawyer: MockLawyer | undefined; on
       )}
       {appt.notes && <p className="text-[10px] text-gray-400 italic border-t border-gray-100 dark:border-[#2A2545] pt-2">{appt.notes}</p>}
       <div className="flex gap-2 pt-1">
-        <button className="flex-1 py-1.5 text-[10px] font-bold text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-colors">✉️ Enviar Lembrete</button>
+        <button className="flex-1 py-1.5 text-[10px] font-bold text-violet-600 border border-violet-200 rounded-lg hover:bg-violet-50 dark:hover:bg-violet-900/10 transition-colors">✉️ Enviar Lembrete</button>
         {appt.status !== 'cancelado' && (
-          <button onClick={() => onCancel(appt.id)} className="flex-1 py-1.5 text-[10px] font-bold text-red-500 border border-red-200 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">✕ Cancelar</button>
+          <button onClick={() => onCancel(appt.id)} className="flex-1 py-1.5 text-[10px] font-bold text-rose-500 border border-rose-200 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-colors">✕ Cancelar</button>
         )}
       </div>
     </div>
@@ -289,7 +289,7 @@ export const SecretaryScheduler: React.FC = () => {
           <p className="text-xs text-gray-500 dark:text-gray-400">{totalToday} compromisso(s) hoje · {totalPending} pendente(s)</p>
         </div>
         <button onClick={() => setShowModal(true)}
-          className="px-5 py-2.5 bg-purple-600 text-white text-sm font-bold rounded-xl hover:bg-purple-700 shadow-sm transition-all flex items-center gap-2">
+          className="px-5 py-2.5 bg-violet-600 text-white text-sm font-bold rounded-xl hover:bg-violet-700 shadow-sm transition-all flex items-center gap-2">
           ➕ Novo Agendamento
         </button>
       </div>
@@ -316,19 +316,19 @@ export const SecretaryScheduler: React.FC = () => {
       <div className="flex gap-1 overflow-x-auto pb-1">
         {dateTabs.map(dt => (
           <button key={dt.value} onClick={() => setSelectedDate(dt.value)}
-            className={`shrink-0 px-4 py-2 text-xs font-bold rounded-xl transition-all ${selectedDate === dt.value ? 'bg-purple-600 text-white' : 'bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] text-gray-600 dark:text-gray-400 hover:border-purple-300'}`}>
+            className={`shrink-0 px-4 py-2 text-xs font-bold rounded-xl transition-all ${selectedDate === dt.value ? 'bg-violet-600 text-white' : 'bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] text-gray-600 dark:text-gray-400 hover:border-violet-300'}`}>
             {dt.label}
           </button>
         ))}
         <input type="date" value={selectedDate} onChange={e => setSelectedDate(e.target.value)}
-          className="shrink-0 px-3 py-2 text-xs font-bold rounded-xl border border-gray-200 dark:border-[#2A2545] bg-white dark:bg-[#1A1730] text-gray-600 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-400 cursor-pointer" />
+          className="shrink-0 px-3 py-2 text-xs font-bold rounded-xl border border-gray-200 dark:border-[#2A2545] bg-white dark:bg-[#1A1730] text-gray-600 dark:text-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-400 cursor-pointer" />
       </div>
 
       {/* Status filter */}
       <div className="flex gap-2">
         {(['todos', 'confirmado', 'pendente', 'cancelado'] as const).map(s => (
           <button key={s} onClick={() => setFilterStatus(s)}
-            className={`px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all ${filterStatus === s ? 'bg-purple-600 text-white' : 'bg-gray-100 dark:bg-black/20 text-gray-500 hover:bg-gray-200'}`}>
+            className={`px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all ${filterStatus === s ? 'bg-violet-600 text-white' : 'bg-gray-100 dark:bg-black/20 text-gray-500 hover:bg-gray-200'}`}>
             {s === 'todos' ? 'Todos' : s.charAt(0).toUpperCase() + s.slice(1)}
           </button>
         ))}
@@ -340,7 +340,7 @@ export const SecretaryScheduler: React.FC = () => {
           <p className="text-4xl mb-3">📅</p>
           <h4 className="font-bold text-gray-700 dark:text-gray-300">Nenhum compromisso neste dia</h4>
           <p className="text-xs text-gray-400 mt-1 max-w-xs mx-auto">Selecione outro dia ou clique em "Novo Agendamento"</p>
-          <button onClick={() => setShowModal(true)} className="mt-4 px-5 py-2 bg-purple-600 text-white text-xs font-bold rounded-xl hover:bg-purple-700 transition-colors">
+          <button onClick={() => setShowModal(true)} className="mt-4 px-5 py-2 bg-violet-600 text-white text-xs font-bold rounded-xl hover:bg-violet-700 transition-colors">
             ➕ Agendar agora
           </button>
         </div>
@@ -365,9 +365,9 @@ export const SecretaryScheduler: React.FC = () => {
             const roomAppts = appointments.filter(a => a.date === selectedDate && a.room === room && a.status !== 'cancelado');
             const isBusy = roomAppts.length > 0;
             return (
-              <div key={room} className={`p-3 rounded-xl border-2 transition-all ${isBusy ? 'border-red-300 bg-red-50 dark:bg-red-900/10 dark:border-red-900/30' : 'border-green-300 bg-green-50 dark:bg-green-900/10 dark:border-green-900/30'}`}>
+              <div key={room} className={`p-3 rounded-xl border-2 transition-all ${isBusy ? 'border-rose-300 bg-rose-50 dark:bg-rose-900/10 dark:border-rose-900/30' : 'border-emerald-300 bg-emerald-50 dark:bg-emerald-900/10 dark:border-emerald-900/30'}`}>
                 <p className="text-xs font-bold text-gray-800 dark:text-white">{room}</p>
-                <p className={`text-[10px] font-bold mt-1 ${isBusy ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
+                <p className={`text-[10px] font-bold mt-1 ${isBusy ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400'}`}>
                   {isBusy ? `● Ocupada (${roomAppts.length}x)` : '● Disponível'}
                 </p>
                 {isBusy && <p className="text-[9px] text-gray-400 mt-0.5">{roomAppts.map(a => a.startTime).join(', ')}</p>}

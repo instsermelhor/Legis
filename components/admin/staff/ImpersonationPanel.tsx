@@ -67,7 +67,7 @@ export const ImpersonationBanner: React.FC<{ onEnd: () => void }> = ({ onEnd }) 
       </div>
       <button
         onClick={onEnd}
-        className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded transition"
+        className="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white text-sm font-semibold rounded transition"
       >
         ✕ Encerrar Modo Espelho
       </button>
@@ -244,7 +244,7 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
             </div>
             <button
               onClick={handleEndSession}
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-bold rounded-lg transition flex-shrink-0"
+              className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white text-sm font-bold rounded-lg transition flex-shrink-0"
             >
               Encerrar Sessão
             </button>
@@ -291,7 +291,7 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
                     : 'hover:bg-gray-50 dark:hover:bg-[#1A1730]'
                 }`}
               >
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
                   {t.name.charAt(0)}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -300,7 +300,7 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
                 </div>
                 <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${
                   t.role === 'client' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
-                  t.role === 'lawyer' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
+                  t.role === 'lawyer' ? 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400' :
                   'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300'
                 }`}>
                   {t.role}
@@ -313,7 +313,7 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
           {/* Justificativa */}
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Justificativa <span className="text-red-500">*</span>
+              Justificativa <span className="text-rose-500">*</span>
               <span className="text-gray-400 font-normal ml-1">(mín. 20 caracteres — registrado em auditoria)</span>
             </label>
             <textarea
@@ -324,15 +324,15 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-[#1E1B3A] text-gray-900 dark:text-white text-sm resize-none focus:ring-2 focus:ring-violet-500"
             />
             <div className="flex justify-between mt-1">
-              <p className={`text-xs ${justification.length < 20 ? 'text-red-400' : 'text-green-500'}`}>
+              <p className={`text-xs ${justification.length < 20 ? 'text-rose-400' : 'text-emerald-500'}`}>
                 {justification.length}/20 caracteres mínimos
               </p>
-              {justification.length >= 20 && <p className="text-xs text-green-500">✓ Justificativa válida</p>}
+              {justification.length >= 20 && <p className="text-xs text-emerald-500">✓ Justificativa válida</p>}
             </div>
           </div>
 
-          {error && <p className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2 mb-3">{error}</p>}
-          {success && <p className="text-sm text-green-600 bg-green-50 dark:bg-green-900/20 rounded-lg px-3 py-2 mb-3">{success}</p>}
+          {error && <p className="text-sm text-rose-500 bg-rose-50 dark:bg-rose-900/20 rounded-lg px-3 py-2 mb-3">{error}</p>}
+          {success && <p className="text-sm text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg px-3 py-2 mb-3">{success}</p>}
 
           <button
             onClick={handleStartImpersonation}

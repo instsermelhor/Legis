@@ -17,6 +17,7 @@ import { InternCases } from './sections/InternCases';
 import { InternStudies } from './sections/InternStudies';
 import { InternMentorship } from './sections/InternMentorship';
 import { InternApis } from './sections/InternApis';
+import { DashboardShell, GradientHero, HeroButton, type ShellNavGroup } from '../ui';
 
 
 interface InternDashboardProps {
@@ -84,7 +85,7 @@ interface PersonalDoc {
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 const StatCard: React.FC<{ icon: React.ReactNode; label: string; value: string | number }> = ({ icon, label, value }) => (
-    <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm flex items-center space-x-4 hover:shadow-md transition-shadow dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+    <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center space-x-4 hover:shadow-md transition-shadow dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
         <div className="bg-primary/10 p-3 rounded-full">{icon}</div>
         <div>
             <p className="text-sm text-gray-500">{label}</p>
@@ -130,7 +131,7 @@ const CourseDocModal: React.FC<CourseDocModalProps> = ({ semester, onClose, onCo
 
     return (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center justify-between p-5 border-b">
                     <div>
                         <h2 className="text-base font-bold text-gray-800">📎 Upload — {semester}</h2>
@@ -142,14 +143,14 @@ const CourseDocModal: React.FC<CourseDocModalProps> = ({ semester, onClose, onCo
                     <div>
                         <label className="block text-xs font-bold text-gray-600 uppercase mb-2">1. Tipo de Documento</label>
                         <select value={docType} onChange={e => setDocType(e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                             <option value="">Selecione o tipo...</option>
                             {COURSE_DOC_TYPES.map(t => <option key={t}>{t}</option>)}
                         </select>
                         {docType === 'Outro' && (
                             <input value={customDocType} onChange={e => setCustomDocType(e.target.value)}
                                 placeholder="Descreva o tipo de documento"
-                                className="mt-2 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                className="mt-2 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                         )}
                     </div>
                     <div>
@@ -169,14 +170,14 @@ const CourseDocModal: React.FC<CourseDocModalProps> = ({ semester, onClose, onCo
                                     <p className="text-sm font-semibold text-gray-800 truncate">{pendingFile.name}</p>
                                     <p className="text-xs text-gray-400">{pendingFile.fileType} · {pendingFile.size}</p>
                                 </div>
-                                <button onClick={() => setPendingFile(null)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+                                <button onClick={() => setPendingFile(null)} className="shrink-0 text-rose-400 hover:text-rose-600 text-xs font-bold">✕</button>
                             </div>
                         )}
                     </div>
-                    {sent && <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-2 text-green-800 text-sm font-semibold">✅ Documento enviado com sucesso!</div>}
+                    {sent && <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2 text-emerald-800 text-sm font-semibold">✅ Documento enviado com sucesso!</div>}
                 </div>
                 <div className="flex gap-3 px-5 py-4 border-t bg-gray-50 rounded-b-2xl">
-                    <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">Cancelar</button>
+                    <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">Cancelar</button>
                     <button onClick={handleSend} disabled={!canSend || sent}
                         className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                         {sent ? '✅ Enviado!' : '📤 Confirmar Envio'}
@@ -223,7 +224,7 @@ const PersonalDocModal: React.FC<PersonalDocModalProps> = ({ onClose, onConfirm 
 
     return (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center justify-between p-5 border-b">
                     <div>
                         <h2 className="text-base font-bold text-gray-800">📎 Upload de Documento Pessoal</h2>
@@ -235,14 +236,14 @@ const PersonalDocModal: React.FC<PersonalDocModalProps> = ({ onClose, onConfirm 
                     <div>
                         <label className="block text-xs font-bold text-gray-600 uppercase mb-2">1. Tipo de Documento</label>
                         <select value={docType} onChange={e => setDocType(e.target.value)}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                             <option value="">Selecione o tipo...</option>
                             {PERSONAL_DOC_TYPES.map(t => <option key={t}>{t}</option>)}
                         </select>
                         {docType === 'Outro' && (
                             <input value={customDocType} onChange={e => setCustomDocType(e.target.value)}
                                 placeholder="Descreva o tipo de documento"
-                                className="mt-2 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                className="mt-2 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                         )}
                     </div>
                     <div>
@@ -262,14 +263,14 @@ const PersonalDocModal: React.FC<PersonalDocModalProps> = ({ onClose, onConfirm 
                                     <p className="text-sm font-semibold text-gray-800 truncate">{pendingFile.name}</p>
                                     <p className="text-xs text-gray-400">{pendingFile.fileType} · {pendingFile.size}</p>
                                 </div>
-                                <button onClick={() => setPendingFile(null)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+                                <button onClick={() => setPendingFile(null)} className="shrink-0 text-rose-400 hover:text-rose-600 text-xs font-bold">✕</button>
                             </div>
                         )}
                     </div>
-                    {sent && <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-2 text-green-800 text-sm font-semibold">✅ Documento pessoal enviado!</div>}
+                    {sent && <div className="bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2 text-emerald-800 text-sm font-semibold">✅ Documento pessoal enviado!</div>}
                 </div>
                 <div className="flex gap-3 px-5 py-4 border-t bg-gray-50 rounded-b-2xl">
-                    <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">Cancelar</button>
+                    <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">Cancelar</button>
                     <button onClick={handleSend} disabled={!canSend || sent}
                         className="flex-1 px-4 py-2.5 text-sm font-semibold text-white bg-primary rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
                         {sent ? '✅ Enviado!' : '📤 Confirmar Envio'}
@@ -306,7 +307,7 @@ const SemesterGradeCard: React.FC<SemesterGradeCardProps> = ({
     const [docsOpen, setDocsOpen] = useState(false);
 
     return (
-        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+        <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
             {/* Semester header */}
             <div className="flex items-center justify-between px-5 py-4 bg-primary/5 border-b border-primary/10">
                 <h4 className="font-bold text-primary text-sm flex items-center gap-2">
@@ -318,7 +319,7 @@ const SemesterGradeCard: React.FC<SemesterGradeCardProps> = ({
                 <div className="flex items-center gap-2 flex-wrap">
                     {editMode ? (
                         <>
-                            <button onClick={onAddSubject} className="text-xs font-semibold text-primary border border-primary/30 bg-white px-2.5 py-1 rounded-lg hover:bg-primary/10 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                            <button onClick={onAddSubject} className="text-xs font-semibold text-primary border border-primary/30 bg-white px-2.5 py-1 rounded-lg hover:bg-primary/10 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                                 + Matéria
                             </button>
                             <button onClick={onSave} className="text-xs font-semibold text-white bg-primary px-3 py-1 rounded-lg hover:bg-primary/90">
@@ -329,7 +330,7 @@ const SemesterGradeCard: React.FC<SemesterGradeCardProps> = ({
                             </button>
                         </>
                     ) : (
-                        <button onClick={onToggleEdit} className="text-xs font-semibold text-gray-600 border border-gray-200 bg-white px-3 py-1 rounded-lg hover:border-primary/40 hover:text-primary dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                        <button onClick={onToggleEdit} className="text-xs font-semibold text-gray-600 border border-gray-200 bg-white px-3 py-1 rounded-lg hover:border-primary/40 hover:text-primary dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                             ✏️ Editar Grade
                         </button>
                     )}
@@ -346,7 +347,7 @@ const SemesterGradeCard: React.FC<SemesterGradeCardProps> = ({
                                 <input
                                     value={subj}
                                     onChange={e => onSubjectChange(i, e.target.value)}
-                                    className="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                    className="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                 />
                                 <div className="flex items-center gap-1 shrink-0">
                                     <label className="text-xs text-gray-500 whitespace-nowrap">Nota:</label>
@@ -355,16 +356,16 @@ const SemesterGradeCard: React.FC<SemesterGradeCardProps> = ({
                                         value={grades[subj] ?? ''}
                                         onChange={e => onGradeChange(subj, e.target.value)}
                                         placeholder="—"
-                                        className="w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-sm text-center focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                        className="w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-sm text-center focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                     />
                                 </div>
-                                <button onClick={() => onRemoveSubject(i)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold p-1">✕</button>
+                                <button onClick={() => onRemoveSubject(i)} className="shrink-0 text-rose-400 hover:text-rose-600 text-xs font-bold p-1">✕</button>
                             </>
                         ) : (
                             <>
                                 <span className="flex-1 text-sm text-gray-700">{subj}</span>
                                 {grades[subj] ? (
-                                    <span className={`shrink-0 text-xs font-bold px-2 py-0.5 rounded-full ${Number(grades[subj]) >= 7 ? 'bg-green-100 text-green-700' : Number(grades[subj]) >= 5 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}`}>
+                                    <span className={`shrink-0 text-xs font-bold px-2 py-0.5 rounded-full ${Number(grades[subj]) >= 7 ? 'bg-emerald-100 text-emerald-700' : Number(grades[subj]) >= 5 ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'}`}>
                                         {Number(grades[subj]).toFixed(1)}
                                     </span>
                                 ) : (
@@ -416,7 +417,7 @@ const SemesterGradeCard: React.FC<SemesterGradeCardProps> = ({
                                         </div>
                                     </div>
                                     <span className="shrink-0 px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded-full">{d.docType}</span>
-                                    <button onClick={() => onRemoveDoc(i)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+                                    <button onClick={() => onRemoveDoc(i)} className="shrink-0 text-rose-400 hover:text-rose-600 text-xs font-bold">✕</button>
                                 </div>
                             ))
                         )}
@@ -555,71 +556,55 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
         setCourseDocs(prev => ({ ...prev, [sem]: (prev[sem] ?? []).filter((_, i) => i !== idx) }));
     };
 
-    const tabBtn = (id: typeof activeTab, label: string) => (
-        <button onClick={() => setActiveTab(id)}
-            className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === id ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
-            {label}
-        </button>
-    );
-
     const totalCourseDocs = Object.values(courseDocs).flat().length;
     const totalGradedSubjects = Object.values(grades).flatMap(g => Object.values(g)).filter(v => v.trim()).length;
 
+    // ── Navegação (DashboardShell — identidade unificada do módulo Advogado) ──
+    const navGroups: ShellNavGroup<typeof activeTab>[] = [
+        {
+            title: 'Painel & Casos',
+            items: [
+                { id: 'overview', label: 'Visão Geral', icon: '📊' },
+                { id: 'casos', label: 'Meus Casos', icon: '📋' },
+                { id: 'perfil', label: 'Meu Perfil', icon: '👤' },
+            ],
+        },
+        {
+            title: 'Formação & Mentoria',
+            items: [
+                { id: 'studies', label: 'Mural de Estudos', icon: '📖' },
+                { id: 'hours', label: 'Mentorias e Clínicas', icon: '🎓' },
+            ],
+        },
+        {
+            title: 'Inteligência & Serv.',
+            items: [
+                { id: 'iaTools', label: 'IA Jurídica', icon: '⚡' },
+                { id: 'efficiency_services', label: 'Serviços de Eficiência', icon: '💼' },
+                { id: 'apis', label: 'APIs / Conexões', icon: '🔌' },
+            ],
+        },
+    ];
+
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
-            <div className="bg-neutral-light p-6 sm:p-8 rounded-xl shadow-sm">
-                {/* Header */}
-                <div className="flex flex-col sm:flex-row items-center sm:space-x-4 mb-6 text-center sm:text-left">
-                    <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-primary text-2xl font-bold mb-4 sm:mb-0">
-                        {intern.name.charAt(0)}
-                    </div>
-                    <div>
-                        <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Painel do Bacharelando</h1>
-                        <p className="text-gray-600">Bem-vindo(a), {intern.name}! ({intern.semester} — {intern.university})</p>
-                        {supervisorLawyer && (
-                            <button onClick={() => setShowLawyerPopup(true)}
-                                className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-semibold rounded-full hover:bg-indigo-100 transition-colors">
-                                🎓 Estagiando em: {supervisorLawyer.name} — Ver informações
-                            </button>
-                        )}
-                    </div>
-                </div>
-
+        <DashboardShell<typeof activeTab>
+            userName={intern.name}
+            panelLabel={`Painel do Bacharelando — ${intern.semester}`}
+            groups={navGroups}
+            active={activeTab}
+            onSelect={setActiveTab}
+            onLogout={onLogout}
+        >
+            <div className="animate-fade-in">
                 {supervisorLawyer && (
-                    <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-xl p-4 mb-6 text-white flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                            <span className="text-2xl">🎉</span>
-                            <div>
-                                <p className="font-bold text-sm">Você foi escolhido como estagiário!</p>
-                                <p className="text-xs text-white/85">Dr(a). {supervisorLawyer.name} — OAB {supervisorLawyer.oab}</p>
-                            </div>
-                        </div>
-                        <button onClick={() => setShowLawyerPopup(true)} className="shrink-0 px-4 py-2 bg-white/20 rounded-lg text-xs font-semibold hover:bg-white/30 transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-                            Ver Detalhes
-                        </button>
-                    </div>
+                    <GradientHero
+                        emoji="🎉"
+                        title="Você foi escolhido como estagiário!"
+                        subtitle={`Dr(a). ${supervisorLawyer.name} — OAB ${supervisorLawyer.oab}`}
+                        action={<HeroButton onClick={() => setShowLawyerPopup(true)}>Ver Detalhes →</HeroButton>}
+                        className="mb-6"
+                    />
                 )}
-
-                {/* Tab Nav */}
-                <div className="border-b border-gray-200 mb-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-                    <nav className="-mb-px flex flex-wrap gap-2 sm:space-x-4">
-                        {tabBtn('overview', 'Visão Geral')}
-                        {tabBtn('perfil', '👤 Meu Perfil')}
-                        {tabBtn('casos', '📋 Meus Casos')}
-                        {tabBtn('studies', '📖 Mural de Estudos')}
-                        {tabBtn('hours', 'Mentorias e Clínicas')}
-                        {tabBtn('apis', '🔌 APIs')}
-                        {tabBtn('iaTools', '⚡ IA Jurídica')}
-                        {tabBtn('efficiency_services', '💼 Serviços de Eficiência')}
-
-                        {onLogout && (
-                            <button onClick={onLogout}
-                                className="py-3 px-1 border-b-2 border-transparent font-medium text-sm text-red-500 hover:text-red-700 hover:border-red-300 transition-colors ml-auto">
-                                🚪 Sair
-                            </button>
-                        )}
-                    </nav>
-                </div>
 
                 {/* ─── OVERVIEW ─── */}
                 {activeTab === 'overview' && (
@@ -654,7 +639,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                         </div>
 
                         {/* ── Progresso Educacional ── */}
-                        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 dark:bg-[#1A1730] dark:border-[#2A2545]">
+                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 dark:bg-[#1A1730] dark:border-[#2A2545]">
                             <h3 className="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">🎓 Desenvolvimento Educacional</h3>
                             <div className="space-y-4">
                                 {/* Horas complementares */}
@@ -674,7 +659,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                                         {DETAILED_SEMESTERS.map((sem, idx) => {
                                             const semGrades = grades[sem] ? (Object.values(grades[sem]) as string[]).filter(v => v.trim()) : [];
                                             const avg = semGrades.length > 0 ? semGrades.reduce((a: number, b: string) => a + Number(b), 0) / semGrades.length : null;
-                                            const color = avg === null ? 'bg-gray-100 text-gray-400' : avg >= 7 ? 'bg-green-100 text-green-700' : avg >= 5 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700';
+                                            const color = avg === null ? 'bg-gray-100 text-gray-400' : avg >= 7 ? 'bg-emerald-100 text-emerald-700' : avg >= 5 ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700';
                                             return (
                                                 <div key={sem} className={`${color} rounded-lg p-2 text-center`}>
                                                     <p className="text-[10px] font-bold">{idx+1}°</p>
@@ -703,14 +688,14 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                         </div>
 
                         {/* ── Desempenho Acadêmico — Gráfico de Barras Horizontal ── */}
-                        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 dark:bg-[#1A1730] dark:border-[#2A2545]">
+                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 dark:bg-[#1A1730] dark:border-[#2A2545]">
                             <h3 className="text-base font-bold text-gray-800 mb-4">📊 Desempenho Acadêmico por Semestre</h3>
                             <div className="space-y-2">
                                 {DETAILED_SEMESTERS.map((sem, idx) => {
                                     const semGrades = grades[sem] ? (Object.values(grades[sem]) as string[]).filter(v => v.trim()) : [];
                                     const avg = semGrades.length > 0 ? semGrades.reduce((a: number, b: string) => a + Number(b), 0) / semGrades.length : 0;
                                     const pct = Math.round((avg / 10) * 100);
-                                    const barColor = avg === 0 ? 'bg-gray-200' : avg >= 7 ? 'bg-green-500' : avg >= 5 ? 'bg-amber-500' : 'bg-red-500';
+                                    const barColor = avg === 0 ? 'bg-gray-200' : avg >= 7 ? 'bg-emerald-500' : avg >= 5 ? 'bg-amber-500' : 'bg-rose-500';
                                     return (
                                         <div key={sem} className="flex items-center gap-3">
                                             <span className="text-xs text-gray-500 w-8 shrink-0 text-right">{idx+1}°</span>
@@ -728,7 +713,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                         </div>
 
                         {/* ── Estágio — Dados do Vínculo ── */}
-                        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 dark:bg-[#1A1730] dark:border-[#2A2545]">
+                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 dark:bg-[#1A1730] dark:border-[#2A2545]">
                             <h3 className="text-base font-bold text-gray-800 mb-4">⚖️ Dashboard de Estágio</h3>
                             {supervisorLawyer ? (
                                 <div className="space-y-4">
@@ -748,7 +733,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                                     {/* KPIs de estágio */}
                                     <div className="grid grid-cols-3 gap-3">
                                         {[
-                                            { label: 'Casos Ativos', value: delegatedCases.filter(c => c.status === 'Ativo').length, color: 'text-green-700 bg-green-50 border-green-100' },
+                                            { label: 'Casos Ativos', value: delegatedCases.filter(c => c.status === 'Ativo').length, color: 'text-emerald-700 bg-emerald-50 border-emerald-100' },
                                             { label: 'Casos Concluídos', value: delegatedCases.filter(c => c.status === 'Concluído').length, color: 'text-blue-700 bg-blue-50 border-blue-100' },
                                             { label: 'Total de Casos', value: delegatedCases.length, color: 'text-indigo-700 bg-indigo-50 border-indigo-100' },
                                         ].map((m, i) => (
@@ -764,7 +749,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                                         <div className="space-y-3">
                                             <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Casos por Status</p>
                                             {[
-                                                { status: 'Ativo', color: 'bg-green-500' },
+                                                { status: 'Ativo', color: 'bg-emerald-500' },
                                                 { status: 'Concluído', color: 'bg-blue-500' },
                                                 { status: 'Arquivado', color: 'bg-gray-400' },
                                             ].map(({ status, color }) => {
@@ -815,7 +800,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                         </div>
 
                         {/* ── Grade Curricular rápida ── */}
-                        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 dark:bg-[#1A1730] dark:border-[#2A2545]">
+                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 dark:bg-[#1A1730] dark:border-[#2A2545]">
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="text-base font-bold text-gray-800">📚 Grade Curricular</h3>
                                 <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-lg hidden sm:block">Edite no Mural de Estudos ↗</span>
@@ -843,7 +828,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                                                 {disc}
                                             </div>
                                             {grades[selectedDetailSemester]?.[disc] && (
-                                                <span className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${Number(grades[selectedDetailSemester][disc]) >= 7 ? 'bg-green-100 text-green-700' : Number(grades[selectedDetailSemester][disc]) >= 5 ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}`}>
+                                                <span className={`text-xs font-bold px-2 py-0.5 rounded-full shrink-0 ${Number(grades[selectedDetailSemester][disc]) >= 7 ? 'bg-emerald-100 text-emerald-700' : Number(grades[selectedDetailSemester][disc]) >= 5 ? 'bg-amber-100 text-amber-700' : 'bg-rose-100 text-rose-700'}`}>
                                                     {Number(grades[selectedDetailSemester][disc]).toFixed(1)}
                                                 </span>
                                             )}
@@ -884,12 +869,12 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                 {/* ─── PERFIL ─── */}
                 {activeTab === 'perfil' && (
                     <div className="animate-fade-in space-y-6">
-                        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                             <h3 className="text-base font-bold text-gray-800">Dados Pessoais e Acadêmicos</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div><label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Nome Completo</label><input name="name" value={profileData.name} onChange={handleProfileChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" /></div>
-                                <div><label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Telefone</label><input name="phone" value={profileData.phone} onChange={handleProfileChange} placeholder="(11) 99999-9999" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" /></div>
-                                <div><label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Universidade</label><input name="university" value={profileData.university} onChange={handleProfileChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" /></div>
+                                <div><label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Nome Completo</label><input name="name" value={profileData.name} onChange={handleProfileChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" /></div>
+                                <div><label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Telefone</label><input name="phone" value={profileData.phone} onChange={handleProfileChange} placeholder="(11) 99999-9999" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" /></div>
+                                <div><label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Universidade</label><input name="university" value={profileData.university} onChange={handleProfileChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" /></div>
                                 <div>
                                     <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Semestre Atual</label>
                                     <select name="semester" value={profileData.semester} onChange={handleProfileChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white select-text-dark">
@@ -917,7 +902,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                                         </div>
                                         {hasOab && (
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-amber-200">
-                                                <div><label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Número OAB</label><input value={oabNumber} onChange={e => setOabNumber(e.target.value)} placeholder="Ex: 123456" className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" /></div>
+                                                <div><label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Número OAB</label><input value={oabNumber} onChange={e => setOabNumber(e.target.value)} placeholder="Ex: 123456" className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" /></div>
                                                 <div>
                                                     <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">UF da Ordem</label>
                                                     <select value={oabUF} onChange={e => setOabUF(e.target.value)} className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white select-text-dark">
@@ -935,12 +920,12 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                             <div className="pt-4 border-t space-y-3">
                                 <h4 className="text-xs font-bold text-gray-600 uppercase tracking-wider">Endereço Residencial</h4>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">CEP</label><input name="cep" value={profileData.cep} onChange={handleProfileChange} placeholder="00000-000" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" /></div>
-                                    <div className="md:col-span-2"><label className="block text-xs font-medium text-gray-600 mb-1">Rua / Logradouro</label><input name="street" value={profileData.street} onChange={handleProfileChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" /></div>
-                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Número</label><input name="number" value={profileData.number} onChange={handleProfileChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" /></div>
-                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Complemento</label><input name="complement" value={profileData.complement} onChange={handleProfileChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" /></div>
-                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Bairro</label><input name="neighborhood" value={profileData.neighborhood} onChange={handleProfileChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" /></div>
-                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Cidade</label><input name="city" value={profileData.city} onChange={handleProfileChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" /></div>
+                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">CEP</label><input name="cep" value={profileData.cep} onChange={handleProfileChange} placeholder="00000-000" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" /></div>
+                                    <div className="md:col-span-2"><label className="block text-xs font-medium text-gray-600 mb-1">Rua / Logradouro</label><input name="street" value={profileData.street} onChange={handleProfileChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" /></div>
+                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Número</label><input name="number" value={profileData.number} onChange={handleProfileChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" /></div>
+                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Complemento</label><input name="complement" value={profileData.complement} onChange={handleProfileChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" /></div>
+                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Bairro</label><input name="neighborhood" value={profileData.neighborhood} onChange={handleProfileChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" /></div>
+                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Cidade</label><input name="city" value={profileData.city} onChange={handleProfileChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" /></div>
                                     <div>
                                         <label className="block text-xs font-medium text-gray-600 mb-1">Estado (UF)</label>
                                         <select name="state" value={profileData.state} onChange={handleProfileChange} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white select-text-dark">
@@ -967,7 +952,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                         </div>
 
                         {/* Documentos Pessoais */}
-                        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h3 className="text-base font-bold text-gray-800">📎 Documentos Pessoais</h3>
@@ -997,7 +982,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                                                 </div>
                                             </div>
                                             <span className="shrink-0 px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded-full">{d.docType}</span>
-                                            <button onClick={() => setPersonalDocs(prev => prev.filter((_, idx) => idx !== i))} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold p-1">✕</button>
+                                            <button onClick={() => setPersonalDocs(prev => prev.filter((_, idx) => idx !== i))} className="shrink-0 text-rose-400 hover:text-rose-600 text-xs font-bold p-1">✕</button>
                                         </div>
                                     ))}
                                     <button onClick={() => setShowPersonalDocModal(true)} className="text-xs text-primary hover:underline font-semibold py-1">+ Adicionar mais documentos</button>
@@ -1006,7 +991,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                         </div>
 
                         {/* Segurança */}
-                        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                             <h3 className="text-base font-bold text-gray-800">🔐 Segurança de Acesso</h3>
                             <p className="text-sm text-gray-500">Mantenha seus dados de acesso seguros e atualizados.</p>
                             <div className="flex flex-wrap gap-3">
@@ -1053,8 +1038,6 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                     </div>
                 )}
 
-            </div>
-
             {/* ─── Modals ─── */}
             {showPasswordModal && <ChangePasswordModal onClose={() => setShowPasswordModal(false)} onSave={(pwd, newPwd) => { if (newPwd.length < 4) return false; alert("Senha alterada com sucesso!"); return true; }} />}
             {showEmailModal && <ChangeEmailModal currentEmail={userEmail || intern.contact?.email || ''} onClose={() => setShowEmailModal(false)} onSave={(pwd, email) => { if (pwd.length < 4) return false; if (onUpdateEmail) onUpdateEmail(email); return true; }} />}
@@ -1083,6 +1066,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                     onConfirm={doc => { handleCourseDocAdd(uploadModalSemester, doc); }}
                 />
             )}
-        </div>
+            </div>
+        </DashboardShell>
     );
 };

@@ -152,7 +152,7 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ lawyer, onClos
                             <CreditCardIcon className="w-5 h-5" />
                             {isConfirming ? 'Processando...' : 'Pagar com Cartão de Crédito'}
                         </button>
-                        <button onClick={handleConfirmBooking} disabled={isConfirming} className="w-full flex items-center justify-center gap-2 bg-green-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-600 transition-colors">
+                        <button onClick={handleConfirmBooking} disabled={isConfirming} className="w-full flex items-center justify-center gap-2 bg-emerald-500 text-white font-bold py-3 px-4 rounded-lg hover:bg-emerald-600 transition-colors">
                             <QrcodeIcon className="w-5 h-5" />
                              {isConfirming ? 'Processando...' : 'Pagar com Pix'}
                         </button>
@@ -162,7 +162,7 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ lawyer, onClos
       case 'success':
         return (
           <div className="text-center p-8 pt-12">
-            <BadgeCheckIcon className="w-16 h-16 text-green-500 mx-auto" />
+            <BadgeCheckIcon className="w-16 h-16 text-emerald-500 mx-auto" />
             <h3 className="text-2xl font-bold text-gray-800 mt-4">Consulta Agendada!</h3>
             <p className="text-gray-600 mt-2">
               Sua consulta com <strong>{lawyer.name}</strong> foi confirmada para o dia{' '}
@@ -225,7 +225,7 @@ export const BookingCalendar: React.FC<BookingCalendarProps> = ({ lawyer, onClos
   return (
     <>
       <div className="p-4 flex items-center justify-between border-b">
-        <h2 className="text-xl font-bold text-gray-800">Agendar Consulta</h2>
+        <h2 className="text-xl font-bold text-gray-800 dark:text-white">Agendar Consulta</h2>
         <button
           onClick={onClose}
           className="p-2 rounded-full hover:bg-gray-200 transition-colors z-10"

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { b2cServices, b2bServices, ServiceItem } from '../../data/servicesData';
 import type { View } from '../../types';
 import { ServiceStore } from '../../utils/sessionStore';
+import { useRevealSections } from '../ui';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type TabId = 'B2C' | 'B2B';
@@ -11,7 +12,7 @@ const tagConfig = {
   popular:  { label: 'Mais Contratado', cls: 'bg-amber-400/20 text-amber-300 border border-amber-400/30' },
   novo:     { label: 'Novo',            cls: 'bg-emerald-400/20 text-emerald-300 border border-emerald-400/30' },
   empresa:  { label: 'Para Empresas',   cls: 'bg-blue-400/20 text-blue-300 border border-blue-400/30' },
-  destaque: { label: 'Destaque',        cls: 'bg-purple-400/20 text-purple-300 border border-purple-400/30' },
+  destaque: { label: 'Destaque',        cls: 'bg-violet-400/20 text-violet-300 border border-violet-400/30' },
 };
 
 function formatPrice(n: number): string {
@@ -39,7 +40,7 @@ function ServiceCard({
 
       {/* Icon + Title */}
       <div className="flex items-start gap-4 mb-4">
-        <div className="w-12 h-12 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-2xl shrink-0 group-hover:scale-110 transition-transform duration-300">
+        <div className="w-12 h-12 rounded-xl bg-violet-600/20 border border-violet-500/30 flex items-center justify-center text-2xl shrink-0 group-hover:scale-110 transition-transform duration-300">
           {service.icon}
         </div>
         <div className="pt-1">
@@ -61,7 +62,7 @@ function ServiceCard({
       <ul className="space-y-1.5 mb-6">
         {service.features.map((f, i) => (
           <li key={i} className="flex items-start gap-2 text-xs text-[#C4B5FD]">
-            <span className="text-purple-400 mt-0.5 shrink-0">✓</span>
+            <span className="text-violet-400 mt-0.5 shrink-0">✓</span>
             {f}
           </li>
         ))}
@@ -71,7 +72,7 @@ function ServiceCard({
       <div className="mt-auto pt-5 border-t border-[#2A2545] flex items-center justify-between gap-3">
         <div>
           <p className="text-[10px] text-[#7A77A0] uppercase tracking-wide font-semibold">Investimento</p>
-          <p className="text-purple-300 font-bold text-lg leading-none mt-0.5">
+          <p className="text-violet-300 font-bold text-lg leading-none mt-0.5">
             R$ {formatPrice(service.priceFrom)}
           </p>
         </div>
@@ -98,10 +99,10 @@ function FaqItem({ q, a }: { q: string; a: string }) {
         className="w-full flex items-center justify-between px-6 py-4 text-left bg-[#1A1730] hover:bg-[#1E1B38] transition-colors group"
         aria-expanded={open}
       >
-        <span className="text-white font-semibold text-sm pr-4 group-hover:text-purple-300 transition-colors">
+        <span className="text-white font-semibold text-sm pr-4 group-hover:text-violet-300 transition-colors">
           {q}
         </span>
-        <span className={`text-purple-400 transition-transform duration-300 shrink-0 text-lg ${open ? 'rotate-45' : 'rotate-0'}`}>
+        <span className={`text-violet-400 transition-transform duration-300 shrink-0 text-lg ${open ? 'rotate-45' : 'rotate-0'}`}>
           +
         </span>
       </button>
@@ -184,7 +185,7 @@ function ContractModal({
           <div className="flex items-center gap-3">
             <span className="text-2xl">{service.icon}</span>
             <div>
-              <p className="text-xs text-purple-400 font-semibold uppercase tracking-wider">Contratar Serviço</p>
+              <p className="text-xs text-violet-400 font-semibold uppercase tracking-wider">Contratar Serviço</p>
               <p className="text-white font-bold text-sm">{service.title}</p>
             </div>
           </div>
@@ -201,10 +202,10 @@ function ContractModal({
         {step === 'form' ? (
           <form onSubmit={handleSubmit} className="p-6 space-y-4" noValidate>
             {/* Price summary */}
-            <div className="bg-purple-600/10 border border-purple-500/20 rounded-xl p-4 flex items-center justify-between">
+            <div className="bg-violet-600/10 border border-violet-500/20 rounded-xl p-4 flex items-center justify-between">
               <div>
                 <p className="text-[#A09CC4] text-xs">Investimento a partir de</p>
-                <p className="text-purple-300 font-bold text-xl">R$ {formatPrice(service.priceFrom)}</p>
+                <p className="text-violet-300 font-bold text-xl">R$ {formatPrice(service.priceFrom)}</p>
               </div>
               <div className="text-right">
                 <p className="text-[#A09CC4] text-xs">Prazo</p>
@@ -234,9 +235,9 @@ function ContractModal({
                   value={form[key]}
                   onChange={(e) => setForm((prev) => ({ ...prev, [key]: e.target.value }))}
                   placeholder={placeholder}
-                  className={`w-full bg-[#0F0D1A] border rounded-xl px-4 py-3 text-sm text-white placeholder-[#4A4670] focus:outline-none focus:ring-2 focus:ring-purple-500/40 transition-all ${errors[key] ? 'border-red-500' : 'border-[#2A2545] focus:border-purple-500'}`}
+                  className={`w-full bg-[#0F0D1A] border rounded-xl px-4 py-3 text-sm text-white placeholder-[#4A4670] focus:outline-none focus:ring-2 focus:ring-violet-500/40 transition-all ${errors[key] ? 'border-rose-500' : 'border-[#2A2545] focus:border-violet-500'}`}
                 />
-                {errors[key] && <p className="text-red-400 text-xs mt-1">{errors[key]}</p>}
+                {errors[key] && <p className="text-rose-400 text-xs mt-1">{errors[key]}</p>}
               </div>
             ))}
 
@@ -249,9 +250,9 @@ function ContractModal({
                 value={form.phone}
                 onChange={handlePhone}
                 placeholder="(11) 99999-9999"
-                className={`w-full bg-[#0F0D1A] border rounded-xl px-4 py-3 text-sm text-white placeholder-[#4A4670] focus:outline-none focus:ring-2 focus:ring-purple-500/40 transition-all ${errors.phone ? 'border-red-500' : 'border-[#2A2545] focus:border-purple-500'}`}
+                className={`w-full bg-[#0F0D1A] border rounded-xl px-4 py-3 text-sm text-white placeholder-[#4A4670] focus:outline-none focus:ring-2 focus:ring-violet-500/40 transition-all ${errors.phone ? 'border-rose-500' : 'border-[#2A2545] focus:border-violet-500'}`}
               />
-              {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone}</p>}
+              {errors.phone && <p className="text-rose-400 text-xs mt-1">{errors.phone}</p>}
             </div>
 
             <button type="submit" className="btn-primary w-full py-3 text-sm mt-2">
@@ -270,7 +271,7 @@ function ContractModal({
             <h3 className="text-white font-bold text-xl font-montserrat">Solicitação Recebida!</h3>
             <p className="text-[#A09CC4] text-sm leading-relaxed">
               Nossa equipe recebeu sua solicitação para{' '}
-              <span className="text-purple-300 font-semibold">{service.title}</span>. Você será
+              <span className="text-violet-300 font-semibold">{service.title}</span>. Você será
               contactado via WhatsApp em até 1 hora útil.
             </p>
             <div className="bg-[#0F0D1A] rounded-xl p-4 border border-[#2A2545] text-left space-y-1">
@@ -336,6 +337,7 @@ interface ServicesPublicPageProps {
 }
 
 export const ServicesPublicPage: React.FC<ServicesPublicPageProps> = ({ onNavigate }) => {
+  useRevealSections();
   const [activeTab, setActiveTab] = useState<TabId>('B2C');
   const [contractService, setContractService] = useState<ServiceItem | null>(null);
 
@@ -364,14 +366,14 @@ export const ServicesPublicPage: React.FC<ServicesPublicPageProps> = ({ onNaviga
         aria-label="Serviços de Eficiência Jurídica — Legis Connect"
       >
         {/* Decorative orbs */}
-        <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-purple-700/15 blur-3xl pointer-events-none" />
+        <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-violet-700/15 blur-3xl pointer-events-none" />
         <div className="absolute -bottom-20 -right-20 w-80 h-80 rounded-full bg-indigo-700/15 blur-3xl pointer-events-none" />
         {/* Dot grid */}
         <div className="absolute inset-0 dot-grid opacity-40 pointer-events-none" />
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-24 text-center">
           {/* Eyebrow */}
-          <p className="inline-flex items-center gap-2 bg-purple-600/20 border border-purple-500/30 text-purple-300 text-xs font-bold px-4 py-1.5 rounded-full mb-6 animate-fade-in uppercase tracking-widest">
+          <p className="inline-flex items-center gap-2 bg-violet-600/20 border border-violet-500/30 text-violet-300 text-xs font-bold px-4 py-1.5 rounded-full mb-6 animate-fade-in uppercase tracking-widest">
             ⚡ Soluções Jurídicas Produtizadas
           </p>
 
@@ -380,7 +382,7 @@ export const ServicesPublicPage: React.FC<ServicesPublicPageProps> = ({ onNaviga
             Resolva suas demandas jurídicas{' '}
             <span className="text-gradient-purple">em cliques.</span>
             <br className="hidden sm:block" />
-            <span className="text-white/80 text-3xl sm:text-4xl lg:text-5xl font-bold">
+            <span className="text-white/100 text-3xl sm:text-4xl lg:text-5xl font-bold">
               {' '}Sem burocracia.
             </span>
           </h1>
@@ -437,7 +439,7 @@ export const ServicesPublicPage: React.FC<ServicesPublicPageProps> = ({ onNaviga
       <section className="py-20 bg-[#0F0C1E] border-y border-[#1E1B38]" aria-label="Como funciona">
         <RevealSection>
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <p className="text-purple-400 font-bold text-xs uppercase tracking-widest mb-2">
+            <p className="text-violet-400 font-bold text-xs uppercase tracking-widest mb-2">
               Processo Simples
             </p>
             <h2 className="font-montserrat font-bold text-3xl text-white mb-3">
@@ -449,7 +451,7 @@ export const ServicesPublicPage: React.FC<ServicesPublicPageProps> = ({ onNaviga
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
               {/* Connector line — desktop only */}
-              <div className="hidden md:block absolute top-12 left-1/4 right-1/4 h-px bg-gradient-to-r from-purple-600/0 via-purple-600/40 to-purple-600/0" />
+              <div className="hidden md:block absolute top-12 left-1/4 right-1/4 h-px bg-gradient-to-r from-violet-600/0 via-violet-600/40 to-violet-600/0" />
 
               {[
                 {
@@ -476,10 +478,10 @@ export const ServicesPublicPage: React.FC<ServicesPublicPageProps> = ({ onNaviga
                   className={`relative flex flex-col items-center text-center animate-slide-up delay-${(i + 1) * 200}`}
                 >
                   {/* Step number */}
-                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-600/30 to-indigo-600/20 border border-purple-500/30 flex flex-col items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-violet-600/30 to-indigo-600/20 border border-violet-500/30 flex flex-col items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                     <span className="text-3xl">{icon}</span>
                   </div>
-                  <span className="absolute top-0 right-0 sm:right-auto sm:-top-2 sm:left-1/2 text-[10px] font-bold text-purple-400 bg-[#1E1B38] border border-purple-500/30 rounded-full px-2 py-0.5">
+                  <span className="absolute top-0 right-0 sm:right-auto sm:-top-2 sm:left-1/2 text-[10px] font-bold text-violet-400 bg-[#1E1B38] border border-violet-500/30 rounded-full px-2 py-0.5">
                     {step}
                   </span>
                   <h3 className="font-montserrat font-bold text-white text-base mb-2">{title}</h3>
@@ -504,7 +506,7 @@ export const ServicesPublicPage: React.FC<ServicesPublicPageProps> = ({ onNaviga
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Header */}
             <div className="text-center mb-10">
-              <p className="text-purple-400 font-bold text-xs uppercase tracking-widest mb-2">
+              <p className="text-violet-400 font-bold text-xs uppercase tracking-widest mb-2">
                 Catálogo
               </p>
               <h2 className="font-montserrat font-bold text-3xl sm:text-4xl text-white mb-3">
@@ -530,7 +532,7 @@ export const ServicesPublicPage: React.FC<ServicesPublicPageProps> = ({ onNaviga
                     onClick={() => setActiveTab(id)}
                     className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
                       activeTab === id
-                        ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
+                        ? 'bg-violet-600 text-white shadow-lg shadow-violet-600/30'
                         : 'text-[#A09CC4] hover:text-white hover:bg-white/5'
                     }`}
                     aria-pressed={activeTab === id}
@@ -572,7 +574,7 @@ export const ServicesPublicPage: React.FC<ServicesPublicPageProps> = ({ onNaviga
         <RevealSection>
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
-              <p className="text-purple-400 font-bold text-xs uppercase tracking-widest mb-2">
+              <p className="text-violet-400 font-bold text-xs uppercase tracking-widest mb-2">
                 Por Que Escolher a Legis Connect?
               </p>
               <h2 className="font-montserrat font-bold text-3xl sm:text-4xl text-white">
@@ -598,8 +600,8 @@ export const ServicesPublicPage: React.FC<ServicesPublicPageProps> = ({ onNaviga
                 {
                   icon: '🤖',
                   title: 'Inteligência Artificial',
-                  color: 'from-purple-600/20 to-violet-600/10',
-                  border: 'border-purple-500/20',
+                  color: 'from-violet-600/20 to-violet-600/10',
+                  border: 'border-violet-500/20',
                   items: [
                     'Triagem ultrarrápida do seu caso',
                     'Match com especialista por área e região',
@@ -629,7 +631,7 @@ export const ServicesPublicPage: React.FC<ServicesPublicPageProps> = ({ onNaviga
                   <ul className="space-y-2">
                     {items.map((item) => (
                       <li key={item} className="flex items-start gap-2 text-sm text-[#C4B5FD]">
-                        <span className="text-purple-400 mt-0.5 shrink-0">✓</span>
+                        <span className="text-violet-400 mt-0.5 shrink-0">✓</span>
                         {item}
                       </li>
                     ))}
@@ -648,7 +650,7 @@ export const ServicesPublicPage: React.FC<ServicesPublicPageProps> = ({ onNaviga
         <RevealSection>
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-14">
-              <p className="text-purple-400 font-bold text-xs uppercase tracking-widest mb-2">
+              <p className="text-violet-400 font-bold text-xs uppercase tracking-widest mb-2">
                 Histórias Reais
               </p>
               <h2 className="font-montserrat font-bold text-3xl text-white">
@@ -721,13 +723,13 @@ export const ServicesPublicPage: React.FC<ServicesPublicPageProps> = ({ onNaviga
                     "{text}"
                   </p>
                   <div className="flex items-center gap-3 pt-4 border-t border-[#2A2545]">
-                    <div className="w-10 h-10 rounded-full bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-xl">
+                    <div className="w-10 h-10 rounded-full bg-violet-600/20 border border-violet-500/30 flex items-center justify-center text-xl">
                       {avatar}
                     </div>
                     <div>
                       <p className="text-white font-semibold text-sm">{name}</p>
                       <p className="text-[#7A77A0] text-xs">{city}</p>
-                      <p className="text-purple-400 text-[10px] font-semibold mt-0.5">{service}</p>
+                      <p className="text-violet-400 text-[10px] font-semibold mt-0.5">{service}</p>
                     </div>
                   </div>
                 </div>
@@ -748,7 +750,7 @@ export const ServicesPublicPage: React.FC<ServicesPublicPageProps> = ({ onNaviga
         <RevealSection>
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <p className="text-purple-400 font-bold text-xs uppercase tracking-widest mb-2">
+              <p className="text-violet-400 font-bold text-xs uppercase tracking-widest mb-2">
                 Dúvidas Frequentes
               </p>
               <h2 className="font-montserrat font-bold text-3xl text-white">
@@ -809,14 +811,14 @@ export const ServicesPublicPage: React.FC<ServicesPublicPageProps> = ({ onNaviga
             <h2 className="font-montserrat font-bold text-3xl sm:text-4xl text-white mb-4">
               Pronto para Resolver Sua Questão Jurídica?
             </h2>
-            <p className="text-purple-200 text-lg mb-10">
+            <p className="text-violet-200 text-lg mb-10">
               Mais de 3.200 clientes já encontraram a solução que precisavam. Você é o próximo.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button
                 type="button"
                 onClick={scrollToCatalog}
-                className="btn-primary bg-white !text-purple-700 hover:!bg-purple-50 text-base px-8 py-4"
+                className="btn-primary bg-white !text-violet-700 hover:!bg-violet-50 text-base px-8 py-4"
                 style={{ background: 'white', color: '#6D28D9' }}
                 id="final-cta-services"
               >
@@ -826,7 +828,7 @@ export const ServicesPublicPage: React.FC<ServicesPublicPageProps> = ({ onNaviga
                 href={`https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MSG}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-secondary border-white/40 text-white text-base px-8 py-4"
+                className="btn-secondary border-white/50 text-white text-base px-8 py-4"
                 id="final-cta-whatsapp"
               >
                 💬 Falar com Consultor Agora
@@ -866,7 +868,7 @@ export const ServicesPublicPage: React.FC<ServicesPublicPageProps> = ({ onNaviga
                         setActiveTab('B2C');
                         scrollToCatalog();
                       }}
-                      className="text-[#7A77A0] text-sm hover:text-purple-400 transition-colors text-left"
+                      className="text-[#7A77A0] text-sm hover:text-violet-400 transition-colors text-left"
                     >
                       {s.title}
                     </button>

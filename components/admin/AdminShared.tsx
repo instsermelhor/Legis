@@ -33,7 +33,7 @@ export const StatCard: React.FC<{
   onClick?: () => void;
 }> = ({ icon, label, value, sub, color = 'bg-primary/10', onClick }) => (
   <div
-    className={`bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex items-center space-x-4 ${onClick ? 'cursor-pointer hover:shadow-md hover:border-primary/40 transition-all' : ''}`}
+    className={`bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center space-x-4 ${onClick ? 'cursor-pointer hover:shadow-md hover:border-primary/40 transition-all' : ''}`}
     onClick={onClick}
   >
     <div className={`${color} p-3 rounded-full shrink-0`}>{icon}</div>
@@ -65,15 +65,15 @@ export const SectionTitle: React.FC<{ title: string; subtitle?: string }> = ({ t
 );
 
 export const lawyerStatusBadge = (s: 'verificado' | 'pendente' | 'suspenso') => {
-  const map = { verificado: ['Verificado', 'bg-green-100 text-green-800'], pendente: ['Pendente', 'bg-yellow-100 text-yellow-800'], suspenso: ['Suspenso', 'bg-red-100 text-red-800'] } as const;
+  const map = { verificado: ['Verificado', 'bg-emerald-100 text-emerald-800'], pendente: ['Pendente', 'bg-yellow-100 text-yellow-800'], suspenso: ['Suspenso', 'bg-rose-100 text-rose-800'] } as const;
   return <Badge label={map[s][0]} color={map[s][1]} />;
 };
 export const clientStatusBadge = (s: 'ativo' | 'inativo') => {
-  const map = { ativo: ['Ativo', 'bg-green-100 text-green-800'], inativo: ['Inativo', 'bg-gray-100 text-gray-600'] } as const;
+  const map = { ativo: ['Ativo', 'bg-emerald-100 text-emerald-800'], inativo: ['Inativo', 'bg-gray-100 text-gray-600'] } as const;
   return <Badge label={map[s][0]} color={map[s][1]} />;
 };
 export const internStatusBadge = (s: 'ativo' | 'pendente' | 'inativo') => {
-  const map = { ativo: ['Ativo', 'bg-green-100 text-green-800'], pendente: ['Pendente', 'bg-yellow-100 text-yellow-800'], inativo: ['Inativo', 'bg-gray-100 text-gray-600'] } as const;
+  const map = { ativo: ['Ativo', 'bg-emerald-100 text-emerald-800'], pendente: ['Pendente', 'bg-yellow-100 text-yellow-800'], inativo: ['Inativo', 'bg-gray-100 text-gray-600'] } as const;
   return <Badge label={map[s][0]} color={map[s][1]} />;
 };
 
@@ -87,10 +87,10 @@ export const roleLabels: Record<string, string> = {
 };
 
 export const roleColors: Record<string, string> = {
-  super: 'bg-purple-100 text-purple-800',
+  super: 'bg-violet-100 text-violet-800',
   admin: 'bg-blue-100 text-blue-800',
   manager: 'bg-indigo-100 text-indigo-800',
-  collaborator: 'bg-green-100 text-green-800',
+  collaborator: 'bg-emerald-100 text-emerald-800',
   viewer: 'bg-gray-100 text-gray-700',
 };
 

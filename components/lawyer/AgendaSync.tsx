@@ -27,8 +27,8 @@ const MOCK_EVENTS: AgendaEvent[] = [
 
 const TYPE_COLOR: Record<AgendaEvent['type'], string> = {
   consulta: 'bg-blue-100 text-blue-800',
-  reuniao: 'bg-purple-100 text-purple-800',
-  audiencia: 'bg-red-100 text-red-800',
+  reuniao: 'bg-violet-100 text-violet-800',
+  audiencia: 'bg-rose-100 text-rose-800',
   outro: 'bg-gray-100 text-gray-700',
 };
 
@@ -52,7 +52,7 @@ const SYNC_OPTIONS: SyncOption[] = [
   { id: 'google', name: 'Google Calendar', icon: '📅', color: 'border-blue-300 hover:bg-blue-50', description: 'Sincronize agendamentos com Google Calendar e crie Meet links automaticamente.' },
   { id: 'outlook', name: 'Microsoft Outlook', icon: '📧', color: 'border-blue-400 hover:bg-blue-50', description: 'Integre com Outlook e agende reuniões Teams com um clique.' },
   { id: 'zoom', name: 'Zoom', icon: '🎥', color: 'border-blue-500 hover:bg-blue-50', description: 'Gere links de reunião Zoom para cada consulta marcada.' },
-  { id: 'meet', name: 'Google Meet', icon: '🟢', color: 'border-green-400 hover:bg-green-50', description: 'Crie videoconferências Google Meet vinculadas à agenda.' },
+  { id: 'meet', name: 'Google Meet', icon: '🟢', color: 'border-emerald-400 hover:bg-emerald-50', description: 'Crie videoconferências Google Meet vinculadas à agenda.' },
 ];
 
 const ConnectModal: React.FC<{ option: SyncOption; onClose: () => void }> = ({ option, onClose }) => {
@@ -64,7 +64,7 @@ const ConnectModal: React.FC<{ option: SyncOption; onClose: () => void }> = ({ o
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 animate-fade-in dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 animate-fade-in dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
         <div className="flex items-center gap-3">
           <span className="text-4xl">{option.icon}</span>
           <div>
@@ -100,10 +100,10 @@ const ConnectModal: React.FC<{ option: SyncOption; onClose: () => void }> = ({ o
 
         {step === 'done' && (
           <>
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4 text-center">
               <p className="text-2xl mb-1">✅</p>
-              <p className="font-semibold text-green-800">{option.name} conectado!</p>
-              <p className="text-xs text-green-600 mt-1">Seus eventos serão sincronizados automaticamente.</p>
+              <p className="font-semibold text-emerald-800">{option.name} conectado!</p>
+              <p className="text-xs text-emerald-600 mt-1">Seus eventos serão sincronizados automaticamente.</p>
             </div>
             <button onClick={onClose} className="w-full py-2 px-4 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90">Fechar</button>
           </>
@@ -138,7 +138,7 @@ export const AgendaSync: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <h2 className="text-xl font-semibold text-gray-700">Agenda & Sincronização</h2>
+      <h2 className="text-xl font-bold text-gray-800 dark:text-white">Agenda & Sincronização</h2>
 
       {/* Sync Buttons */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -146,17 +146,17 @@ export const AgendaSync: React.FC = () => {
           <button
             key={opt.id}
             onClick={() => setSyncOption(opt)}
-            className={`flex flex-col items-center gap-2 p-4 bg-white border-2 rounded-xl transition-colors shadow-sm ${opt.color} ${connected.includes(opt.id) ? 'border-green-400 bg-green-50' : ''}`}
+            className={`flex flex-col items-center gap-2 p-4 bg-white border-2 rounded-xl transition-colors shadow-sm ${opt.color} ${connected.includes(opt.id) ? 'border-emerald-400 bg-emerald-50' : ''}`}
           >
             <span className="text-2xl">{opt.icon}</span>
             <span className="text-xs font-semibold text-gray-700 text-center leading-tight">{opt.name}</span>
-            {connected.includes(opt.id) && <span className="text-xs text-green-600 font-medium">✓ Conectado</span>}
+            {connected.includes(opt.id) && <span className="text-xs text-emerald-600 font-medium">✓ Conectado</span>}
           </button>
         ))}
       </div>
 
       {/* Event list */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
         <div className="flex items-center justify-between p-4 border-b bg-gray-50">
           <p className="font-semibold text-gray-800 text-sm">Próximos Eventos</p>
           <button onClick={() => setShowAddForm(f => !f)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary rounded-lg hover:bg-primary/90">
@@ -181,13 +181,13 @@ export const AgendaSync: React.FC = () => {
                     value={newEvent[f.key as keyof typeof newEvent]}
                     onChange={e => setNewEvent(prev => ({ ...prev, [f.key]: e.target.value }))}
                     placeholder={f.placeholder}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                   />
                 </div>
               ))}
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Tipo</label>
-                <select value={newEvent.type} onChange={e => setNewEvent(p => ({ ...p, type: e.target.value as AgendaEvent['type'] }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                <select value={newEvent.type} onChange={e => setNewEvent(p => ({ ...p, type: e.target.value as AgendaEvent['type'] }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                   <option value="consulta">Consulta</option>
                   <option value="reuniao">Reunião</option>
                   <option value="audiencia">Audiência</option>
@@ -196,7 +196,7 @@ export const AgendaSync: React.FC = () => {
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Plataforma</label>
-                <select value={newEvent.platform} onChange={e => setNewEvent(p => ({ ...p, platform: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                <select value={newEvent.platform} onChange={e => setNewEvent(p => ({ ...p, platform: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                   <option>Google Meet</option>
                   <option>Microsoft Teams</option>
                   <option>Zoom</option>
@@ -216,7 +216,7 @@ export const AgendaSync: React.FC = () => {
             <div key={ev.id} className="flex items-center gap-4 p-4 hover:bg-gray-50">
               <div className="text-center min-w-[48px]">
                 <p className="text-xs text-gray-500">{MONTHS[new Date(ev.date).getMonth()]}</p>
-                <p className="text-xl font-bold text-gray-800">{new Date(ev.date).getUTCDate()}</p>
+                <p className="text-xl font-bold text-gray-800 dark:text-white">{new Date(ev.date).getUTCDate()}</p>
               </div>
               <div className="flex-1">
                 <p className="font-medium text-gray-900 text-sm">{ev.title}</p>

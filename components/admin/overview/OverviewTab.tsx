@@ -138,8 +138,8 @@ export const OverviewTab: React.FC<{
           <MiniKpiCard icon={<IconBriefcase />}  label="Advogados"           value={stats.totalLawyers}     sub={`${stats.verifiedLawyers} verificados`}  color="bg-primary/10"  onClick={() => setModal({ type: 'lawyers' })} />
           <MiniKpiCard icon={<IconUsers />}       label="Clientes"            value={stats.totalClients}     sub={`${stats.activeClients} ativos`}          color="bg-blue-100"    onClick={() => setModal({ type: 'clients' })} />
           <MiniKpiCard icon={<IconGradCap />}     label="Bacharelandos"       value={stats.totalInterns}     sub={`${stats.activeInterns} ativos`}          color="bg-indigo-100"  onClick={() => setModal({ type: 'interns' })} />
-          <MiniKpiCard icon={<IconSecretariat />} label="Secret./Assist Jur." value={stats.totalSecretaries} sub={`${stats.activeSecretaries} ativos`}     color="bg-purple-100"  onClick={() => setModal({ type: 'secretaries' })} />
-          <MiniKpiCard icon={<IconBriefcase />}   label="Serviços"            value={servicesCount}          sub="configurados"                              color="bg-orange-100"  onClick={() => setModal({ type: 'services' })} />
+          <MiniKpiCard icon={<IconSecretariat />} label="Secret./Assist Jur." value={stats.totalSecretaries} sub={`${stats.activeSecretaries} ativos`}     color="bg-violet-100"  onClick={() => setModal({ type: 'secretaries' })} />
+          <MiniKpiCard icon={<IconBriefcase />}   label="Serviços"            value={servicesCount}          sub="configurados"                              color="bg-amber-100"  onClick={() => setModal({ type: 'services' })} />
           <MiniKpiCard icon={<IconMoney />}       label="Receita Último Mês"  value={`R$ ${stats.lastMonthRevenue.toLocaleString('pt-BR')}`} sub="ver financeiro" color="bg-emerald-100" onClick={() => onNavigateToFinance && onNavigateToFinance()} />
         </div>
       </div>
@@ -256,22 +256,22 @@ export const OverviewTab: React.FC<{
               )}
               {modal.type === 'secretaries' && (
                 <table className="w-full text-sm">
-                  <thead className="text-xs text-gray-500 uppercase bg-purple-50 dark:bg-purple-900/20">
+                  <thead className="text-xs text-gray-500 uppercase bg-violet-50 dark:bg-violet-900/20">
                     <tr><th className="px-4 py-2 text-left">Secretário(a)</th><th className="px-4 py-2 text-left">Estado</th><th className="px-4 py-2 text-left">Disponibilidade</th><th className="px-4 py-2 text-left">Status</th><th className="px-4 py-2 text-right">Honorário/Mês</th></tr>
                   </thead>
                   <tbody>
                     {filteredSecretaries.map((s: any) => {
                       const availLabel = s.availability === 'integral' ? 'Integral' : s.availability === 'meio-periodo' ? 'Meio Período' : 'Freelancer';
                       return (
-                        <tr key={s.id} className="border-b dark:border-[#2A2545] hover:bg-purple-50/30 dark:hover:bg-purple-900/10">
+                        <tr key={s.id} className="border-b dark:border-[#2A2545] hover:bg-violet-50/30 dark:hover:bg-violet-900/10">
                           <td className="px-4 py-3 font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 text-xs font-bold flex items-center justify-center shrink-0">{s.name.charAt(0)}</div>
+                            <div className="w-7 h-7 rounded-full bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 text-xs font-bold flex items-center justify-center shrink-0">{s.name.charAt(0)}</div>
                             {s.name}
                           </td>
                           <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{s.state}</td>
                           <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{availLabel}</td>
-                          <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${s.status === 'ativo' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : s.status === 'pendente' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300' : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300'}`}>{s.status}</span></td>
-                          <td className="px-4 py-3 text-right font-semibold text-purple-700 dark:text-purple-400">{s.monthlyFee ? `R$ ${s.monthlyFee.toLocaleString('pt-BR')}` : '—'}</td>
+                          <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${s.status === 'ativo' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' : s.status === 'pendente' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300' : 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300'}`}>{s.status}</span></td>
+                          <td className="px-4 py-3 text-right font-semibold text-violet-700 dark:text-violet-400">{s.monthlyFee ? `R$ ${s.monthlyFee.toLocaleString('pt-BR')}` : '—'}</td>
                         </tr>
                       );
                     })}

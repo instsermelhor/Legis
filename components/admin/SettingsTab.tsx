@@ -124,11 +124,11 @@ const LegalDocuments: React.FC = () => {
           <div className="space-y-3">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Título do Documento *</label>
-              <input value={newTitle} onChange={e => setNewTitle(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" placeholder="Ex: Política de Cookies" />
+              <input value={newTitle} onChange={e => setNewTitle(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" placeholder="Ex: Política de Cookies" />
             </div>
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">Conteúdo do Documento *</label>
-              <textarea value={newContent} onChange={e => setNewContent(e.target.value)} rows={5} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-y bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" placeholder="Escreva o conteúdo do documento..." />
+              <textarea value={newContent} onChange={e => setNewContent(e.target.value)} rows={5} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-y bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" placeholder="Escreva o conteúdo do documento..." />
             </div>
           </div>
           <div className="flex gap-2">
@@ -140,24 +140,24 @@ const LegalDocuments: React.FC = () => {
 
       <div className="space-y-4">
         {docs.map(doc => (
-          <div key={doc.id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+          <div key={doc.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
             <div className="flex items-center justify-between p-4 border-b bg-gray-50">
               <div>
                 <p className="font-semibold text-gray-800 text-sm">{doc.title}</p>
                 <p className="text-xs text-gray-400">Atualizado em: {new Date(doc.lastUpdated).toLocaleDateString('pt-BR')}</p>
               </div>
               <div className="flex gap-2">
-                <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:border-primary/50 cursor-pointer transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:border-primary/50 cursor-pointer transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                   <IconUpload /> Upload
                   <input type="file" accept=".txt,.pdf,.doc,.docx" className="hidden" onChange={e => handleFileUpload(doc.id, e)} />
                 </label>
                 <button onClick={() => setEditingId(editingId === doc.id ? null : doc.id)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary bg-primary/5 border border-primary/20 rounded-lg hover:bg-primary/10 transition-colors">
                   <IconEdit /> {editingId === doc.id ? 'Fechar' : 'Editar'}
                 </button>
-                <button onClick={() => handleDelete(doc.id)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors">
+                <button onClick={() => handleDelete(doc.id)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-rose-600 bg-rose-50 border border-rose-200 rounded-lg hover:bg-rose-100 transition-colors">
                   <IconTrash /> Excluir
                 </button>
-                {saved === doc.id && <span className="text-xs text-green-600 font-medium self-center">✓ Salvo!</span>}
+                {saved === doc.id && <span className="text-xs text-emerald-600 font-medium self-center">✓ Salvo!</span>}
               </div>
             </div>
 
@@ -167,7 +167,7 @@ const LegalDocuments: React.FC = () => {
                   value={doc.content}
                   onChange={e => handleContentChange(doc.id, e.target.value)}
                   rows={10}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-y font-mono dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-y font-mono dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                 />
                 <div className="mt-3 flex gap-2">
                   <button onClick={() => handleSave(doc.id)} className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90">
@@ -200,8 +200,8 @@ const roleLabels: Record<AdminUser['role'], string> = {
   viewer: 'Visualizador',
 };
 const roleColors: Record<AdminUser['role'], string> = {
-  super: 'bg-red-100 text-red-800',
-  admin: 'bg-purple-100 text-purple-800',
+  super: 'bg-rose-100 text-rose-800',
+  admin: 'bg-violet-100 text-violet-800',
   manager: 'bg-blue-100 text-blue-800',
   collaborator: 'bg-teal-100 text-teal-800',
   viewer: 'bg-gray-100 text-gray-700',
@@ -350,7 +350,7 @@ const Field = ({ label, error, children }: { label: string; error?: string; chil
   <div>
     <label className="block text-xs font-semibold text-gray-600 mb-1">{label}</label>
     {children}
-    {error && <p className="text-[10px] text-red-500 mt-0.5 font-medium">{error}</p>}
+    {error && <p className="text-[10px] text-rose-500 mt-0.5 font-medium">{error}</p>}
   </div>
 );
 
@@ -600,7 +600,7 @@ const AdminUsers: React.FC = () => {
         <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => setShowRoleDefaults(true)}
-            className="flex items-center gap-2 px-3 py-1.5 text-sm font-semibold text-purple-700 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 text-sm font-semibold text-violet-700 bg-violet-50 border border-violet-200 rounded-lg hover:bg-violet-100 transition-colors"
           >
             🛡️ Permissões Padrão por Nível
           </button>
@@ -613,7 +613,7 @@ const AdminUsers: React.FC = () => {
         </div>
       </div>
 
-      {saved && <p className="text-sm text-green-600 font-medium bg-green-50 border border-green-200 rounded-lg px-3 py-2">✓ Usuário criado com sucesso!</p>}
+      {saved && <p className="text-sm text-emerald-600 font-medium bg-emerald-50 border border-emerald-200 rounded-lg px-3 py-2">✓ Usuário criado com sucesso!</p>}
 
       {/* ── New user form ── */}
       {showForm && (
@@ -624,12 +624,12 @@ const AdminUsers: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Nome *" error={formErrors.name}>
               <input value={newUser.name} onChange={e => setNewUser(u => ({ ...u, name: e.target.value }))}
-                className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white ${formErrors.name ? 'border-red-400' : 'border-gray-300'}`}
+                className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white ${formErrors.name ? 'border-rose-400' : 'border-gray-300'}`}
                 placeholder="Nome completo" />
             </Field>
             <Field label="Nível de Acesso *">
               <select value={newUser.role} onChange={e => setNewUser(u => ({ ...u, role: e.target.value as AdminUser['role'] }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                 <option value="collaborator">Colaborador</option>
                 <option value="viewer">Visualizador</option>
                 <option value="manager">Gerente</option>
@@ -644,14 +644,14 @@ const AdminUsers: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="Senha *" error={formErrors.password}>
               <input type="password" value={newUser.password} onChange={e => setNewUser(u => ({ ...u, password: e.target.value }))}
-                className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white ${formErrors.password ? 'border-red-400' : 'border-gray-300'}`}
+                className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white ${formErrors.password ? 'border-rose-400' : 'border-gray-300'}`}
                 placeholder="Senha de acesso" />
             </Field>
             <Field label="Celular / WhatsApp" error={formErrors.phone}>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base">📱</span>
                 <input value={newUser.phone} onChange={e => setNewUser(u => ({ ...u, phone: e.target.value }))}
-                  className={`w-full border rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white ${formErrors.phone ? 'border-red-400' : 'border-gray-300'}`}
+                  className={`w-full border rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white ${formErrors.phone ? 'border-rose-400' : 'border-gray-300'}`}
                   placeholder="(11) 99999-9999" />
               </div>
             </Field>
@@ -660,22 +660,22 @@ const AdminUsers: React.FC = () => {
           {/* Row 3: Primary email */}
           <Field label="E-mail Principal *" error={formErrors.email}>
             <input type="email" value={newUser.email} onChange={e => setNewUser(u => ({ ...u, email: e.target.value }))}
-              className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white ${formErrors.email ? 'border-red-400' : 'border-gray-300'}`}
+              className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white ${formErrors.email ? 'border-rose-400' : 'border-gray-300'}`}
               placeholder="email@exemplo.com" />
           </Field>
 
           {/* Row 4: Secondary email */}
-          <div className="bg-white border border-dashed border-blue-300 rounded-xl p-3 space-y-3 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+          <div className="bg-white border border-dashed border-blue-300 rounded-xl p-3 space-y-3 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
             <p className="text-xs font-bold text-blue-800 flex items-center gap-1.5">✉️ E-mail Secundário <span className="font-normal text-gray-400">(opcional — usado para reset de senha)</span></p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="E-mail Secundário" error={formErrors.secondaryEmail}>
                 <input type="email" value={newUser.secondaryEmail} onChange={e => setNewUser(u => ({ ...u, secondaryEmail: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                   placeholder="email.secundario@exemplo.com" />
               </Field>
               <Field label="Confirmar E-mail Secundário" error={formErrors.confirmSecondaryEmail}>
                 <input type="email" value={newUser.confirmSecondaryEmail} onChange={e => setNewUser(u => ({ ...u, confirmSecondaryEmail: e.target.value }))}
-                  className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white ${formErrors.confirmSecondaryEmail ? 'border-red-400' : 'border-gray-300'}`}
+                  className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white ${formErrors.confirmSecondaryEmail ? 'border-rose-400' : 'border-gray-300'}`}
                   placeholder="Confirmar e-mail secundário" />
               </Field>
             </div>
@@ -695,7 +695,7 @@ const AdminUsers: React.FC = () => {
       )}
 
       {/* ── Users table ── */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-x-auto dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
         <table className="w-full text-sm text-left text-gray-600">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
             <tr>
@@ -723,7 +723,7 @@ const AdminUsers: React.FC = () => {
                     <div className="space-y-0.5">
                       <p className="text-xs text-gray-600">📧 {u.email}</p>
                       {u.secondaryEmail && <p className="text-xs text-gray-400">✉️ {u.secondaryEmail}</p>}
-                      {u.phone && <p className="text-xs text-green-600">📱 {u.phone}</p>}
+                      {u.phone && <p className="text-xs text-emerald-600">📱 {u.phone}</p>}
                     </div>
                   </td>
                   <td className="px-4 py-3">
@@ -740,7 +740,7 @@ const AdminUsers: React.FC = () => {
                   </td>
                   <td className="px-4 py-3 text-xs text-gray-400 whitespace-nowrap">{new Date(u.createdAt).toLocaleDateString('pt-BR')}</td>
                   <td className="px-4 py-3">
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${u.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'}`}>
+                    <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${u.active ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-500'}`}>
                       {u.active ? '● Ativo' : '○ Inativo'}
                     </span>
                   </td>
@@ -755,7 +755,7 @@ const AdminUsers: React.FC = () => {
                         </button>
                         <button
                           onClick={() => toggleActive(u.id)}
-                          className={`text-xs font-semibold px-2 py-1 rounded-lg border transition-colors ${u.active ? 'text-amber-700 bg-amber-50 border-amber-200 hover:bg-amber-100' : 'text-green-700 bg-green-50 border-green-200 hover:bg-green-100'}`}
+                          className={`text-xs font-semibold px-2 py-1 rounded-lg border transition-colors ${u.active ? 'text-amber-700 bg-amber-50 border-amber-200 hover:bg-amber-100' : 'text-emerald-700 bg-emerald-50 border-emerald-200 hover:bg-emerald-100'}`}
                         >
                           {u.active ? 'Desativar' : 'Ativar'}
                         </button>
@@ -767,13 +767,13 @@ const AdminUsers: React.FC = () => {
                         </button>
                         <button
                           onClick={() => openReset(u)}
-                          className="text-xs font-semibold px-2 py-1 rounded-lg border border-orange-200 text-orange-700 bg-orange-50 hover:bg-orange-100 transition-colors"
+                          className="text-xs font-semibold px-2 py-1 rounded-lg border border-amber-200 text-amber-700 bg-amber-50 hover:bg-amber-100 transition-colors"
                         >
                           🔒 Reset Senha
                         </button>
                         <button
                           onClick={() => handleDelete(u.id)}
-                          className="text-xs font-semibold px-2 py-1 rounded-lg border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 transition-colors"
+                          className="text-xs font-semibold px-2 py-1 rounded-lg border border-rose-200 text-rose-600 bg-rose-50 hover:bg-rose-100 transition-colors"
                         >
                           Excluir
                         </button>
@@ -782,7 +782,7 @@ const AdminUsers: React.FC = () => {
                       <div className="flex gap-1.5 justify-center flex-wrap">
                         <button
                           onClick={() => openEdit(u)}
-                          className="text-xs font-semibold px-2 py-1 rounded-lg border border-purple-200 text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors"
+                          className="text-xs font-semibold px-2 py-1 rounded-lg border border-violet-200 text-violet-700 bg-violet-50 hover:bg-violet-100 transition-colors"
                         >
                           ⚙️ Editar Acesso
                         </button>
@@ -801,9 +801,9 @@ const AdminUsers: React.FC = () => {
       ──────────────────────────────────────────────────────────────────────── */}
       {resetUser && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setResetUser(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" onClick={e => e.stopPropagation()}>
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
               <div>
                 <h2 className="text-base font-bold text-gray-900">🔒 Resetar Senha</h2>
                 <p className="text-xs text-gray-500 mt-0.5">Usuário: <strong>{resetUser.name}</strong></p>
@@ -846,9 +846,9 @@ const AdminUsers: React.FC = () => {
                   </label>
 
                   {/* WhatsApp */}
-                  <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all ${!resetUser.phone ? 'opacity-40 cursor-not-allowed' : resetMethod === 'whatsapp' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-200'}`}>
+                  <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all ${!resetUser.phone ? 'opacity-40 cursor-not-allowed' : resetMethod === 'whatsapp' ? 'border-emerald-500 bg-emerald-50' : 'border-gray-200 hover:border-emerald-200'}`}>
                     <input type="radio" name="resetMethod" value="whatsapp" disabled={!resetUser.phone}
-                      checked={resetMethod === 'whatsapp'} onChange={() => setResetMethod('whatsapp')} className="accent-green-600" />
+                      checked={resetMethod === 'whatsapp'} onChange={() => setResetMethod('whatsapp')} className="accent-emerald-600" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-gray-800">📱 WhatsApp</p>
                       <p className="text-xs text-gray-500 truncate">{resetUser.phone || 'Não cadastrado'}</p>
@@ -864,7 +864,7 @@ const AdminUsers: React.FC = () => {
 
                 <div className="flex gap-2 pt-1">
                   <button onClick={handleSendReset}
-                    className="flex-1 py-2.5 text-sm font-bold text-white bg-orange-500 rounded-xl hover:bg-orange-600 transition-colors shadow">
+                    className="flex-1 py-2.5 text-sm font-bold text-white bg-amber-500 rounded-xl hover:bg-amber-600 transition-colors shadow">
                     🔗 Enviar Link de Redefinição
                   </button>
                   <button onClick={() => setResetUser(null)}
@@ -890,7 +890,7 @@ const AdminUsers: React.FC = () => {
       ──────────────────────────────────────────────────────────────────────── */}
       {editingUser && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setEditingUser(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" onClick={e => e.stopPropagation()}>
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-[#2A2545]">
               <div>
@@ -919,8 +919,8 @@ const AdminUsers: React.FC = () => {
               </Field>
 
               {/* Secondary Email section */}
-              <div className="bg-blue-50/50 border border-dashed border-blue-200 rounded-xl p-3 space-y-3 dark:bg-purple-950/20 dark:border-purple-900">
-                <p className="text-xs font-bold text-blue-800 dark:text-purple-300 flex items-center gap-1.5">✉️ E-mail Secundário <span className="font-normal text-gray-400 dark:text-gray-500">(usado para recuperar a senha em caso de esquecimento)</span></p>
+              <div className="bg-blue-50/50 border border-dashed border-blue-200 rounded-xl p-3 space-y-3 dark:bg-violet-950/20 dark:border-violet-900">
+                <p className="text-xs font-bold text-blue-800 dark:text-violet-300 flex items-center gap-1.5">✉️ E-mail Secundário <span className="font-normal text-gray-400 dark:text-gray-500">(usado para recuperar a senha em caso de esquecimento)</span></p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Field label="E-mail Secundário" error={editErrors.secondaryEmail}>
                     <input type="email" value={editForm.secondaryEmail} onChange={e => setEditForm(prev => ({ ...prev, secondaryEmail: e.target.value }))}
@@ -973,9 +973,9 @@ const AdminUsers: React.FC = () => {
       ──────────────────────────────────────────────────────────────────────── */}
       {permUser && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setPermUser(null)}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" onClick={e => e.stopPropagation()}>
             {/* Modal header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
               <div>
                 <h2 className="text-base font-bold text-gray-900">🔑 Permissões — {permUser.name}</h2>
                 <p className="text-xs text-gray-500 mt-0.5">
@@ -1006,7 +1006,7 @@ const AdminUsers: React.FC = () => {
                 const allOn = group.items.every(i => permDraft.includes(i.id));
                 const someOn = group.items.some(i => permDraft.includes(i.id));
                 return (
-                  <div key={group.category} className="bg-gray-50 rounded-xl border border-gray-200 p-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                  <div key={group.category} className="bg-gray-50 rounded-xl border border-gray-200 p-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
                         <span>{group.icon}</span> {group.category}
@@ -1044,11 +1044,11 @@ const AdminUsers: React.FC = () => {
             </div>
 
             {/* Modal footer */}
-            <div className="px-6 py-4 border-t border-gray-200 shrink-0 flex justify-between items-center bg-gray-50 rounded-b-2xl dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+            <div className="px-6 py-4 border-t border-gray-200 shrink-0 flex justify-between items-center bg-gray-50 rounded-b-2xl dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
               <p className="text-xs text-gray-500">{permDraft.length} função{permDraft.length !== 1 ? 'ões' : ''} habilitada{permDraft.length !== 1 ? 's' : ''}</p>
               <div className="flex gap-2">
                 <button onClick={() => setPermUser(null)}
-                  className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 font-semibold dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                  className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 font-semibold dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                   Cancelar
                 </button>
                 <button onClick={savePermissions}
@@ -1066,24 +1066,24 @@ const AdminUsers: React.FC = () => {
       ──────────────────────────────────────────────────────────────────────── */}
       {showRoleDefaults && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setShowRoleDefaults(false)}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" onClick={e => e.stopPropagation()}>
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0 bg-gradient-to-r from-purple-600 to-primary rounded-t-2xl dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0 bg-gradient-to-r from-violet-600 to-primary rounded-t-2xl dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
               <div>
                 <h2 className="text-base font-bold text-white">🛡️ Painel do Super Admin</h2>
-                <p className="text-xs text-purple-200 mt-0.5">Configure permissões padrão por nível e gerencie usuários ativos/inativos.</p>
+                <p className="text-xs text-violet-200 mt-0.5">Configure permissões padrão por nível e gerencie usuários ativos/inativos.</p>
               </div>
               <button onClick={() => setShowRoleDefaults(false)} className="text-white/70 hover:text-white text-2xl leading-none">×</button>
             </div>
 
             {/* Main tabs: Permissions / Users */}
-            <div className="flex border-b border-gray-200 px-6 pt-3 gap-1 shrink-0 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+            <div className="flex border-b border-gray-200 px-6 pt-3 gap-1 shrink-0 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
               <button onClick={() => setSuperAdminTab('permissions')}
-                className={`px-4 py-2 text-sm font-bold rounded-t-lg border-b-2 transition-colors ${superAdminTab === 'permissions' ? 'border-purple-600 text-purple-700' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+                className={`px-4 py-2 text-sm font-bold rounded-t-lg border-b-2 transition-colors ${superAdminTab === 'permissions' ? 'border-violet-600 text-violet-700' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
                 🔑 Permissões por Nível
               </button>
               <button onClick={() => setSuperAdminTab('users')}
-                className={`px-4 py-2 text-sm font-bold rounded-t-lg border-b-2 transition-colors ${superAdminTab === 'users' ? 'border-purple-600 text-purple-700' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
+                className={`px-4 py-2 text-sm font-bold rounded-t-lg border-b-2 transition-colors ${superAdminTab === 'users' ? 'border-violet-600 text-violet-700' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
                 👤 Usuários ({users.filter(u => u.role !== 'super').length})
               </button>
             </div>
@@ -1101,18 +1101,18 @@ const AdminUsers: React.FC = () => {
                   <div className="space-y-2">
                     {users.filter(u => u.role !== 'super').map(u => (
                       <label key={u.id}
-                        className={`flex items-center gap-4 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all ${u.active ? 'border-green-300 bg-green-50' : 'border-gray-200 bg-gray-50 opacity-70'}`}>
+                        className={`flex items-center gap-4 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all ${u.active ? 'border-emerald-300 bg-emerald-50' : 'border-gray-200 bg-gray-50 opacity-70'}`}>
                         <input
                           type="checkbox"
                           checked={u.active}
                           onChange={() => toggleActive(u.id)}
-                          className="w-5 h-5 accent-green-600 shrink-0 cursor-pointer"
+                          className="w-5 h-5 accent-emerald-600 shrink-0 cursor-pointer"
                         />
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <p className="text-sm font-bold text-gray-800">{u.name}</p>
                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${roleColors[u.role]}`}>{roleLabels[u.role]}</span>
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${u.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-500'}`}>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${u.active ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-500'}`}>
                               {u.active ? '● Ativo' : '○ Inativo'}
                             </span>
                           </div>
@@ -1133,7 +1133,7 @@ const AdminUsers: React.FC = () => {
               {/* ── Tab: Permissions ── */}
               {superAdminTab === 'permissions' && (<>
                 {/* Role sub-tabs */}
-                <div className="flex gap-1 flex-wrap border-b border-gray-200 pb-2 mb-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                <div className="flex gap-1 flex-wrap border-b border-gray-200 pb-2 mb-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                   {(['admin', 'manager', 'collaborator', 'viewer'] as AdminUser['role'][]).map(role => (
                     <button key={role} onClick={() => setEditingRole(role)}
                       className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-colors ${editingRole === role ? 'border-primary text-primary bg-primary/5' : 'border-gray-200 text-gray-500 hover:text-gray-700 hover:bg-gray-50'}`}>
@@ -1169,7 +1169,7 @@ const AdminUsers: React.FC = () => {
                 const roleDraft = roleDefaultsDraft[editingRole] || [];
                 const allOn = group.items.every(i => roleDraft.includes(i.id));
                 return (
-                  <div key={group.category} className="bg-gray-50 rounded-xl border border-gray-200 p-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                  <div key={group.category} className="bg-gray-50 rounded-xl border border-gray-200 p-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-sm font-bold text-gray-800 flex items-center gap-2">
                         {group.icon} {group.category}
@@ -1208,17 +1208,17 @@ const AdminUsers: React.FC = () => {
             </div>
 
             {/* Footer */}
-            <div className="px-6 py-4 border-t border-gray-200 shrink-0 flex justify-between items-center bg-gray-50 rounded-b-2xl dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+            <div className="px-6 py-4 border-t border-gray-200 shrink-0 flex justify-between items-center bg-gray-50 rounded-b-2xl dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
               <p className="text-xs text-gray-500">
                 ⚠️ As alterações afetam apenas novos usuários. Clique em "Salvar" para aplicar.
               </p>
               <div className="flex gap-2">
                 <button onClick={() => setShowRoleDefaults(false)}
-                  className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 font-semibold dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                  className="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-50 font-semibold dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                   Cancelar
                 </button>
                 <button onClick={saveRoleDefaults}
-                  className="px-5 py-2 text-sm text-white bg-purple-600 rounded-xl hover:bg-purple-700 font-bold shadow">
+                  className="px-5 py-2 text-sm text-white bg-violet-600 rounded-xl hover:bg-violet-700 font-bold shadow">
                   💾 Salvar Configurações
                 </button>
               </div>
@@ -1630,7 +1630,7 @@ const GeneralSettings: React.FC = () => {
         return (
           <select
             autoFocus
-            className={`border border-purple-500 rounded px-1.5 py-0.5 text-xs bg-white dark:bg-[#1A1730] dark:text-white ${options?.className || ''}`}
+            className={`border border-violet-500 rounded px-1.5 py-0.5 text-xs bg-white dark:bg-[#1A1730] dark:text-white ${options?.className || ''}`}
             value={activeInlineEditor.value}
             onChange={e => {
               setActiveInlineEditor({ ...activeInlineEditor, value: e.target.value });
@@ -1651,7 +1651,7 @@ const GeneralSettings: React.FC = () => {
         <input
           autoFocus
           type={type}
-          className={`border border-purple-500 rounded px-1.5 py-0.5 text-xs bg-white dark:bg-[#1A1730] dark:text-white ${options?.className || ''}`}
+          className={`border border-violet-500 rounded px-1.5 py-0.5 text-xs bg-white dark:bg-[#1A1730] dark:text-white ${options?.className || ''}`}
           value={activeInlineEditor.value}
           onChange={e => setActiveInlineEditor({ ...activeInlineEditor, value: e.target.value })}
           onBlur={() => onSave(activeInlineEditor.value)}
@@ -1673,7 +1673,7 @@ const GeneralSettings: React.FC = () => {
             value: String(value)
           });
         }}
-        className={`${isSuper ? 'cursor-pointer hover:bg-purple-50/50 hover:text-purple-600 dark:hover:bg-purple-950/30 transition-all rounded px-1 -mx-1' : ''} ${options?.className || ''}`}
+        className={`${isSuper ? 'cursor-pointer hover:bg-violet-50/50 hover:text-violet-600 dark:hover:bg-violet-950/30 transition-all rounded px-1 -mx-1' : ''} ${options?.className || ''}`}
         title={isSuper ? 'Duplo clique para editar' : undefined}
       >
         {displayVal}
@@ -1696,7 +1696,7 @@ const GeneralSettings: React.FC = () => {
       return (
         <input
           autoFocus
-          className={`border border-purple-500 rounded px-2 py-1 text-xs bg-white dark:bg-[#1A1730] dark:text-white font-bold inline-block text-black ${options?.className || ''}`}
+          className={`border border-violet-500 rounded px-2 py-1 text-xs bg-white dark:bg-[#1A1730] dark:text-white font-bold inline-block text-black ${options?.className || ''}`}
           value={activeInlineEditor.value}
           onChange={e => setActiveInlineEditor({ ...activeInlineEditor, value: e.target.value })}
           onBlur={() => handleSaveLabel(labelKey, activeInlineEditor.value)}
@@ -1782,7 +1782,7 @@ const GeneralSettings: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
       <div className="flex items-center justify-between">
         <h3 className="text-base font-bold text-gray-800">Configurações Gerais</h3>
         <span className="text-xs text-gray-400">Última atualização: {config.updatedAt ? new Date(config.updatedAt).toLocaleString('pt-BR') : 'Sem dados'}</span>
@@ -1794,25 +1794,25 @@ const GeneralSettings: React.FC = () => {
           <div className="flex justify-between items-center mb-1">
             <label className="block text-xs font-semibold text-gray-600 uppercase">Nome do Aplicativo</label>
             <div className="flex gap-2">
-              <button type="button" onClick={() => setAppName('')} className="text-[10px] font-bold text-red-600 hover:underline">Limpar</button>
+              <button type="button" onClick={() => setAppName('')} className="text-[10px] font-bold text-rose-600 hover:underline">Limpar</button>
               <button type="button" onClick={() => setAppName('Legis Connect')} className="text-[10px] font-bold text-primary hover:underline">Restaurar Padrão</button>
             </div>
           </div>
-          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" value={appName} onChange={e => setAppName(e.target.value)} placeholder="Ex: Legis Connect" />
+          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" value={appName} onChange={e => setAppName(e.target.value)} placeholder="Ex: Legis Connect" />
         </div>
         <div>
           <div className="flex justify-between items-center mb-1">
             <label className="block text-xs font-semibold text-gray-600 uppercase">Slogan Principal</label>
-            <button type="button" onClick={() => setSiteTagline('')} className="text-[10px] font-bold text-red-600 hover:underline">Excluir Slogan</button>
+            <button type="button" onClick={() => setSiteTagline('')} className="text-[10px] font-bold text-rose-600 hover:underline">Excluir Slogan</button>
           </div>
-          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" value={siteTagline} onChange={e => setSiteTagline(e.target.value)} placeholder="Slogan do aplicativo" />
+          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" value={siteTagline} onChange={e => setSiteTagline(e.target.value)} placeholder="Slogan do aplicativo" />
         </div>
         <div>
           <div className="flex justify-between items-center mb-1">
             <label className="block text-xs font-semibold text-gray-600 uppercase">Texto do Rodapé</label>
-            <button type="button" onClick={() => setFooterText('')} className="text-[10px] font-bold text-red-600 hover:underline">Excluir Copyright</button>
+            <button type="button" onClick={() => setFooterText('')} className="text-[10px] font-bold text-rose-600 hover:underline">Excluir Copyright</button>
           </div>
-          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" value={footerText} onChange={e => setFooterText(e.target.value)} placeholder="Ex: © 2026 Legis Connect. Todos os direitos reservados." />
+          <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" value={footerText} onChange={e => setFooterText(e.target.value)} placeholder="Ex: © 2026 Legis Connect. Todos os direitos reservados." />
         </div>
       </div>
 
@@ -1823,16 +1823,16 @@ const GeneralSettings: React.FC = () => {
           <div>
             <div className="flex justify-between items-center mb-1">
               <label className="block text-xs font-medium text-gray-600">E-mail de Contato</label>
-              {contactEmail && <button type="button" onClick={() => setContactEmail('')} className="text-[10px] font-bold text-red-600 hover:underline">Excluir</button>}
+              {contactEmail && <button type="button" onClick={() => setContactEmail('')} className="text-[10px] font-bold text-rose-600 hover:underline">Excluir</button>}
             </div>
-            <input type="email" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" value={contactEmail} onChange={e => setContactEmail(e.target.value)} placeholder="contato@empresa.com" />
+            <input type="email" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" value={contactEmail} onChange={e => setContactEmail(e.target.value)} placeholder="contato@empresa.com" />
           </div>
           <div>
             <div className="flex justify-between items-center mb-1">
               <label className="block text-xs font-medium text-gray-600">Telefone de Contato</label>
-              {contactPhone && <button type="button" onClick={() => setContactPhone('')} className="text-[10px] font-bold text-red-600 hover:underline">Excluir</button>}
+              {contactPhone && <button type="button" onClick={() => setContactPhone('')} className="text-[10px] font-bold text-rose-600 hover:underline">Excluir</button>}
             </div>
-            <input type="tel" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" value={contactPhone} onChange={e => setContactPhone(e.target.value)} placeholder="+55 11 99999-9999" />
+            <input type="tel" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" value={contactPhone} onChange={e => setContactPhone(e.target.value)} placeholder="+55 11 99999-9999" />
           </div>
         </div>
       </div>
@@ -1845,25 +1845,25 @@ const GeneralSettings: React.FC = () => {
         {customFields.length > 0 && (
           <div className="space-y-3">
             {customFields.map(field => (
-              <div key={field.id} className="flex gap-3 items-center bg-gray-50 p-3 rounded-lg border border-gray-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+              <div key={field.id} className="flex gap-3 items-center bg-gray-50 p-3 rounded-2xl border border-gray-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                 <input
                   type="text"
                   value={field.key}
                   onChange={e => handleEditCustomField(field.id, e.target.value, field.value)}
-                  className="w-1/3 border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                  className="w-1/3 border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                   placeholder="Nome do Campo"
                 />
                 <input
                   type="text"
                   value={field.value}
                   onChange={e => handleEditCustomField(field.id, field.key, e.target.value)}
-                  className="flex-grow border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                  className="flex-grow border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                   placeholder="Valor"
                 />
                 <button
                   type="button"
                   onClick={() => handleDeleteCustomField(field.id)}
-                  className="px-2 py-1 bg-red-50 text-red-600 hover:bg-red-100 text-xs font-bold rounded"
+                  className="px-2 py-1 bg-rose-50 text-rose-600 hover:bg-rose-100 text-xs font-bold rounded"
                 >
                   Excluir
                 </button>
@@ -1880,7 +1880,7 @@ const GeneralSettings: React.FC = () => {
               type="text"
               value={newKey}
               onChange={e => setNewKey(e.target.value)}
-              className="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:outline-none bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+              className="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:outline-none bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
               placeholder="Ex: Endereço Comercial"
             />
           </div>
@@ -1890,7 +1890,7 @@ const GeneralSettings: React.FC = () => {
               type="text"
               value={newValue}
               onChange={e => setNewValue(e.target.value)}
-              className="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:outline-none bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+              className="w-full border border-gray-300 rounded px-2 py-1.5 text-xs focus:outline-none bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
               placeholder="Ex: Av. Paulista, 1000 - SP"
             />
           </div>
@@ -1915,7 +1915,7 @@ const GeneralSettings: React.FC = () => {
                 <img src={config.headerLogoUrl} className="h-16 w-auto object-contain border rounded p-1 max-w-[200px]" alt="Header Logo" />
                 <button
                   onClick={() => deleteLogo('headerLogoUrl')}
-                  className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow hover:scale-110 transition-all w-6 h-6 flex items-center justify-center font-bold text-xs"
+                  className="absolute -top-2 -right-2 bg-rose-500 hover:bg-rose-600 text-white rounded-full p-1 shadow hover:scale-110 transition-all w-6 h-6 flex items-center justify-center font-bold text-xs"
                   title="Excluir Logo"
                 >
                   &times;
@@ -1927,14 +1927,14 @@ const GeneralSettings: React.FC = () => {
               </div>
             )}
             <div>
-              <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:border-primary/50 cursor-pointer transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+              <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:border-primary/50 cursor-pointer transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                 <IconUpload /> Enviar/Editar Logo
                 <input type="file" accept="image/*" className="hidden" onChange={handleHeaderLogoUpload} />
               </label>
               {config.headerLogoUrl && (
                 <button
                   onClick={() => deleteLogo('headerLogoUrl')}
-                  className="mt-2 text-xs text-red-600 hover:underline flex items-center gap-1 text-left"
+                  className="mt-2 text-xs text-rose-600 hover:underline flex items-center gap-1 text-left"
                 >
                   Excluir Logo
                 </button>
@@ -1952,7 +1952,7 @@ const GeneralSettings: React.FC = () => {
                 <img src={config.footerLogoUrl} className="h-16 w-auto object-contain border rounded p-1 max-w-[200px]" alt="Footer Logo" />
                 <button
                   onClick={() => deleteLogo('footerLogoUrl')}
-                  className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow hover:scale-110 transition-all w-6 h-6 flex items-center justify-center font-bold text-xs"
+                  className="absolute -top-2 -right-2 bg-rose-500 hover:bg-rose-600 text-white rounded-full p-1 shadow hover:scale-110 transition-all w-6 h-6 flex items-center justify-center font-bold text-xs"
                   title="Excluir Logo"
                 >
                   &times;
@@ -1964,14 +1964,14 @@ const GeneralSettings: React.FC = () => {
               </div>
             )}
             <div>
-              <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:border-primary/50 cursor-pointer transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+              <label className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:border-primary/50 cursor-pointer transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                 <IconUpload /> Enviar/Editar Logo
                 <input type="file" accept="image/*" className="hidden" onChange={handleFooterLogoUpload} />
               </label>
               {config.footerLogoUrl && (
                 <button
                   onClick={() => deleteLogo('footerLogoUrl')}
-                  className="mt-2 text-xs text-red-600 hover:underline flex items-center gap-1 text-left"
+                  className="mt-2 text-xs text-rose-600 hover:underline flex items-center gap-1 text-left"
                 >
                   Excluir Logo
                 </button>
@@ -1985,7 +1985,7 @@ const GeneralSettings: React.FC = () => {
       <div className="pt-6 border-t space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h4 className="text-sm font-bold text-purple-700 uppercase tracking-wider flex items-center gap-2">
+            <h4 className="text-sm font-bold text-violet-700 uppercase tracking-wider flex items-center gap-2">
               <span>📊</span> Modelagem de Dados Financeiros & BI
             </h4>
             <p className="text-xs text-gray-500 mt-1">
@@ -2014,8 +2014,8 @@ const GeneralSettings: React.FC = () => {
         {biSubTab === 'excel_ums' ? (
           <>
             {/* Tabela A: Premissas (tb_apoio) */}
-            <div className="bg-purple-50/50 dark:bg-[#1A1730]/40 border border-purple-200 dark:border-[#2A2545] rounded-xl p-4 space-y-4 text-left animate-fade-in">
-              <h5 className="text-xs font-bold text-purple-800 dark:text-purple-300 uppercase">Tabela A: Premissas (tb_apoio)</h5>
+            <div className="bg-violet-50/50 dark:bg-[#1A1730]/40 border border-violet-200 dark:border-[#2A2545] rounded-xl p-4 space-y-4 text-left animate-fade-in">
+              <h5 className="text-xs font-bold text-violet-800 dark:text-violet-300 uppercase">Tabela A: Premissas (tb_apoio)</h5>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 uppercase mb-1">Teto de Execução Anual (UMS) *</label>
@@ -2043,7 +2043,7 @@ const GeneralSettings: React.FC = () => {
                 <label className="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 uppercase">Metas de Faturamento por Período / Semestre</label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {biApoio.periodos.map((periodo, idx) => (
-                    <div key={periodo} className="bg-white dark:bg-[#1A1730] p-2.5 rounded-lg border border-purple-100 dark:border-[#2A2545]">
+                    <div key={periodo} className="bg-white dark:bg-[#1A1730] p-2.5 rounded-lg border border-violet-100 dark:border-[#2A2545]">
                       <span className="block text-[10px] font-bold text-gray-500 uppercase">{periodo}</span>
                       <input
                         type="number"
@@ -2075,7 +2075,7 @@ const GeneralSettings: React.FC = () => {
                         localStorage.setItem('legis_bi_tb_dados_base', JSON.stringify(mockBiDadosBase));
                       }
                     }}
-                    className="text-[10px] font-bold text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/30 px-2.5 py-1 rounded hover:bg-red-100 dark:hover:bg-red-900/40"
+                    className="text-[10px] font-bold text-rose-600 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-900/30 px-2.5 py-1 rounded hover:bg-rose-100 dark:hover:bg-rose-900/40"
                   >
                     Redefinir Padrão
                   </button>
@@ -2315,7 +2315,7 @@ const GeneralSettings: React.FC = () => {
                             onDoubleClickKey: `tx-${idx}-receita_fat`
                           })}
                         </td>
-                        <td className="px-3 py-2 text-right text-red-600 dark:text-red-400">
+                        <td className="px-3 py-2 text-right text-rose-600 dark:text-rose-400">
                           {renderEditableCell(tx.despesa_total, val => handleSaveTxCell(idx, 'despesa_total', val), {
                             type: 'number',
                             displayValue: `R$ ${tx.despesa_total.toLocaleString('pt-BR')}`,
@@ -2362,7 +2362,7 @@ const GeneralSettings: React.FC = () => {
                                 localStorage.setItem('legis_bi_tb_dados_base', JSON.stringify(next));
                               }
                             }}
-                            className="text-red-600 dark:text-red-400 hover:underline font-bold"
+                            className="text-rose-600 dark:text-rose-400 hover:underline font-bold"
                           >
                             Excluir
                           </button>
@@ -2398,8 +2398,8 @@ const GeneralSettings: React.FC = () => {
                   }}
                   className={`pb-2 text-xs font-bold transition-all ${
                     biAluguelTab === sub.id
-                      ? 'border-b-2 border-purple-600 text-purple-700'
-                      : 'text-gray-500 hover:text-purple-600'
+                      ? 'border-b-2 border-violet-600 text-violet-700'
+                      : 'text-gray-500 hover:text-violet-600'
                   }`}
                 >
                   {renderEditableLabel(sub.key, sub.default)}
@@ -2409,7 +2409,7 @@ const GeneralSettings: React.FC = () => {
 
             {/* Actions header */}
             <div className="flex justify-between items-center flex-wrap gap-2">
-              <h5 className="text-xs font-bold text-purple-800 dark:text-purple-300 uppercase">
+              <h5 className="text-xs font-bold text-violet-800 dark:text-violet-300 uppercase">
                 {biAluguelTab === 'vendas' ? 'Tabela Fato Serviços' : 
                  biAluguelTab === 'clientes' ? 'Tabela Dimensão: Clientes' :
                  biAluguelTab === 'produtos' ? 'Tabela Dimensão Produtos' :
@@ -2426,7 +2426,7 @@ const GeneralSettings: React.FC = () => {
                       else if (biAluguelTab === 'fornecedores') { setBiFornecedores(mockBiFornecedores); localStorage.setItem('legis_bi_fornecedores', JSON.stringify(mockBiFornecedores)); }
                     }
                   }}
-                  className="text-[10px] font-bold text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/30 px-2.5 py-1 rounded hover:bg-red-100 dark:hover:bg-red-900/40"
+                  className="text-[10px] font-bold text-rose-600 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-900/30 px-2.5 py-1 rounded hover:bg-rose-100 dark:hover:bg-rose-900/40"
                 >
                   Redefinir Padrão
                 </button>
@@ -2457,7 +2457,7 @@ const GeneralSettings: React.FC = () => {
                       status_aluguel: 'Entregue',
                     });
                   }}
-                  className="text-[10px] font-bold text-purple-600 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-900/30 px-2.5 py-1 rounded hover:bg-purple-100 dark:hover:bg-purple-900/40"
+                  className="text-[10px] font-bold text-violet-600 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-900/30 px-2.5 py-1 rounded hover:bg-violet-100 dark:hover:bg-violet-900/40"
                 >
                   {showAluguelForm && !editingAluguelId ? '✕ Fechar Form' : '+ Novo Registro'}
                 </button>
@@ -2466,8 +2466,8 @@ const GeneralSettings: React.FC = () => {
 
             {/* Form for dim_clientes */}
             {showAluguelForm && biAluguelTab === 'clientes' && (
-              <div className="bg-white dark:bg-[#1A1730] border border-purple-200 dark:border-[#2A2545] p-4 rounded-lg space-y-4">
-                <p className="text-xs font-bold text-purple-900 dark:text-purple-300">{editingAluguelId ? '📝 Editar Cliente' : '➕ Novo Cliente'}</p>
+              <div className="bg-white dark:bg-[#1A1730] border border-violet-200 dark:border-[#2A2545] p-4 rounded-lg space-y-4">
+                <p className="text-xs font-bold text-violet-900 dark:text-violet-300">{editingAluguelId ? '📝 Editar Cliente' : '➕ Novo Cliente'}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Código *</label>
@@ -2507,7 +2507,7 @@ const GeneralSettings: React.FC = () => {
                       setShowAluguelForm(false);
                       setEditingAluguelId(null);
                     }}
-                    className="px-4 py-2 bg-purple-600 text-white rounded text-xs font-bold hover:bg-purple-700"
+                    className="px-4 py-2 bg-violet-600 text-white rounded text-xs font-bold hover:bg-violet-700"
                   >
                     Salvar
                   </button>
@@ -2520,8 +2520,8 @@ const GeneralSettings: React.FC = () => {
 
             {/* Form for dim_produtos */}
             {showAluguelForm && biAluguelTab === 'produtos' && (
-              <div className="bg-white dark:bg-[#1A1730] border border-purple-200 dark:border-[#2A2545] p-4 rounded-lg space-y-4">
-                <p className="text-xs font-bold text-purple-900 dark:text-purple-300">{editingAluguelId ? '📝 Editar Produto' : '➕ Novo Produto'}</p>
+              <div className="bg-white dark:bg-[#1A1730] border border-violet-200 dark:border-[#2A2545] p-4 rounded-lg space-y-4">
+                <p className="text-xs font-bold text-violet-900 dark:text-violet-300">{editingAluguelId ? '📝 Editar Produto' : '➕ Novo Produto'}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Código *</label>
@@ -2561,7 +2561,7 @@ const GeneralSettings: React.FC = () => {
                       setShowAluguelForm(false);
                       setEditingAluguelId(null);
                     }}
-                    className="px-4 py-2 bg-purple-600 text-white rounded text-xs font-bold hover:bg-purple-700"
+                    className="px-4 py-2 bg-violet-600 text-white rounded text-xs font-bold hover:bg-violet-700"
                   >
                     Salvar
                   </button>
@@ -2574,8 +2574,8 @@ const GeneralSettings: React.FC = () => {
 
             {/* Form for dim_fornecedores */}
             {showAluguelForm && biAluguelTab === 'fornecedores' && (
-              <div className="bg-white dark:bg-[#1A1730] border border-purple-200 dark:border-[#2A2545] p-4 rounded-lg space-y-4">
-                <p className="text-xs font-bold text-purple-900 dark:text-purple-300">{editingAluguelId ? '📝 Editar Fornecedor' : '➕ Novo Fornecedor'}</p>
+              <div className="bg-white dark:bg-[#1A1730] border border-violet-200 dark:border-[#2A2545] p-4 rounded-lg space-y-4">
+                <p className="text-xs font-bold text-violet-900 dark:text-violet-300">{editingAluguelId ? '📝 Editar Fornecedor' : '➕ Novo Fornecedor'}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Código *</label>
@@ -2611,7 +2611,7 @@ const GeneralSettings: React.FC = () => {
                       setShowAluguelForm(false);
                       setEditingAluguelId(null);
                     }}
-                    className="px-4 py-2 bg-purple-600 text-white rounded text-xs font-bold hover:bg-purple-700"
+                    className="px-4 py-2 bg-violet-600 text-white rounded text-xs font-bold hover:bg-violet-700"
                   >
                     Salvar
                   </button>
@@ -2624,8 +2624,8 @@ const GeneralSettings: React.FC = () => {
 
             {/* Form for fato_vendas */}
             {showAluguelForm && biAluguelTab === 'vendas' && (
-              <div className="bg-white dark:bg-[#1A1730] border border-purple-200 dark:border-[#2A2545] p-4 rounded-lg space-y-4">
-                <p className="text-xs font-bold text-purple-900 dark:text-purple-300">{editingAluguelId ? '📝 Editar Registro de Venda' : '➕ Novo Registro de Venda'}</p>
+              <div className="bg-white dark:bg-[#1A1730] border border-violet-200 dark:border-[#2A2545] p-4 rounded-lg space-y-4">
+                <p className="text-xs font-bold text-violet-900 dark:text-violet-300">{editingAluguelId ? '📝 Editar Registro de Venda' : '➕ Novo Registro de Venda'}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">ID Lançamento *</label>
@@ -2799,7 +2799,7 @@ const GeneralSettings: React.FC = () => {
                       setShowAluguelForm(false);
                       setEditingAluguelId(null);
                     }}
-                    className="px-4 py-2 bg-purple-600 text-white rounded text-xs font-bold hover:bg-purple-700"
+                    className="px-4 py-2 bg-violet-600 text-white rounded text-xs font-bold hover:bg-violet-700"
                   >
                     Salvar
                   </button>
@@ -2873,7 +2873,7 @@ const GeneralSettings: React.FC = () => {
                                 localStorage.setItem('legis_bi_clientes', JSON.stringify(next));
                               }
                             }}
-                            className="text-red-600 dark:text-red-400 hover:underline font-bold"
+                            className="text-rose-600 dark:text-rose-400 hover:underline font-bold"
                           >
                             Excluir
                           </button>
@@ -2954,7 +2954,7 @@ const GeneralSettings: React.FC = () => {
                                 localStorage.setItem('legis_bi_produtos', JSON.stringify(next));
                               }
                             }}
-                            className="text-red-600 dark:text-red-400 hover:underline font-bold"
+                            className="text-rose-600 dark:text-rose-400 hover:underline font-bold"
                           >
                             Excluir
                           </button>
@@ -3025,7 +3025,7 @@ const GeneralSettings: React.FC = () => {
                                 localStorage.setItem('legis_bi_fornecedores', JSON.stringify(next));
                               }
                             }}
-                            className="text-red-600 dark:text-red-400 hover:underline font-bold"
+                            className="text-rose-600 dark:text-rose-400 hover:underline font-bold"
                           >
                             Excluir
                           </button>
@@ -3115,8 +3115,8 @@ const GeneralSettings: React.FC = () => {
                               displayValue: v.status_aluguel,
                               onDoubleClickKey: `sale-${idx}-status_aluguel`,
                               className: `px-2 py-0.5 rounded text-[10px] font-bold ${
-                                v.status_aluguel === 'Entregue' ? 'bg-green-100 text-green-800' :
-                                v.status_aluguel === 'Cancelado' ? 'bg-red-100 text-red-800' :
+                                v.status_aluguel === 'Entregue' ? 'bg-emerald-100 text-emerald-800' :
+                                v.status_aluguel === 'Cancelado' ? 'bg-rose-100 text-rose-800' :
                                 'bg-yellow-100 text-yellow-800'
                               }`
                             }
@@ -3143,7 +3143,7 @@ const GeneralSettings: React.FC = () => {
                                 localStorage.setItem('legis_bi_vendas', JSON.stringify(next));
                               }
                             }}
-                            className="text-red-600 dark:text-red-400 hover:underline font-bold"
+                            className="text-rose-600 dark:text-rose-400 hover:underline font-bold"
                           >
                             Excluir
                           </button>
@@ -3163,8 +3163,8 @@ const GeneralSettings: React.FC = () => {
         )}
 
         {/* Documentação BI */}
-        <div className="bg-slate-50 dark:bg-[#1A1730]/40 border border-slate-200 dark:border-[#2A2545] rounded-xl p-4 space-y-3">
-          <h5 className="text-xs font-bold text-slate-800 dark:text-slate-300 uppercase flex items-center gap-1">
+        <div className="bg-gray-50 dark:bg-[#1A1730]/40 border border-gray-200 dark:border-[#2A2545] rounded-xl p-4 space-y-3">
+          <h5 className="text-xs font-bold text-gray-800 dark:text-gray-300 uppercase flex items-center gap-1">
             <span>📖</span> Documentação do Modelo de Dados & Relacionamentos
           </h5>
           <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -3172,8 +3172,8 @@ const GeneralSettings: React.FC = () => {
           </p>
 
           <div className="space-y-3 text-left">
-            <div className="bg-white dark:bg-[#1A1730] p-3 rounded-lg border border-slate-100 dark:border-[#2A2545] space-y-1.5">
-              <p className="text-xs font-bold text-slate-700 dark:text-slate-300">🔗 Estrutura de Relacionamentos</p>
+            <div className="bg-white dark:bg-[#1A1730] p-3 rounded-lg border border-gray-100 dark:border-[#2A2545] space-y-1.5">
+              <p className="text-xs font-bold text-gray-700 dark:text-gray-300">🔗 Estrutura de Relacionamentos</p>
               {biSubTab === 'excel_ums' ? (
                 <ol className="list-decimal list-inside text-[11px] text-gray-600 dark:text-gray-400 space-y-1 leading-relaxed">
                   <li><strong>Chave de Relação:</strong> Ligue as tabelas usando <code>tb_apoio[periodos]</code> &rarr; <code>tb_dados_base[semestre]</code>.</li>
@@ -3450,7 +3450,7 @@ Valor_Cancelado = CALCULATE([Faturamento_Total], fato_vendas[Status do Serviço]
         <button onClick={handleSave} className="px-5 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90">
           {saved ? '✓ Salvo!' : 'Salvar Configurações'}
         </button>
-        {saved && <span className="text-xs text-green-600 font-medium">✓ Configurações salvas e aplicadas em tempo real.</span>}
+        {saved && <span className="text-xs text-emerald-600 font-medium">✓ Configurações salvas e aplicadas em tempo real.</span>}
       </div>
     </div>
   );
@@ -3508,9 +3508,9 @@ const ServiceGroupsSettings: React.FC = () => {
       </div>
       
       {showForm && (
-        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+        <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
           <label className="block text-xs font-medium text-gray-600 mb-1">{editingId ? 'Editar Nome do Grupo' : 'Nome do Novo Grupo'}</label>
-          <input value={formName} onChange={e => setFormName(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" placeholder="Ex: Gestão Documental" />
+          <input value={formName} onChange={e => setFormName(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" placeholder="Ex: Gestão Documental" />
           <div className="flex gap-2">
             <button onClick={handleSave} className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90">Salvar Grupo</button>
             <button onClick={() => setShowForm(false)} className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300">Cancelar</button>
@@ -3518,7 +3518,7 @@ const ServiceGroupsSettings: React.FC = () => {
         </div>
       )}
 
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
         <table className="w-full text-sm text-left text-gray-600">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 border-b">
             <tr><th className="px-5 py-3">Nome do Grupo</th><th className="px-5 py-3 text-right">Ações</th></tr>
@@ -3529,7 +3529,7 @@ const ServiceGroupsSettings: React.FC = () => {
                 <td className="px-5 py-3 font-medium text-gray-900">{g.name}</td>
                 <td className="px-5 py-3 text-right space-x-3">
                   <button onClick={() => handleEdit(g)} className="text-blue-600 font-medium hover:underline flex-inline items-center gap-1"><IconEdit /> Editar</button>
-                  <button onClick={() => handleDelete(g.id)} className="text-red-600 font-medium hover:underline flex-inline items-center gap-1"><IconTrash /> Excluir</button>
+                  <button onClick={() => handleDelete(g.id)} className="text-rose-600 font-medium hover:underline flex-inline items-center gap-1"><IconTrash /> Excluir</button>
                 </td>
               </tr>
             ))}
@@ -3676,14 +3676,14 @@ const LegalCodesSettings: React.FC = () => {
 
       <div className="space-y-4">
         {codes.map(code => (
-          <div key={code.id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545]">
+          <div key={code.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545]">
             {/* Card Header */}
             <div className="flex items-center justify-between p-4 border-b bg-gray-50/50 dark:bg-black/10">
               <div>
                 <p className="font-semibold text-gray-800 dark:text-white text-sm">{code.title}</p>
                 <p className="text-xs text-gray-400">Total de versões: {code.versions?.length || 0}</p>
               </div>
-              {saved === code.id && <span className="text-xs text-green-600 font-medium">✓ Versão adicionada!</span>}
+              {saved === code.id && <span className="text-xs text-emerald-600 font-medium">✓ Versão adicionada!</span>}
             </div>
 
             {/* Version List */}
@@ -3699,8 +3699,8 @@ const LegalCodesSettings: React.FC = () => {
                         <div className="space-y-0.5">
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-xs text-gray-800 dark:text-white">{ver.name}</span>
-                            {isActive && <span className="px-1.5 py-0.5 bg-green-100 dark:bg-green-950/30 text-green-700 dark:text-green-400 rounded text-[9px] font-bold">Ativa</span>}
-                            {isPdf && <span className="px-1.5 py-0.5 bg-red-100 dark:bg-red-950/30 text-red-700 dark:text-red-400 rounded text-[9px] font-bold">PDF</span>}
+                            {isActive && <span className="px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 rounded text-[9px] font-bold">Ativa</span>}
+                            {isPdf && <span className="px-1.5 py-0.5 bg-rose-100 dark:bg-rose-950/30 text-rose-700 dark:text-rose-400 rounded text-[9px] font-bold">PDF</span>}
                           </div>
                           <p className="text-[10px] text-gray-500">
                             {ver.fileName ? `Arquivo: ${ver.fileName}` : 'Edição Manual'} | Atualizado em: {new Date(ver.lastUpdated).toLocaleDateString('pt-BR')}
@@ -3710,7 +3710,7 @@ const LegalCodesSettings: React.FC = () => {
                           {!isActive && (
                             <button
                               onClick={() => handleActivateVersion(code.id, ver.id)}
-                              className="text-[11px] font-bold text-green-600 hover:text-green-700 transition-colors"
+                              className="text-[11px] font-bold text-emerald-600 hover:text-emerald-700 transition-colors"
                             >
                               Ativar
                             </button>
@@ -3724,7 +3724,7 @@ const LegalCodesSettings: React.FC = () => {
                           {(code.versions || []).length > 1 && (
                             <button
                               onClick={() => handleDeleteVersion(code.id, ver.id)}
-                              className="text-[11px] font-bold text-red-500 hover:text-red-700 transition-colors"
+                              className="text-[11px] font-bold text-rose-500 hover:text-rose-700 transition-colors"
                             >
                               Excluir
                             </button>
@@ -3737,8 +3737,8 @@ const LegalCodesSettings: React.FC = () => {
               </div>
 
               {/* Upload / Add New Version Form */}
-              <div className="bg-purple-50/25 dark:bg-purple-950/5 border border-purple-100/60 dark:border-purple-950/20 rounded-xl p-4 space-y-3">
-                <p className="text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider">📤 Adicionar Nova Versão</p>
+              <div className="bg-violet-50/25 dark:bg-violet-950/5 border border-violet-100/60 dark:border-violet-950/20 rounded-xl p-4 space-y-3">
+                <p className="text-xs font-bold text-violet-700 dark:text-violet-400 uppercase tracking-wider">📤 Adicionar Nova Versão</p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex-1">
                     <input
@@ -3908,7 +3908,7 @@ const DatabaseSettings: React.FC = () => {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
       <div>
         <h3 className="text-base font-bold text-gray-800">Conexão de Banco de Dados</h3>
         <p className="text-sm text-gray-500">Configure as conexões locais ou em nuvem para sincronização em tempo real de dados jurídicos.</p>
@@ -3969,7 +3969,7 @@ const DatabaseSettings: React.FC = () => {
           <select
             value={dbType}
             onChange={e => { setDbType(e.target.value as 'local' | 'cloud'); setTestResult(null); }}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
           >
             <option value="local">Banco de Dados Local (localStorage - Offline Primeiro)</option>
             <option value="cloud">Banco de Dados em Nuvem (Firebase / Supabase)</option>
@@ -4025,7 +4025,7 @@ const DatabaseSettings: React.FC = () => {
             </div>
 
             {dbCloudProvider === 'firebase' && (
-              <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-[#2a243d] dark:to-[#221c33] border border-amber-200 dark:border-[#3d3159] p-4 rounded-xl mt-4 space-y-3">
+              <div className="bg-gradient-to-br from-amber-50 to-amber-50 dark:from-[#2a243d] dark:to-[#221c33] border border-amber-200 dark:border-[#3d3159] p-4 rounded-xl mt-4 space-y-3">
                 <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300 font-bold text-xs uppercase tracking-wider">
                   <span>🔑</span>
                   <span>Guia de Acesso e Configuração do Firebase</span>
@@ -4148,7 +4148,7 @@ const DatabaseSettings: React.FC = () => {
         </div>
 
         {testResult && (
-          <div className={`p-3 rounded-lg border text-xs font-medium ${testResult.type === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
+          <div className={`p-3 rounded-lg border text-xs font-medium ${testResult.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-rose-50 border-rose-200 text-rose-700'}`}>
             {testResult.type === 'success' ? '✓ ' : '✗ '} {testResult.message}
           </div>
         )}
@@ -4180,8 +4180,8 @@ const DatabaseSettings: React.FC = () => {
 const APIConnections: React.FC = () => {
   const APIS = [
     {
-      id: 'whatsapp', label: 'WhatsApp Business API', icon: '💬', color: 'bg-green-50 border-green-200',
-      badgeColor: 'bg-green-100 text-green-800', description: 'Envio de notificações e mensagens automáticas aos clientes via WhatsApp.',
+      id: 'whatsapp', label: 'WhatsApp Business API', icon: '💬', color: 'bg-emerald-50 border-emerald-200',
+      badgeColor: 'bg-emerald-100 text-emerald-800', description: 'Envio de notificações e mensagens automáticas aos clientes via WhatsApp.',
       fields: [{ key: 'token', label: 'Token de Acesso', type: 'password' }, { key: 'phone_id', label: 'Phone Number ID', type: 'text' }],
     },
     {
@@ -4205,18 +4205,18 @@ const APIConnections: React.FC = () => {
       fields: [{ key: 'api_key', label: 'Chave da API', type: 'password' }],
     },
     {
-      id: 'cnj', label: 'CNJ — Datajud', icon: '🏛️', color: 'bg-red-50 border-red-200',
-      badgeColor: 'bg-red-100 text-red-800', description: 'Integração com o Conselho Nacional de Justiça para consulta de dados processuais.',
+      id: 'cnj', label: 'CNJ — Datajud', icon: '🏛️', color: 'bg-rose-50 border-rose-200',
+      badgeColor: 'bg-rose-100 text-rose-800', description: 'Integração com o Conselho Nacional de Justiça para consulta de dados processuais.',
       fields: [{ key: 'api_key', label: 'Chave Datajud', type: 'password' }],
     },
     {
-      id: 'receita', label: 'Receita Federal (CPF/CNPJ)', icon: '🇧🇷', color: 'bg-green-50 border-green-200',
-      badgeColor: 'bg-green-100 text-green-800', description: 'Validação e consulta de CPF e CNPJ via API da Receita Federal.',
+      id: 'receita', label: 'Receita Federal (CPF/CNPJ)', icon: '🇧🇷', color: 'bg-emerald-50 border-emerald-200',
+      badgeColor: 'bg-emerald-100 text-emerald-800', description: 'Validação e consulta de CPF e CNPJ via API da Receita Federal.',
       fields: [{ key: 'api_token', label: 'Token de Acesso', type: 'password' }],
     },
     {
-      id: 'openai', label: 'OpenAI (IA Jurídica)', icon: '🤖', color: 'bg-purple-50 border-purple-200',
-      badgeColor: 'bg-purple-100 text-purple-800', description: 'Habilite assistência jurídica com IA para redação de peças e resumo de documentos.',
+      id: 'openai', label: 'OpenAI (IA Jurídica)', icon: '🤖', color: 'bg-violet-50 border-violet-200',
+      badgeColor: 'bg-violet-100 text-violet-800', description: 'Habilite assistência jurídica com IA para redação de peças e resumo de documentos.',
       fields: [{ key: 'api_key', label: 'OpenAI API Key', type: 'password' }, { key: 'model', label: 'Modelo (ex: gpt-4o)', type: 'text' }],
     },
     {
@@ -4360,25 +4360,25 @@ const APIConnections: React.FC = () => {
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">Nome da API *</label>
               <input value={newApi.label} onChange={e => setNewApi(p => ({ ...p, label: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                 placeholder="Ex: Minha API Personalizada" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">Descrição</label>
               <input value={newApi.description} onChange={e => setNewApi(p => ({ ...p, description: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                 placeholder="Para que serve esta integração..." />
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">Rótulo do Endpoint</label>
               <input value={newApi.endpoint} onChange={e => setNewApi(p => ({ ...p, endpoint: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                 placeholder="Ex: URL Base, Servidor..." />
             </div>
             <div>
               <label className="block text-xs font-semibold text-gray-700 mb-1">Rótulo da Chave de Acesso</label>
               <input value={newApi.keyLabel} onChange={e => setNewApi(p => ({ ...p, keyLabel: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300 bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                 placeholder="Ex: API Key, Token..." />
             </div>
           </div>
@@ -4399,7 +4399,7 @@ const APIConnections: React.FC = () => {
               ✅ Incluir API
             </button>
             <button onClick={() => setShowAddForm(false)}
-              className="px-5 py-2.5 bg-white border border-gray-300 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+              className="px-5 py-2.5 bg-white border border-gray-300 text-gray-700 text-sm font-semibold rounded-xl hover:bg-gray-50 transition-colors dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
               Cancelar
             </button>
           </div>
@@ -4424,7 +4424,7 @@ const APIConnections: React.FC = () => {
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="text-sm font-bold text-gray-800">{api.label}</p>
                     {isEnabled && <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${api.badgeColor}`}>Ativo</span>}
-                    {isCustom && <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">Personalizado</span>}
+                    {isCustom && <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-500 border border-gray-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">Personalizado</span>}
                   </div>
                   <p className="text-xs text-gray-500 mt-0.5 truncate">{api.description}</p>
                 </div>
@@ -4437,16 +4437,16 @@ const APIConnections: React.FC = () => {
                   )}
                   {isCustom && (
                     awaitingDelete ? (
-                      <div className="flex items-center gap-1.5 bg-red-50 border border-red-200 rounded-lg px-2 py-1">
-                        <span className="text-xs text-red-700 font-semibold">Confirmar exclusão?</span>
+                      <div className="flex items-center gap-1.5 bg-rose-50 border border-rose-200 rounded-lg px-2 py-1">
+                        <span className="text-xs text-rose-700 font-semibold">Confirmar exclusão?</span>
                         <button onClick={() => handleDeleteApi(api.id)}
-                          className="text-xs text-white bg-red-600 px-2 py-0.5 rounded font-bold hover:bg-red-700">Sim</button>
+                          className="text-xs text-white bg-rose-600 px-2 py-0.5 rounded font-bold hover:bg-rose-700">Sim</button>
                         <button onClick={() => setDeleteConfirmId(null)}
                           className="text-xs text-gray-600 bg-gray-100 px-2 py-0.5 rounded font-bold hover:bg-gray-200">Não</button>
                       </div>
                     ) : (
                       <button onClick={() => setDeleteConfirmId(api.id)}
-                        className="text-xs text-red-500 hover:text-red-700 border border-red-200 hover:border-red-400 bg-red-50 hover:bg-red-100 font-semibold px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1">
+                        className="text-xs text-rose-500 hover:text-rose-700 border border-rose-200 hover:border-rose-400 bg-rose-50 hover:bg-rose-100 font-semibold px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1">
                         🗑️ Excluir API
                       </button>
                     )
@@ -4459,19 +4459,19 @@ const APIConnections: React.FC = () => {
                 </div>
               </div>
               {isExpanded && api.fields.length > 0 && (
-                <div className="px-4 pb-4 space-y-4 border-t border-gray-200 pt-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                <div className="px-4 pb-4 space-y-4 border-t border-gray-200 pt-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {api.fields.map((field: ApiField) => (
                       <div key={field.key}>
                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">{field.label}</label>
                         <input type={field.type} value={vals[field.key] || ''} onChange={e => setField(api.id, field.key, e.target.value)}
-                          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white font-mono dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white font-mono dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                           placeholder={field.type === 'password' ? '••••••••••••••••' : `${field.label}...`} />
                       </div>
                     ))}
                   </div>
                   {testResult && (
-                    <div className={`px-3 py-2 rounded-lg text-xs font-semibold border ${testResult.ok ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`}>
+                    <div className={`px-3 py-2 rounded-lg text-xs font-semibold border ${testResult.ok ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-rose-50 border-rose-200 text-rose-700'}`}>
                       {testResult.ok ? '✅ ' : '❌ '}{testResult.msg}
                     </div>
                   )}
@@ -4489,7 +4489,7 @@ const APIConnections: React.FC = () => {
 
               {/* ViaCEP has no fields – just info */}
               {isExpanded && api.fields.length === 0 && (
-                <div className="px-4 pb-4 pt-3 border-t border-gray-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                <div className="px-4 pb-4 pt-3 border-t border-gray-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                   <p className="text-xs text-gray-500">Esta API não requer configuração adicional. Basta ativar para uso automático.</p>
                 </div>
               )}
@@ -4520,7 +4520,7 @@ const settingsSections = [
     label: 'Código',
     icon: '📜',
     description: 'Upload e edição de legislações e códigos legais',
-    color: 'from-amber-500 to-orange-600',
+    color: 'from-amber-500 to-amber-600',
     bg: 'bg-amber-50',
     border: 'border-amber-200',
     textColor: 'text-amber-700',
@@ -4530,7 +4530,7 @@ const settingsSections = [
     label: 'Documentos Legais',
     icon: '📋',
     description: 'Termos de uso, políticas de privacidade e regulamentos',
-    color: 'from-emerald-500 to-green-700',
+    color: 'from-emerald-500 to-emerald-700',
     bg: 'bg-emerald-50',
     border: 'border-emerald-200',
     textColor: 'text-emerald-700',
@@ -4540,30 +4540,30 @@ const settingsSections = [
     label: 'Usuários Administrativos',
     icon: '👥',
     description: 'Criar, ativar e gerenciar credenciais de admins',
-    color: 'from-purple-500 to-purple-700',
-    bg: 'bg-purple-50',
-    border: 'border-purple-200',
-    textColor: 'text-purple-700',
+    color: 'from-violet-500 to-violet-700',
+    bg: 'bg-violet-50',
+    border: 'border-violet-200',
+    textColor: 'text-violet-700',
   },
   {
     id: 'services_groups' as const,
     label: 'Serviços de Eficiência',
     icon: '🚀',
     description: 'Grupos e serviços oferecidos pela plataforma',
-    color: 'from-orange-400 to-red-500',
-    bg: 'bg-orange-50',
-    border: 'border-orange-200',
-    textColor: 'text-orange-700',
+    color: 'from-amber-400 to-rose-500',
+    bg: 'bg-amber-50',
+    border: 'border-amber-200',
+    textColor: 'text-amber-700',
   },
   {
     id: 'database' as const,
     label: 'Banco de Dados',
     icon: '🗄️',
     description: 'Configurar conexão local ou cloud (Firebase / Supabase)',
-    color: 'from-slate-500 to-gray-700',
-    bg: 'bg-slate-50',
-    border: 'border-slate-200',
-    textColor: 'text-slate-700',
+    color: 'from-gray-500 to-gray-700',
+    bg: 'bg-gray-50',
+    border: 'border-gray-200',
+    textColor: 'text-gray-700',
   },
   {
     id: 'api_connections' as const,
@@ -4659,7 +4659,7 @@ export const SettingsTab: React.FC = () => {
       {section === 'database' && <DatabaseSettings />}
       {section === 'api_connections' && <APIConnections />}
       {section === 'ia_tools' && (
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 dark:bg-[#1A1730] dark:border-[#2A2545]">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 dark:bg-[#1A1730] dark:border-[#2A2545]">
           <LegalAiTools role="lawyer" allowedTools={['pecas', 'pesquisas', 'audios', 'transcricao', 'fundamentacoes', 'revisao', 'jurisprudencia', 'manifestacao']} />
         </div>
       )}

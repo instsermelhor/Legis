@@ -51,7 +51,7 @@ export const SignupPage: React.FC<SignupPageProps> = ({ onClientSignup, onNaviga
               style={{ background: 'linear-gradient(135deg, #0F0D1A 0%, #1A1130 50%, #0D1B2A 100%)' }}
             >
               {/* Decorative blobs */}
-              <div className="absolute top-0 left-[10%]   w-80 h-80 rounded-full bg-primary/12 blur-[100px] pointer-events-none" />
+              <div className="absolute top-0 left-[10%]   w-80 h-80 rounded-full bg-primary/15 blur-[100px] pointer-events-none" />
               <div className="absolute bottom-0 right-[5%] w-64 h-64 rounded-full bg-accent/8  blur-[80px]  pointer-events-none" />
               <div className="absolute inset-0 opacity-20 pointer-events-none"
                 style={{ backgroundImage: 'radial-gradient(circle, rgba(124,58,237,0.12) 1px, transparent 1px)', backgroundSize: '32px 32px' }}
@@ -59,7 +59,7 @@ export const SignupPage: React.FC<SignupPageProps> = ({ onClientSignup, onNaviga
 
               <div className="relative w-full max-w-xl animate-scale-in">
                 <div
-                  className="rounded-2xl border border-white/8 p-8"
+                  className="rounded-2xl border border-white/10 p-8"
                   style={{ background: 'rgba(26, 23, 48, 0.88)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
                 >
                   <button
@@ -94,7 +94,7 @@ export const SignupPage: React.FC<SignupPageProps> = ({ onClientSignup, onNaviga
           style={{ background: 'linear-gradient(135deg, #0F0D1A 0%, #1A1130 50%, #0D1B2A 100%)' }}
         >
           {/* Decorative blobs */}
-          <div className="absolute top-[-10%] left-[5%]  w-96 h-96 rounded-full bg-primary/12 blur-[120px] pointer-events-none" />
+          <div className="absolute top-[-10%] left-[5%]  w-96 h-96 rounded-full bg-primary/15 blur-[120px] pointer-events-none" />
           <div className="absolute bottom-[-10%] right-[5%] w-80 h-80 rounded-full bg-accent/10 blur-[100px] pointer-events-none" />
           <div className="absolute inset-0 opacity-20 pointer-events-none"
             style={{ backgroundImage: 'radial-gradient(circle, rgba(124,58,237,0.12) 1px, transparent 1px)', backgroundSize: '32px 32px' }}

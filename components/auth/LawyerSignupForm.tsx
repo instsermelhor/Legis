@@ -325,7 +325,7 @@ export const LawyerSignupForm: React.FC<LawyerSignupFormProps> = ({ onSignup, on
                                 <button
                                     type="button"
                                     onClick={() => removeSocialLink(index)}
-                                    className="p-2 text-red-500 hover:text-red-700 transition-colors"
+                                    className="p-2 text-rose-500 hover:text-rose-700 transition-colors"
                                     title="Remover"
                                 >
                                     🗑️
@@ -346,7 +346,7 @@ export const LawyerSignupForm: React.FC<LawyerSignupFormProps> = ({ onSignup, on
                     </div>
                 </fieldset>
 
-                {error && <p className="text-sm text-center text-red-600">{error}</p>}
+                {error && <p className="text-sm text-center text-rose-600">{error}</p>}
 
                 <div className="flex items-start">
                     <div className="flex items-center h-5">

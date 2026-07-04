@@ -52,11 +52,11 @@ export const DocUploadModal: React.FC<DocUploadModalProps> = ({
       tag: 'bg-blue-100 text-blue-700',
     },
     purple: {
-      border: 'border-purple-400',
-      bg: 'bg-purple-50',
-      text: 'text-purple-600',
-      btn: 'bg-purple-600 hover:bg-purple-700 text-white',
-      tag: 'bg-purple-100 text-purple-700',
+      border: 'border-violet-400',
+      bg: 'bg-violet-50',
+      text: 'text-violet-600',
+      btn: 'bg-violet-600 hover:bg-violet-700 text-white',
+      tag: 'bg-violet-100 text-violet-700',
     },
   }[accentColor];
 
@@ -123,8 +123,8 @@ export const DocUploadModal: React.FC<DocUploadModalProps> = ({
         <div className="p-5 space-y-4">
           {uploaded ? (
             <div className="flex flex-col items-center py-8 gap-3">
-              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center">
+                <svg className="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
@@ -160,9 +160,9 @@ export const DocUploadModal: React.FC<DocUploadModalProps> = ({
 
               {/* Errors */}
               {errors.length > 0 && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3 space-y-1">
+                <div className="bg-rose-50 border border-rose-200 rounded-lg p-3 space-y-1">
                   {errors.map((e, i) => (
-                    <p key={i} className="text-xs text-red-700">⚠️ {e}</p>
+                    <p key={i} className="text-xs text-rose-700">⚠️ {e}</p>
                   ))}
                 </div>
               )}
@@ -184,7 +184,7 @@ export const DocUploadModal: React.FC<DocUploadModalProps> = ({
                       </div>
                       <button
                         onClick={() => setPending(prev => prev.filter((_, idx) => idx !== i))}
-                        className="text-red-400 hover:text-red-600 ml-2 shrink-0 text-sm"
+                        className="text-rose-400 hover:text-rose-600 ml-2 shrink-0 text-sm"
                       >✕</button>
                     </div>
                   ))}

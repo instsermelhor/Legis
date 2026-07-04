@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { CaseDescriptionForm } from './CaseDescriptionForm';
 import type { Lawyer, MapsSearchResult, View } from '../../types';
 import { CaseStore } from '../../utils/sessionStore';
+import { useRevealSections } from '../ui';
 
 interface LandingPageProps {
   onSearch: (results: Lawyer[], mapsData: MapsSearchResult | null) => void;
@@ -82,8 +83,8 @@ const features = [
     icon: '🤖',
     title: 'IA Jurídica Avançada',
     desc: 'Nossa inteligência artificial analisa seu caso e identifica os advogados mais compatíveis com base em especialidade, localização e histórico de sucesso.',
-    color: 'from-purple-500/20 to-violet-600/10',
-    border: 'border-purple-500/20',
+    color: 'from-violet-500/20 to-violet-600/10',
+    border: 'border-violet-500/20',
   },
   {
     icon: '🔒',
@@ -96,7 +97,7 @@ const features = [
     icon: '⚡',
     title: 'Conexão em Minutos',
     desc: 'Da descrição do seu caso ao primeiro contato com o advogado ideal em poucos minutos. Eficiência que respeita o valor do seu tempo.',
-    color: 'from-amber-500/20 to-orange-600/10',
+    color: 'from-amber-500/20 to-amber-600/10',
     border: 'border-amber-500/20',
   },
   {
@@ -139,6 +140,7 @@ const audiences = [
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate }) => {
   const { ref: statsRef, visible: statsVisible } = useVisible();
+  useRevealSections();
 
   const handleCaseRedirect = (description: string, city: string) => {
     CaseStore.set({ description, city });
@@ -204,19 +206,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate }
               {/* Trust badges */}
               <div className="animate-fade-in delay-500 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-400">
                 <span className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
+                  <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
                   LGPD Compliant
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
+                  <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
                   Verificado OAB
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
+                  <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
                   Criptografia TLS
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
+                  <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
                   Atendimento 24h
                 </span>
               </div>
@@ -244,7 +246,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate }
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-white/40 text-xs animate-float">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-white/50 text-xs animate-float">
           <span>Role para explorar</span>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/></svg>
         </div>

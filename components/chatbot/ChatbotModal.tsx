@@ -57,7 +57,7 @@ export const ChatbotModal: React.FC<ChatbotModalProps> = ({ isOpen, onClose, his
           </button>
         </header>
 
-        <main className="flex-grow p-4 space-y-4 overflow-y-auto bg-neutral-light">
+        <main className="flex-grow p-4 space-y-4 overflow-y-auto bg-gray-50 dark:bg-[#17142C]">
           {history.map((msg, index) => (
             <div key={index} className={`flex items-end gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               {msg.role === 'model' && <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">IA</div>}

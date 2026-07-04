@@ -138,8 +138,8 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
                   isActive(link.view)
                     ? 'text-primary bg-primary/10 font-semibold'
                     : isLandingOrPublic
-                      ? 'text-white/80 hover:text-white hover:bg-white/8'
-                      : 'text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light hover:bg-gray-100 dark:hover:bg-white/6'
+                      ? 'text-white/100 hover:text-white hover:bg-white/10'
+                      : 'text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light hover:bg-gray-100 dark:hover:bg-white/5'
                 }`}
               >
                 {link.label}
@@ -164,7 +164,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
               className={`p-2 rounded-lg transition-all duration-200 ${
                 isLandingOrPublic
                   ? 'text-white/70 hover:text-white hover:bg-white/10'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/8'
+                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10'
               }`}
               title={darkMode ? 'Modo claro' : 'Modo escuro'}
               aria-label="Alternar modo escuro"
@@ -174,15 +174,15 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
 
             {user ? (
               <>
-                <span className={`hidden sm:inline text-sm font-medium ${isLandingOrPublic ? 'text-white/80' : 'text-gray-600 dark:text-gray-300'}`}>
+                <span className={`hidden sm:inline text-sm font-medium ${isLandingOrPublic ? 'text-white/100' : 'text-gray-600 dark:text-gray-300'}`}>
                   Olá, <span className="font-semibold">{user.name?.split(' ')[0] || user.email}</span>
                 </span>
                 <button
                   onClick={onLogout}
                   className={`inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
                     isLandingOrPublic
-                      ? 'text-white/80 hover:text-white border border-white/20 hover:bg-white/10'
-                      : 'text-primary border border-primary/20 bg-primary/6 hover:bg-primary/12'
+                      ? 'text-white/100 hover:text-white border border-white/20 hover:bg-white/10'
+                      : 'text-primary border border-primary/20 bg-primary/5 hover:bg-primary/15'
                   }`}
                 >
                   <LogoutIcon />
@@ -195,8 +195,8 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
                   onClick={onOpenLoginModal}
                   className={`hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
                     isLandingOrPublic
-                      ? 'text-white/80 hover:text-white border border-white/15 hover:bg-white/10'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/8'
+                      ? 'text-white/100 hover:text-white border border-white/15 hover:bg-white/10'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10'
                   }`}
                 >
                   <UserIcon />
@@ -215,7 +215,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
             {navLinks.length > 0 && (
               <button
                 className={`lg:hidden p-2 rounded-lg transition-colors ${
-                  isLandingOrPublic ? 'text-white/80 hover:bg-white/10' : 'text-gray-600 hover:bg-gray-100'
+                  isLandingOrPublic ? 'text-white/100 hover:bg-white/10' : 'text-gray-600 hover:bg-gray-100'
                 }`}
                 onClick={() => setMobileOpen(o => !o)}
                 aria-label="Abrir menu"
@@ -247,10 +247,10 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
                 onClick={() => { onNavigate(link.view); setMobileOpen(false); }}
                 className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium transition-colors ${
                   isActive(link.view)
-                    ? 'bg-primary/12 text-primary font-semibold'
+                    ? 'bg-primary/15 text-primary font-semibold'
                     : isLandingOrPublic
-                      ? 'text-white/75 hover:text-white hover:bg-white/8'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/6 hover:text-primary'
+                      ? 'text-white/75 hover:text-white hover:bg-white/10'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 hover:text-primary'
                 }`}
               >
                 {link.label}
@@ -260,7 +260,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
               <button
                 onClick={() => { onOpenLoginModal(); setMobileOpen(false); }}
                 className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium sm:hidden transition-colors ${
-                  isLandingOrPublic ? 'text-white/75 hover:text-white hover:bg-white/8' : 'text-gray-700 hover:bg-gray-50 hover:text-primary'
+                  isLandingOrPublic ? 'text-white/75 hover:text-white hover:bg-white/10' : 'text-gray-700 hover:bg-gray-50 hover:text-primary'
                 }`}
               >
                 Entrar

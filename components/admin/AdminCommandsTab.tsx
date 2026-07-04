@@ -183,8 +183,8 @@ const roleLabels: Record<string, string> = {
 };
 
 const roleColors: Record<string, string> = {
-  super: 'bg-red-100 text-red-800 dark:bg-red-950/30 dark:text-red-300',
-  admin: 'bg-purple-100 text-purple-800 dark:bg-purple-950/30 dark:text-purple-300',
+  super: 'bg-rose-100 text-rose-800 dark:bg-rose-950/30 dark:text-rose-300',
+  admin: 'bg-violet-100 text-violet-800 dark:bg-violet-950/30 dark:text-violet-300',
   manager: 'bg-blue-100 text-blue-800 dark:bg-blue-950/30 dark:text-blue-300',
   collaborator: 'bg-teal-100 text-teal-800 dark:bg-teal-950/30 dark:text-teal-300',
   viewer: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300',
@@ -658,7 +658,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
           onClick={() => setSubTab('toggles')}
           className={`py-2.5 px-4 font-semibold text-sm border-b-2 transition-colors ${
             subTab === 'toggles' 
-              ? 'border-purple-600 text-purple-700 dark:text-purple-400 dark:border-purple-500' 
+              ? 'border-violet-600 text-violet-700 dark:text-violet-400 dark:border-violet-500' 
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
           }`}
         >
@@ -668,7 +668,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
           onClick={() => setSubTab('assignments')}
           className={`py-2.5 px-4 font-semibold text-sm border-b-2 transition-colors ${
             subTab === 'assignments' 
-              ? 'border-purple-600 text-purple-700 dark:text-purple-400 dark:border-purple-500' 
+              ? 'border-violet-600 text-violet-700 dark:text-violet-400 dark:border-violet-500' 
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
           }`}
         >
@@ -678,7 +678,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
           onClick={() => setSubTab('packages')}
           className={`py-2.5 px-4 font-semibold text-sm border-b-2 transition-colors ${
             subTab === 'packages' 
-              ? 'border-purple-600 text-purple-700 dark:text-purple-400 dark:border-purple-500' 
+              ? 'border-violet-600 text-violet-700 dark:text-violet-400 dark:border-violet-500' 
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
           }`}
         >
@@ -692,7 +692,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
           {/* Functional Features Toggles */}
           <div>
             <h3 className="text-base font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-purple-500" />
+              <span className="w-2.5 h-2.5 rounded-full bg-violet-500" />
               Funcionalidades da Plataforma
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -705,7 +705,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                   <button
                     onClick={() => handleToggleFeature(f.id)}
                     className={`shrink-0 w-11 h-6 rounded-full transition-colors relative focus:outline-none ${
-                      featureStates[f.id] ? 'bg-purple-600' : 'bg-gray-300 dark:bg-gray-700'
+                      featureStates[f.id] ? 'bg-violet-600' : 'bg-gray-300 dark:bg-gray-700'
                     }`}
                   >
                     <span 
@@ -752,7 +752,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
           {/* User Account Controls */}
           <div>
             <h3 className="text-base font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500" />
               Controle de Contas e Acessos
             </h3>
             
@@ -772,7 +772,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                     </div>
                     <div className="flex items-center gap-3">
                       <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                        l.status === 'verificado' ? 'bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-300' : 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-300'
+                        l.status === 'verificado' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300' : 'bg-rose-100 text-rose-700 dark:bg-rose-950/30 dark:text-rose-300'
                       }`}>
                         {l.status === 'verificado' ? 'Ativo' : 'Suspenso'}
                       </span>
@@ -780,8 +780,8 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                         onClick={() => handleToggleUserStatus('lawyer', l.id)}
                         className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                           l.status === 'verificado' 
-                            ? 'bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-950/20 dark:text-red-400' 
-                            : 'bg-green-50 text-green-600 hover:bg-green-100 dark:bg-green-950/20 dark:text-green-400'
+                            ? 'bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-950/20 dark:text-rose-400' 
+                            : 'bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400'
                         }`}
                       >
                         {l.status === 'verificado' ? 'Bloquear' : 'Reativar'}
@@ -829,7 +829,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                         <td className="px-5 py-3 text-xs">{i.university} ({i.semester})</td>
                         <td className="px-5 py-3">
                           {supervisor ? (
-                            <span className="font-semibold text-purple-600 dark:text-purple-400">
+                            <span className="font-semibold text-violet-600 dark:text-violet-400">
                               Dr(a). {supervisor.name}
                             </span>
                           ) : (
@@ -840,7 +840,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                           {supervisor ? (
                             <button
                               onClick={() => handleUnlinkIntern(i.id)}
-                              className="px-3 py-1.5 bg-red-50 text-red-600 dark:bg-red-950/20 dark:text-red-400 font-bold rounded-lg text-xs hover:bg-red-100 transition-colors"
+                              className="px-3 py-1.5 bg-rose-50 text-rose-600 dark:bg-rose-950/20 dark:text-rose-400 font-bold rounded-lg text-xs hover:bg-rose-100 transition-colors"
                             >
                               Remover Vínculo
                             </button>
@@ -849,7 +849,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                               <select
                                 value={selectedInternLawyer[i.id] || ''}
                                 onChange={e => setSelectedInternLawyer(prev => ({ ...prev, [i.id]: Number(e.target.value) }))}
-                                className="text-xs border border-gray-300 dark:border-[#3A3555] rounded-lg px-2.5 py-1.5 bg-white dark:bg-[#2A2545] text-gray-950 dark:text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                className="text-xs border border-gray-300 dark:border-[#3A3555] rounded-lg px-2.5 py-1.5 bg-white dark:bg-[#2A2545] text-gray-950 dark:text-white focus:outline-none focus:ring-1 focus:ring-violet-500"
                               >
                                 <option value="">Selecionar Advogado...</option>
                                 {lawyers.filter(l => l.status === 'verificado').map(l => (
@@ -859,7 +859,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                               <button
                                 onClick={() => handleLinkIntern(i.id)}
                                 disabled={!selectedInternLawyer[i.id]}
-                                className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white font-bold rounded-lg text-xs transition-colors"
+                                className="px-3 py-1.5 bg-violet-600 hover:bg-violet-700 disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white font-bold rounded-lg text-xs transition-colors"
                               >
                                 Atribuir
                               </button>
@@ -905,7 +905,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                         <td className="px-5 py-3 text-xs">{s.city}/{s.state} · {s.experience} anos exp.</td>
                         <td className="px-5 py-3">
                           {lawyer ? (
-                            <span className="font-semibold text-purple-600 dark:text-purple-400">
+                            <span className="font-semibold text-violet-600 dark:text-violet-400">
                               Dr(a). {lawyer.name}
                             </span>
                           ) : (
@@ -916,7 +916,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                           {lawyer ? (
                             <button
                               onClick={() => handleUnlinkSecretary(s.id)}
-                              className="px-3 py-1.5 bg-red-50 text-red-600 dark:bg-red-950/20 dark:text-red-400 font-bold rounded-lg text-xs hover:bg-red-100 transition-colors"
+                              className="px-3 py-1.5 bg-rose-50 text-rose-600 dark:bg-rose-950/20 dark:text-rose-400 font-bold rounded-lg text-xs hover:bg-rose-100 transition-colors"
                             >
                               Remover Vínculo
                             </button>
@@ -925,7 +925,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                               <select
                                 value={selectedSecretaryLawyer[s.id] || ''}
                                 onChange={e => setSelectedSecretaryLawyer(prev => ({ ...prev, [s.id]: Number(e.target.value) }))}
-                                className="text-xs border border-gray-300 dark:border-[#3A3555] rounded-lg px-2.5 py-1.5 bg-white dark:bg-[#2A2545] text-gray-950 dark:text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
+                                className="text-xs border border-gray-300 dark:border-[#3A3555] rounded-lg px-2.5 py-1.5 bg-white dark:bg-[#2A2545] text-gray-950 dark:text-white focus:outline-none focus:ring-1 focus:ring-violet-500"
                               >
                                 <option value="">Selecionar Advogado...</option>
                                 {lawyers.filter(l => l.status === 'verificado').map(l => (
@@ -935,7 +935,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                               <button
                                 onClick={() => handleLinkSecretary(s.id)}
                                 disabled={!selectedSecretaryLawyer[s.id]}
-                                className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white font-bold rounded-lg text-xs transition-colors"
+                                className="px-3 py-1.5 bg-violet-600 hover:bg-violet-700 disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white font-bold rounded-lg text-xs transition-colors"
                               >
                                 Atribuir
                               </button>
@@ -967,7 +967,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                   placeholder="Buscar advogado por nome ou OAB..."
                   value={lawyerSearch}
                   onChange={e => setLawyerSearch(e.target.value)}
-                  className="w-full border border-gray-300 dark:border-[#3A3555] rounded-lg px-3 py-2 text-sm bg-white dark:bg-[#2A2545] text-gray-950 dark:text-white focus:outline-none focus:ring-1 focus:ring-purple-500 placeholder-gray-400 dark:placeholder-gray-500"
+                  className="w-full border border-gray-300 dark:border-[#3A3555] rounded-lg px-3 py-2 text-sm bg-white dark:bg-[#2A2545] text-gray-950 dark:text-white focus:outline-none focus:ring-1 focus:ring-violet-500 placeholder-gray-400 dark:placeholder-gray-500"
                 />
               </div>
 
@@ -995,11 +995,11 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                             <tr className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors">
                               <td className="px-5 py-3">
                                 <div className="flex items-center gap-3">
-                                  <img src={l.photoUrl} className="w-8 h-8 rounded-full object-cover border border-purple-200 dark:border-purple-900/50" alt="" />
+                                  <img src={l.photoUrl} className="w-8 h-8 rounded-full object-cover border border-violet-200 dark:border-violet-900/50" alt="" />
                                   <div>
                                     <p className="font-bold text-gray-900 dark:text-white">{l.name}</p>
                                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                                      l.status === 'verificado' ? 'bg-green-100 text-green-700 dark:bg-green-950/30 dark:text-green-300' : 'bg-red-100 text-red-700 dark:bg-red-950/30 dark:text-red-300'
+                                      l.status === 'verificado' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300' : 'bg-rose-100 text-rose-700 dark:bg-rose-950/30 dark:text-rose-300'
                                     }`}>
                                       {l.status === 'verificado' ? 'Ativo' : 'Suspenso'}
                                     </span>
@@ -1011,7 +1011,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                                 <p className="text-[11px] text-gray-400">{l.contact.email}</p>
                               </td>
                               <td className="px-5 py-3">
-                                <span className="px-2.5 py-1 bg-purple-50 dark:bg-purple-950/20 text-purple-700 dark:text-purple-300 border border-purple-100 dark:border-purple-900/30 rounded-md text-xs font-bold">
+                                <span className="px-2.5 py-1 bg-violet-50 dark:bg-violet-950/20 text-violet-700 dark:text-violet-300 border border-violet-100 dark:border-violet-900/30 rounded-md text-xs font-bold">
                                   {enabled.length} de {FEATURES_LIST.length} ativos
                                 </span>
                               </td>
@@ -1021,7 +1021,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                                   className={`px-3 py-1.5 font-bold rounded-lg text-xs transition-colors shadow-sm ${
                                     isExpanded 
                                       ? 'bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300' 
-                                      : 'bg-purple-600 text-white hover:bg-purple-700'
+                                      : 'bg-violet-600 text-white hover:bg-violet-700'
                                   }`}
                                 >
                                   {isExpanded ? 'Fechar' : 'Gerenciar Recursos'}
@@ -1031,7 +1031,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                             {isExpanded && (
                               <tr>
                                 <td colSpan={4} className="px-5 py-4 bg-gray-50/30 dark:bg-black/10">
-                                  <div className="border border-purple-100 dark:border-[#2A2545] rounded-xl p-5 bg-white dark:bg-[#1E1B38] space-y-4 shadow-inner">
+                                  <div className="border border-violet-100 dark:border-[#2A2545] rounded-xl p-5 bg-white dark:bg-[#1E1B38] space-y-4 shadow-inner">
                                     <div className="flex justify-between items-center border-b border-gray-100 dark:border-white/5 pb-2.5">
                                       <h4 className="font-extrabold text-sm text-gray-900 dark:text-white flex items-center gap-1.5">
                                         🛡️ Recursos de Dr(a). {l.name}
@@ -1040,7 +1040,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                                         <button
                                           type="button"
                                           onClick={() => handleSelectAllLawyerPermissions(l.id)}
-                                          className="text-[10px] font-bold text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
+                                          className="text-[10px] font-bold text-violet-600 hover:text-violet-700 dark:text-violet-400 dark:hover:text-violet-300"
                                         >
                                           ✓ Liberar Tudo
                                         </button>
@@ -1048,7 +1048,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                                         <button
                                           type="button"
                                           onClick={() => handleClearAllLawyerPermissions(l.id)}
-                                          className="text-[10px] font-bold text-red-500 hover:text-red-600"
+                                          className="text-[10px] font-bold text-rose-500 hover:text-rose-600"
                                         >
                                           ✕ Bloquear Tudo
                                         </button>
@@ -1058,7 +1058,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                       {/* Funcionalidades */}
                                       <div className="space-y-3">
-                                        <h5 className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider flex items-center gap-1">
+                                        <h5 className="text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-wider flex items-center gap-1">
                                           <span>🧠</span> Funcionalidades & Ferramentas
                                         </h5>
                                         <div className="space-y-2">
@@ -1069,7 +1069,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                                                 key={f.id}
                                                 className={`flex items-start gap-3 p-3 rounded-lg border text-xs cursor-pointer transition-all ${
                                                   isChecked
-                                                    ? 'bg-purple-50/20 dark:bg-purple-950/10 border-purple-200 dark:border-purple-900/40'
+                                                    ? 'bg-violet-50/20 dark:bg-violet-950/10 border-violet-200 dark:border-violet-900/40'
                                                     : 'bg-white dark:bg-[#1E1B38] border-gray-200 dark:border-[#2A2545] opacity-60 hover:opacity-80'
                                                 }`}
                                               >
@@ -1077,7 +1077,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                                                   type="checkbox"
                                                   checked={isChecked}
                                                   onChange={() => handleToggleLawyerPermission(l.id, f.id)}
-                                                  className="mt-0.5 rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-3.5 h-3.5"
+                                                  className="mt-0.5 rounded border-gray-300 text-violet-600 focus:ring-violet-500 w-3.5 h-3.5"
                                                 />
                                                 <div>
                                                   <p className="font-bold text-gray-900 dark:text-white">{f.name}</p>
@@ -1152,7 +1152,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                   placeholder="Buscar colaborador por nome ou e-mail..."
                   value={adminSearch}
                   onChange={e => setAdminSearch(e.target.value)}
-                  className="w-full border border-gray-300 dark:border-[#3A3555] rounded-lg px-3 py-2 text-sm bg-white dark:bg-[#2A2545] text-gray-950 dark:text-white focus:outline-none focus:ring-1 focus:ring-purple-500 placeholder-gray-400 dark:placeholder-gray-500"
+                  className="w-full border border-gray-300 dark:border-[#3A3555] rounded-lg px-3 py-2 text-sm bg-white dark:bg-[#2A2545] text-gray-950 dark:text-white focus:outline-none focus:ring-1 focus:ring-violet-500 placeholder-gray-400 dark:placeholder-gray-500"
                 />
               </div>
 
@@ -1194,7 +1194,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                                   <select
                                     value={u.role}
                                     onChange={e => handleChangeAdminRole(u.id, e.target.value as AdminUser['role'])}
-                                    className={`text-xs font-bold border border-gray-300 dark:border-[#3A3555] rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-purple-500 ${roleColors[u.role]}`}
+                                    className={`text-xs font-bold border border-gray-300 dark:border-[#3A3555] rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-violet-500 ${roleColors[u.role]}`}
                                   >
                                     <option value="admin">Administrador</option>
                                     <option value="manager">Gerente</option>
@@ -1205,7 +1205,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                               </td>
                               <td className="px-5 py-3">
                                 <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
-                                  isSuper ? 'bg-red-50 text-red-700 dark:bg-red-950/20' : 'bg-purple-50 text-purple-700 dark:bg-purple-950/20 border border-purple-100 dark:border-purple-900/30'
+                                  isSuper ? 'bg-rose-50 text-rose-700 dark:bg-rose-950/20' : 'bg-violet-50 text-violet-700 dark:bg-violet-950/20 border border-violet-100 dark:border-violet-900/30'
                                 }`}>
                                   {isSuper ? 'Acesso Total' : `${currentPerms.length} de ${totalAvailablePerms} autorizadas`}
                                 </span>
@@ -1219,7 +1219,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                                     className={`px-3 py-1.5 font-bold rounded-lg text-xs transition-colors shadow-sm ${
                                       isExpanded 
                                         ? 'bg-gray-100 dark:bg-white/10 text-gray-700 dark:text-gray-300' 
-                                        : 'bg-purple-600 text-white hover:bg-purple-700'
+                                        : 'bg-violet-600 text-white hover:bg-violet-700'
                                     }`}
                                   >
                                     {isExpanded ? 'Fechar' : 'Gerenciar Funções'}
@@ -1230,7 +1230,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                             {isExpanded && !isSuper && (
                               <tr>
                                 <td colSpan={4} className="px-5 py-4 bg-gray-50/30 dark:bg-black/10">
-                                  <div className="border border-purple-100 dark:border-[#2A2545] rounded-xl p-5 bg-white dark:bg-[#1E1B38] space-y-4 shadow-inner">
+                                  <div className="border border-violet-100 dark:border-[#2A2545] rounded-xl p-5 bg-white dark:bg-[#1E1B38] space-y-4 shadow-inner">
                                     <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-gray-100 dark:border-white/5 pb-2.5 gap-2">
                                       <div>
                                         <h4 className="font-extrabold text-sm text-gray-900 dark:text-white flex items-center gap-1.5">
@@ -1251,14 +1251,14 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                                         <button
                                           type="button"
                                           onClick={() => handleSelectAllAdminPermissions(u.id)}
-                                          className="px-2.5 py-1.5 bg-purple-50 dark:bg-purple-950/20 text-purple-700 dark:text-purple-400 border border-purple-100 dark:border-purple-900/30 text-[10px] font-bold rounded hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
+                                          className="px-2.5 py-1.5 bg-violet-50 dark:bg-violet-950/20 text-violet-700 dark:text-violet-400 border border-violet-100 dark:border-violet-900/30 text-[10px] font-bold rounded hover:bg-violet-100 dark:hover:bg-violet-950/30 transition-colors"
                                         >
                                           ✓ Liberar Tudo
                                         </button>
                                         <button
                                           type="button"
                                           onClick={() => handleClearAllAdminPermissions(u.id)}
-                                          className="px-2.5 py-1.5 bg-red-50 dark:bg-red-950/20 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/30 text-[10px] font-bold rounded hover:bg-red-100 dark:hover:bg-red-950/30 transition-colors"
+                                          className="px-2.5 py-1.5 bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30 text-[10px] font-bold rounded hover:bg-rose-100 dark:hover:bg-rose-950/30 transition-colors"
                                         >
                                           ✕ Bloquear Tudo
                                         </button>
@@ -1279,13 +1279,13 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                                               return (
                                                 <label
                                                   key={item.id}
-                                                  className="flex items-start gap-2.5 text-xs text-gray-700 dark:text-gray-300 cursor-pointer hover:text-purple-600 dark:hover:text-purple-400 transition-colors py-0.5"
+                                                  className="flex items-start gap-2.5 text-xs text-gray-700 dark:text-gray-300 cursor-pointer hover:text-violet-600 dark:hover:text-violet-400 transition-colors py-0.5"
                                                 >
                                                   <input
                                                     type="checkbox"
                                                     checked={isChecked}
                                                     onChange={() => handleToggleAdminPermission(u.id, item.id)}
-                                                    className="rounded border-gray-300 text-purple-600 focus:ring-purple-500 w-3.5 h-3.5 mt-0.5 shrink-0"
+                                                    className="rounded border-gray-300 text-violet-600 focus:ring-violet-500 w-3.5 h-3.5 mt-0.5 shrink-0"
                                                   />
                                                   <span className="leading-tight">{item.label}</span>
                                                 </label>
@@ -1319,7 +1319,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
             </h3>
             <button
               onClick={() => setShowPackageForm(!showPackageForm)}
-              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-lg transition-colors shadow-md"
+              className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white text-xs font-bold rounded-lg transition-colors shadow-md"
             >
               {showPackageForm ? '✕ Fechar Cadastro' : '➕ Criar Novo Pacote'}
             </button>
@@ -1339,7 +1339,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                     value={packageName}
                     onChange={e => setPackageName(e.target.value)}
                     placeholder="Ex: Legis Premium Gold"
-                    className="w-full border border-gray-300 dark:border-[#3A3555] rounded-lg px-3 py-2 text-sm bg-white dark:bg-[#2A2545] text-gray-950 dark:text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
+                    className="w-full border border-gray-300 dark:border-[#3A3555] rounded-lg px-3 py-2 text-sm bg-white dark:bg-[#2A2545] text-gray-950 dark:text-white focus:outline-none focus:ring-1 focus:ring-violet-500"
                   />
                 </div>
                 <div>
@@ -1347,7 +1347,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                   <select
                     value={packageRole}
                     onChange={e => setPackageRole(e.target.value as 'lawyer' | 'client' | 'intern' | 'secretary')}
-                    className="w-full border border-gray-300 dark:border-[#3A3555] rounded-lg px-3 py-2 text-sm bg-white dark:bg-[#2A2545] text-gray-950 dark:text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
+                    className="w-full border border-gray-300 dark:border-[#3A3555] rounded-lg px-3 py-2 text-sm bg-white dark:bg-[#2A2545] text-gray-950 dark:text-white focus:outline-none focus:ring-1 focus:ring-violet-500"
                   >
                     <option value="lawyer">Advogado</option>
                     <option value="client">Cliente</option>
@@ -1363,7 +1363,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                     value={packagePrice}
                     onChange={e => setPackagePrice(e.target.value)}
                     placeholder="Ex: 299,90"
-                    className="w-full border border-gray-300 dark:border-[#3A3555] rounded-lg px-3 py-2 text-sm bg-white dark:bg-[#2A2545] text-gray-950 dark:text-white focus:outline-none focus:ring-1 focus:ring-purple-500"
+                    className="w-full border border-gray-300 dark:border-[#3A3555] rounded-lg px-3 py-2 text-sm bg-white dark:bg-[#2A2545] text-gray-950 dark:text-white focus:outline-none focus:ring-1 focus:ring-violet-500"
                   />
                 </div>
               </div>
@@ -1377,7 +1377,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                       key={f.id} 
                       className={`p-2.5 rounded-lg border text-xs font-semibold cursor-pointer transition-all flex items-center gap-2 ${
                         packageFeatures.includes(f.id)
-                          ? 'bg-purple-50 dark:bg-purple-950/20 border-purple-500 text-purple-700 dark:text-purple-300 shadow-sm'
+                          ? 'bg-violet-50 dark:bg-violet-950/20 border-violet-500 text-violet-700 dark:text-violet-300 shadow-sm'
                           : 'bg-white dark:bg-[#2A2545] border-gray-200 dark:border-[#3A3555] text-gray-600 dark:text-gray-400 hover:bg-gray-50/50'
                       }`}
                     >
@@ -1385,7 +1385,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                         type="checkbox"
                         checked={packageFeatures.includes(f.id)}
                         onChange={() => toggleFeatureInPackage(f.id)}
-                        className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                        className="rounded border-gray-300 text-violet-600 focus:ring-violet-500"
                       />
                       {f.name}
                     </label>
@@ -1396,7 +1396,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
               <div className="flex gap-2.5 pt-2">
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-bold text-sm rounded-lg transition-colors shadow-md shadow-purple-500/20"
+                  className="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-bold text-sm rounded-lg transition-colors shadow-md shadow-violet-500/20"
                 >
                   Salvar Pacote
                 </button>
@@ -1423,7 +1423,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                 {/* User Type Badge */}
                 <div className="absolute top-4 right-4">
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                    p.role === 'lawyer' ? 'bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300' :
+                    p.role === 'lawyer' ? 'bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-300' :
                     p.role === 'client' ? 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300' :
                     p.role === 'intern' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300' :
                     'bg-teal-100 text-teal-700 dark:bg-teal-950 dark:text-teal-300'
@@ -1435,7 +1435,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                 <div className="flex-grow space-y-4">
                   <div>
                     <h4 className="font-extrabold text-gray-950 dark:text-white text-base leading-tight pr-14">{p.name}</h4>
-                    <p className="text-2xl font-black text-purple-600 dark:text-purple-400 mt-2">
+                    <p className="text-2xl font-black text-violet-600 dark:text-violet-400 mt-2">
                       R$ {p.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}<span className="text-xs font-normal text-gray-400">/mês</span>
                     </p>
                   </div>
@@ -1466,14 +1466,14 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                   <button
                     onClick={() => handleTogglePackageStatus(p.id)}
                     className={`text-xs font-bold ${
-                      p.status === 'ativo' ? 'text-yellow-600 hover:text-yellow-700' : 'text-green-600 hover:text-green-700'
+                      p.status === 'ativo' ? 'text-yellow-600 hover:text-yellow-700' : 'text-emerald-600 hover:text-emerald-700'
                     }`}
                   >
                     {p.status === 'ativo' ? '⚠️ Desativar' : '✓ Reativar'}
                   </button>
                   <button
                     onClick={() => handleDeletePackage(p.id)}
-                    className="text-xs font-bold text-red-500 hover:text-red-700"
+                    className="text-xs font-bold text-rose-500 hover:text-rose-700"
                   >
                     🗑️ Excluir
                   </button>

@@ -36,13 +36,13 @@ export const ApiStatusPanel: React.FC = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {active.map(api => (
-              <div key={api.id} className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+              <div key={api.id} className="flex items-center gap-3 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
                 <span className="text-xl shrink-0">{api.icon}</span>
                 <div className="min-w-0">
                   <p className="text-sm font-bold text-gray-800 truncate">{api.label}</p>
                   <p className="text-xs text-gray-500 truncate">{api.description}</p>
                 </div>
-                <span className="ml-auto shrink-0 px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded-full">Ativo</span>
+                <span className="ml-auto shrink-0 px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded-full">Ativo</span>
               </div>
             ))}
           </div>

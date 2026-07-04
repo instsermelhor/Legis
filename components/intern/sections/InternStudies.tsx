@@ -129,7 +129,7 @@ const StudyPlanWidget: React.FC<{
   return (
     <div className="space-y-4">
       {/* Overall Progress */}
-      <div className="bg-gradient-to-br from-indigo-500 to-violet-600 rounded-2xl p-5 text-white">
+      <div className="bg-gradient-to-br from-violet-500 to-violet-700 rounded-2xl p-5 text-white">
         <div className="flex items-center justify-between mb-3">
           <div>
             <p className="text-xs font-semibold text-white/70">Progresso Total OAB</p>
@@ -232,12 +232,12 @@ const OabSimulator: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         {score.total > 0 && (
           <div className="flex items-center gap-3 bg-gray-50 dark:bg-black/10 rounded-xl px-4 py-2.5">
-            <span className={`text-lg font-black ${scorePct >= 70 ? 'text-emerald-600' : scorePct >= 50 ? 'text-amber-600' : 'text-red-600'}`}>{scorePct}%</span>
+            <span className={`text-lg font-black ${scorePct >= 70 ? 'text-emerald-600' : scorePct >= 50 ? 'text-amber-600' : 'text-rose-600'}`}>{scorePct}%</span>
             <div>
               <p className="text-xs font-bold text-gray-700 dark:text-gray-300">{score.corretas}/{score.total} corretas</p>
               <p className="text-[10px] text-gray-400">{scorePct >= 70 ? '✅ Aprovado' : '⚠️ Precisa melhorar'}</p>
             </div>
-            <button onClick={resetSimulator} className="ml-2 text-xs text-gray-400 hover:text-red-500 transition-colors" title="Reiniciar">↺</button>
+            <button onClick={resetSimulator} className="ml-2 text-xs text-gray-400 hover:text-rose-500 transition-colors" title="Reiniciar">↺</button>
           </div>
         )}
         <select value={selectedArea} onChange={e => { setSelectedArea(e.target.value as OabArea | 'todas'); resetSimulator(); }}
@@ -271,7 +271,7 @@ const OabSimulator: React.FC = () => {
             let cls = 'border border-gray-200 dark:border-[#2A2545] bg-white dark:bg-black/10 text-gray-700 dark:text-gray-300 hover:border-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/10 cursor-pointer';
             if (selectedAnswer !== null) {
               if (isCorrect) cls = 'border-2 border-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-200 cursor-default';
-              else if (isSelected) cls = 'border-2 border-red-400 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 cursor-default';
+              else if (isSelected) cls = 'border-2 border-rose-400 bg-rose-50 dark:bg-rose-900/20 text-rose-800 dark:text-rose-200 cursor-default';
               else cls = 'border border-gray-100 dark:border-[#2A2545] bg-gray-50 dark:bg-black/10 text-gray-400 cursor-default opacity-60';
             }
             return (
@@ -279,7 +279,7 @@ const OabSimulator: React.FC = () => {
                 className={`w-full text-left rounded-xl px-4 py-3 text-xs leading-relaxed transition-all ${cls}`}>
                 <span className="font-black mr-2">{String.fromCharCode(65 + i)})</span>{alt}
                 {selectedAnswer !== null && isCorrect && <span className="ml-2 font-bold text-emerald-600">✓ Correta</span>}
-                {isSelected && !isCorrect && <span className="ml-2 font-bold text-red-600">✗ Incorreta</span>}
+                {isSelected && !isCorrect && <span className="ml-2 font-bold text-rose-600">✗ Incorreta</span>}
               </button>
             );
           })}

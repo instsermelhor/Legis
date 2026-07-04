@@ -321,7 +321,7 @@ export const InternCases: React.FC<InternCasesProps> = ({
                       <p className="text-xs text-gray-400 truncate">Cliente: {c.clientName} · {c.area}</p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${c.status === 'Ativo' ? 'bg-green-50 text-green-700 border-green-200' : c.status === 'Concluído' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-gray-100 text-gray-600 border-gray-200'}`}>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${c.status === 'Ativo' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : c.status === 'Concluído' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-gray-100 text-gray-600 border-gray-200'}`}>
                         {c.status}
                       </span>
                       <span className="text-gray-400 text-xs">{expandedCase === c.id ? '▲' : '▼'}</span>
@@ -498,7 +498,7 @@ export const InternCases: React.FC<InternCasesProps> = ({
                     </div>
                     <button
                       onClick={() => setDiario(prev => prev.filter(e => e.id !== entry.id))}
-                      className="p-1.5 text-gray-300 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 transition-colors text-xs"
+                      className="p-1.5 text-gray-300 dark:text-gray-600 hover:text-rose-500 dark:hover:text-rose-400 transition-colors text-xs"
                       title="Excluir registro"
                     >🗑</button>
                   </div>

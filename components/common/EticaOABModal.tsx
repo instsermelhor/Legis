@@ -16,7 +16,7 @@ export const EticaOABModal: React.FC<ModalProps> = ({ onClose }) => {
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="p-6 border-b flex items-start justify-between">
-                    <h2 className="text-xl font-bold text-gray-800">Código de Ética e Disciplina da OAB</h2>
+                    <h2 className="text-xl font-bold text-gray-800 dark:text-white">Código de Ética e Disciplina da OAB</h2>
                     <button onClick={onClose} className="-mt-2 -mr-2 p-2 rounded-full hover:bg-gray-200 transition-colors" aria-label="Close">
                         <XIcon className="w-6 h-6 text-gray-600" />
                     </button>

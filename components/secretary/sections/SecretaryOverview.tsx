@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 import type { Secretary } from '../../../types';
 import type { Lawyer } from '../../../types';
+import { KpiCard } from '../../ui';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -81,28 +82,7 @@ const MOCK_LEADS: LeadQueueItem[] = [
 ];
 
 // ─── KPI Card ─────────────────────────────────────────────────────────────────
-
-const KpiCard: React.FC<{
-  icon: string;
-  label: string;
-  value: string | number;
-  sub?: string;
-  colorClass: string;
-  textClass: string;
-  badge?: number;
-}> = ({ icon, label, value, sub, colorClass, textClass, badge }) => (
-  <div className={`${colorClass} border rounded-2xl p-4 flex flex-col gap-2 relative overflow-hidden`}>
-    {badge !== undefined && badge > 0 && (
-      <span className="absolute top-3 right-3 w-5 h-5 flex items-center justify-center bg-red-500 text-white text-[9px] font-black rounded-full">{badge > 9 ? '9+' : badge}</span>
-    )}
-    <div className="flex items-center gap-2">
-      <span className="text-xl">{icon}</span>
-      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide leading-tight">{label}</p>
-    </div>
-    <p className={`text-2xl font-black ${textClass}`}>{value}</p>
-    {sub && <p className="text-xs text-gray-400">{sub}</p>}
-  </div>
-);
+// KpiCard vem do UI kit compartilhado (components/ui) — padrão do módulo Advogado.
 
 // ─── Activity Timeline ────────────────────────────────────────────────────────
 
@@ -125,7 +105,7 @@ const ActivityTimeline: React.FC<{ items: ActivityItem[] }> = ({ items }) => {
             { v: 'appointment', l: '📅 Agenda' },
           ] as const).map(({ v, l }) => (
             <button key={v} onClick={() => setFilter(v as typeof filter)}
-              className={`px-2.5 py-1 text-[10px] font-bold rounded-lg transition-all ${filter === v ? 'bg-purple-600 text-white' : 'bg-gray-100 dark:bg-black/20 text-gray-500 dark:text-gray-400 hover:bg-gray-200'}`}>
+              className={`px-2.5 py-1 text-[10px] font-bold rounded-lg transition-all ${filter === v ? 'bg-violet-600 text-white' : 'bg-gray-100 dark:bg-black/20 text-gray-500 dark:text-gray-400 hover:bg-gray-200'}`}>
               {l}
             </button>
           ))}
@@ -135,11 +115,11 @@ const ActivityTimeline: React.FC<{ items: ActivityItem[] }> = ({ items }) => {
         {filtered.length === 0 ? (
           <div className="text-center py-6 text-gray-400 text-sm">Nenhuma atividade neste filtro.</div>
         ) : filtered.map(item => (
-          <div key={item.id} className={`flex items-start gap-3 p-3 rounded-xl transition-all ${item.urgent ? 'bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20' : 'hover:bg-gray-50 dark:hover:bg-black/10'}`}>
+          <div key={item.id} className={`flex items-start gap-3 p-3 rounded-xl transition-all ${item.urgent ? 'bg-rose-50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/20' : 'hover:bg-gray-50 dark:hover:bg-black/10'}`}>
             <div className="w-8 h-8 flex items-center justify-center text-lg shrink-0 mt-0.5">{item.icon}</div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between gap-2">
-                <p className={`text-xs font-bold truncate ${item.urgent ? 'text-red-700 dark:text-red-400' : 'text-gray-800 dark:text-gray-200'}`}>{item.title}</p>
+                <p className={`text-xs font-bold truncate ${item.urgent ? 'text-rose-700 dark:text-rose-400' : 'text-gray-800 dark:text-gray-200'}`}>{item.title}</p>
                 <span className="text-[10px] text-gray-400 shrink-0">{item.time}</span>
               </div>
               <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed mt-0.5">{item.description}</p>
@@ -155,8 +135,8 @@ const ActivityTimeline: React.FC<{ items: ActivityItem[] }> = ({ items }) => {
 
 const ApptTypeMap = {
   reuniao:   { label: 'Reunião',    color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400', icon: '💼' },
-  audiencia: { label: 'Audiência',  color: 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-400',   icon: '⚖️' },
-  consulta:  { label: 'Consulta',   color: 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400', icon: '🩺' },
+  audiencia: { label: 'Audiência',  color: 'bg-rose-100 text-rose-700 dark:bg-rose-900/20 dark:text-rose-400',   icon: '⚖️' },
+  consulta:  { label: 'Consulta',   color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400', icon: '🩺' },
   online:    { label: 'Online',     color: 'bg-violet-100 text-violet-700 dark:bg-violet-900/20 dark:text-violet-400', icon: '💻' },
 };
 
@@ -167,12 +147,12 @@ const LawyerScheduleWidget: React.FC<{ appointments: LawyerAppointment[] }> = ({
       {appointments.map(ap => {
         const typeMeta = ApptTypeMap[ap.type];
         return (
-          <div key={ap.id} className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all ${ap.inProgress ? 'border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-900/10' : 'border-gray-100 dark:border-[#2A2545]'}`}>
+          <div key={ap.id} className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all ${ap.inProgress ? 'border-violet-300 dark:border-violet-700 bg-violet-50 dark:bg-violet-900/10' : 'border-gray-100 dark:border-[#2A2545]'}`}>
             <img src={ap.lawyerPhoto} alt={ap.lawyerName} className="w-10 h-10 rounded-full object-cover ring-2 ring-gray-200 dark:ring-[#2A2545] shrink-0" />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
                 <p className="text-xs font-bold text-gray-800 dark:text-white truncate">{ap.lawyerName}</p>
-                {ap.inProgress && <span className="text-[9px] font-black px-1.5 py-0.5 bg-purple-600 text-white rounded-full animate-pulse">● EM CURSO</span>}
+                {ap.inProgress && <span className="text-[9px] font-black px-1.5 py-0.5 bg-violet-600 text-white rounded-full animate-pulse">● EM CURSO</span>}
               </div>
               <p className="text-[11px] font-semibold text-gray-600 dark:text-gray-300 truncate">{ap.title}{ap.client ? ` — ${ap.client}` : ''}</p>
               <div className="flex items-center gap-2 mt-1">
@@ -185,7 +165,7 @@ const LawyerScheduleWidget: React.FC<{ appointments: LawyerAppointment[] }> = ({
         );
       })}
     </div>
-    <button className="w-full py-2 text-xs font-bold text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-900/40 rounded-xl hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-colors">
+    <button className="w-full py-2 text-xs font-bold text-violet-600 dark:text-violet-400 border border-violet-200 dark:border-violet-900/40 rounded-xl hover:bg-violet-50 dark:hover:bg-violet-900/10 transition-colors">
       Ver agenda completa →
     </button>
   </div>
@@ -194,14 +174,14 @@ const LawyerScheduleWidget: React.FC<{ appointments: LawyerAppointment[] }> = ({
 // ─── Lead Queue Widget ────────────────────────────────────────────────────────
 
 const SOURCE_MAP = {
-  whatsapp:  { label: 'WhatsApp', color: 'bg-green-100 text-green-700', icon: '💬' },
+  whatsapp:  { label: 'WhatsApp', color: 'bg-emerald-100 text-emerald-700', icon: '💬' },
   site:      { label: 'Site',     color: 'bg-blue-100 text-blue-700',   icon: '🌐' },
   indicacao: { label: 'Indicação',color: 'bg-amber-100 text-amber-700', icon: '🤝' },
   ligacao:   { label: 'Ligação',  color: 'bg-violet-100 text-violet-700',icon: '📞' },
 };
 
 const PRIORITY_MAP = {
-  alta:  { color: 'border-l-red-500', badge: 'bg-red-100 text-red-700' },
+  alta:  { color: 'border-l-rose-500', badge: 'bg-rose-100 text-rose-700' },
   media: { color: 'border-l-amber-400', badge: 'bg-amber-100 text-amber-700' },
   baixa: { color: 'border-l-gray-300', badge: 'bg-gray-100 text-gray-600' },
 };
@@ -211,7 +191,7 @@ const LeadQueueWidget: React.FC<{ leads: LeadQueueItem[]; onDismiss: (id: string
     <div className="flex items-center justify-between">
       <h4 className="text-sm font-bold text-gray-700 dark:text-gray-200 flex items-center gap-2">
         👤 Fila de Triagem
-        {leads.length > 0 && <span className="w-5 h-5 flex items-center justify-center bg-red-500 text-white text-[9px] font-black rounded-full">{leads.length}</span>}
+        {leads.length > 0 && <span className="w-5 h-5 flex items-center justify-center bg-rose-500 text-white text-[9px] font-black rounded-full">{leads.length}</span>}
       </h4>
       <span className="text-xs text-gray-400">Novos clientes aguardando</span>
     </div>
@@ -236,7 +216,7 @@ const LeadQueueWidget: React.FC<{ leads: LeadQueueItem[]; onDismiss: (id: string
                 <p className="text-[10px] text-gray-400">Recebido às {lead.receivedAt}</p>
               </div>
               <div className="flex flex-col gap-1.5 shrink-0">
-                <button className="px-2.5 py-1 text-[10px] font-bold text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors">Atender</button>
+                <button className="px-2.5 py-1 text-[10px] font-bold text-white bg-violet-600 rounded-lg hover:bg-violet-700 transition-colors">Atender</button>
                 <button onClick={() => onDismiss(lead.id)} className="px-2.5 py-1 text-[10px] font-bold text-gray-500 bg-gray-100 dark:bg-black/20 rounded-lg hover:bg-gray-200 transition-colors">Arquivar</button>
               </div>
             </div>
@@ -275,9 +255,9 @@ export const SecretaryOverview: React.FC<SecretaryOverviewProps> = ({
           <p className="text-xs text-gray-400">Hub de controle de operações do escritório</p>
         </div>
         {assignedLawyer && (
-          <div className="flex items-center gap-2 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-900/30 rounded-xl px-3 py-2">
+          <div className="flex items-center gap-2 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-900/30 rounded-xl px-3 py-2">
             <img src={assignedLawyer.photoUrl} alt={assignedLawyer.name} className="w-6 h-6 rounded-full object-cover" />
-            <p className="text-xs font-bold text-purple-700 dark:text-purple-400">{assignedLawyer.name}</p>
+            <p className="text-xs font-bold text-violet-700 dark:text-violet-400">{assignedLawyer.name}</p>
           </div>
         )}
       </div>
@@ -287,36 +267,32 @@ export const SecretaryOverview: React.FC<SecretaryOverviewProps> = ({
         <KpiCard
           icon="📅"
           label="Atendimentos Hoje"
-          value={MOCK_APPOINTMENTS.length}
+          value={String(MOCK_APPOINTMENTS.length)}
           sub="Consultas & Reuniões"
-          colorClass="bg-purple-50 dark:bg-purple-950/30 border-purple-100 dark:border-purple-900/40"
-          textClass="text-purple-700 dark:text-purple-400"
+          color="violet"
         />
         <KpiCard
           icon="✍️"
           label="Docs Pendentes"
-          value={pendingDocs}
+          value={String(pendingDocs)}
           sub="Aguardando assinatura"
-          colorClass="bg-amber-50 dark:bg-amber-950/30 border-amber-100 dark:border-amber-900/40"
-          textClass="text-amber-700 dark:text-amber-400"
+          color="amber"
           badge={pendingDocs}
         />
         <KpiCard
           icon="👤"
           label="Leads na Fila"
-          value={leads.length}
+          value={String(leads.length)}
           sub="Aguardando triagem"
-          colorClass="bg-blue-50 dark:bg-blue-950/30 border-blue-100 dark:border-blue-900/40"
-          textClass="text-blue-700 dark:text-blue-400"
+          color="blue"
           badge={leads.length}
         />
         <KpiCard
           icon="💬"
           label="Msgs Não Respondidas"
-          value={unreadMessages}
+          value={String(unreadMessages)}
           sub="Canais integrados"
-          colorClass="bg-red-50 dark:bg-red-950/30 border-red-100 dark:border-red-900/40"
-          textClass="text-red-700 dark:text-red-400"
+          color="rose"
           badge={unreadMessages}
         />
       </div>
@@ -324,7 +300,7 @@ export const SecretaryOverview: React.FC<SecretaryOverviewProps> = ({
       {/* Shortcuts */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { icon: '📅', label: 'Novo Agendamento', color: 'bg-purple-600 hover:bg-purple-700', action: onGoToScheduler },
+          { icon: '📅', label: 'Novo Agendamento', color: 'bg-violet-600 hover:bg-violet-700', action: onGoToScheduler },
           { icon: '📎', label: 'Receber Documento', color: 'bg-blue-600 hover:bg-blue-700', action: () => {} },
           { icon: '👤', label: 'Cadastrar Lead', color: 'bg-emerald-600 hover:bg-emerald-700', action: () => {} },
         ].map(({ icon, label, color, action }) => (

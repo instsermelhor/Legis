@@ -19,7 +19,7 @@ const MiniKpiCard: React.FC<{
 }> = ({ icon, label, value, sub, color = 'bg-primary/10', onClick }) => (
   <div
     onClick={onClick}
-    className={`bg-white rounded-xl border border-gray-200 shadow-sm flex items-center gap-3 px-4 py-3 ${
+    className={`bg-white rounded-2xl border border-gray-200 shadow-sm flex items-center gap-3 px-4 py-3 ${
       onClick ? 'cursor-pointer hover:shadow-md hover:border-primary/40 transition-all' : ''
     }`}
   >
@@ -200,7 +200,7 @@ export const OverviewTab: React.FC<{
           label="Secret./Assist Jurídico"
           value={stats.totalSecretaries}
           sub={`${stats.activeSecretaries} ativos`}
-          color="bg-purple-100"
+          color="bg-violet-100"
           onClick={() => setModal({ type: 'secretaries' })}
         />
         <MiniKpiCard
@@ -208,7 +208,7 @@ export const OverviewTab: React.FC<{
           label="Serviços"
           value={servicesCount}
           sub="configurados"
-          color="bg-orange-100"
+          color="bg-amber-100"
           onClick={() => setModal({ type: 'services' })}
         />
         <MiniKpiCard
@@ -223,42 +223,42 @@ export const OverviewTab: React.FC<{
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <h3 className="text-base font-bold text-gray-800 mb-4">Advogados por Especialidade</h3>
           <SpecialtyPieChart data={specialtyDistribution} />
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <h3 className="text-base font-bold text-gray-800 mb-4">Bacharelandos por Especialidade</h3>
           <SpecialtyPieChart data={internSpecialtyDistribution} />
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <h3 className="text-base font-bold text-gray-800 mb-4">Bacharelandos por Semestre</h3>
           <SpecialtyPieChart data={internSemesterDistribution} />
         </div>
         {/* Secret./Assist Jurídico Charts */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <div className="flex items-center gap-2 mb-4">
-            <span className="w-2 h-2 rounded-full bg-purple-500 inline-block" />
+            <span className="w-2 h-2 rounded-full bg-violet-500 inline-block" />
             <h3 className="text-base font-bold text-gray-800">Secret./Assist Jurídico por Disponibilidade</h3>
           </div>
           <SpecialtyPieChart data={secretaryAvailabilityDistribution} />
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <div className="flex items-center gap-2 mb-4">
-            <span className="w-2 h-2 rounded-full bg-purple-500 inline-block" />
+            <span className="w-2 h-2 rounded-full bg-violet-500 inline-block" />
             <h3 className="text-base font-bold text-gray-800">Secret./Assist Jurídico por Área de Conhecimento</h3>
           </div>
           <SpecialtyPieChart data={secretaryAreaDistribution} />
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <h3 className="text-base font-bold text-gray-800 mb-4">Serviços por Grupo</h3>
           <SpecialtyPieChart data={serviceGroupDistribution} />
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <h3 className="text-base font-bold text-gray-800 mb-4">Clientes por Serviços Contratados</h3>
           <SpecialtyPieChart data={clientServiceDistribution} />
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <h3 className="text-base font-bold text-gray-800 mb-4">Receita Mensal (R$)</h3>
           <div className="space-y-2">
             {mockMonthlyRevenue.map(m => {
@@ -352,9 +352,9 @@ export const OverviewTab: React.FC<{
                 <div className="space-y-6 p-2">
                   {/* Services billing summary */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="bg-orange-50 border border-orange-100 rounded-xl p-4 text-center">
-                      <p className="text-xs text-orange-600 font-semibold uppercase mb-1">Serviços Configurados</p>
-                      <p className="text-3xl font-bold text-orange-700">{servicesCount}</p>
+                    <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 text-center">
+                      <p className="text-xs text-amber-600 font-semibold uppercase mb-1">Serviços Configurados</p>
+                      <p className="text-3xl font-bold text-amber-700">{servicesCount}</p>
                     </div>
                     <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 text-center">
                       <p className="text-xs text-emerald-600 font-semibold uppercase mb-1">Receita Serviços/Mês</p>
@@ -375,8 +375,8 @@ export const OverviewTab: React.FC<{
                         return (
                           <div key={m.month} className="flex items-center gap-3">
                             <span className="text-xs text-gray-500 w-14 shrink-0">{m.month}</span>
-                            <div className="flex-1 bg-orange-50 rounded-full h-4 overflow-hidden">
-                              <div className="bg-orange-400 h-4 rounded-full" style={{ width: `${pct}%` }} />
+                            <div className="flex-1 bg-amber-50 rounded-full h-4 overflow-hidden">
+                              <div className="bg-amber-400 h-4 rounded-full" style={{ width: `${pct}%` }} />
                             </div>
                             <span className="text-xs text-gray-700 font-semibold w-24 text-right">R$ {serviceRev.toLocaleString('pt-BR')}</span>
                           </div>
@@ -408,22 +408,22 @@ export const OverviewTab: React.FC<{
               )}
               {modal.type === 'secretaries' && (
                 <table className="w-full text-sm">
-                  <thead className="text-xs text-gray-500 uppercase bg-purple-50">
+                  <thead className="text-xs text-gray-500 uppercase bg-violet-50">
                     <tr><th className="px-4 py-2 text-left">Secretário(a)</th><th className="px-4 py-2 text-left">Estado</th><th className="px-4 py-2 text-left">Disponibilidade</th><th className="px-4 py-2 text-left">Status</th><th className="px-4 py-2 text-right">Honorário/Mês</th></tr>
                   </thead>
                   <tbody>
                     {filteredSecretaries.map(s => {
                       const availLabel = s.availability === 'integral' ? 'Integral' : s.availability === 'meio-periodo' ? 'Meio Período' : 'Freelancer';
                       return (
-                        <tr key={s.id} className="border-b hover:bg-purple-50/30">
+                        <tr key={s.id} className="border-b hover:bg-violet-50/30">
                           <td className="px-4 py-3 font-medium text-gray-900 flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-full bg-purple-100 text-purple-700 text-xs font-bold flex items-center justify-center shrink-0">{s.name.charAt(0)}</div>
+                            <div className="w-7 h-7 rounded-full bg-violet-100 text-violet-700 text-xs font-bold flex items-center justify-center shrink-0">{s.name.charAt(0)}</div>
                             {s.name}
                           </td>
                           <td className="px-4 py-3">{s.state}</td>
                           <td className="px-4 py-3">{availLabel}</td>
-                          <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${ s.status === 'ativo' ? 'bg-green-100 text-green-700' : s.status === 'pendente' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700' }`}>{s.status}</span></td>
-                          <td className="px-4 py-3 text-right font-semibold text-purple-700">{s.monthlyFee ? `R$ ${s.monthlyFee.toLocaleString('pt-BR')}` : '—'}</td>
+                          <td className="px-4 py-3"><span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${ s.status === 'ativo' ? 'bg-emerald-100 text-emerald-700' : s.status === 'pendente' ? 'bg-yellow-100 text-yellow-700' : 'bg-rose-100 text-rose-700' }`}>{s.status}</span></td>
+                          <td className="px-4 py-3 text-right font-semibold text-violet-700">{s.monthlyFee ? `R$ ${s.monthlyFee.toLocaleString('pt-BR')}` : '—'}</td>
                         </tr>
                       );
                     })}
@@ -444,7 +444,7 @@ export const OverviewTab: React.FC<{
                 <button
                   onClick={() => { closeModal(); onNavigateToFinance(modal.type); }}
                   className={`text-sm hover:underline font-medium ${
-                    modal.type === 'secretaries' ? 'text-purple-600' : 'text-primary'
+                    modal.type === 'secretaries' ? 'text-violet-600' : 'text-primary'
                   }`}
                 >
                   Ver no Financeiro →

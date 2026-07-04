@@ -110,7 +110,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ lawyer, onClose }) => {
         onClick={e => e.stopPropagation()}
       >
         {/* Modal header */}
-        <div className="flex items-center gap-4 p-5 border-b border-gray-200 dark:border-[#2A2545] bg-gradient-to-r from-purple-600 to-indigo-600">
+        <div className="flex items-center gap-4 p-5 border-b border-gray-200 dark:border-[#2A2545] bg-gradient-to-r from-violet-600 to-violet-800">
           <img
             src={lawyer.photoUrl}
             alt={lawyer.name}
@@ -154,8 +154,8 @@ const BookingModal: React.FC<BookingModalProps> = ({ lawyer, onClose }) => {
                     onClick={() => { setSelectedDate(day); setSelectedTime(''); }}
                     className={`px-3 py-2 rounded-xl text-xs font-semibold border-2 transition-all ${
                       selectedDate === day
-                        ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
-                        : 'border-gray-200 dark:border-[#2A2545] text-gray-600 dark:text-gray-400 hover:border-purple-300'
+                        ? 'border-violet-500 bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'
+                        : 'border-gray-200 dark:border-[#2A2545] text-gray-600 dark:text-gray-400 hover:border-violet-300'
                     }`}
                   >
                     {new Date(day + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' })}
@@ -202,8 +202,8 @@ const BookingModal: React.FC<BookingModalProps> = ({ lawyer, onClose }) => {
                     key={m}
                     className={`flex items-center gap-2 flex-1 p-3 rounded-xl border-2 cursor-pointer transition-all ${
                       modality === m
-                        ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/30'
-                        : 'border-gray-200 dark:border-[#2A2545] hover:border-purple-300'
+                        ? 'border-violet-500 bg-violet-50 dark:bg-violet-900/30'
+                        : 'border-gray-200 dark:border-[#2A2545] hover:border-violet-300'
                     }`}
                   >
                     <input
@@ -212,7 +212,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ lawyer, onClose }) => {
                       value={m}
                       checked={modality === m}
                       onChange={() => setModality(m)}
-                      className="accent-purple-600"
+                      className="accent-violet-600"
                     />
                     <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                       {m === 'Videochamada' ? '📹' : '🏢'} {m}
@@ -233,7 +233,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ lawyer, onClose }) => {
                   value={clientName}
                   onChange={e => setClientName(e.target.value)}
                   placeholder="Nome completo"
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 dark:border-[#2A2545] rounded-xl bg-white dark:bg-[#120F24] text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                  className="w-full px-3 py-2.5 text-sm border border-gray-200 dark:border-[#2A2545] rounded-xl bg-white dark:bg-[#120F24] text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-violet-400"
                   required
                 />
               </div>
@@ -246,7 +246,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ lawyer, onClose }) => {
                   value={clientPhone}
                   onChange={e => setClientPhone(e.target.value)}
                   placeholder="(11) 99999-9999"
-                  className="w-full px-3 py-2.5 text-sm border border-gray-200 dark:border-[#2A2545] rounded-xl bg-white dark:bg-[#120F24] text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                  className="w-full px-3 py-2.5 text-sm border border-gray-200 dark:border-[#2A2545] rounded-xl bg-white dark:bg-[#120F24] text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-violet-400"
                   required
                 />
               </div>
@@ -268,7 +268,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ lawyer, onClose }) => {
             <button
               type="submit"
               disabled={!selectedDate || !selectedTime || !clientName.trim() || !clientPhone.trim()}
-              className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl hover:from-purple-700 hover:to-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-purple-500/25 text-sm"
+              className="w-full py-3 px-4 bg-gradient-to-r from-violet-600 to-violet-800 text-white font-bold rounded-xl hover:from-violet-700 hover:to-violet-900 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-violet-500/25 text-sm"
             >
               📅 Confirmar Agendamento
             </button>
@@ -297,7 +297,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ lawyer, onClose, onBook }) 
       onClick={e => e.stopPropagation()}
     >
       {/* Header */}
-      <div className="relative bg-gradient-to-br from-purple-700 to-indigo-800 p-6 text-white rounded-t-2xl">
+      <div className="relative bg-gradient-to-br from-violet-700 to-violet-900 p-6 text-white rounded-t-2xl">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/20 transition-colors"
@@ -323,7 +323,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ lawyer, onClose, onBook }) 
             <p className="text-sm text-white/70">OAB {lawyer.oab} · {lawyer.location.city}/{lawyer.location.state}</p>
             <div className="flex items-center gap-2 mt-1">
               <StarDisplay rating={lawyer.rating} />
-              <span className="text-xs text-white/60">{lawyer.rating.toFixed(1)} ({lawyer.reviewCount} avaliações)</span>
+              <span className="text-xs text-white/50">{lawyer.rating.toFixed(1)} ({lawyer.reviewCount} avaliações)</span>
             </div>
           </div>
         </div>
@@ -344,7 +344,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ lawyer, onClose, onBook }) 
             {lawyer.specialties.map(s => (
               <span
                 key={s}
-                className="px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-xs font-semibold"
+                className="px-3 py-1 bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 rounded-full text-xs font-semibold"
               >
                 {s}
               </span>
@@ -355,7 +355,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ lawyer, onClose, onBook }) 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-gray-50 dark:bg-[#120F24] rounded-xl p-3 text-center">
-            <p className="text-xl font-bold text-purple-600">{lawyer.experience.years}</p>
+            <p className="text-xl font-bold text-violet-600">{lawyer.experience.years}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">Anos de exp.</p>
           </div>
           <div className="bg-gray-50 dark:bg-[#120F24] rounded-xl p-3 text-center">
@@ -377,7 +377,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ lawyer, onClose, onBook }) 
             <ul className="space-y-1">
               {lawyer.education.map(e => (
                 <li key={e} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
-                  <span className="text-purple-500 mt-0.5">🎓</span> {e}
+                  <span className="text-violet-500 mt-0.5">🎓</span> {e}
                 </li>
               ))}
             </ul>
@@ -404,7 +404,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ lawyer, onClose, onBook }) 
 
         <button
           onClick={() => { onClose(); onBook(); }}
-          className="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all shadow-md text-sm"
+          className="w-full py-3 bg-gradient-to-r from-violet-600 to-violet-800 text-white font-bold rounded-xl hover:from-violet-700 hover:to-violet-900 transition-all shadow-md text-sm"
         >
           📅 Agendar Consulta
         </button>
@@ -438,12 +438,12 @@ const LawyerCard: React.FC<LawyerCardProps> = ({
       {/* Badges top-right */}
       <div className="absolute top-3 right-3 flex flex-col items-end gap-1.5">
         {isRecommended && (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 rounded-full text-[10px] font-bold whitespace-nowrap">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 rounded-full text-[10px] font-bold whitespace-nowrap">
             🤖 Recomendado para você
           </span>
         )}
         {isFromRegion && (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full text-[10px] font-bold whitespace-nowrap">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded-full text-[10px] font-bold whitespace-nowrap">
             📍 Da sua região
           </span>
         )}
@@ -515,7 +515,7 @@ const LawyerCard: React.FC<LawyerCardProps> = ({
         <span className="flex items-center gap-1 font-semibold">
           💰{' '}
           {lawyer.consultationFee
-            ? <strong className="text-green-600 dark:text-green-400">R$ {lawyer.consultationFee.toLocaleString('pt-BR')}</strong>
+            ? <strong className="text-emerald-600 dark:text-emerald-400">R$ {lawyer.consultationFee.toLocaleString('pt-BR')}</strong>
             : <span className="text-gray-400">Sob consulta</span>
           }
         </span>
@@ -526,7 +526,7 @@ const LawyerCard: React.FC<LawyerCardProps> = ({
         <button
           id={`book-lawyer-${lawyer.id}`}
           onClick={onBook}
-          className="flex-1 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl hover:from-purple-700 hover:to-indigo-700 transition-all shadow-sm hover:shadow-purple-500/20 flex items-center justify-center gap-1.5"
+          className="flex-1 py-2.5 text-sm font-bold text-white bg-gradient-to-r from-violet-600 to-violet-800 rounded-xl hover:from-violet-700 hover:to-violet-900 transition-all shadow-sm hover:shadow-violet-500/20 flex items-center justify-center gap-1.5"
         >
           📅 Agendar
         </button>
@@ -641,11 +641,11 @@ export const ClientLawyerSearch: React.FC<ClientLawyerSearchProps> = ({
 
         {/* AI suggestion banner */}
         {aiSuggestedArea && (
-          <div className="mt-3 flex items-center gap-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800/40 rounded-xl px-4 py-3">
+          <div className="mt-3 flex items-center gap-3 bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-800/40 rounded-xl px-4 py-3">
             <span className="text-xl shrink-0">🤖</span>
-            <p className="text-sm text-purple-800 dark:text-purple-300 font-medium">
+            <p className="text-sm text-violet-800 dark:text-violet-300 font-medium">
               Com base no seu caso, buscamos advogados de{' '}
-              <strong className="text-purple-900 dark:text-purple-200">{aiSuggestedArea}</strong>
+              <strong className="text-violet-900 dark:text-violet-200">{aiSuggestedArea}</strong>
             </p>
           </div>
         )}
@@ -662,7 +662,7 @@ export const ClientLawyerSearch: React.FC<ClientLawyerSearchProps> = ({
           <span className="font-semibold text-gray-800 dark:text-white flex items-center gap-2 text-sm">
             🎛️ Filtros
             {hasActiveFilters && (
-              <span className="px-2 py-0.5 bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 rounded-full text-xs font-bold">
+              <span className="px-2 py-0.5 bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 rounded-full text-xs font-bold">
                 Ativos
               </span>
             )}
@@ -690,7 +690,7 @@ export const ClientLawyerSearch: React.FC<ClientLawyerSearchProps> = ({
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
                 placeholder="Digite o nome do advogado..."
-                className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 dark:border-[#2A2545] rounded-xl bg-white dark:bg-[#120F24] text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all"
+                className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 dark:border-[#2A2545] rounded-xl bg-white dark:bg-[#120F24] text-gray-800 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-violet-400 transition-all"
               />
               {searchQuery && (
                 <button
@@ -721,8 +721,8 @@ export const ClientLawyerSearch: React.FC<ClientLawyerSearchProps> = ({
                   }
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border-2 transition-all ${
                     selectedSpecialty?.label === filter.label
-                      ? 'border-purple-500 bg-purple-600 text-white shadow-md shadow-purple-500/20'
-                      : 'border-gray-200 dark:border-[#2A2545] text-gray-600 dark:text-gray-400 hover:border-purple-400 hover:text-purple-600 dark:hover:text-purple-300'
+                      ? 'border-violet-500 bg-violet-600 text-white shadow-md shadow-violet-500/20'
+                      : 'border-gray-200 dark:border-[#2A2545] text-gray-600 dark:text-gray-400 hover:border-violet-400 hover:text-violet-600 dark:hover:text-violet-300'
                   }`}
                 >
                   <span>{filter.emoji}</span>
@@ -766,7 +766,7 @@ export const ClientLawyerSearch: React.FC<ClientLawyerSearchProps> = ({
                 id="sort-select"
                 value={sortBy}
                 onChange={e => setSortBy(e.target.value as SortBy)}
-                className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-[#2A2545] rounded-xl bg-white dark:bg-[#120F24] text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all"
+                className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-[#2A2545] rounded-xl bg-white dark:bg-[#120F24] text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-violet-400 transition-all"
               >
                 <option value="recommended">⭐ Mais Indicados</option>
                 <option value="rating">🏆 Avaliação</option>
@@ -780,7 +780,7 @@ export const ClientLawyerSearch: React.FC<ClientLawyerSearchProps> = ({
             <div className="flex justify-end">
               <button
                 onClick={clearFilters}
-                className="text-xs text-purple-600 dark:text-purple-400 hover:underline font-semibold flex items-center gap-1"
+                className="text-xs text-violet-600 dark:text-violet-400 hover:underline font-semibold flex items-center gap-1"
               >
                 <XIcon className="w-3 h-3" /> Limpar filtros
               </button>
@@ -812,7 +812,7 @@ export const ClientLawyerSearch: React.FC<ClientLawyerSearchProps> = ({
           </p>
           <button
             onClick={clearFilters}
-            className="mt-5 px-6 py-2.5 bg-purple-600 text-white text-sm font-bold rounded-xl hover:bg-purple-700 transition-colors shadow-md"
+            className="mt-5 px-6 py-2.5 bg-violet-600 text-white text-sm font-bold rounded-xl hover:bg-violet-700 transition-colors shadow-md"
           >
             Limpar Filtros
           </button>

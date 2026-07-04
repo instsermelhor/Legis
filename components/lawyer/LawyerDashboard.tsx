@@ -21,6 +21,8 @@ import SocialLinksEditor from '../common/SocialLinksEditor';
 import type { SocialLink } from '../common/SocialLinksEditor';
 import { InternApprovalQueue } from '../lawyer/interns/InternApprovalQueue';
 import { SecretaryWorkspace } from '../lawyer/secretary/SecretaryWorkspace';
+import { LawyerOverviewDashboard } from './overview/LawyerOverviewDashboard';
+import { SectionHeader } from '../ui';
 
 const ALL_IA_TOOLS = [
     { key: 'pecas', label: '📄 Peças Jurídicas' },
@@ -121,27 +123,18 @@ const pastAppointments: Appointment[] = [
     { id: 'apt6', clientName: 'Pedro Almeida', date: '2024-08-28', time: '16:00', status: 'Cancelado', modality: 'Presencial' },
 ];
 
-const StatCard: React.FC<{ icon: React.ReactNode; label: string; value: string | number }> = ({ icon, label, value }) => (
-    <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm flex items-center space-x-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-        <div className="bg-primary/10 p-3 rounded-full">
-            {icon}
-        </div>
-        <div>
-            <p className="text-sm text-gray-500">{label}</p>
-            <p className="text-2xl font-bold text-gray-800">{value}</p>
-        </div>
-    </div>
-);
+// StatCard legado removido — a Visão Geral usa o KpiCard do UI kit
+// compartilhado via LawyerOverviewDashboard.
 
 const AppointmentCard: React.FC<{ appointment: Appointment }> = ({ appointment }) => {
     const statusClasses: { [key in Appointment['status']]: string } = {
-        'Confirmado': 'bg-green-100 text-green-800',
+        'Confirmado': 'bg-emerald-100 text-emerald-800',
         'Concluído': 'bg-gray-100 text-gray-800',
-        'Cancelado': 'bg-red-100 text-red-800',
+        'Cancelado': 'bg-rose-100 text-rose-800',
     };
 
     return (
-        <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+        <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
             <div className="flex justify-between items-start">
                 <div>
                     <h3 className="text-lg font-bold text-gray-800">{appointment.clientName}</h3>
@@ -697,7 +690,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                     onClick={() => { setActiveSection('secretariado'); setShowMobileMenu(false); }}
                                     className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-150 ${
                                         activeSection === 'secretariado'
-                                            ? 'bg-purple-600 text-white shadow-sm'
+                                            ? 'bg-violet-600 text-white shadow-sm'
                                             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
                                     }`}
                                 >
@@ -782,7 +775,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                         <div className="animate-fade-in">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-gray-200 dark:border-[#2A2545] pb-3">
                                 <div>
-                                    <h2 className="text-xl font-semibold text-gray-700 dark:text-white">Meus Casos & Processos</h2>
+                                    <h2 className="text-xl font-bold text-gray-800 dark:text-white">Meus Casos & Processos</h2>
                                     <p className="text-xs text-gray-500 dark:text-gray-400">Gerencie o andamento dos seus casos locais e acompanhe seus processos da Gestão Jurídica.</p>
                                 </div>
                                 <div className="flex gap-2">
@@ -813,9 +806,9 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                 <div className="space-y-6 animate-fade-in text-left">
                                     {/* Small Kpis */}
                                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                                        <div className="bg-purple-50/50 dark:bg-purple-950/10 p-4 rounded-xl border border-purple-100 dark:border-purple-900/30">
-                                            <p className="text-[9px] text-purple-700 dark:text-purple-300 uppercase font-bold tracking-wide">Total de Processos</p>
-                                            <p className="text-xl font-bold text-purple-800 dark:text-purple-300 mt-0.5">{lawyerProcessos.length}</p>
+                                        <div className="bg-violet-50/50 dark:bg-violet-950/10 p-4 rounded-xl border border-violet-100 dark:border-violet-900/30">
+                                            <p className="text-[9px] text-violet-700 dark:text-violet-300 uppercase font-bold tracking-wide">Total de Processos</p>
+                                            <p className="text-xl font-bold text-violet-800 dark:text-violet-300 mt-0.5">{lawyerProcessos.length}</p>
                                         </div>
                                         <div className="bg-blue-50/50 dark:bg-blue-950/10 p-4 rounded-xl border border-blue-100 dark:border-blue-900/30">
                                             <p className="text-[9px] text-blue-700 dark:text-blue-300 uppercase font-bold tracking-wide">Em Andamento</p>
@@ -855,7 +848,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                             <td className="px-4 py-3">{new Date(p.data_entrada).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}</td>
                                                             <td className="px-4 py-3">
                                                                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${
-                                                                    p.status === 'Concluído' ? 'bg-green-100 text-green-800' :
+                                                                    p.status === 'Concluído' ? 'bg-emerald-100 text-emerald-800' :
                                                                     p.status === 'Em Andamento' ? 'bg-blue-100 text-blue-800' :
                                                                     'bg-amber-100 text-amber-800 animate-pulse'
                                                                 }`}>
@@ -889,7 +882,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                     </div>
 
                                     {/* Filter Panel */}
-                                    <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm mb-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                                    <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm mb-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                                         <h3 className="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-3">Filtros de Busca</h3>
                                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4">
                                             <div>
@@ -899,7 +892,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                     value={filterOAB}
                                                     onChange={e => setFilterOAB(e.target.value)}
                                                     placeholder="Ex: SP123456"
-                                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                                 />
                                             </div>
                                             <div>
@@ -909,7 +902,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                     value={filterProcesso}
                                                     onChange={e => setFilterProcesso(e.target.value)}
                                                     placeholder="Ex: case001"
-                                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                                 />
                                             </div>
                                             <div>
@@ -919,7 +912,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                     value={filterCPF}
                                                     onChange={e => setFilterCPF(e.target.value)}
                                                     placeholder="Ex: Ana Clara"
-                                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                                 />
                                             </div>
                                             <div>
@@ -927,7 +920,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                 <select
                                                     value={filterGroup}
                                                     onChange={e => { setFilterGroup(e.target.value); setFilterCaseType(''); }}
-                                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-white p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-white p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                                 >
                                                     <option value="">Todos</option>
                                                     <option value="Civil">Civil</option>
@@ -942,7 +935,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                     <select
                                                         value={filterCaseType}
                                                         onChange={e => setFilterCaseType(e.target.value)}
-                                                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-white p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-white p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                                     >
                                                         <option value="">Todos</option>
                                                         {GROUP_TYPES[filterGroup].map(t => <option key={t} value={t}>{t}</option>)}
@@ -953,7 +946,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                         value={filterCaseType}
                                                         onChange={e => setFilterCaseType(e.target.value)}
                                                         placeholder="Ex: Rito Ordinário"
-                                                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                                     />
                                                 )}
                                             </div>
@@ -970,7 +963,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                     {/* Cases List */}
                                     <div className="space-y-6">
                                         {filteredCases.length > 0 ? filteredCases.map(c => (
-                                            <div key={c.id} className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                                            <div key={c.id} className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                                                 <div className="flex flex-col sm:flex-row justify-between items-start mb-2">
                                                     <div>
                                                         <h3 className="text-lg font-bold text-gray-800">{c.title}</h3>
@@ -998,7 +991,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                 </div>
                                             </div>
                                         )) : (
-                                            <p className="text-gray-500 text-center py-10 bg-white rounded-lg border border-gray-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">Nenhum caso encontrado com os filtros aplicados.</p>
+                                            <p className="text-gray-500 text-center py-10 bg-white rounded-2xl border border-gray-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">Nenhum caso encontrado com os filtros aplicados.</p>
                                         )}
                                     </div>
                                 </>
@@ -1006,46 +999,24 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                         </div>
                     )}
 
-                    {/* Overview Section */}
+                    {/* Overview Section — dashboard gerencial padrão (UI kit) */}
                     {activeSection === 'overview' && (
                         <>
                             <div className="mb-10" id="overview-stats">
-                                <h2 className="text-xl font-semibold text-gray-700 mb-4">Visão Geral</h2>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                                    <StatCard icon={<ClipboardListIcon className="w-6 h-6 text-primary" />} label="Casos Ativos" value={cases.length} />
-                                    <StatCard icon={<UsersIcon className="w-6 h-6 text-primary" />} label="Clientes Atendidos" value={lawyer.experience.cases} />
-                                    {lawyer.monthlyRevenue && <StatCard icon={<CurrencyDollarIcon className="w-6 h-6 text-primary" />} label="Faturamento Mensal" value={`R$ ${lawyer.monthlyRevenue.toLocaleString('pt-BR')}`} />}
-                                    <StatCard icon={<CalendarIcon className="w-6 h-6 text-primary" />} label="Consultas (Mês)" value={lawyer.consultationsThisMonth || 0} />
-                                </div>
+                                <LawyerOverviewDashboard
+                                    lawyer={lawyer}
+                                    cases={cases}
+                                    onNavigateToFinancial={() => setActiveSection('financeiro')}
+                                    onNavigateToCases={() => setActiveSection('meusCasos')}
+                                    onNavigateToGestao={() => setActiveSection('gestaoJuridica')}
+                                />
                             </div>
 
                             <div className="mb-10">
-                                <h2 className="text-xl font-semibold text-gray-700 mb-4">Resumo Financeiro</h2>
-                                <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-                                    <div className="space-y-4">
-                                        <div className="flex justify-between items-center">
-                                            <p className="text-gray-600">Faturamento deste mês:</p>
-                                            <p className="text-lg font-bold text-gray-800">R$ {lawyer.monthlyRevenue?.toLocaleString('pt-BR') || '0,00'}</p>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <p className="text-gray-600">Pagamentos pendentes:</p>
-                                            <p className="text-lg font-bold text-red-600">R$ {lawyer.pendingPayments?.toLocaleString('pt-BR') || '0,00'}</p>
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={() => setActiveSection('financeiro')}
-                                        className="w-full mt-6 bg-gray-100 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors text-sm"
-                                    >
-                                        Ver Relatório Financeiro Completo
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="mb-10">
-                                <h2 className="text-xl font-semibold text-gray-700 mb-4">Casos Ativos</h2>
+                                <SectionHeader emoji="📂" title="Casos Ativos" subtitle="Andamento detalhado dos seus casos" className="mb-6" />
                                 <div className="space-y-6">
                                     {cases.slice(0, 3).map(c => (
-                                        <div key={c.id} className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                                        <div key={c.id} className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                                             <div className="flex flex-col sm:flex-row justify-between items-start mb-4">
                                                 <div>
                                                     <h3 className="text-lg font-bold text-gray-800">{c.title}</h3>
@@ -1077,16 +1048,16 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
 
                             <div>
                                 <div className="flex flex-col sm:flex-row justify-between sm:items-center mb-4">
-                                    <h2 className="text-xl font-semibold text-gray-700">Meus Agendamentos</h2>
+                                    <h2 className="text-xl font-bold text-gray-800 dark:text-white">Meus Agendamentos</h2>
                                     <button
                                         onClick={() => setIsSyncModalOpen(true)}
-                                        className="mt-2 sm:mt-0 inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50 transition-colors shadow-sm dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                        className="mt-2 sm:mt-0 inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50 transition-colors shadow-sm dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                     >
                                         <CalendarPlusIcon className="w-5 h-5 text-gray-500" />
                                         Sincronizar Calendário
                                     </button>
                                 </div>
-                                <div className="border-b border-gray-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                                <div className="border-b border-gray-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                                     <nav className="-mb-px flex space-x-6">
                                         <button onClick={() => setActiveTab('upcoming')} className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'upcoming' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'}`}>
                                             Próximos Agendamentos
@@ -1126,14 +1097,14 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                         <div className="animate-fade-in space-y-6">
                             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                                 <div>
-                                    <h2 className="text-xl font-semibold text-gray-700 flex items-center gap-2">⚖️ Biblioteca de Códigos Legais</h2>
+                                    <h2 className="text-xl font-bold text-gray-800 dark:text-white flex items-center gap-2">⚖️ Biblioteca de Códigos Legais</h2>
                                     <p className="text-sm text-gray-500">Acesse as legislações federais necessárias para o exercício de sua advocacia.</p>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 {/* Sidebar */}
-                                <div className="md:col-span-1 bg-white border border-gray-200 rounded-xl shadow-sm p-4 space-y-2 h-[550px] overflow-y-auto dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                                <div className="md:col-span-1 bg-white border border-gray-200 rounded-xl shadow-sm p-4 space-y-2 h-[550px] overflow-y-auto dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                                     <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 px-2">Legislações</h3>
                                     {legalCodes.map(code => (
                                         <button
@@ -1152,7 +1123,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                 </div>
 
                                 {/* Content */}
-                                <div className="md:col-span-2 bg-white border border-gray-200 rounded-xl shadow-sm p-6 flex flex-col h-[550px] dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                                <div className="md:col-span-2 bg-white border border-gray-200 rounded-xl shadow-sm p-6 flex flex-col h-[550px] dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                                     {selectedCode ? (
                                         <>
                                             <div className="border-b pb-4 mb-4 flex flex-col sm:flex-row justify-between sm:items-start gap-2">
@@ -1207,7 +1178,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                             value={codeSearchQuery}
                                                             onChange={e => setCodeSearchQuery(e.target.value)}
                                                             placeholder="Buscar palavra-chave ou artigo no texto..."
-                                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                                         />
                                                     </div>
                                                     <div className="flex-grow overflow-y-auto bg-gray-50 dark:bg-black/10 border dark:border-[#2A2545] rounded-lg p-4 font-mono text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">
@@ -1230,24 +1201,24 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                     {/* ─── MEU PERFIL SECTION ────────────────────────────────────── */}
                     {activeSection === 'perfil' && (
                         <div className="space-y-6 animate-fade-in">
-                            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-5 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-5 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                                 <h3 className="text-base font-bold text-gray-800 border-b pb-2">Dados Pessoais e Profissionais</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Nome Completo</label>
-                                        <input value={profileData.name} onChange={e => setProfileData(p => ({ ...p, name: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                        <input value={profileData.name} onChange={e => setProfileData(p => ({ ...p, name: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">CPF</label>
-                                        <input value={profileData.cpf} onChange={e => setProfileData(p => ({ ...p, cpf: e.target.value }))} placeholder="000.000.000-00" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                        <input value={profileData.cpf} onChange={e => setProfileData(p => ({ ...p, cpf: e.target.value }))} placeholder="000.000.000-00" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">RG</label>
-                                        <input value={profileData.rg} onChange={e => setProfileData(p => ({ ...p, rg: e.target.value }))} placeholder="00.000.000-0" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                        <input value={profileData.rg} onChange={e => setProfileData(p => ({ ...p, rg: e.target.value }))} placeholder="00.000.000-0" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Data de Nascimento</label>
-                                        <input type="date" value={profileData.dataNasc} onChange={e => setProfileData(p => ({ ...p, dataNasc: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                        <input type="date" value={profileData.dataNasc} onChange={e => setProfileData(p => ({ ...p, dataNasc: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Estado Civil</label>
@@ -1258,11 +1229,11 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Naturalidade</label>
-                                        <input value={profileData.naturalidade} onChange={e => setProfileData(p => ({ ...p, naturalidade: e.target.value }))} placeholder="Cidade - UF" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                        <input value={profileData.naturalidade} onChange={e => setProfileData(p => ({ ...p, naturalidade: e.target.value }))} placeholder="Cidade - UF" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Nº OAB</label>
-                                        <input value={profileData.oab} onChange={e => setProfileData(p => ({ ...p, oab: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                        <input value={profileData.oab} onChange={e => setProfileData(p => ({ ...p, oab: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Estado OAB (UF)</label>
@@ -1273,21 +1244,21 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Telefone</label>
-                                        <input value={profileData.phone} onChange={e => setProfileData(p => ({ ...p, phone: e.target.value }))} placeholder="(11) 99999-9999" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                        <input value={profileData.phone} onChange={e => setProfileData(p => ({ ...p, phone: e.target.value }))} placeholder="(11) 99999-9999" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                                     </div>
                                     <div>
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Valor Consulta (R$)</label>
-                                        <input type="number" value={profileData.consultationFee} onChange={e => setProfileData(p => ({ ...p, consultationFee: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                        <input type="number" value={profileData.consultationFee} onChange={e => setProfileData(p => ({ ...p, consultationFee: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                                     </div>
                                     <div className="md:col-span-2">
                                         <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Biografia / Apresentação Profissional</label>
-                                        <textarea value={profileData.bio} onChange={e => setProfileData(p => ({ ...p, bio: e.target.value }))} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                        <textarea value={profileData.bio} onChange={e => setProfileData(p => ({ ...p, bio: e.target.value }))} rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                                     </div>
                                 </div>
                             </div>
 
                             {/* Especialidades */}
-                            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                                 <div>
                                     <h3 className="text-base font-bold text-gray-800 border-b pb-2 mb-3">Áreas de Atuação</h3>
                                     <p className="text-xs text-gray-500 mb-4">Selecione até 3 especialidades <strong>principais</strong>. As demais serão classificadas como secundárias.</p>
@@ -1334,7 +1305,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                             </div>
 
                             {/* Endereço */}
-                            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                                 <h3 className="text-base font-bold text-gray-800 border-b pb-2">Endereços</h3>
 
                                 {/* Residencial */}
@@ -1343,27 +1314,27 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">CEP</label>
-                                            <input value={profileData.resCep} onChange={e => setProfileData(p => ({ ...p, resCep: e.target.value }))} placeholder="00000-000" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.resCep} onChange={e => setProfileData(p => ({ ...p, resCep: e.target.value }))} placeholder="00000-000" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                                         </div>
                                         <div className="md:col-span-2">
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Rua / Logradouro</label>
-                                            <input value={profileData.resStreet} onChange={e => setProfileData(p => ({ ...p, resStreet: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.resStreet} onChange={e => setProfileData(p => ({ ...p, resStreet: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Número</label>
-                                            <input value={profileData.resNumber} onChange={e => setProfileData(p => ({ ...p, resNumber: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.resNumber} onChange={e => setProfileData(p => ({ ...p, resNumber: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Complemento</label>
-                                            <input value={profileData.resComplement} onChange={e => setProfileData(p => ({ ...p, resComplement: e.target.value }))} placeholder="Apto, Bloco..." className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.resComplement} onChange={e => setProfileData(p => ({ ...p, resComplement: e.target.value }))} placeholder="Apto, Bloco..." className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Bairro</label>
-                                            <input value={profileData.resNeighborhood} onChange={e => setProfileData(p => ({ ...p, resNeighborhood: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.resNeighborhood} onChange={e => setProfileData(p => ({ ...p, resNeighborhood: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Cidade</label>
-                                            <input value={profileData.resCity} onChange={e => setProfileData(p => ({ ...p, resCity: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.resCity} onChange={e => setProfileData(p => ({ ...p, resCity: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Estado (UF)</label>
@@ -1407,27 +1378,27 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                     <div className={`grid grid-cols-1 md:grid-cols-3 gap-4 transition-opacity ${sameAddress ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">CEP</label>
-                                            <input value={profileData.comCep} onChange={e => setProfileData(p => ({ ...p, comCep: e.target.value }))} placeholder="00000-000" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.comCep} onChange={e => setProfileData(p => ({ ...p, comCep: e.target.value }))} placeholder="00000-000" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                                         </div>
                                         <div className="md:col-span-2">
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Rua / Logradouro</label>
-                                            <input value={profileData.comStreet} onChange={e => setProfileData(p => ({ ...p, comStreet: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.comStreet} onChange={e => setProfileData(p => ({ ...p, comStreet: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Número</label>
-                                            <input value={profileData.comNumber} onChange={e => setProfileData(p => ({ ...p, comNumber: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.comNumber} onChange={e => setProfileData(p => ({ ...p, comNumber: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Complemento / Sala</label>
-                                            <input value={profileData.comComplement} onChange={e => setProfileData(p => ({ ...p, comComplement: e.target.value }))} placeholder="Sala, Andar..." className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.comComplement} onChange={e => setProfileData(p => ({ ...p, comComplement: e.target.value }))} placeholder="Sala, Andar..." className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Bairro</label>
-                                            <input value={profileData.comNeighborhood} onChange={e => setProfileData(p => ({ ...p, comNeighborhood: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.comNeighborhood} onChange={e => setProfileData(p => ({ ...p, comNeighborhood: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Cidade</label>
-                                            <input value={profileData.comCity} onChange={e => setProfileData(p => ({ ...p, comCity: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
+                                            <input value={profileData.comCity} onChange={e => setProfileData(p => ({ ...p, comCity: e.target.value }))} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" />
                                         </div>
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Estado (UF)</label>
@@ -1441,7 +1412,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                             </div>
 
                             {/* Redes Sociais */}
-                            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-2 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545]">
+                            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-2 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545]">
                                 <h3 className="text-base font-bold text-gray-800 border-b pb-2">🌐 Redes Sociais</h3>
                                 <p className="text-xs text-gray-500 mb-3">Links visíveis pelos clientes e estagiários vinculados ao seu escritório.</p>
                                 <SocialLinksEditor
@@ -1449,7 +1420,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                     onChange={setLawyerSocialLinks}
                                 />
                             </div>
-                            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                                 <h3 className="text-base font-bold text-gray-800 border-b pb-2">🔐 Segurança de Acesso</h3>
                                 <p className="text-sm text-gray-500">Mantenha seus dados de acesso seguros e atualizados.</p>
                                 <div className="flex flex-wrap gap-3">
@@ -1513,12 +1484,12 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                 value={internSearch}
                                 onChange={e => setInternSearch(e.target.value)}
                                 placeholder="Buscar por nome, universidade ou área de interesse..."
-                                className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                             />
 
                             {/* Checkbox permissions grid */}
                             {linkedInternId && (
-                                <div className="bg-white rounded-xl border border-indigo-200 shadow-sm p-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                                <div className="bg-white rounded-xl border border-indigo-200 shadow-sm p-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                                     <h4 className="font-bold text-xs text-gray-800 mb-1 flex items-center gap-1.5 dark:text-gray-100">
                                         <span>⚙️</span> Controle de Acesso do Estagiário ({mockInterns.find(i => i.id === linkedInternId)?.name})
                                     </h4>
@@ -1576,7 +1547,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
 
                             {/* Success Banner */}
                             {linkSuccess === 'intern' && (
-                                <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3 text-green-700 font-semibold text-sm">
+                                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3 text-emerald-700 font-semibold text-sm">
                                     🎉 Estagiário vinculado com sucesso! Ele receberá uma notificação com suas informações.
                                 </div>
                             )}
@@ -1613,7 +1584,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                     {isLinked ? (
                                                         <button
                                                             onClick={() => { setLinkedInternId(null); setLinkSuccess(null); }}
-                                                            className="flex-1 py-2 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+                                                            className="flex-1 py-2 text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-lg hover:bg-rose-100 transition-colors"
                                                         >
                                                             Desvincular
                                                         </button>
@@ -1634,7 +1605,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                             {/* Confirm Modal */}
                             {confirmLinkIntern && (
                                 <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setConfirmLinkIntern(null)}>
-                                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
+                                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" onClick={e => e.stopPropagation()}>
                                         <h3 className="font-bold text-gray-900 text-lg">Confirmar Vinculação</h3>
                                         <p className="text-sm text-gray-600">
                                             Você está prestes a vincular <strong>{confirmLinkIntern.name}</strong> como estagiário do seu escritório.
@@ -1674,11 +1645,11 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                             {/* Sub-tabs */}
                             <div className="flex gap-2">
                                 <button onClick={() => setSecretarySubTab('vincular')}
-                                    className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all ${secretarySubTab === 'vincular' ? 'bg-purple-600 text-white border-purple-600 shadow-sm' : 'bg-white dark:bg-transparent border-gray-200 dark:border-[#2A2545] text-gray-600 dark:text-gray-400'}`}>
+                                    className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all ${secretarySubTab === 'vincular' ? 'bg-violet-600 text-white border-violet-600 shadow-sm' : 'bg-white dark:bg-transparent border-gray-200 dark:border-[#2A2545] text-gray-600 dark:text-gray-400'}`}>
                                     🗂️ Vinculação / Permissões
                                 </button>
                                 <button onClick={() => setSecretarySubTab('workspace')}
-                                    className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all ${secretarySubTab === 'workspace' ? 'bg-purple-600 text-white border-purple-600 shadow-sm' : 'bg-white dark:bg-transparent border-gray-200 dark:border-[#2A2545] text-gray-600 dark:text-gray-400'}`}>
+                                    className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all ${secretarySubTab === 'workspace' ? 'bg-violet-600 text-white border-violet-600 shadow-sm' : 'bg-white dark:bg-transparent border-gray-200 dark:border-[#2A2545] text-gray-600 dark:text-gray-400'}`}>
                                     📊 Central Operacional
                                 </button>
                             </div>
@@ -1693,7 +1664,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                     <p className="text-sm text-gray-500 mt-0.5">Encontre e contrate profissionais de Secret./Assist. Jurídico para o seu escritório.</p>
                                 </div>
                                 {linkedSecretaryId && (
-                                    <div className="bg-purple-50 border border-purple-200 rounded-xl px-4 py-2 text-xs font-semibold text-purple-700">
+                                    <div className="bg-violet-50 border border-violet-200 rounded-xl px-4 py-2 text-xs font-semibold text-violet-700">
                                         ✅ Secretário(a) vinculado: {mockSecretaries.find(s => s.id === linkedSecretaryId)?.name}
                                     </div>
                                 )}
@@ -1704,12 +1675,12 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                 value={secretarySearch}
                                 onChange={e => setSecretarySearch(e.target.value)}
                                 placeholder="Buscar por nome, cidade ou área de conhecimento..."
-                                className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                             />
 
                             {/* Checkbox permissions grid */}
                             {linkedSecretaryId && (
-                                <div className="bg-white rounded-xl border border-purple-200 shadow-sm p-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                                <div className="bg-white rounded-xl border border-violet-200 shadow-sm p-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                                     <h4 className="font-bold text-xs text-gray-800 mb-1 flex items-center gap-1.5 dark:text-gray-100">
                                         <span>⚙️</span> Controle de Acesso do(a) Secretário(a) ({mockSecretaries.find(s => s.id === linkedSecretaryId)?.name})
                                     </h4>
@@ -1723,7 +1694,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                         type="checkbox"
                                                         checked={isChecked}
                                                         onChange={() => toggleSecretaryPerm(t.key)}
-                                                        className="rounded border-gray-300 text-purple-650 focus:ring-purple-550 dark:bg-black/20 dark:border-gray-655"
+                                                        className="rounded border-gray-300 text-violet-650 focus:ring-violet-550 dark:bg-black/20 dark:border-gray-655"
                                                     />
                                                     <span className="text-[11px] font-semibold text-gray-805 dark:text-gray-200">{t.label}</span>
                                                 </label>
@@ -1732,7 +1703,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                     </div>
 
                                     {/* Caso Access Delegation */}
-                                    <div className="mt-4 pt-4 border-t border-purple-200 dark:border-[#2A2545]">
+                                    <div className="mt-4 pt-4 border-t border-violet-200 dark:border-[#2A2545]">
                                         <h5 className="font-bold text-xs text-gray-800 mb-1 flex items-center gap-1.5 dark:text-gray-100">
                                             <span>📁</span> Casos Delegados (Acesso do(a) Secretário(a))
                                         </h5>
@@ -1746,7 +1717,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                             type="checkbox"
                                                             checked={isDelegated}
                                                             onChange={() => toggleSecretaryCaseDelegation(c.id)}
-                                                            className="rounded border-gray-300 text-purple-650 focus:ring-purple-550"
+                                                            className="rounded border-gray-300 text-violet-650 focus:ring-violet-550"
                                                         />
                                                         <div className="flex-1 min-w-0">
                                                             <p className="font-semibold text-gray-800 dark:text-white truncate">{c.title}</p>
@@ -1767,7 +1738,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
 
                             {/* Success Banner */}
                             {linkSuccess === 'secretary' && (
-                                <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3 text-green-700 font-semibold text-sm">
+                                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 flex items-center gap-3 text-emerald-700 font-semibold text-sm">
                                     🎉 Secretário(a) vinculado com sucesso! Ele(a) receberá uma notificação com suas informações.
                                 </div>
                             )}
@@ -1783,10 +1754,10 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                         const isLinked = linkedSecretaryId === sec.id;
                                         const availLabel = sec.availability === 'integral' ? 'Integral' : sec.availability === 'meio-periodo' ? 'Meio Período' : 'Freelancer';
                                         return (
-                                            <div key={sec.id} className={`bg-white rounded-xl border shadow-sm p-5 flex flex-col gap-3 transition-all ${isLinked ? 'border-purple-400 ring-2 ring-purple-100' : 'border-gray-200 hover:shadow-md'}`}>
+                                            <div key={sec.id} className={`bg-white rounded-xl border shadow-sm p-5 flex flex-col gap-3 transition-all ${isLinked ? 'border-violet-400 ring-2 ring-violet-100' : 'border-gray-200 hover:shadow-md'}`}>
                                                 <div className="flex items-start justify-between gap-2">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-full bg-purple-100 text-purple-700 font-bold text-sm flex items-center justify-center shrink-0">
+                                                        <div className="w-10 h-10 rounded-full bg-violet-100 text-violet-700 font-bold text-sm flex items-center justify-center shrink-0">
                                                             {sec.name.charAt(0)}
                                                         </div>
                                                         <div>
@@ -1794,7 +1765,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                             <p className="text-xs text-gray-500">{sec.city} / {sec.state}</p>
                                                         </div>
                                                     </div>
-                                                    {isLinked && <span className="text-xs font-bold text-purple-600 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full">Vinculado</span>}
+                                                    {isLinked && <span className="text-xs font-bold text-violet-600 bg-violet-50 border border-violet-200 px-2 py-0.5 rounded-full">Vinculado</span>}
                                                 </div>
                                                 <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
                                                     <div><span className="font-semibold text-gray-700">Experiência:</span><br />{sec.experience} anos</div>
@@ -1803,7 +1774,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                         <span className="font-semibold text-gray-700">Áreas de Conhecimento:</span>
                                                         <div className="flex flex-wrap gap-1 mt-1">
                                                             {sec.areasOfKnowledge.slice(0, 3).map(a => (
-                                                                <span key={a} className="px-1.5 py-0.5 bg-purple-50 text-purple-700 border border-purple-100 rounded text-[10px] font-medium">{a}</span>
+                                                                <span key={a} className="px-1.5 py-0.5 bg-violet-50 text-violet-700 border border-violet-100 rounded text-[10px] font-medium">{a}</span>
                                                             ))}
                                                             {sec.areasOfKnowledge.length > 3 && <span className="text-[10px] text-gray-400">+{sec.areasOfKnowledge.length - 3} mais</span>}
                                                         </div>
@@ -1814,14 +1785,14 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                     {isLinked ? (
                                                         <button
                                                             onClick={() => { setLinkedSecretaryId(null); setLinkSuccess(null); }}
-                                                            className="flex-1 py-2 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+                                                            className="flex-1 py-2 text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-lg hover:bg-rose-100 transition-colors"
                                                         >
                                                             Desvincular
                                                         </button>
                                                     ) : (
                                                         <button
                                                             onClick={() => setConfirmLinkSecretary(sec)}
-                                                            className="flex-1 py-2 text-xs font-semibold text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors"
+                                                            className="flex-1 py-2 text-xs font-semibold text-white bg-violet-600 rounded-lg hover:bg-violet-700 transition-colors"
                                                         >
                                                             Contratar
                                                         </button>
@@ -1835,12 +1806,12 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                             {/* Confirm Modal */}
                             {confirmLinkSecretary && (
                                 <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setConfirmLinkSecretary(null)}>
-                                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
+                                    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500" onClick={e => e.stopPropagation()}>
                                         <h3 className="font-bold text-gray-900 text-lg">Confirmar Contratação</h3>
                                         <p className="text-sm text-gray-600">
                                             Você está prestes a contratar <strong>{confirmLinkSecretary.name}</strong> para secretariar seu escritório.
                                         </p>
-                                        <div className="bg-purple-50 rounded-xl p-4 text-xs space-y-1.5">
+                                        <div className="bg-violet-50 rounded-xl p-4 text-xs space-y-1.5">
                                             <p><strong>Localização:</strong> {confirmLinkSecretary.city} / {confirmLinkSecretary.state}</p>
                                             <p><strong>Experiência:</strong> {confirmLinkSecretary.experience} anos</p>
                                             <p><strong>Disponibilidade:</strong> {confirmLinkSecretary.availability === 'integral' ? 'Integral' : confirmLinkSecretary.availability === 'meio-periodo' ? 'Meio Período' : 'Freelancer'}</p>
@@ -1856,7 +1827,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                     setConfirmLinkSecretary(null);
                                                     setTimeout(() => setLinkSuccess(null), 5000);
                                                 }}
-                                                className="flex-1 py-2.5 text-sm font-semibold text-white bg-purple-600 rounded-xl hover:bg-purple-700"
+                                                className="flex-1 py-2.5 text-sm font-semibold text-white bg-violet-600 rounded-xl hover:bg-violet-700"
                                             >
                                                 ✓ Confirmar Contratação
                                             </button>
@@ -1924,7 +1895,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
             {/* Add lawsuit modal */}
             {showAddCaseForm && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-                    <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-6 space-y-6 max-h-[90vh] overflow-y-auto animate-fade-in my-8 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                    <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-6 space-y-6 max-h-[90vh] overflow-y-auto animate-fade-in my-8 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                         <div className="flex justify-between items-center border-b pb-3">
                             <h3 className="text-xl font-bold text-gray-900">Cadastrar Novo Processo</h3>
                             <button onClick={() => setShowAddCaseForm(false)} className="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
@@ -1942,7 +1913,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                             required
                                             value={clientData.name}
                                             onChange={e => setClientData(prev => ({ ...prev, name: e.target.value }))}
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                             placeholder="Nome do cliente"
                                         />
                                     </div>
@@ -1953,7 +1924,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                             required
                                             value={clientData.cpf}
                                             onChange={e => setClientData(prev => ({ ...prev, cpf: e.target.value }))}
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                             placeholder="000.000.000-00"
                                         />
                                     </div>
@@ -1964,7 +1935,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                             required
                                             value={clientData.email}
                                             onChange={e => setClientData(prev => ({ ...prev, email: e.target.value }))}
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                             placeholder="email@exemplo.com"
                                         />
                                     </div>
@@ -1975,7 +1946,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                             required
                                             value={clientData.phone}
                                             onChange={e => setClientData(prev => ({ ...prev, phone: e.target.value }))}
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                             placeholder="(00) 00000-0000"
                                         />
                                     </div>
@@ -1987,7 +1958,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                         required
                                         value={clientData.address}
                                         onChange={e => setClientData(prev => ({ ...prev, address: e.target.value }))}
-                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                         placeholder="Rua, Número, Bairro, Cidade - Estado"
                                     />
                                 </div>
@@ -2000,7 +1971,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                             type="checkbox"
                                             checked={clientData.isForeigner}
                                             onChange={e => setClientData(prev => ({ ...prev, isForeigner: e.target.checked }))}
-                                            className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                            className="h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                         />
                                         <label htmlFor="client-isForeigner" className="ml-2 block text-xs font-medium text-gray-700">
                                             Cliente Estrangeiro
@@ -2008,7 +1979,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                     </div>
 
                                     {clientData.isForeigner && (
-                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-gray-50 border rounded-lg animate-fade-in text-xs border-gray-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-gray-50 border rounded-lg animate-fade-in text-xs border-gray-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                                             <div>
                                                 <label className="block font-medium text-gray-700 mb-1">Documento de Estrangeiro *</label>
                                                 <input
@@ -2016,7 +1987,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                     required
                                                     value={clientData.foreignerDocument}
                                                     onChange={e => setClientData(prev => ({ ...prev, foreignerDocument: e.target.value }))}
-                                                    className="w-full border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                                    className="w-full border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                                     placeholder="Passaporte / RNE"
                                                 />
                                             </div>
@@ -2027,7 +1998,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                     required
                                                     value={clientData.countryOfOrigin}
                                                     onChange={e => setClientData(prev => ({ ...prev, countryOfOrigin: e.target.value }))}
-                                                    className="w-full border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                                    className="w-full border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                                     placeholder="Ex: Itália"
                                                 />
                                             </div>
@@ -2038,7 +2009,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                     required
                                                     value={clientData.timeInBrazil}
                                                     onChange={e => setClientData(prev => ({ ...prev, timeInBrazil: e.target.value }))}
-                                                    className="w-full border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                                    className="w-full border border-gray-300 rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-primary dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                                     placeholder="Ex: 2 anos"
                                                 />
                                             </div>
@@ -2058,7 +2029,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                             required
                                             value={processNumber}
                                             onChange={e => setProcessNumber(e.target.value)}
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                             placeholder="Ex: 5001234-56.2026.8.26.0100"
                                         />
                                     </div>
@@ -2069,7 +2040,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                             required
                                             value={caseTitle}
                                             onChange={e => setCaseTitle(e.target.value)}
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                             placeholder="Ex: Ação Revisional"
                                         />
                                     </div>
@@ -2081,7 +2052,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                         value={caseSummary}
                                         onChange={e => setCaseSummary(e.target.value)}
                                         rows={3}
-                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                         placeholder="Resumo dos fatos e fundamentos do caso..."
                                     />
                                 </div>
@@ -2096,7 +2067,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                         <select
                                             value={procedureType}
                                             onChange={handleProcedureChange}
-                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white p-2 border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                         >
                                             <option value="CPC">Civil - Procedimento Comum (CPC)</option>
                                             <option value="CPP">Penal - Procedimento Ordinário (CPP)</option>
@@ -2106,7 +2077,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                     </div>
                                 </div>
 
-                                <div className="bg-gray-50 p-4 border border-gray-200 rounded-lg space-y-3 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                                <div className="bg-gray-50 p-4 border border-gray-200 rounded-lg space-y-3 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                                     <label className="block text-xs font-bold text-gray-600">Fases do Processo (Linha do Tempo)</label>
                                     <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
                                         {customStages.map((stage, idx) => (
@@ -2116,13 +2087,13 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                     type="text"
                                                     value={stage.name}
                                                     onChange={e => handleStageNameChange(idx, e.target.value)}
-                                                    className="flex-grow border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                                    className="flex-grow border border-gray-300 rounded-md px-2 py-1 text-xs focus:outline-none p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                                     placeholder="Nome da Fase"
                                                 />
                                                 <select
                                                     value={stage.status}
                                                     onChange={e => handleStageStatusChange(idx, e.target.value as CaseStage['status'])}
-                                                    className="border border-gray-300 rounded-md px-2 py-1 text-xs bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                                    className="border border-gray-300 rounded-md px-2 py-1 text-xs bg-white p-1 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                                 >
                                                     <option value="completed">Concluída</option>
                                                     <option value="current">Atual</option>
@@ -2132,7 +2103,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                     <button
                                                         type="button"
                                                         onClick={() => removeCustomStage(idx)}
-                                                        className="text-red-500 hover:text-red-700 text-xs font-bold px-1.5"
+                                                        className="text-rose-500 hover:text-rose-700 text-xs font-bold px-1.5"
                                                     >
                                                         &times;
                                                     </button>
@@ -2175,7 +2146,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
             {/* Confirm Add Lawsuit Popup */}
             {pendingCaseToAdd && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 animate-fade-in text-left dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                    <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 animate-fade-in text-left dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                         <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                             📝 Confirmar Cadastro de Processo
                         </h3>
@@ -2183,7 +2154,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                             Por favor, confirme as informações do novo processo antes de salvá-lo:
                         </p>
 
-                        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-xs space-y-1.5 text-gray-700 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                        <div className="bg-gray-50 p-4 rounded-2xl border border-gray-200 text-xs space-y-1.5 text-gray-700 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                             <p><strong>Cliente:</strong> {pendingCaseToAdd.caseData.clientName}</p>
                             <p><strong>CPF:</strong> {pendingCaseToAdd.clientData.cpf}</p>
                             <p><strong>E-mail:</strong> {pendingCaseToAdd.clientData.email}</p>
@@ -2223,7 +2194,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
             {/* Confirm Details Access Popup */}
             {confirmingCase && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 animate-fade-in text-left dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                    <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 space-y-4 animate-fade-in text-left dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                         <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                             🔒 Confirmação de Acesso
                         </h3>
@@ -2239,7 +2210,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                     required
                                     value={confirmDetailsInputs.processNumber}
                                     onChange={e => setConfirmDetailsInputs(prev => ({ ...prev, processNumber: e.target.value }))}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                     placeholder="Ex: case1"
                                 />
                             </div>
@@ -2250,11 +2221,11 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                     required
                                     value={confirmDetailsInputs.cpf}
                                     onChange={e => setConfirmDetailsInputs(prev => ({ ...prev, cpf: e.target.value }))}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
+                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 p-2 border bg-white dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500"
                                     placeholder="Ex: 123.456.789-00"
                                 />
                             </div>
-                            {detailsError && <p className="text-xs text-red-600 font-semibold">{detailsError}</p>}
+                            {detailsError && <p className="text-xs text-rose-600 font-semibold">{detailsError}</p>}
                             
                             <div className="flex gap-2 justify-end pt-2">
                                 <button
@@ -2279,14 +2250,14 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
             {/* Client Location & Details Preview Modal */}
             {viewingCaseDetails && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-                    <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-5 max-h-[90vh] overflow-y-auto animate-fade-in text-left dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                    <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 space-y-5 max-h-[90vh] overflow-y-auto animate-fade-in text-left dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                         <div className="flex justify-between items-center border-b pb-3">
                             <h3 className="text-lg font-bold text-gray-900">Localização e Detalhes do Cliente</h3>
                             <button onClick={() => setViewingCaseDetails(null)} className="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
                         </div>
 
                         <div className="space-y-4">
-                            <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-2 text-sm dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                            <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-2 text-sm dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                                 <p><strong>Nome do Cliente:</strong> {viewingCaseDetails.clientName}</p>
                                 {viewingCaseDetails.clientCpf && <p><strong>CPF:</strong> {viewingCaseDetails.clientCpf}</p>}
                                 <p><strong>Processo Nº:</strong> {viewingCaseDetails.id} ({viewingCaseDetails.title})</p>
@@ -2304,7 +2275,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                     <p className="text-xs text-gray-500 z-10 max-w-xs truncate">
                                         {viewingCaseDetails.clientAddress || 'Sem coordenadas'}
                                     </p>
-                                    <div className="absolute bottom-2 right-2 bg-white px-2 py-0.5 rounded text-[10px] font-bold text-gray-500 shadow border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
+                                    <div className="absolute bottom-2 right-2 bg-white px-2 py-0.5 rounded text-[10px] font-bold text-gray-500 shadow border dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                                         Legis Connect GPS Link
                                     </div>
                                 </div>
