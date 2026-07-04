@@ -11,7 +11,7 @@ import { join } from 'node:path';
 import { q } from '../db';
 import { exigirLogin } from '../auth';
 
-export const DIRETORIO_UPLOADS = join(import.meta.dirname, 'uploads');
+export const DIRETORIO_UPLOADS = join(import.meta.dirname, '..', 'uploads');
 
 const EXTENSOES_PERMITIDAS = ['pdf', 'png', 'jpg', 'jpeg'];
 
