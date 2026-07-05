@@ -8,6 +8,7 @@ export interface ServicoApi {
   id: number;
   nome: string;
   descricao: string | null;
+  grupo: string | null;
   preco: number;
   prazo_dias: number | null;
 }
@@ -30,8 +31,13 @@ export const contratosService = {
 
   meus: () => api.get<ContratoApi[]>('/contratos'),
 
-  contratar: (dados: { advogado_id: number; servico_id?: number; cliente_id?: number }) =>
+  /** Sem advogado_id = serviço contratado direto da plataforma. */
+  contratar: (dados: { advogado_id?: number; servico_id?: number; cliente_id?: number }) =>
     api.post<ContratoApi>('/contratos', dados),
+
+  /** Lead público (visitante não logado interessado em um serviço). */
+  registrarLead: (dados: { nome: string; email: string; telefone?: string; servico_id?: number }) =>
+    api.post('/leads', dados),
 
   atualizarStatus: (id: number, status: ContratoApi['status']) =>
     api.put<Pick<ContratoApi, 'id' | 'status'>>(`/contratos/${id}`, { status }),

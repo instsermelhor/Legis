@@ -8,12 +8,14 @@ import { exigirLogin } from '../auth';
 
 export const rotasFinanceiro = Router();
 
-/** A pessoa pode ver o financeiro do processo? (advogado dono, cliente ou admin) */
-async function podeVerProcesso(pessoaId: number, tipo: string, processoId: number): Promise<boolean> {
-  if (tipo === 'admin') return true;
+/** A pessoa pode ver o financeiro do processo? (tenant do escritório, cliente parte, ou admin) */
+async function podeVerProcesso(pessoa: { id: number; tipo: string; tenant_id: number }, processoId: number): Promise<boolean> {
+  if (pessoa.tipo === 'admin') return true;
   const r = await q(
-    'SELECT 1 FROM processo WHERE id = $1 AND (advogado_id = $2 OR cliente_id = $2)',
-    [processoId, pessoaId]
+    pessoa.tipo === 'cliente'
+      ? 'SELECT 1 FROM processo WHERE id = $1 AND cliente_id = $2'
+      : 'SELECT 1 FROM processo WHERE id = $1 AND tenant_id = $2',
+    [processoId, pessoa.tipo === 'cliente' ? pessoa.id : pessoa.tenant_id]
   );
   return r.rowCount! > 0;
 }
@@ -21,13 +23,13 @@ async function podeVerProcesso(pessoaId: number, tipo: string, processoId: numbe
 // POST /api/processos/:id/financeiro — abre o registro financeiro do processo.
 rotasFinanceiro.post('/processos/:id/financeiro', exigirLogin, async (req, res) => {
   const processoId = Number(req.params.id);
-  if (!(await podeVerProcesso(req.pessoa!.id, req.pessoa!.tipo, processoId))) {
+  if (!(await podeVerProcesso(req.pessoa!, processoId))) {
     return res.status(403).json({ erro: 'Sem acesso a este processo.' });
   }
   const { data_inicio, data_fim } = req.body ?? {};
   const r = await q(
-    `INSERT INTO financeiro (processo_id, pessoa_id, data_inicio, data_fim)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO financeiro (tenant_id, processo_id, pessoa_id, data_inicio, data_fim)
+     SELECT pr.tenant_id, pr.id, $2, $3, $4 FROM processo pr WHERE pr.id = $1
      RETURNING id, processo_id, pessoa_id, data_inicio, data_fim, data_pago`,
     [processoId, req.pessoa!.id, data_inicio ?? null, data_fim ?? null]
   );
@@ -37,7 +39,7 @@ rotasFinanceiro.post('/processos/:id/financeiro', exigirLogin, async (req, res) 
 // GET /api/processos/:id/financeiro — registros + lançamentos do processo.
 rotasFinanceiro.get('/processos/:id/financeiro', exigirLogin, async (req, res) => {
   const processoId = Number(req.params.id);
-  if (!(await podeVerProcesso(req.pessoa!.id, req.pessoa!.tipo, processoId))) {
+  if (!(await podeVerProcesso(req.pessoa!, processoId))) {
     return res.status(403).json({ erro: 'Sem acesso a este processo.' });
   }
   const financeiros = await q(
@@ -64,7 +66,7 @@ rotasFinanceiro.post('/financeiro/:id/fcontas', exigirLogin, async (req, res) =>
   const dono = await q<{ processo_id: number | null }>('SELECT processo_id FROM financeiro WHERE id = $1', [req.params.id]);
   if (!dono.rows[0]) return res.status(404).json({ erro: 'Registro financeiro não encontrado.' });
   if (dono.rows[0].processo_id !== null &&
-      !(await podeVerProcesso(req.pessoa!.id, req.pessoa!.tipo, dono.rows[0].processo_id))) {
+      !(await podeVerProcesso(req.pessoa!, dono.rows[0].processo_id))) {
     return res.status(403).json({ erro: 'Sem acesso a este financeiro.' });
   }
 
@@ -89,17 +91,46 @@ rotasFinanceiro.put('/fcontas/:id', exigirLogin, async (req, res) => {
      FROM financeiro fin
      LEFT JOIN processo pr ON pr.id = fin.processo_id
      WHERE f.id = $1 AND fin.id = f.financeiro_id
-       AND ($6 = 'admin' OR pr.advogado_id = $7 OR fin.pessoa_id = $7)
+       AND ($6 = 'admin' OR fin.tenant_id = $8 OR fin.pessoa_id = $7)
      RETURNING f.id, f.descricao, f.valor::float8 AS valor, f.status, f.data`,
-    [req.params.id, descricao ?? null, valor ?? null, status ?? null, data ?? null, req.pessoa!.tipo, req.pessoa!.id]
+    [req.params.id, descricao ?? null, valor ?? null, status ?? null, data ?? null, req.pessoa!.tipo, req.pessoa!.id, req.pessoa!.tenant_id]
   );
   if (!r.rows[0]) return res.status(404).json({ erro: 'Lançamento não encontrado ou sem permissão.' });
   res.json(r.rows[0]);
 });
 
+// GET /api/financeiro/fcontas — todos os lançamentos no escopo da pessoa.
+rotasFinanceiro.get('/financeiro/fcontas', exigirLogin, async (req, res) => {
+  const p = req.pessoa!;
+  const escopo =
+    p.tipo === 'admin' ? { sql: 'TRUE', params: [] as unknown[] } :
+    p.tipo === 'cliente' ? { sql: 'pr.cliente_id = $1', params: [p.id] } :
+    { sql: 'fin.tenant_id = $1', params: [p.tenant_id] };
+
+  const r = await q(
+    `SELECT f.id, f.financeiro_id, f.descricao, f.valor::float8 AS valor, f.data, f.status,
+            f.pessoa_responsavel_id, resp.nome AS responsavel_nome,
+            fin.processo_id, pr.numero AS processo_numero, pr.nome AS processo_nome
+       FROM fconta f
+       JOIN financeiro fin ON fin.id = f.financeiro_id
+       LEFT JOIN processo pr ON pr.id = fin.processo_id
+       LEFT JOIN pessoa resp ON resp.id = f.pessoa_responsavel_id
+      WHERE ${escopo.sql}
+      ORDER BY f.data DESC, f.id DESC`,
+    escopo.params
+  );
+  res.json(r.rows);
+});
+
 // GET /api/financeiro/resumo — agregados da pessoa logada (fluxo 6 meses).
 rotasFinanceiro.get('/financeiro/resumo', exigirLogin, async (req, res) => {
-  const pessoaId = req.pessoa!.id;
+  // Escopo multi-tenant: equipe vê o financeiro do escritório inteiro;
+  // cliente vê apenas o que é parte; admin vê tudo.
+  const p = req.pessoa!;
+  const escopo =
+    p.tipo === 'admin' ? { sql: 'TRUE', params: [] as unknown[] } :
+    p.tipo === 'cliente' ? { sql: 'pr.cliente_id = $1', params: [p.id] } :
+    { sql: 'fin.tenant_id = $1', params: [p.tenant_id] };
 
   const totais = await q<{ recebido: number; pendente: number; atrasado: number }>(
     `SELECT
@@ -109,8 +140,8 @@ rotasFinanceiro.get('/financeiro/resumo', exigirLogin, async (req, res) => {
      FROM fconta f
      JOIN financeiro fin ON fin.id = f.financeiro_id
      LEFT JOIN processo pr ON pr.id = fin.processo_id
-     WHERE fin.pessoa_id = $1 OR pr.advogado_id = $1 OR pr.cliente_id = $1`,
-    [pessoaId]
+     WHERE ${escopo.sql}`,
+    escopo.params
   );
 
   const porMes = await q(
@@ -120,10 +151,10 @@ rotasFinanceiro.get('/financeiro/resumo', exigirLogin, async (req, res) => {
        FROM fconta f
        JOIN financeiro fin ON fin.id = f.financeiro_id
        LEFT JOIN processo pr ON pr.id = fin.processo_id
-      WHERE (fin.pessoa_id = $1 OR pr.advogado_id = $1 OR pr.cliente_id = $1)
+      WHERE ${escopo.sql}
         AND f.data >= date_trunc('month', current_date) - interval '5 months'
       GROUP BY 1 ORDER BY 1`,
-    [pessoaId]
+    escopo.params
   );
 
   res.json({ ...totais.rows[0], por_mes: porMes.rows });

@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import type { Secretary } from '../../../types';
 import type { Lawyer } from '../../../types';
 import { KpiCard } from '../../ui';
+import { backend } from '../../../services/modules';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -50,36 +51,6 @@ interface LeadQueueItem {
 const NOW_HOUR = new Date().getHours();
 const PAD = (n: number) => String(n).padStart(2, '0');
 const T = (h: number, m = 0) => `${PAD(h)}:${PAD(m)}`;
-
-const MOCK_ACTIVITIES: ActivityItem[] = [
-  { id: 'a1', time: T(NOW_HOUR - 1, 15), icon: '📎', title: 'Cliente enviou documentos', description: 'Ana Paula Mendes anexou CNH e Comprovante de Residência ao caso #0042.', type: 'doc' },
-  { id: 'a2', time: T(NOW_HOUR - 1, 0), icon: '👤', title: 'Novo lead na fila de triagem', description: 'João Carvalho solicitou atendimento via WhatsApp — Direito Trabalhista.', type: 'lead', urgent: true },
-  { id: 'a3', time: T(NOW_HOUR - 0, 30), icon: '⚠️', title: 'Mensagem não respondida há 45min', description: 'Cliente Maria da Silva enviou mensagem às 09:15 aguardando retorno.', type: 'alert', urgent: true },
-  { id: 'a4', time: T(NOW_HOUR, 0), icon: '✅', title: 'Contrato de honorários assinado', description: 'Carlos Andrade assinou eletronicamente via Clicksign o contrato de honorários.', type: 'doc' },
-  { id: 'a5', time: T(NOW_HOUR, 10), icon: '📅', title: 'Consulta confirmada para amanhã', description: 'Dr. Fábio Resende confirmou a consulta de Marcos Oliveira para às 14h.', type: 'appointment' },
-  { id: 'a6', time: T(NOW_HOUR - 2, 45), icon: '📄', title: 'Petição enviada pelo tribunal', description: 'Despacho judicial recebido para o processo nº 0012345-67.2024.8.26.0100.', type: 'doc' },
-];
-
-const MOCK_APPOINTMENTS: LawyerAppointment[] = [
-  {
-    id: 'ap1', lawyerName: 'Dr. Carlos Mendonça', lawyerPhoto: 'https://randomuser.me/api/portraits/men/45.jpg', lawyerOab: 'SP 58.234',
-    title: 'Reunião de Estratégia', client: 'Empresa ABC Ltda', startTime: T(NOW_HOUR, 30), endTime: T(NOW_HOUR + 1, 0), type: 'reuniao', location: 'Sala A',
-  },
-  {
-    id: 'ap2', lawyerName: 'Dra. Beatriz Fontana', lawyerPhoto: 'https://randomuser.me/api/portraits/women/33.jpg', lawyerOab: 'RJ 89.123',
-    title: 'Audiência de Instrução', client: 'Silva vs. Empresa XYZ', startTime: T(NOW_HOUR + 1, 0), endTime: T(NOW_HOUR + 2, 30), type: 'audiencia', location: 'TRT 15ª Região', inProgress: true,
-  },
-  {
-    id: 'ap3', lawyerName: 'Dr. Ricardo Alves', lawyerPhoto: 'https://randomuser.me/api/portraits/men/71.jpg', lawyerOab: 'MG 23.456',
-    title: 'Consulta — Primeiro Atendimento', client: 'Pedro Henrique Souza', startTime: T(NOW_HOUR + 2, 0), endTime: T(NOW_HOUR + 2, 30), type: 'consulta', location: 'Online (Meet)',
-  },
-];
-
-const MOCK_LEADS: LeadQueueItem[] = [
-  { id: 'l1', name: 'João Ferreira Carvalho', phone: '(11) 98765-4321', area: 'Direito Trabalhista', receivedAt: T(NOW_HOUR - 1, 15), source: 'whatsapp', priority: 'alta' },
-  { id: 'l2', name: 'Fernanda Lima', phone: '(21) 91234-5678', area: 'Direito de Família', receivedAt: T(NOW_HOUR - 2, 0), source: 'site', priority: 'media' },
-  { id: 'l3', name: 'Roberto Campos', phone: '(31) 97654-3210', area: 'Direito Civil', receivedAt: T(NOW_HOUR - 3, 30), source: 'indicacao', priority: 'baixa' },
-];
 
 // ─── KPI Card ─────────────────────────────────────────────────────────────────
 // KpiCard vem do UI kit compartilhado (components/ui) — padrão do módulo Advogado.
@@ -238,9 +209,64 @@ interface SecretaryOverviewProps {
 export const SecretaryOverview: React.FC<SecretaryOverviewProps> = ({
   secretary, assignedLawyer, onGoToScheduler,
 }) => {
-  const [leads, setLeads] = useState<LeadQueueItem[]>(MOCK_LEADS);
-  const [unreadMessages] = useState(3);
-  const [pendingDocs] = useState(5);
+  // Dados reais do escritorio (tenant) via API.
+  const [leads, setLeads] = useState<LeadQueueItem[]>([]);
+  const [unreadMessages, setUnreadMessages] = useState(0);
+  const [pendingDocs, setPendingDocs] = useState(0);
+  const [atividades, setAtividades] = useState<ActivityItem[]>([]);
+  const [compromissos, setCompromissos] = useState<LawyerAppointment[]>([]);
+
+  React.useEffect(() => {
+    const hoje = new Date().toISOString().split('T')[0];
+    // Compromissos de hoje de todo o escritorio.
+    backend.agenda.listar({ de: hoje, ate: hoje, escopo: 'tenant' }).then(evs => {
+      setCompromissos(evs.map(e => ({
+        id: String(e.id),
+        lawyerName: e.pessoa_nome ?? '—',
+        lawyerPhoto: `https://i.pravatar.cc/80?u=p-${e.pessoa_id}`,
+        lawyerOab: '',
+        title: e.titulo,
+        client: e.processo_nome ?? undefined,
+        startTime: new Date(e.inicio).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        endTime: e.fim ? new Date(e.fim).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '',
+        type: e.tipo === 'audiencia' ? 'audiencia' as const : e.tipo === 'consulta' ? 'consulta' as const : 'reuniao' as const,
+        location: e.local ?? undefined,
+        inProgress: new Date(e.inicio).getTime() <= Date.now() && (!e.fim || new Date(e.fim).getTime() >= Date.now()),
+      })));
+    }).catch(() => {});
+
+    // Atividades: ultimas mensagens dos chats + documentos recentes.
+    backend.chat.meusChats().then(cs => {
+      const naoLidas = cs.filter(c => c.ultima_mensagem).length;
+      setUnreadMessages(naoLidas);
+      setAtividades(prev => [
+        ...cs.filter(c => c.ultima_mensagem).slice(0, 4).map(c => ({
+          id: `chat-${c.id}`,
+          time: c.ultima_em ? new Date(c.ultima_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '',
+          icon: '💬',
+          title: `Mensagem de ${c.interlocutor_nome}`,
+          description: c.ultima_mensagem ?? '',
+          type: 'message' as const,
+        })),
+        ...prev.filter(a => !a.id.startsWith('chat-')),
+      ]);
+    }).catch(() => {});
+
+    backend.documentos.listar().then(ds => {
+      setPendingDocs(ds.filter(d => !d.tipo_id).length); // sem classificacao = pendente
+      setAtividades(prev => [
+        ...prev.filter(a => !a.id.startsWith('doc-')),
+        ...ds.slice(0, 3).map(d => ({
+          id: `doc-${d.id}`,
+          time: String(d.data).split('T')[0],
+          icon: '📎',
+          title: `Documento: ${d.nome}`,
+          description: d.descricao ?? 'Sem descrição — aguardando classificação.',
+          type: 'doc' as const,
+        })),
+      ]);
+    }).catch(() => {});
+  }, []);
 
   const dismissLead = (id: string) => setLeads(prev => prev.filter(l => l.id !== id));
 
@@ -267,7 +293,7 @@ export const SecretaryOverview: React.FC<SecretaryOverviewProps> = ({
         <KpiCard
           icon="📅"
           label="Atendimentos Hoje"
-          value={String(MOCK_APPOINTMENTS.length)}
+          value={String(compromissos.length)}
           sub="Consultas & Reuniões"
           color="violet"
         />
@@ -314,9 +340,9 @@ export const SecretaryOverview: React.FC<SecretaryOverviewProps> = ({
 
       {/* Two column layout */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <ActivityTimeline items={MOCK_ACTIVITIES} />
+        <ActivityTimeline items={atividades} />
         <div className="space-y-5">
-          <LawyerScheduleWidget appointments={MOCK_APPOINTMENTS} />
+          <LawyerScheduleWidget appointments={compromissos} />
         </div>
       </div>
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { mockEfficiencyServiceGroups, mockEfficiencyServices } from '../../services/mockDataService';
+import { backend } from '../../services/modules';
 import type { EfficiencyServiceGroup, EfficiencyService } from '../../types';
 import { SectionTitle, IconPlus, IconEdit, IconTrash } from './AdminShared';
 
@@ -22,37 +22,29 @@ export const ServicesManagementTab: React.FC = () => {
   const [formDiscountSecretary, setFormDiscountSecretary] = useState('');
   const [formDiscountClient, setFormDiscountClient] = useState('');
 
-  // Load from local storage
-  useEffect(() => {
-    const isMigrated = localStorage.getItem('legis_services_initialized_v6');
-    if (!isMigrated) {
-      localStorage.setItem('legis_serviceGroups', JSON.stringify(mockEfficiencyServiceGroups));
-      localStorage.setItem('legis_services', JSON.stringify(mockEfficiencyServices));
-      localStorage.setItem('legis_services_initialized_v6', 'true');
-      setGroups(mockEfficiencyServiceGroups);
-      setServices(mockEfficiencyServices);
-    } else {
-      const savedGroups = localStorage.getItem('legis_serviceGroups');
-      if (savedGroups) setGroups(JSON.parse(savedGroups));
-      else setGroups(mockEfficiencyServiceGroups);
-
-      const savedServices = localStorage.getItem('legis_services');
-      if (savedServices) setServices(JSON.parse(savedServices));
-      else setServices(mockEfficiencyServices);
-    }
-
-    const savedGroupDiscounts = localStorage.getItem('legis_group_discounts');
-    if (savedGroupDiscounts) {
-      const parsed = JSON.parse(savedGroupDiscounts);
-      setGroupDiscounts(parsed);
-      setLocalGroupDiscounts(parsed);
-    }
-  }, []);
-
-  const saveServicesToStorage = (newServices: EfficiencyService[]) => {
-    setServices(newServices);
-    localStorage.setItem('legis_services', JSON.stringify(newServices));
+  // Catálogo real (tabela servico); grupos derivados da coluna `grupo`.
+  const carregarCatalogo = () => {
+    backend.contratos.catalogo().then(catalogo => {
+      const nomes = [...new Set(catalogo.map(c => c.grupo).filter((g): g is string => !!g))]
+        .sort((a, b) => (parseInt(a) || 99) - (parseInt(b) || 99));
+      setGroups(nomes.map(nome => ({ id: nome, name: nome })));
+      setServices(catalogo.map(c => ({
+        id: String(c.id),
+        groupId: c.grupo ?? '',
+        name: c.nome,
+        description: c.descricao ?? '',
+        price: c.preco,
+      })));
+    }).catch(() => { setGroups([]); setServices([]); });
   };
+
+  useEffect(() => {
+    carregarCatalogo();
+    // Descontos por grupo: preferência do admin (KV no servidor).
+    backend.dados.obter<Record<string, { lawyer: number; intern: number; secretary: number; client: number }>>('descontos_grupos')
+      .then(v => { if (v) { setGroupDiscounts(v); setLocalGroupDiscounts(v); } })
+      .catch(() => {});
+  }, []);
 
   const handleSave = () => {
     if (!formName || !formGroupId || !formPrice) return;
@@ -76,14 +68,18 @@ export const ServicesManagementTab: React.FC = () => {
       discountClient: Math.min(100, Math.max(0, parseFloat(formDiscountClient) || 0)),
     };
 
-    let newServices;
-    if (editingId) {
-      newServices = services.map(s => s.id === editingId ? newService : s);
-    } else {
-      newServices = [...services, newService];
-    }
+    const payload = {
+      nome: newService.name,
+      descricao: newService.description,
+      grupo: newService.groupId,
+      preco: newService.price,
+    };
+    const acao = editingId
+      ? backend.contratos.admin.atualizarServico(Number(editingId), payload)
+      : backend.contratos.admin.criarServico(payload);
+    acao.then(carregarCatalogo)
+      .catch(erro => alert(erro instanceof Error ? erro.message : 'Falha ao salvar serviço.'));
 
-    saveServicesToStorage(newServices);
     setShowForm(false);
     resetForm();
   };
@@ -103,7 +99,9 @@ export const ServicesManagementTab: React.FC = () => {
 
   const handleDelete = (id: string) => {
     if (window.confirm('Tem certeza que deseja excluir este serviço?')) {
-      saveServicesToStorage(services.filter(s => s.id !== id));
+      backend.contratos.admin.removerServico(Number(id))
+        .then(carregarCatalogo)
+        .catch(erro => alert(erro instanceof Error ? erro.message : 'Falha ao excluir.'));
     }
   };
 
@@ -143,7 +141,7 @@ export const ServicesManagementTab: React.FC = () => {
     const updatedDiscounts = { ...groupDiscounts, [groupId]: localVal };
     
     setGroupDiscounts(updatedDiscounts);
-    localStorage.setItem('legis_group_discounts', JSON.stringify(updatedDiscounts));
+    void backend.dados.guardar('descontos_grupos', (updatedDiscounts));
     
     setSavedGroupsState(prev => ({ ...prev, [groupId]: true }));
     setTimeout(() => {

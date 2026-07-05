@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { MOCK_REVENUE_DATA, MOCK_KPIS } from './adminMockKpis';
+import { useAdminKpis, type KpiMetric, type RevenueDataPoint } from './adminMockKpis';
 import type { Lawyer } from '../../../types';
-import { mockClients, mockInterns, mockSecretaries } from '../../../services/mockDataService';
+import { backend } from '../../../services/modules';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type ExportFormat = 'pdf' | 'csv' | 'xlsx';
@@ -14,7 +14,7 @@ interface ExportDropdownProps {
 const fmt = (v: number) => `R$ ${v.toLocaleString('pt-BR')}`;
 
 // ─── PDF Export ───────────────────────────────────────────────────────────────
-async function exportToPDF(): Promise<void> {
+async function exportToPDF(kpis: KpiMetric[], revenueData: RevenueDataPoint[]): Promise<void> {
   // Dynamic import so bundle splitting works — only loaded when needed
   const { default: jsPDF } = await import('jspdf');
   const autoTable = (await import('jspdf-autotable')).default;
@@ -46,7 +46,7 @@ async function exportToPDF(): Promise<void> {
   autoTable(doc, {
     startY: 57,
     head: [['Indicador', 'Valor Atual', 'Mês Anterior', 'Variação']],
-    body: MOCK_KPIS.map((k) => {
+    body: kpis.map((k) => {
       const diff = ((k.rawValue - k.prevValue) / k.prevValue * 100).toFixed(1);
       const arrow = parseFloat(diff) >= 0 ? '↑' : '↓';
       return [k.label, k.value, '—', `${arrow} ${Math.abs(parseFloat(diff))}%`];
@@ -66,7 +66,7 @@ async function exportToPDF(): Promise<void> {
   autoTable(doc, {
     startY: afterKpi + 5,
     head: [['Mês', 'Receita', 'Custos Infra', 'Lucro Bruto']],
-    body: MOCK_REVENUE_DATA.map((d) => [
+    body: revenueData.map((d) => [
       d.month, fmt(d.receita), fmt(d.custos), fmt(d.lucro),
     ]),
     headStyles: { fillColor: [16, 185, 129], textColor: 255, fontStyle: 'bold', fontSize: 9 },
@@ -91,16 +91,16 @@ async function exportToPDF(): Promise<void> {
 }
 
 // ─── CSV Export ───────────────────────────────────────────────────────────────
-async function exportToCSV(): Promise<void> {
+async function exportToCSV(kpis: KpiMetric[], revenueData: RevenueDataPoint[]): Promise<void> {
   const { unparse } = await import('papaparse');
 
-  const kpiRows = MOCK_KPIS.map((k) => ({
+  const kpiRows = kpis.map((k) => ({
     indicador: k.label,
     valor_atual: k.value,
     descricao: k.description ?? '',
   }));
 
-  const revenueRows = MOCK_REVENUE_DATA.map((d) => ({
+  const revenueRows = revenueData.map((d) => ({
     mes: d.month,
     receita_brl: d.receita,
     custos_brl: d.custos,
@@ -118,14 +118,14 @@ async function exportToCSV(): Promise<void> {
 }
 
 // ─── XLSX Export ──────────────────────────────────────────────────────────────
-async function exportToXLSX(lawyers: Lawyer[]): Promise<void> {
+async function exportToXLSX(lawyers: Lawyer[], kpis: KpiMetric[], revenueData: RevenueDataPoint[]): Promise<void> {
   const XLSX = await import('xlsx');
 
   const wb = XLSX.utils.book_new();
 
   // Aba 1: KPIs
   const kpiSheet = XLSX.utils.json_to_sheet(
-    MOCK_KPIS.map((k) => ({
+    kpis.map((k) => ({
       'Indicador': k.label,
       'Valor Atual': k.value,
       'Descrição': k.description ?? '',
@@ -135,7 +135,7 @@ async function exportToXLSX(lawyers: Lawyer[]): Promise<void> {
 
   // Aba 2: Receita Mensal
   const revenueSheet = XLSX.utils.json_to_sheet(
-    MOCK_REVENUE_DATA.map((d) => ({
+    revenueData.map((d) => ({
       'Mês': d.month,
       'Receita (R$)': d.receita,
       'Custos Infra (R$)': d.custos,
@@ -158,7 +158,9 @@ async function exportToXLSX(lawyers: Lawyer[]): Promise<void> {
   XLSX.utils.book_append_sheet(wb, lawyersSheet, 'Advogados');
 
   // Aba 4: Clientes
-  const clients = JSON.parse(localStorage.getItem('legis_clients') || 'null') || mockClients;
+  const clients = (await backend.admin.pessoas('cliente').catch(() => [])).map(c => ({
+    name: c.nome, state: c.estado ?? '', status: c.ativo ? 'ativo' : 'inativo', totalPaid: 0, pendingAmount: 0,
+  }));
   const clientsSheet = XLSX.utils.json_to_sheet(
     clients.map((c: any) => ({
       'Nome': c.name,
@@ -178,6 +180,7 @@ export const ExportDropdown: React.FC<ExportDropdownProps> = ({ lawyers }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState<ExportFormat | null>(null);
   const ref = useRef<HTMLDivElement>(null);
+  const { kpis, revenueData } = useAdminKpis();
 
   // Close on outside click
   React.useEffect(() => {
@@ -192,9 +195,9 @@ export const ExportDropdown: React.FC<ExportDropdownProps> = ({ lawyers }) => {
     setLoading(format);
     setOpen(false);
     try {
-      if (format === 'pdf')  await exportToPDF();
-      if (format === 'csv')  await exportToCSV();
-      if (format === 'xlsx') await exportToXLSX(lawyers);
+      if (format === 'pdf')  await exportToPDF(kpis, revenueData);
+      if (format === 'csv')  await exportToCSV(kpis, revenueData);
+      if (format === 'xlsx') await exportToXLSX(lawyers, kpis, revenueData);
     } catch (err) {
       console.error('Export error:', err);
       alert('Erro ao exportar. Verifique o console.');

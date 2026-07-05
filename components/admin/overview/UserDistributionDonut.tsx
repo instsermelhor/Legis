@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Sector } from 'recharts';
-import { MOCK_USER_DISTRIBUTION } from './adminMockKpis';
+import { useAdminKpis } from './adminMockKpis';
 
 // ─── Active Sector (hover effect) ────────────────────────────────────────────
 const renderActiveShape = (props: any) => {
@@ -34,8 +34,9 @@ const renderActiveShape = (props: any) => {
 
 // ─── User Distribution Donut ──────────────────────────────────────────────────
 export const UserDistributionDonut: React.FC = () => {
+  const { userDistribution } = useAdminKpis();
   const [activeIndex, setActiveIndex] = useState(0);
-  const total = MOCK_USER_DISTRIBUTION.reduce((s, d) => s + d.value, 0);
+  const total = userDistribution.reduce((s, d) => s + d.value, 0);
 
   return (
     <div className="bg-white dark:bg-[#12102A] rounded-2xl border border-gray-200 dark:border-[#2A2545] shadow-sm p-5">
@@ -57,7 +58,7 @@ export const UserDistributionDonut: React.FC = () => {
               <Pie
                 activeIndex={activeIndex}
                 activeShape={renderActiveShape}
-                data={MOCK_USER_DISTRIBUTION}
+                data={userDistribution}
                 cx="50%"
                 cy="50%"
                 innerRadius={60}
@@ -66,7 +67,7 @@ export const UserDistributionDonut: React.FC = () => {
                 onMouseEnter={(_, index) => setActiveIndex(index)}
                 strokeWidth={0}
               >
-                {MOCK_USER_DISTRIBUTION.map((entry, index) => (
+                {userDistribution.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
@@ -76,7 +77,7 @@ export const UserDistributionDonut: React.FC = () => {
 
         {/* Legend */}
         <div className="flex-1 w-full space-y-2">
-          {MOCK_USER_DISTRIBUTION.map((item, idx) => {
+          {userDistribution.map((item, idx) => {
             const pct = ((item.value / total) * 100).toFixed(1);
             return (
               <button

@@ -1,3 +1,4 @@
+import { armazemServidor } from './kvStore';
 // ─────────────────────────────────────────────────────────────────────────────
 // services/provisioningService.ts
 // Motor Universal de Provisionamento de Serviços (Fulfillment Engine)
@@ -20,13 +21,13 @@ const PROVISION_SLA_MS = 30_000; // 30 segundos de timeout para APIs externas (s
 // ─── CRUD de Provisionamentos ─────────────────────────────────────────────────
 function readProvisionings(): ServiceProvisioning[] {
   try {
-    const raw = localStorage.getItem(PROVISIONING_KEY);
+    const raw = armazemServidor.getItem(PROVISIONING_KEY);
     return raw ? JSON.parse(raw) : [];
   } catch { return []; }
 }
 
 function writeProvisionings(items: ServiceProvisioning[]): void {
-  localStorage.setItem(PROVISIONING_KEY, JSON.stringify(items));
+  armazemServidor.setItem(PROVISIONING_KEY, JSON.stringify(items));
 }
 
 function generateProvisionId(): string {
@@ -44,7 +45,7 @@ function generateProvisionId(): string {
 async function provisionForClient(prov: ServiceProvisioning): Promise<void> {
   const features: Record<string, unknown> = {};
   try {
-    const existing = localStorage.getItem(CLIENT_FEATURES_KEY);
+    const existing = armazemServidor.getItem(CLIENT_FEATURES_KEY);
     const all = existing ? JSON.parse(existing) : {};
     const userFeatures = all[prov.userId] || {};
 
@@ -69,7 +70,7 @@ async function provisionForClient(prov: ServiceProvisioning): Promise<void> {
     }
 
     all[prov.userId] = { ...userFeatures, ...features, updatedAt: Date.now() };
-    localStorage.setItem(CLIENT_FEATURES_KEY, JSON.stringify(all));
+    armazemServidor.setItem(CLIENT_FEATURES_KEY, JSON.stringify(all));
   } catch (e) {
     throw new Error(`Falha ao provisionar para cliente: ${e}`);
   }
@@ -83,7 +84,7 @@ async function provisionForClient(prov: ServiceProvisioning): Promise<void> {
  */
 async function provisionForLawyer(prov: ServiceProvisioning): Promise<void> {
   try {
-    const existing = localStorage.getItem(LAWYER_CREDITS_KEY);
+    const existing = armazemServidor.getItem(LAWYER_CREDITS_KEY);
     const all = existing ? JSON.parse(existing) : {};
     const credits = all[prov.userId] || {};
 
@@ -109,7 +110,7 @@ async function provisionForLawyer(prov: ServiceProvisioning): Promise<void> {
 
     credits['updatedAt'] = Date.now();
     all[prov.userId] = credits;
-    localStorage.setItem(LAWYER_CREDITS_KEY, JSON.stringify(all));
+    armazemServidor.setItem(LAWYER_CREDITS_KEY, JSON.stringify(all));
   } catch (e) {
     throw new Error(`Falha ao provisionar para advogado: ${e}`);
   }
@@ -123,7 +124,7 @@ async function provisionForLawyer(prov: ServiceProvisioning): Promise<void> {
  */
 async function provisionForIntern(prov: ServiceProvisioning): Promise<void> {
   try {
-    const existing = localStorage.getItem(INTERN_FEATURES_KEY);
+    const existing = armazemServidor.getItem(INTERN_FEATURES_KEY);
     const all = existing ? JSON.parse(existing) : {};
     const features = all[prov.userId] || {};
 
@@ -145,7 +146,7 @@ async function provisionForIntern(prov: ServiceProvisioning): Promise<void> {
 
     features['updatedAt'] = Date.now();
     all[prov.userId] = features;
-    localStorage.setItem(INTERN_FEATURES_KEY, JSON.stringify(all));
+    armazemServidor.setItem(INTERN_FEATURES_KEY, JSON.stringify(all));
   } catch (e) {
     throw new Error(`Falha ao provisionar para bacharelando: ${e}`);
   }
@@ -390,7 +391,7 @@ export const ProvisioningService = {
   /** Retorna créditos do advogado (IA tokens, bots de tribunal, etc.). */
   getLawyerCredits(userId: string): Record<string, unknown> {
     try {
-      const all = localStorage.getItem(LAWYER_CREDITS_KEY);
+      const all = armazemServidor.getItem(LAWYER_CREDITS_KEY);
       if (!all) return {};
       const parsed = JSON.parse(all);
       return parsed[userId] || {};
@@ -400,7 +401,7 @@ export const ProvisioningService = {
   /** Retorna funcionalidades desbloqueadas do cliente. */
   getClientFeatures(userId: string): Record<string, unknown> {
     try {
-      const all = localStorage.getItem(CLIENT_FEATURES_KEY);
+      const all = armazemServidor.getItem(CLIENT_FEATURES_KEY);
       if (!all) return {};
       const parsed = JSON.parse(all);
       return parsed[userId] || {};
@@ -410,7 +411,7 @@ export const ProvisioningService = {
   /** Retorna funcionalidades desbloqueadas do bacharelando. */
   getInternFeatures(userId: string): Record<string, unknown> {
     try {
-      const all = localStorage.getItem(INTERN_FEATURES_KEY);
+      const all = armazemServidor.getItem(INTERN_FEATURES_KEY);
       if (!all) return {};
       const parsed = JSON.parse(all);
       return parsed[userId] || {};

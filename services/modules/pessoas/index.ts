@@ -22,6 +22,9 @@ export interface BacharelApi {
   id: number;
   nome: string;
   email: string;
+  telefone: string | null;
+  cidade: string | null;
+  estado: string | null;
   universidade: string | null;
   semestre: string | null;
   interesse: string | null;
@@ -32,6 +35,9 @@ export interface SecretarioApi {
   id: number;
   nome: string;
   email: string;
+  telefone: string | null;
+  cidade: string | null;
+  estado: string | null;
   experiencia_anos: number;
   disponibilidade: string | null;
   advogado_id: number | null;

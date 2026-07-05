@@ -10,13 +10,22 @@ import { LegalManagementDashboard } from './LegalManagementDashboard';
 import { ChangePasswordModal } from '../common/ChangePasswordModal';
 import { ChangeEmailModal } from '../common/ChangeEmailModal';
 import { AREAS_OF_LAW, BRAZILIAN_STATES } from '../../constants';
-import { mockInterns, mockSecretaries } from '../../services/mockDataService';
+
 import { ApiStatusPanel } from '../common/ApiStatusPanel';
-import type { MockIntern, MockSecretary } from '../../services/mockDataService';
+// Cartoes de equipe (dados reais da API, mapeados para a forma da UI)
+interface MockIntern {
+    id: number; name: string; university: string; semester: string;
+    specialtyInterest: string; city?: string; state?: string; email?: string;
+}
+interface MockSecretary {
+    id: number; name: string; city: string; state: string; experience: number;
+    availability: 'integral' | 'meio-periodo' | 'freelancer';
+    areasOfKnowledge: string[]; bio?: string; email?: string;
+}
 import { LegalAiTools } from '../common/LegalAiTools';
 import { EfficiencyServicesPage } from '../client/EfficiencyServicesPage';
-import { mockProcessosService } from '../../services/mockProcessosService';
-import { mockLawyers } from '../../services/mockLawyerService';
+import { backend } from '../../services/modules';
+import { processoParaLegado, type ProcessoLegado } from '../../services/modules/processos/adaptador';
 import SocialLinksEditor from '../common/SocialLinksEditor';
 import type { SocialLink } from '../common/SocialLinksEditor';
 import { InternApprovalQueue } from '../lawyer/interns/InternApprovalQueue';
@@ -79,53 +88,6 @@ const GROUP_TYPES: Record<string, string[]> = {
     Outro: ['Procedimento Especial', 'Outros']
 };
 
-const initialActiveCases: Case[] = [
-    {
-        id: 'case1', clientName: 'Ana Clara Dias', title: 'Inventário e Partilha de Bens', status: 'Ativo', lawyerName: 'Dr. Carlos Andrade',
-        lawyerId: 1,
-        group: 'Civil',
-        caseType: 'Procedimento Comum',
-        clientCpf: '123.456.789-00',
-        clientAddress: 'Rua das Acácias, 45, São Paulo - SP',
-        stages: [
-            { name: 'Reunião Inicial', status: 'completed' },
-            { name: 'Levantamento de Bens', status: 'current' },
-            { name: 'Plano de Partilha', status: 'upcoming' },
-            { name: 'Homologação', status: 'upcoming' },
-        ]
-    },
-    {
-        id: 'case2', clientName: 'Roberto Martins', title: 'Reclamação Trabalhista', status: 'Ativo', lawyerName: 'Dr. Carlos Andrade',
-        lawyerId: 1,
-        group: 'Trabalhista',
-        caseType: 'Rito Ordinário',
-        clientCpf: '987.654.321-00',
-        clientAddress: 'Av. Atlântica, 200, Rio de Janeiro - RJ',
-        stages: [
-            { name: 'Análise Documental', status: 'completed' },
-            { name: 'Petição Inicial', status: 'completed' },
-            { name: 'Audiência de Conciliação', status: 'completed' },
-            { name: 'Fase de Instrução', status: 'current' },
-            { name: 'Sentença', status: 'upcoming' },
-        ]
-    },
-];
-
-const upcomingAppointments: Appointment[] = [
-    { id: 'apt1', clientName: 'Ana Clara Dias', date: '2024-09-15', time: '10:00', status: 'Confirmado', modality: 'Videochamada' },
-    { id: 'apt2', clientName: 'Roberto Martins', date: '2024-09-15', time: '14:00', status: 'Confirmado', modality: 'Videochamada' },
-    { id: 'apt3', clientName: 'Sofia Pereira', date: '2024-09-17', time: '11:00', status: 'Confirmado', modality: 'Presencial' },
-];
-
-const pastAppointments: Appointment[] = [
-    { id: 'apt4', clientName: 'Lucas Ferreira', date: '2024-09-05', time: '15:00', status: 'Concluído', modality: 'Videochamada' },
-    { id: 'apt5', clientName: 'Mariana Costa', date: '2024-09-02', time: '09:00', status: 'Concluído', modality: 'Videochamada' },
-    { id: 'apt6', clientName: 'Pedro Almeida', date: '2024-08-28', time: '16:00', status: 'Cancelado', modality: 'Presencial' },
-];
-
-// StatCard legado removido — a Visão Geral usa o KpiCard do UI kit
-// compartilhado via LawyerOverviewDashboard.
-
 const AppointmentCard: React.FC<{ appointment: Appointment }> = ({ appointment }) => {
     const statusClasses: { [key in Appointment['status']]: string } = {
         'Confirmado': 'bg-emerald-100 text-emerald-800',
@@ -170,6 +132,60 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
     const [meusCasosSubTab, setMeusCasosSubTab] = useState<'crm' | 'processos'>('crm');
     const [internSubTab, setInternSubTab] = useState<'vincular' | 'aprovacao'>('vincular');
     const [secretarySubTab, setSecretarySubTab] = useState<'vincular' | 'workspace'>('vincular');
+
+    // ── Dados reais da API ────────────────────────────────────────────────
+    const [upcomingAppointments, setUpcomingAppointments] = useState<Appointment[]>([]);
+    const [pastAppointments, setPastAppointments] = useState<Appointment[]>([]);
+    const [interns, setInterns] = useState<MockIntern[]>([]);
+    const [secretaries, setSecretaries] = useState<MockSecretary[]>([]);
+    const [lawyerProcessos, setLawyerProcessos] = useState<ProcessoLegado[]>([]);
+
+    React.useEffect(() => {
+        // Agenda → agendamentos futuros e passados.
+        backend.agenda.listar().then(eventos => {
+            const agora = Date.now();
+            const paraAppointment = (e: typeof eventos[number], passado: boolean): Appointment => ({
+                id: String(e.id),
+                clientName: e.titulo,
+                date: e.inicio.split('T')[0],
+                time: new Date(e.inicio).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                status: passado ? 'Concluído' : 'Confirmado',
+                modality: (e.local ?? '').toLowerCase().includes('video') ? 'Videochamada' : 'Presencial',
+            });
+            setUpcomingAppointments(eventos.filter(e => new Date(e.inicio).getTime() >= agora).map(e => paraAppointment(e, false)));
+            setPastAppointments(eventos.filter(e => new Date(e.inicio).getTime() < agora).map(e => paraAppointment(e, true)));
+        }).catch(() => {});
+
+        // Equipe do escritorio + profissionais disponiveis (tenant 1).
+        backend.pessoas.bachareis.listar().then(bs => {
+            setInterns(bs.map(b => ({
+                id: b.id, name: b.nome, email: b.email,
+                university: b.universidade ?? '—', semester: b.semestre ?? '—',
+                specialtyInterest: b.interesse ?? '—',
+                city: b.cidade ?? undefined, state: b.estado ?? undefined,
+            })));
+            const vinculado = bs.find(b => b.supervisor_id === lawyer.id);
+            if (vinculado) setLinkedInternId(vinculado.id);
+        }).catch(() => {});
+
+        backend.pessoas.secretarios.listar().then(ss => {
+            setSecretaries(ss.map(sec => ({
+                id: sec.id, name: sec.nome, email: sec.email,
+                city: sec.cidade ?? '—', state: sec.estado ?? '',
+                experience: sec.experiencia_anos,
+                availability: (sec.disponibilidade as MockSecretary['availability']) ?? 'integral',
+                areasOfKnowledge: [],
+            })));
+            const vinculado = ss.find(sec => sec.advogado_id === lawyer.id);
+            if (vinculado) setLinkedSecretaryId(vinculado.id);
+        }).catch(() => {});
+
+        // Processos do escritorio (Gestao Juridica resumida).
+        backend.processos.listar()
+            .then(ps => setLawyerProcessos(ps.map(processoParaLegado)))
+            .catch(() => {});
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [lawyer.id]);
 
     // Intern/Secretary selection state
     const [linkedInternId, setLinkedInternId] = useState<number | null>(() => {
@@ -317,11 +333,15 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
     const [showPasswordModal, setShowPasswordModal] = useState(false);
     const [showEmailModal, setShowEmailModal] = useState(false);
     
-    const [cases, setCases] = useState<Case[]>(() => {
-        const saved = localStorage.getItem('legis_lawyer_cases');
-        const list: Case[] = saved ? JSON.parse(saved) : initialActiveCases;
-        return list.filter(c => c.lawyerId === lawyer.id);
-    });
+    // CRM de casos: persistido no PostgreSQL (dado_usuario, chave casos_crm).
+    const [cases, setCases] = useState<Case[]>([]);
+    React.useEffect(() => {
+        backend.dados.obter<Case[]>('casos_crm').then(v => setCases(v ?? [])).catch(() => {});
+    }, []);
+    const persistirCases = (lista: Case[]) => {
+        setCases(lista);
+        void backend.dados.guardar('casos_crm', lista).catch(() => {});
+    };
 
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isSyncModalOpen, setIsSyncModalOpen] = useState(false);
@@ -397,9 +417,6 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
         });
     }, [cases, filterOAB, filterProcesso, filterCPF, filterGroup, filterCaseType, lawyer.oab]);
 
-    const lawyerProcessos = useMemo(() => {
-        return mockProcessosService.getProcessos().filter(p => p.advogado === lawyer.name);
-    }, [lawyer.name]);
 
     const handleOpenUpdateModal = (caseToUpdate: Case) => {
         setSelectedCase(caseToUpdate);
@@ -412,10 +429,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
     };
 
     const handleUpdateCaseStatus = (caseId: string, newCurrentStageName: string) => {
-        const saved = localStorage.getItem('legis_lawyer_cases');
-        const allCases: Case[] = saved ? JSON.parse(saved) : initialActiveCases;
-
-        const updatedAll = allCases.map(c => {
+        const atualizados = cases.map(c => {
             if (c.id === caseId) {
                 const newCurrentIndex = c.stages.findIndex(s => s.name === newCurrentStageName);
                 if (newCurrentIndex === -1) return c;
@@ -429,9 +443,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
             }
             return c;
         });
-
-        localStorage.setItem('legis_lawyer_cases', JSON.stringify(updatedAll));
-        setCases(updatedAll.filter(c => c.lawyerId === lawyer.id));
+        persistirCases(atualizados);
         handleCloseUpdateModal();
     };
 
@@ -498,12 +510,14 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
 
     const handleConfirmAddCase = () => {
         if (!pendingCaseToAdd) return;
-        const saved = localStorage.getItem('legis_lawyer_cases');
-        const allCases: Case[] = saved ? JSON.parse(saved) : initialActiveCases;
-        const updatedAllCases = [...allCases, pendingCaseToAdd.caseData];
-        localStorage.setItem('legis_lawyer_cases', JSON.stringify(updatedAllCases));
+        persistirCases([...cases, pendingCaseToAdd.caseData]);
 
-        setCases(updatedAllCases.filter(c => c.lawyerId === lawyer.id));
+        // Registra tambem o processo real no banco (numero do CRM).
+        void backend.processos.criar({
+            numero: pendingCaseToAdd.caseData.id,
+            nome: pendingCaseToAdd.caseData.title,
+        }).then(pr => backend.processos.listar().then(ps => setLawyerProcessos(ps.map(processoParaLegado))).catch(() => {}))
+          .catch(() => { /* numero duplicado ou offline — CRM segue valido */ });
 
         // Reset
         setClientData({
@@ -1473,7 +1487,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                 </div>
                                 {linkedInternId && (
                                     <div className="bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-2 text-xs font-semibold text-indigo-700">
-                                        ✅ Estagiário vinculado: {mockInterns.find(i => i.id === linkedInternId)?.name}
+                                        ✅ Estagiário vinculado: {interns.find(i => i.id === linkedInternId)?.name}
                                     </div>
                                 )}
                             </div>
@@ -1490,7 +1504,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                             {linkedInternId && (
                                 <div className="bg-white rounded-xl border border-indigo-200 shadow-sm p-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                                     <h4 className="font-bold text-xs text-gray-800 mb-1 flex items-center gap-1.5 dark:text-gray-100">
-                                        <span>⚙️</span> Controle de Acesso do Estagiário ({mockInterns.find(i => i.id === linkedInternId)?.name})
+                                        <span>⚙️</span> Controle de Acesso do Estagiário ({interns.find(i => i.id === linkedInternId)?.name})
                                     </h4>
                                     <p className="text-[11px] text-gray-500 mb-3">Selecione quais ferramentas baseadas em IA o estagiário poderá acessar no painel dele:</p>
                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
@@ -1553,7 +1567,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
 
                             {/* Intern Cards */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {mockInterns
+                                {interns
                                     .filter(i => {
                                         const q = internSearch.toLowerCase();
                                         return !q || i.name.toLowerCase().includes(q) || i.university.toLowerCase().includes(q) || i.specialtyInterest.toLowerCase().includes(q);
@@ -1582,7 +1596,10 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                 <div className="pt-2 border-t flex gap-2">
                                                     {isLinked ? (
                                                         <button
-                                                            onClick={() => { setLinkedInternId(null); setLinkSuccess(null); }}
+                                                            onClick={() => {
+                                                                if (linkedInternId) void backend.pessoas.bachareis.atualizar(linkedInternId, { supervisor_id: null }).catch(() => {});
+                                                                setLinkedInternId(null); setLinkSuccess(null);
+                                                            }}
                                                             className="flex-1 py-2 text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-lg hover:bg-rose-100 transition-colors"
                                                         >
                                                             Desvincular
@@ -1620,6 +1637,8 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                             <button onClick={() => setConfirmLinkIntern(null)} className="flex-1 py-2.5 text-sm font-semibold text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200">Cancelar</button>
                                             <button
                                                 onClick={() => {
+                                                    void backend.pessoas.bachareis.atualizar(confirmLinkIntern.id, { supervisor_id: lawyer.id })
+                                                        .catch(() => alert('Falha ao vincular no servidor.'));
                                                     setLinkedInternId(confirmLinkIntern.id);
                                                     setLinkSuccess('intern');
                                                     setConfirmLinkIntern(null);
@@ -1664,7 +1683,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                 </div>
                                 {linkedSecretaryId && (
                                     <div className="bg-violet-50 border border-violet-200 rounded-xl px-4 py-2 text-xs font-semibold text-violet-700">
-                                        ✅ Secretário(a) vinculado: {mockSecretaries.find(s => s.id === linkedSecretaryId)?.name}
+                                        ✅ Secretário(a) vinculado: {secretaries.find(s => s.id === linkedSecretaryId)?.name}
                                     </div>
                                 )}
                             </div>
@@ -1681,7 +1700,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                             {linkedSecretaryId && (
                                 <div className="bg-white rounded-xl border border-violet-200 shadow-sm p-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
                                     <h4 className="font-bold text-xs text-gray-800 mb-1 flex items-center gap-1.5 dark:text-gray-100">
-                                        <span>⚙️</span> Controle de Acesso do(a) Secretário(a) ({mockSecretaries.find(s => s.id === linkedSecretaryId)?.name})
+                                        <span>⚙️</span> Controle de Acesso do(a) Secretário(a) ({secretaries.find(s => s.id === linkedSecretaryId)?.name})
                                     </h4>
                                     <p className="text-[11px] text-gray-500 mb-3">Selecione quais ferramentas baseadas em IA o(a) secretário(a) poderá acessar no painel dele(a):</p>
                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
@@ -1744,7 +1763,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
 
                             {/* Secretary Cards */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {mockSecretaries
+                                {secretaries
                                     .filter(s => {
                                         const q = secretarySearch.toLowerCase();
                                         return !q || s.name.toLowerCase().includes(q) || s.city.toLowerCase().includes(q) || s.areasOfKnowledge.some(a => a.toLowerCase().includes(q));
@@ -1783,7 +1802,10 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                                 <div className="pt-1 flex gap-2">
                                                     {isLinked ? (
                                                         <button
-                                                            onClick={() => { setLinkedSecretaryId(null); setLinkSuccess(null); }}
+                                                            onClick={() => {
+                                                                if (linkedSecretaryId) void backend.pessoas.secretarios.atualizar(linkedSecretaryId, { advogado_id: null }).catch(() => {});
+                                                                setLinkedSecretaryId(null); setLinkSuccess(null);
+                                                            }}
                                                             className="flex-1 py-2 text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-lg hover:bg-rose-100 transition-colors"
                                                         >
                                                             Desvincular
@@ -1821,6 +1843,8 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                             <button onClick={() => setConfirmLinkSecretary(null)} className="flex-1 py-2.5 text-sm font-semibold text-gray-600 bg-gray-100 rounded-xl hover:bg-gray-200">Cancelar</button>
                                             <button
                                                 onClick={() => {
+                                                    void backend.pessoas.secretarios.atualizar(confirmLinkSecretary.id, { advogado_id: lawyer.id })
+                                                        .catch(() => alert('Falha ao vincular no servidor.'));
                                                     setLinkedSecretaryId(confirmLinkSecretary.id);
                                                     setLinkSuccess('secretary');
                                                     setConfirmLinkSecretary(null);

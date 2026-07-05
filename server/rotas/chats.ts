@@ -24,8 +24,12 @@ rotasChats.post('/chats', exigirLogin, async (req, res) => {
   if (!existe.rowCount) return res.status(404).json({ erro: 'Destinatário não encontrado.' });
 
   const [p1, p2] = [req.pessoa!.id, destinatarioId].sort((a, b) => a - b);
+  // O chat pertence ao tenant do escritorio envolvido (participante fora do
+  // tenant 1/Plataforma); entre pessoas da plataforma, fica no tenant 1.
   const r = await q(
-    `INSERT INTO chat (pessoa1_id, pessoa2_id) VALUES ($1, $2)
+    `INSERT INTO chat (tenant_id, pessoa1_id, pessoa2_id)
+     SELECT GREATEST(a.tenant_id, b.tenant_id), $1, $2
+       FROM pessoa a, pessoa b WHERE a.id = $1 AND b.id = $2
      ON CONFLICT (pessoa1_id, pessoa2_id) DO UPDATE SET pessoa1_id = EXCLUDED.pessoa1_id
      RETURNING id, pessoa1_id, pessoa2_id, criado_em`,
     [p1, p2]

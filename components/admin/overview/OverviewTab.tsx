@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { Lawyer } from '../../../types';
-import { mockClients, mockInterns, mockSecretaries, mockMonthlyRevenue, mockEfficiencyServices } from '../../../services/mockDataService';
+import { backend } from '../../../services/modules';
+import type { MockClient, MockIntern, MockSecretary } from '../../../services/mockDataService';
 
 // ── New BI components
 import { KpiCardsRow }          from './KpiCardsRow';
@@ -59,17 +60,42 @@ export const OverviewTab: React.FC<{
   const [modal, setModal]               = useState<KpiModal>(null);
   const [stateFilter, setStateFilter]   = useState('Todos');
   const [search, setSearch]             = useState('');
-  const [servicesCount, setServicesCount] = useState(mockEfficiencyServices.length);
-  const [clients, setClients]           = useState(mockClients);
-  const [interns, setInterns]           = useState(mockInterns);
-  const [secretaries, setSecretaries]   = useState(mockSecretaries);
+  const [servicesCount, setServicesCount] = useState(0);
+  const [clients, setClients]           = useState<MockClient[]>([]);
+  const [interns, setInterns]           = useState<MockIntern[]>([]);
+  const [secretaries, setSecretaries]   = useState<MockSecretary[]>([]);
+  const [receitaMes, setReceitaMes]     = useState(0);
 
-  React.useEffect(() => {
-    const saved = localStorage.getItem('legis_services');
-    if (saved) setServicesCount(JSON.parse(saved).length);
-    const sc = localStorage.getItem('legis_clients');    if (sc) setClients(JSON.parse(sc));
-    const si = localStorage.getItem('legis_interns');    if (si) setInterns(JSON.parse(si));
-    const ss = localStorage.getItem('legis_secretaries'); if (ss) setSecretaries(JSON.parse(ss));
+  // Dados reais do backoffice (API).
+  useEffect(() => {
+    backend.contratos.catalogo().then(c => setServicesCount(c.length)).catch(() => {});
+    backend.admin.metricas().then(m => {
+      setReceitaMes(m.receita_por_mes.at(-1)?.recebido ?? 0);
+    }).catch(() => {});
+
+    backend.admin.pessoas('cliente').then(ps => setClients(ps.map(c => ({
+      id: c.id, name: c.nome, email: c.email, phone: c.telefone ?? '',
+      address: '', city: c.cidade ?? '', state: c.estado ?? '', cpf: '',
+      activeCases: 0, totalCases: 0, joinedDate: c.criado_em.split('T')[0],
+      status: c.ativo ? 'ativo' as const : 'inativo' as const,
+      totalPaid: 0, pendingAmount: 0, lastCaseArea: '',
+    })))).catch(() => {});
+
+    backend.pessoas.bachareis.listar().then(bs => setInterns(bs.map(b => ({
+      id: b.id, name: b.nome, email: b.email, phone: b.telefone ?? '',
+      university: b.universidade ?? '', semester: b.semestre ?? '',
+      specialtyInterest: b.interesse ?? '', hoursCompleted: 0, availableHours: 200,
+      status: 'ativo' as const, joinedDate: '',
+      city: b.cidade ?? '', state: b.estado ?? '',
+    })))).catch(() => {});
+
+    backend.pessoas.secretarios.listar().then(ss => setSecretaries(ss.map(sec => ({
+      id: sec.id, name: sec.nome, email: sec.email, phone: sec.telefone ?? '',
+      city: sec.cidade ?? '', state: sec.estado ?? '',
+      experience: sec.experiencia_anos, areasOfKnowledge: [],
+      availability: (sec.disponibilidade as MockSecretary['availability']) ?? 'integral',
+      status: 'ativo' as const, joinedDate: '',
+    })))).catch(() => {});
   }, []);
 
   const stats = useMemo(() => ({
@@ -81,8 +107,8 @@ export const OverviewTab: React.FC<{
     activeInterns:    interns.filter((i: any) => i.status === 'ativo' || i.status === 'active').length,
     totalSecretaries: secretaries.length,
     activeSecretaries: secretaries.filter((s: any) => s.status === 'ativo').length,
-    lastMonthRevenue: mockMonthlyRevenue[mockMonthlyRevenue.length - 1].revenue,
-  }), [lawyers, clients, interns, secretaries]);
+    lastMonthRevenue: receitaMes,
+  }), [lawyers, clients, interns, secretaries, receitaMes]);
 
   const specialtyDistribution = useMemo(() => {
     const counts: Record<string, number> = {};

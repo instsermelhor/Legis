@@ -62,13 +62,21 @@ rotasPessoas.put('/advogados/:id', exigirLogin, async (req, res) => {
 // GET /api/bachareis?supervisor_id= — bachareis (do supervisor, ou todos p/ admin).
 rotasPessoas.get('/bachareis', exigirLogin, async (req, res) => {
   const supervisorId = req.query.supervisor_id ? Number(req.query.supervisor_id) : null;
+  // Advogado ve bachareis do seu tenant + os ainda nao vinculados (tenant 1,
+  // disponiveis para recrutamento). Admin ve todos.
+  const filtroTenant = req.pessoa!.tipo === 'admin'
+    ? 'TRUE'
+    : '(p.tenant_id = $2 OR p.tenant_id = 1)';
+  const params: unknown[] = [supervisorId];
+  if (req.pessoa!.tipo !== 'admin') params.push(req.pessoa!.tenant_id);
+
   const r = await q(
     `SELECT p.id, p.nome, p.email, p.telefone, p.cidade, p.estado,
             b.universidade, b.semestre, b.interesse, b.supervisor_id
        FROM pessoa p JOIN bacharel b ON b.pessoa_id = p.id
-      WHERE p.ativo AND ($1::int IS NULL OR b.supervisor_id = $1)
+      WHERE p.ativo AND ($1::int IS NULL OR b.supervisor_id = $1) AND ${filtroTenant}
       ORDER BY p.nome`,
-    [supervisorId]
+    params
   );
   res.json(r.rows);
 });
@@ -80,30 +88,50 @@ rotasPessoas.put('/bachareis/:id', exigirLogin, async (req, res) => {
   if (!podeEditar) return res.status(403).json({ erro: 'Sem permissão.' });
 
   const { universidade, semestre, interesse, supervisor_id } = req.body ?? {};
+
+  // supervisor_id presente no corpo (mesmo null) = vincular/desvincular.
+  if ('supervisor_id' in (req.body ?? {})) {
+    await q('UPDATE bacharel SET supervisor_id = $2 WHERE pessoa_id = $1', [id, supervisor_id ?? null]);
+  }
+
   const r = await q(
     `UPDATE bacharel SET
        universidade  = COALESCE($2, universidade),
        semestre      = COALESCE($3, semestre),
-       interesse     = COALESCE($4, interesse),
-       supervisor_id = COALESCE($5, supervisor_id)
+       interesse     = COALESCE($4, interesse)
      WHERE pessoa_id = $1
      RETURNING pessoa_id, universidade, semestre, interesse, supervisor_id`,
-    [id, universidade ?? null, semestre ?? null, interesse ?? null, supervisor_id ?? null]
+    [id, universidade ?? null, semestre ?? null, interesse ?? null]
   );
   if (!r.rows[0]) return res.status(404).json({ erro: 'Bacharel não encontrado.' });
+
+  // Multi-tenant: ao vincular-se a um supervisor, o bacharel entra no
+  // tenant (escritorio) do advogado; ao desvincular, volta a Plataforma.
+  if (supervisor_id !== undefined) {
+    await q(
+      `UPDATE pessoa SET tenant_id = COALESCE((SELECT tenant_id FROM pessoa WHERE id = $2), 1) WHERE id = $1`,
+      [id, supervisor_id ?? null]
+    );
+  }
   res.json(r.rows[0]);
 });
 
 // GET /api/secretarios?advogado_id=
 rotasPessoas.get('/secretarios', exigirLogin, async (req, res) => {
   const advogadoId = req.query.advogado_id ? Number(req.query.advogado_id) : null;
+  const filtroTenant = req.pessoa!.tipo === 'admin'
+    ? 'TRUE'
+    : '(p.tenant_id = $2 OR p.tenant_id = 1)';
+  const params: unknown[] = [advogadoId];
+  if (req.pessoa!.tipo !== 'admin') params.push(req.pessoa!.tenant_id);
+
   const r = await q(
     `SELECT p.id, p.nome, p.email, p.telefone, p.cidade, p.estado,
             s.experiencia_anos, s.disponibilidade, s.advogado_id
        FROM pessoa p JOIN secretario s ON s.pessoa_id = p.id
-      WHERE p.ativo AND ($1::int IS NULL OR s.advogado_id = $1)
+      WHERE p.ativo AND ($1::int IS NULL OR s.advogado_id = $1) AND ${filtroTenant}
       ORDER BY p.nome`,
-    [advogadoId]
+    params
   );
   res.json(r.rows);
 });
@@ -115,16 +143,27 @@ rotasPessoas.put('/secretarios/:id', exigirLogin, async (req, res) => {
   if (!podeEditar) return res.status(403).json({ erro: 'Sem permissão.' });
 
   const { experiencia_anos, disponibilidade, advogado_id } = req.body ?? {};
+
+  if ('advogado_id' in (req.body ?? {})) {
+    await q('UPDATE secretario SET advogado_id = $2 WHERE pessoa_id = $1', [id, advogado_id ?? null]);
+  }
+
   const r = await q(
     `UPDATE secretario SET
        experiencia_anos = COALESCE($2, experiencia_anos),
-       disponibilidade  = COALESCE($3, disponibilidade),
-       advogado_id      = COALESCE($4, advogado_id)
+       disponibilidade  = COALESCE($3, disponibilidade)
      WHERE pessoa_id = $1
      RETURNING pessoa_id, experiencia_anos, disponibilidade, advogado_id`,
-    [id, experiencia_anos ?? null, disponibilidade ?? null, advogado_id ?? null]
+    [id, experiencia_anos ?? null, disponibilidade ?? null]
   );
   if (!r.rows[0]) return res.status(404).json({ erro: 'Secretário não encontrado.' });
+
+  if (advogado_id !== undefined) {
+    await q(
+      `UPDATE pessoa SET tenant_id = COALESCE((SELECT tenant_id FROM pessoa WHERE id = $2), 1) WHERE id = $1`,
+      [id, advogado_id ?? null]
+    );
+  }
   res.json(r.rows[0]);
 });
 
@@ -153,10 +192,11 @@ rotasPessoas.put('/pessoas/:id', exigirLogin, async (req, res) => {
 rotasPessoas.get('/admin/pessoas', exigirLogin, exigirAdmin, async (req, res) => {
   const tipo = req.query.tipo ? String(req.query.tipo) : null;
   const r = await q(
-    `SELECT id, tipo, nome, email, telefone, cidade, estado, ativo, criado_em
-       FROM pessoa
-      WHERE $1::text IS NULL OR tipo = $1
-      ORDER BY criado_em DESC`,
+    `SELECT p.id, p.tipo, p.nome, p.email, p.telefone, p.cidade, p.estado, p.ativo, p.criado_em,
+            p.tenant_id, t.nome AS tenant_nome
+       FROM pessoa p JOIN tenant t ON t.id = p.tenant_id
+      WHERE $1::text IS NULL OR p.tipo = $1
+      ORDER BY p.criado_em DESC`,
     [tipo]
   );
   res.json(r.rows);

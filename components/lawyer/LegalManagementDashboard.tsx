@@ -1,7 +1,6 @@
-import React, { useState, useMemo, useRef } from 'react';
-import { mockProcessosService, Processo } from '../../services/mockProcessosService';
-import { mockLawyers } from '../../services/mockLawyerService';
-import { mockInterns, mockSecretaries } from '../../services/mockDataService';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
+import { backend, type AdvogadoApi, type BacharelApi, type SecretarioApi, type TipoProcessoApi } from '../../services/modules';
+import { processoParaLegado, type ProcessoLegado as Processo } from '../../services/modules/processos/adaptador';
 
 const fmtCurrency = (v: number) =>
   v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -12,12 +11,22 @@ interface LegalManagementDashboardProps {
   lawyerId?: number;
 }
 
-export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> = ({ lawyerName, lawyerOab }) => {
-  // Load data from mock service
-  const [processos, setProcessos] = useState<Processo[]>(() => {
-    const list = mockProcessosService.getProcessos();
-    return lawyerName ? list.filter(p => p.advogado === lawyerName) : list;
-  });
+export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> = ({ lawyerName, lawyerOab, lawyerId }) => {
+  // Dados reais da API — a rota /processos ja aplica o escopo do tenant.
+  const [processos, setProcessos] = useState<Processo[]>([]);
+  const [tiposProcesso, setTiposProcesso] = useState<TipoProcessoApi[]>([]);
+  const [advogadosDisponiveis, setAdvogadosDisponiveis] = useState<AdvogadoApi[]>([]);
+  const [bachareisDisponiveis, setBachareisDisponiveis] = useState<BacharelApi[]>([]);
+  const [secretariosDisponiveis, setSecretariosDisponiveis] = useState<SecretarioApi[]>([]);
+
+  useEffect(() => {
+    loadData();
+    backend.processos.tipos().then(setTiposProcesso).catch(() => {});
+    backend.pessoas.advogados.listar().then(setAdvogadosDisponiveis).catch(() => {});
+    backend.pessoas.bachareis.listar().then(setBachareisDisponiveis).catch(() => {});
+    backend.pessoas.secretarios.listar().then(setSecretariosDisponiveis).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   
   // Access role: 'gestor' or 'advogado_comum'
   const [userRole, setUserRole] = useState<'gestor' | 'advogado_comum'>('gestor');
@@ -86,23 +95,21 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
       return;
     }
 
-    const targetLawyer = mockLawyers.find(l => l.id === Number(subTargetLawyerId));
+    const targetLawyer = advogadosDisponiveis.find(l => l.id === Number(subTargetLawyerId));
     if (!targetLawyer) {
       setSubError('Advogado selecionado não encontrado.');
       return;
     }
 
-    mockProcessosService.updateProcesso(Number(subProcessId), { advogado: targetLawyer.name });
-    
-    const savedDocMeta = {
-      processId: subProcessId,
-      fileName: subFile.name,
-      fileType: subFile.fileType,
-      fileSize: subFile.size,
-      date: new Date().toLocaleDateString('pt-BR'),
-      byLawyer: lawyerName || 'Advogado Gestor'
-    };
-    localStorage.setItem(`legis_subestablishment_doc_${subProcessId}`, JSON.stringify(savedDocMeta));
+    // Troca o advogado responsavel (a API transfere o processo p/ o tenant
+    // dele) e registra a procuracao como documento do processo.
+    backend.processos.atualizar(Number(subProcessId), { advogado_id: targetLawyer.id })
+      .then(() => backend.documentos.enviar({
+        nome: subFile.name,
+        descricao: `Procuração de subestabelecimento — por ${lawyerName ?? 'advogado gestor'}`,
+        processo_id: Number(subProcessId),
+      }))
+      .catch(erro => setSubError(erro instanceof Error ? erro.message : 'Falha ao subestabelecer.'));
 
     setSubSuccess(true);
     setTimeout(() => {
@@ -112,7 +119,6 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
       setSubFile(null);
       setSubPassword('');
       setSubSuccess(false);
-      setCommandText('');
       loadData();
     }, 1500);
   };
@@ -140,13 +146,12 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
       return;
     }
 
-    const key = `legis_delegated_cases_${authCategory}_${authTargetId}`;
-    const saved = localStorage.getItem(key);
-    const delegatedList: string[] = saved ? JSON.parse(saved) : [];
-    if (!delegatedList.includes(authProcessId)) {
-      delegatedList.push(authProcessId);
-      localStorage.setItem(key, JSON.stringify(delegatedList));
-    }
+    // Vinculo real: o profissional entra no tenant do escritorio e passa a
+    // enxergar os processos do escritorio (isolamento multi-tenant).
+    const vincular = authCategory === 'intern'
+      ? backend.pessoas.bachareis.atualizar(Number(authTargetId), { supervisor_id: lawyerId ?? undefined })
+      : backend.pessoas.secretarios.atualizar(Number(authTargetId), { advogado_id: lawyerId ?? undefined });
+    vincular.catch(erro => setAuthError(erro instanceof Error ? erro.message : 'Falha ao autorizar.'));
 
     setAuthSuccess(true);
     setTimeout(() => {
@@ -155,7 +160,6 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
       setAuthTargetId('');
       setAuthPassword('');
       setAuthSuccess(false);
-      setCommandText('');
     }, 1500);
   };
 
@@ -168,10 +172,11 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
   const [formStatus, setFormStatus] = useState<'Em Andamento' | 'Concluído' | 'Aguardando Documentação'>('Em Andamento');
   const [formValor, setFormValor] = useState(0);
 
-  // Reload data
+  // Recarrega da API (escopo do tenant aplicado no servidor).
   const loadData = () => {
-    const list = mockProcessosService.getProcessos();
-    setProcessos(lawyerName ? list.filter(p => p.advogado === lawyerName) : list);
+    backend.processos.listar()
+      .then(ps => setProcessos(ps.map(processoParaLegado)))
+      .catch(() => setProcessos([]));
   };
 
   // Save or edit handler
@@ -184,25 +189,25 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
 
     const dataConclusaoVal = formStatus === 'Concluído' ? (formDataConclusao || new Date().toISOString().split('T')[0]) : null;
 
-    const payload = {
-      departamento: formDept,
-      advogado: formAdvogado,
-      gestor: formGestor,
-      data_entrada: formDataEntrada,
-      data_conclusao: dataConclusaoVal,
-      status: formStatus,
-      valor: Number(formValor),
-    };
+    const tipoId = tiposProcesso.find(t => t.nome === formDept)?.id;
 
-    if (editingProcesso) {
-      mockProcessosService.updateProcesso(editingProcesso.id_processo, payload);
-    } else {
-      mockProcessosService.addProcesso(payload);
-    }
+    const acao = editingProcesso
+      ? backend.processos.atualizar(editingProcesso.id_processo, {
+          status: formStatus,
+          data_conclusao: dataConclusaoVal,
+          valor_causa: Number(formValor),
+          tipo_processo_id: tipoId,
+        })
+      : backend.processos.criar({
+          numero: `${Date.now()}`.replace(/(\d{7})(\d+)/, '$1-$2') + '.2026.8.26.0100',
+          nome: `Processo ${formDept} — ${formGestor || formAdvogado}`,
+          tipo_processo_id: tipoId,
+          valor_causa: Number(formValor),
+        });
 
+    acao.then(loadData).catch(erro => alert(erro instanceof Error ? erro.message : 'Falha ao salvar.'));
     setIsModalOpen(false);
     setEditingProcesso(null);
-    loadData();
   };
 
   // Open modal for add
@@ -235,8 +240,9 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
   // Delete handler
   const handleDelete = (id: number) => {
     if (window.confirm(`Tem certeza de que deseja excluir o processo Nº ${id}?`)) {
-      mockProcessosService.deleteProcesso(id);
-      loadData();
+      backend.processos.remover(id)
+        .then(loadData)
+        .catch(erro => alert(erro instanceof Error ? erro.message : 'Falha ao excluir.'));
     }
   };
 
@@ -1399,11 +1405,11 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
                   required
                 >
                   <option value="">Selecione o advogado...</option>
-                  {mockLawyers
-                    .filter(l => l.name !== lawyerName)
+                  {advogadosDisponiveis
+                    .filter(l => l.nome !== lawyerName)
                     .map(l => (
                       <option key={l.id} value={l.id}>
-                        {l.name} - OAB {l.oab} ({l.specialties[0]})
+                        {l.nome} - OAB {l.oab} ({l.especialidades[0] ?? 'Geral'})
                       </option>
                     ))}
                 </select>
@@ -1591,14 +1597,14 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
                 >
                   <option value="">Selecione o profissional...</option>
                   {authCategory === 'intern'
-                    ? mockInterns.map(i => (
+                    ? bachareisDisponiveis.map(i => (
                         <option key={i.id} value={i.id}>
-                          {i.name} ({i.university})
+                          {i.nome} ({i.universidade ?? 'universidade não informada'})
                         </option>
                       ))
-                    : mockSecretaries.map(s => (
-                        <option key={s.id} value={s.id}>
-                          {s.name} ({s.availability === 'integral' ? 'Integral' : 'Meio Período'})
+                    : secretariosDisponiveis.map(sec => (
+                        <option key={sec.id} value={sec.id}>
+                          {sec.nome} ({sec.disponibilidade ?? 'disponibilidade não informada'})
                         </option>
                       ))}
                 </select>

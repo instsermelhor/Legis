@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { validateImpersonation } from '../../../security/scopeValidator';
 import { logImpersonationStart, AuditLogger } from '../../../security/auditLogger';
 import type { ImpersonationSession } from '../../../types';
-import { mockClients } from '../../../services/mockDataService';
-import { mockLawyers } from '../../../services/mockLawyerService';
+import { backend } from '../../../services/modules';
+import { guardarToken } from '../../../services/api';
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 const IMPERSONATION_KEY = 'legis_impersonation_session';
@@ -12,30 +12,16 @@ const MAX_DURATION_MS = 30 * 60 * 1000; // 30 minutos
 // ─── Usuários disponíveis para espelhamento ────────────────────────────────────
 type ImpersonationTarget = {
   id: string;
+  pessoaId: number;
   email: string;
   name: string;
   role: 'client' | 'lawyer' | 'intern' | 'secretary';
   cpf?: string;
 };
 
-function getAllTargets(): ImpersonationTarget[] {
-  const clients: ImpersonationTarget[] = mockClients.map(c => ({
-    id: `client_${c.id}`,
-    email: c.email,
-    name: c.name,
-    role: 'client',
-    cpf: c.cpf,
-  }));
-
-  const lawyers: ImpersonationTarget[] = mockLawyers.slice(0, 5).map(l => ({
-    id: `lawyer_${l.id}`,
-    email: l.contact.email,
-    name: l.name,
-    role: 'lawyer',
-  }));
-
-  return [...clients, ...lawyers];
-}
+const PAPEL: Record<string, ImpersonationTarget['role']> = {
+  cliente: 'client', advogado: 'lawyer', bacharel: 'intern', secretario: 'secretary',
+};
 
 // ─── Banner de Aviso Ativo (exibido durante sessão de espelho) ─────────────────
 export const ImpersonationBanner: React.FC<{ onEnd: () => void }> = ({ onEnd }) => {
@@ -85,7 +71,20 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
   actorId = 'super_admin',
   actorEmail = 'admin@legisconnect.com.br',
 }) => {
-  const [targets] = useState<ImpersonationTarget[]>(getAllTargets());
+  const [targets, setTargets] = useState<ImpersonationTarget[]>([]);
+
+  // Alvos reais: todas as contas nao-admin da plataforma.
+  useEffect(() => {
+    backend.admin.pessoas().then(ps => setTargets(
+      ps.filter(x => x.tipo !== 'admin' && x.ativo).map(x => ({
+        id: `${PAPEL[x.tipo] ?? x.tipo}_${x.id}`,
+        pessoaId: x.id,
+        email: x.email,
+        name: x.nome,
+        role: PAPEL[x.tipo] ?? 'client',
+      }))
+    )).catch(() => setTargets([]));
+  }, []);
   const [selected, setSelected] = useState<ImpersonationTarget | null>(null);
   const [justification, setJustification] = useState('');
   const [search, setSearch] = useState('');
@@ -171,8 +170,13 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
       auditLogId: logEntry.id,
     };
 
-    sessionStorage.setItem(IMPERSONATION_KEY, JSON.stringify(session));
-    setActiveSession(session);
+    // Sessao REAL em nome do alvo (token emitido pelo servidor, 1h).
+    backend.admin.impersonar(selected.pessoaId).then(({ token }) => {
+      sessionStorage.setItem('legis_admin_token_backup', localStorage.getItem('legis_token') ?? '');
+      guardarToken(token);
+      sessionStorage.setItem(IMPERSONATION_KEY, JSON.stringify(session));
+      setActiveSession(session);
+    }).catch(erro => setError(erro instanceof Error ? erro.message : 'Falha ao iniciar o espelhamento.'));
     setJustification('');
     setSelected(null);
     setSuccess(`✅ Modo Espelho iniciado para ${selected.name}. Sessão expira em 30 minutos.`);
@@ -180,6 +184,8 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
   };
 
   const handleEndSession = () => {
+    const backup = sessionStorage.getItem('legis_admin_token_backup');
+    if (backup) { guardarToken(backup); sessionStorage.removeItem('legis_admin_token_backup'); }
     if (activeSession) {
       AuditLogger.log({
         action: 'IMPERSONATION_END',

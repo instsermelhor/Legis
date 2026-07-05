@@ -15,12 +15,15 @@ export interface EventoAgendaApi {
   processo_id: number | null;
   processo_numero?: string | null;
   processo_nome?: string | null;
+  pessoa_id?: number;
+  pessoa_nome?: string;
 }
 
 export const agendaService = {
-  listar: (periodo?: { de?: string; ate?: string }) => {
+  /** escopo 'tenant' = agenda do escritório inteiro (equipe). */
+  listar: (filtro?: { de?: string; ate?: string; escopo?: 'tenant' }) => {
     const query = new URLSearchParams(
-      Object.entries(periodo ?? {}).filter(([, v]) => v) as [string, string][]
+      Object.entries(filtro ?? {}).filter(([, v]) => v) as [string, string][]
     ).toString();
     return api.get<EventoAgendaApi[]>(`/agenda${query ? `?${query}` : ''}`);
   },

@@ -3,7 +3,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   Legend, ResponsiveContainer,
 } from 'recharts';
-import { MOCK_REVENUE_DATA } from './adminMockKpis';
+import { useAdminKpis } from './adminMockKpis';
 
 // ─── Custom Tooltip ───────────────────────────────────────────────────────────
 const CustomTooltip: React.FC<{ active?: boolean; payload?: any[]; label?: string }> = ({
@@ -24,7 +24,9 @@ const CustomTooltip: React.FC<{ active?: boolean; payload?: any[]; label?: strin
 };
 
 // ─── Revenue Area Chart ───────────────────────────────────────────────────────
-export const RevenueAreaChart: React.FC = () => (
+export const RevenueAreaChart: React.FC = () => {
+  const { revenueData } = useAdminKpis();
+  return (
   <div className="bg-white dark:bg-[#12102A] rounded-2xl border border-gray-200 dark:border-[#2A2545] shadow-sm p-5">
     {/* Header */}
     <div className="flex items-center justify-between mb-1">
@@ -41,7 +43,7 @@ export const RevenueAreaChart: React.FC = () => (
 
     {/* Chart */}
     <ResponsiveContainer width="100%" height={240}>
-      <AreaChart data={MOCK_REVENUE_DATA} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+      <AreaChart data={revenueData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
         <defs>
           <linearGradient id="gradReceita" x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%"  stopColor="#7C3AED" stopOpacity={0.25} />
@@ -95,4 +97,5 @@ export const RevenueAreaChart: React.FC = () => (
       </AreaChart>
     </ResponsiveContainer>
   </div>
-);
+  );
+};

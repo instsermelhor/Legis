@@ -24,6 +24,8 @@ import { documentosService } from './documentos';
 import { chatService } from './chat';
 import { agendaService } from './agenda';
 import { contratosService } from './contratos';
+import { dadosService } from './dados';
+import { adminService } from './admin';
 import { iaService } from './ia';
 
 export * from './auth';
@@ -34,6 +36,8 @@ export * from './documentos';
 export * from './chat';
 export * from './agenda';
 export * from './contratos';
+export * from './dados';
+export * from './admin';
 
 export const backend = {
   auth: authService,
@@ -44,5 +48,7 @@ export const backend = {
   chat: chatService,
   agenda: agendaService,
   contratos: contratosService,
+  dados: dadosService,
+  admin: adminService,
   ia: iaService,
 };

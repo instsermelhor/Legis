@@ -33,6 +33,7 @@ import { LoginModal } from './components/common/LoginModal';
 import { ProfileSelectorModal } from './components/common/ProfileSelectorModal';
 import { backend } from './services/modules';
 import { sessaoParaUser } from './services/modules/auth/adaptador';
+import { kv } from './services/kvStore';
 
 
 const App: React.FC = () => {
@@ -69,6 +70,9 @@ const App: React.FC = () => {
     }
   }, [user]);
 
+
+  // Hidrata o cache de dados pessoais quando ja ha sessao salva.
+  useEffect(() => { void kv.hidratar(); }, []);
 
   // Chatbot State
   const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -168,6 +172,7 @@ const App: React.FC = () => {
         }));
       }
 
+      await kv.hidratar(); // dados pessoais (widgets/config) vindos do servidor
       setUser(logado);
       handleNavigate(logado.role === 'admin' ? 'adminDashboard' : 'dashboard', logado);
       return true;
@@ -195,6 +200,7 @@ const App: React.FC = () => {
 
   const handleLogout = useCallback(() => {
     void backend.auth.sair(); // invalida a sessao no servidor
+    kv.limpar();
     setUser(null);
     handleNavigate('landing');
   }, [handleNavigate]);

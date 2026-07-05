@@ -32,16 +32,20 @@ async function aplicarSchema() {
 }
 
 async function inserirBootstrap() {
+  // ── Tenant 1: Plataforma (admin e clientes avulsos) ──
+  await q(`INSERT INTO tenant (id, nome) VALUES (1, 'Plataforma Legis Connect') ON CONFLICT (id) DO NOTHING`);
+  await q(`SELECT setval('tenant_id_seq', GREATEST((SELECT MAX(id) FROM tenant), 1))`);
+
   // ── Administrador ──
   await q(
-    `INSERT INTO pessoa (tipo, nome, email, senha_hash)
-     VALUES ('admin', 'Super Admin', 'admin@legisconnect.com.br', $1)
+    `INSERT INTO pessoa (tenant_id, tipo, nome, email, senha_hash)
+     VALUES (1, 'admin', 'Super Admin', 'admin@legisconnect.com.br', $1)
      ON CONFLICT (email) DO NOTHING`,
     [gerarHash('[senha-removida]')]
   );
 
   // ── Tipos de processo ──
-  const tiposProcesso = ['Cível', 'Trabalhista', 'Criminal', 'Família', 'Tributário', 'Empresarial', 'Previdenciário', 'Trânsito'];
+  const tiposProcesso = ['Cível', 'Trabalhista', 'Societário', 'Criminal', 'Família', 'Tributário', 'Empresarial', 'Previdenciário', 'Trânsito'];
   for (const nome of tiposProcesso) {
     await q('INSERT INTO tipo_processo (nome) VALUES ($1) ON CONFLICT (nome) DO NOTHING', [nome]);
   }

@@ -7,6 +7,7 @@ import { gerarHash, conferirSenha } from './senha';
 
 export interface Pessoa {
   id: number;
+  tenant_id: number;
   tipo: 'cliente' | 'advogado' | 'bacharel' | 'secretario' | 'admin';
   nome: string;
   email: string;
@@ -23,7 +24,7 @@ declare module 'express-serve-static-core' {
   }
 }
 
-const COLUNAS_PESSOA = 'id, tipo, nome, email, telefone, cidade, estado, ativo';
+const COLUNAS_PESSOA = 'id, tenant_id, tipo, nome, email, telefone, cidade, estado, ativo';
 
 /** Carrega o perfil do subtipo (advogado/bacharel/secretario), se houver. */
 export async function carregarPerfil(pessoa: Pessoa): Promise<Record<string, unknown> | null> {
@@ -87,10 +88,22 @@ rotasAuth.post('/registrar', async (req, res) => {
   if (jaExiste.rowCount) return res.status(409).json({ erro: 'E-mail já cadastrado.' });
 
   const pessoa = await transacao(async c => {
+    // Multi-tenant: cada advogado ganha um tenant (escritório) próprio.
+    // Clientes/bacharéis/secretários nascem no tenant 1 (Plataforma) e
+    // bacharel/secretário migram para o tenant do advogado ao se vincular.
+    let tenantId = 1;
+    if (tipo === 'advogado') {
+      const t = await c.query<{ id: number }>(
+        'INSERT INTO tenant (nome) VALUES ($1) RETURNING id',
+        [`Escritório ${nome}`]
+      );
+      tenantId = t.rows[0].id;
+    }
+
     const r = await c.query<Pessoa>(
-      `INSERT INTO pessoa (tipo, nome, email, senha_hash, telefone, cidade, estado)
-       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING ${COLUNAS_PESSOA}`,
-      [tipo, nome, String(email).toLowerCase(), gerarHash(String(senha)), telefone ?? null, cidade ?? null, estado ?? null]
+      `INSERT INTO pessoa (tenant_id, tipo, nome, email, senha_hash, telefone, cidade, estado)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING ${COLUNAS_PESSOA}`,
+      [tenantId, tipo, nome, String(email).toLowerCase(), gerarHash(String(senha)), telefone ?? null, cidade ?? null, estado ?? null]
     );
     const nova = r.rows[0];
 

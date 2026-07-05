@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import { armazemServidor } from '../../services/kvStore';
 import type { Lawyer, Secretary } from '../../types';
-import { mockLawyers } from '../../services/mockLawyerService';
-import { mockInterns, mockSecretaries, MockIntern, AdminUser, mockAdminUsers } from '../../services/mockDataService';
+import type { MockIntern, MockSecretary, AdminUser } from '../../services/mockDataService';
+import { backend } from '../../services/modules';
 import { SectionTitle } from './AdminShared';
 
 interface AdminCommandsTabProps {
@@ -196,7 +197,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
 
   // Platform states
   const [featureStates, setFeatureStates] = useState<Record<string, boolean>>(() => {
-    const savedFeatures = localStorage.getItem('legis_platform_features');
+    const savedFeatures = armazemServidor.getItem('legis_platform_features');
     if (savedFeatures) {
       return JSON.parse(savedFeatures);
     } else {
@@ -204,44 +205,50 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
       FEATURES_LIST.forEach(f => {
         defaults[f.id] = true;
       });
-      localStorage.setItem('legis_platform_features', JSON.stringify(defaults));
+      armazemServidor.setItem('legis_platform_features', JSON.stringify(defaults));
       return defaults;
     }
   });
   
   // User states loaded from localStorage/mocks
-  const [lawyers, setLawyers] = useState<Lawyer[]>(() => {
-    const savedLawyers = localStorage.getItem('legis_lawyers');
-    if (savedLawyers) {
-      return JSON.parse(savedLawyers);
-    } else {
-      localStorage.setItem('legis_lawyers', JSON.stringify(mockLawyers));
-      return mockLawyers;
-    }
-  });
-  const [interns, setInterns] = useState<MockIntern[]>(() => {
-    const savedInterns = localStorage.getItem('legis_interns');
-    if (savedInterns) {
-      return JSON.parse(savedInterns);
-    } else {
-      localStorage.setItem('legis_interns', JSON.stringify(mockInterns));
-      return mockInterns;
-    }
-  });
-  const [secretaries, setSecretaries] = useState<Secretary[]>(() => {
-    const savedSecretaries = localStorage.getItem('legis_secretaries');
-    if (savedSecretaries) {
-      return JSON.parse(savedSecretaries);
-    } else {
-      const parsed = mockSecretaries as unknown as Secretary[];
-      localStorage.setItem('legis_secretaries', JSON.stringify(parsed));
-      return parsed;
-    }
-  });
+  // Pessoas reais da plataforma (API) — nada de listas semeadas.
+  const [lawyers, setLawyers] = useState<Lawyer[]>([]);
+  const [interns, setInterns] = useState<MockIntern[]>([]);
+  const [secretaries, setSecretaries] = useState<Secretary[]>([]);
+
+  React.useEffect(() => {
+    backend.admin.advogados().then(lista => setLawyers(lista.map(a => ({
+      id: a.id, name: a.nome, oab: a.oab, specialties: a.especialidades ?? [],
+      location: { city: a.cidade ?? '', state: a.estado ?? '' },
+      photoUrl: a.foto_url ?? `https://i.pravatar.cc/200?u=adv-${a.id}`,
+      rating: 0, reviewCount: 0, bio: a.bio ?? '',
+      experience: { years: 0, cases: 0 }, education: [],
+      contact: { phone: a.telefone ?? '', email: a.email },
+      reviews: [], availability: [],
+      status: a.status === 'rejeitado' ? 'suspenso' as const : a.status,
+    })))).catch(() => {});
+
+    backend.pessoas.bachareis.listar().then(bs => setInterns(bs.map(b => ({
+      id: b.id, name: b.nome, email: b.email, phone: b.telefone ?? '',
+      university: b.universidade ?? '', semester: b.semestre ?? '',
+      specialtyInterest: b.interesse ?? '', hoursCompleted: 0, availableHours: 200,
+      status: 'ativo' as const, joinedDate: '',
+      city: b.cidade ?? '', state: b.estado ?? '',
+      supervisorLawyerId: b.supervisor_id ?? undefined,
+    })))).catch(() => {});
+
+    backend.pessoas.secretarios.listar().then(ss => setSecretaries(ss.map(sec => ({
+      id: sec.id, name: sec.nome, email: sec.email, phone: sec.telefone ?? '',
+      city: sec.cidade ?? '', state: sec.estado ?? '',
+      experience: sec.experiencia_anos, areasOfKnowledge: [],
+      availability: 'integral' as const, status: 'ativo' as const, joinedDate: '',
+      assignedLawyerId: sec.advogado_id ?? undefined,
+    }) as unknown as Secretary))).catch(() => {});
+  }, []);
 
   // Package creator states
   const [packages, setPackages] = useState<UserPackage[]>(() => {
-    const savedPackages = localStorage.getItem('legis_packages');
+    const savedPackages = armazemServidor.getItem('legis_packages');
     if (savedPackages) {
       return JSON.parse(savedPackages);
     } else {
@@ -251,7 +258,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
         { id: 'pkg-3', name: 'Módulo Estudante Pro', role: 'intern', price: 49.90, features: ['ia_juridica', 'peticionamento'], status: 'ativo' },
         { id: 'pkg-4', name: 'Pacote Auxiliar Administrativo', role: 'secretary', price: 99.90, features: ['chatbot_atendimento', 'agenda_digital'], status: 'ativo' }
       ];
-      localStorage.setItem('legis_packages', JSON.stringify(defaultPackages));
+      armazemServidor.setItem('legis_packages', JSON.stringify(defaultPackages));
       return defaultPackages;
     }
   });
@@ -265,50 +272,52 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
   const [selectedInternLawyer, setSelectedInternLawyer] = useState<Record<number, number>>({});
   const [selectedSecretaryLawyer, setSelectedSecretaryLawyer] = useState<Record<number, number>>({});
 
-  // Admin users state (with realistic mock administrative users for rich initial setup)
-  const [adminUsers, setAdminUsers] = useState<AdminUser[]>(() => {
-    const saved = localStorage.getItem('legis_admin_users');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (parsed.length <= 1 && !localStorage.getItem('legis_admin_users_seeded')) {
-        const fullMock = [
-          ...parsed,
-          { id: 101, name: 'Ana Costa', email: 'ana.costa@legisconnect.com.br', password: 'admin', role: 'admin' as const, createdAt: '2024-02-15', active: true },
-          { id: 102, name: 'Carlos Souza', email: 'carlos.souza@legisconnect.com.br', password: 'admin', role: 'manager' as const, createdAt: '2024-03-10', active: true },
-          { id: 103, name: 'Julia Lima', email: 'julia.lima@legisconnect.com.br', password: 'admin', role: 'collaborator' as const, createdAt: '2024-04-01', active: true }
-        ];
-        localStorage.setItem('legis_admin_users', JSON.stringify(fullMock));
-        localStorage.setItem('legis_admin_users_seeded', '1');
-        return fullMock;
-      }
-      return parsed;
-    } else {
-      const defaultAdmins = [
-        ...mockAdminUsers,
-        { id: 101, name: 'Ana Costa', email: 'ana.costa@legisconnect.com.br', password: 'admin', role: 'admin' as const, createdAt: '2024-02-15', active: true },
-        { id: 102, name: 'Carlos Souza', email: 'carlos.souza@legisconnect.com.br', password: 'admin', role: 'manager' as const, createdAt: '2024-03-10', active: true },
-        { id: 103, name: 'Julia Lima', email: 'julia.lima@legisconnect.com.br', password: 'admin', role: 'collaborator' as const, createdAt: '2024-04-01', active: true }
-      ];
-      localStorage.setItem('legis_admin_users', JSON.stringify(defaultAdmins));
-      return defaultAdmins;
-    }
-  });
+  // Contas de administrador REAIS (pessoa tipo=admin). Papel/permissoes
+  // finas ficam no KV do servidor ('legis_admin_users'), mesclados por email.
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
+
+  React.useEffect(() => {
+    backend.admin.pessoas('admin').then(ps => {
+      const extras: AdminUser[] = (() => {
+        try {
+          const salvo = armazemServidor.getItem('legis_admin_users');
+          return salvo ? JSON.parse(salvo) : [];
+        } catch { return []; }
+      })();
+      const porEmail = new Map(extras.map(e => [e.email.toLowerCase(), e]));
+      setAdminUsers(ps.map(pss => {
+        const extra = porEmail.get(pss.email.toLowerCase());
+        return {
+          id: pss.id,
+          name: pss.nome,
+          email: pss.email,
+          password: '',
+          role: extra?.role ?? (pss.email === 'admin@legisconnect.com.br' ? 'super' : 'admin'),
+          createdAt: pss.criado_em.split('T')[0],
+          active: pss.ativo,
+          permissions: extra?.permissions,
+          secondaryEmail: extra?.secondaryEmail,
+          phone: extra?.phone ?? pss.telefone ?? undefined,
+        };
+      }));
+    }).catch(() => setAdminUsers([]));
+  }, []);
 
   // Lawyer custom feature/API permissions state
   const [lawyerPermissions, setLawyerPermissions] = useState<Record<number, string[]>>(() => {
     const perms: Record<number, string[]> = {};
     const lawyersList = (() => {
-      const savedLawyers = localStorage.getItem('legis_lawyers');
+      const savedLawyers = armazemServidor.getItem('legis_lawyers');
       return savedLawyers ? JSON.parse(savedLawyers) : mockLawyers;
     })();
     lawyersList.forEach((l: Lawyer) => {
-      const saved = localStorage.getItem(`legis_perms_lawyer_${l.id}`);
+      const saved = armazemServidor.getItem(`legis_perms_lawyer_${l.id}`);
       if (saved) {
         perms[l.id] = JSON.parse(saved);
       } else {
         const allFeatures = FEATURES_LIST.map(f => f.id);
         perms[l.id] = allFeatures;
-        localStorage.setItem(`legis_perms_lawyer_${l.id}`, JSON.stringify(allFeatures));
+        armazemServidor.setItem(`legis_perms_lawyer_${l.id}`, JSON.stringify(allFeatures));
       }
     });
     return perms;
@@ -323,7 +332,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
   const handleToggleFeature = (id: string) => {
     const updated = { ...featureStates, [id]: !featureStates[id] };
     setFeatureStates(updated);
-    localStorage.setItem('legis_platform_features', JSON.stringify(updated));
+    armazemServidor.setItem('legis_platform_features', JSON.stringify(updated));
     if (onDataChange) onDataChange();
   };
 
@@ -338,7 +347,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
         return l;
       });
       setLawyers(updated);
-      localStorage.setItem('legis_lawyers', JSON.stringify(updated));
+      armazemServidor.setItem('legis_lawyers', JSON.stringify(updated));
       setLawyers(prev => prev.map(l =>
         l.id === id ? { ...l, status: l.status === 'suspenso' ? 'verificado' : 'suspenso' } : l
       ));
@@ -351,7 +360,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
         return i;
       });
       setInterns(updated);
-      localStorage.setItem('legis_interns', JSON.stringify(updated));
+      armazemServidor.setItem('legis_interns', JSON.stringify(updated));
     } else if (role === 'secretary') {
       const updated = secretaries.map(s => {
         if (s.id === id) {
@@ -361,7 +370,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
         return s;
       });
       setSecretaries(updated);
-      localStorage.setItem('legis_secretaries', JSON.stringify(updated));
+      armazemServidor.setItem('legis_secretaries', JSON.stringify(updated));
     }
     if (onDataChange) onDataChange();
   };
@@ -378,7 +387,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
         // If they had an old supervisor, remove the link from the old supervisor's lawyer key
         const oldLawyerId = i.supervisorLawyerId;
         if (oldLawyerId && oldLawyerId !== lawyerId) {
-          localStorage.removeItem(`legis_lawyer_linked_intern_${oldLawyerId}`);
+          armazemServidor.removeItem(`legis_lawyer_linked_intern_${oldLawyerId}`);
         }
         return { ...i, supervisorLawyerId: lawyerId };
       }
@@ -392,11 +401,11 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
     });
 
     // 2. Set the new lawyer key pointing to the new intern
-    localStorage.setItem(`legis_lawyer_linked_intern_${lawyerId}`, String(internId));
+    armazemServidor.setItem(`legis_lawyer_linked_intern_${lawyerId}`, String(internId));
 
     // 3. Save to state and localStorage
     setInterns(updated);
-    localStorage.setItem('legis_interns', JSON.stringify(updated));
+    armazemServidor.setItem('legis_interns', JSON.stringify(updated));
     alert('Estagiário(a) vinculado(a) com sucesso ao advogado!');
     if (onDataChange) onDataChange();
   };
@@ -417,11 +426,11 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
 
     // Remove the link from the supervisor's lawyer key
     if (lawyerId) {
-      localStorage.removeItem(`legis_lawyer_linked_intern_${lawyerId}`);
+      armazemServidor.removeItem(`legis_lawyer_linked_intern_${lawyerId}`);
     }
 
     setInterns(updated);
-    localStorage.setItem('legis_interns', JSON.stringify(updated));
+    armazemServidor.setItem('legis_interns', JSON.stringify(updated));
     alert('Atribuição de supervisão cancelada com sucesso.');
     if (onDataChange) onDataChange();
   };
@@ -438,7 +447,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
         // If they had an old lawyer, remove the link from the old lawyer key
         const oldLawyerId = s.assignedLawyerId;
         if (oldLawyerId && oldLawyerId !== lawyerId) {
-          localStorage.removeItem(`legis_lawyer_linked_secretary_${oldLawyerId}`);
+          armazemServidor.removeItem(`legis_lawyer_linked_secretary_${oldLawyerId}`);
         }
         return { ...s, assignedLawyerId: lawyerId };
       }
@@ -452,11 +461,11 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
     });
 
     // 2. Set the new lawyer key pointing to the new secretary
-    localStorage.setItem(`legis_lawyer_linked_secretary_${lawyerId}`, String(secretaryId));
+    armazemServidor.setItem(`legis_lawyer_linked_secretary_${lawyerId}`, String(secretaryId));
 
     // 3. Save to state and localStorage
     setSecretaries(updated);
-    localStorage.setItem('legis_secretaries', JSON.stringify(updated));
+    armazemServidor.setItem('legis_secretaries', JSON.stringify(updated));
     alert('Secretário(a) vinculado(a) com sucesso ao advogado!');
     if (onDataChange) onDataChange();
   };
@@ -477,11 +486,11 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
 
     // Remove the link from the lawyer key
     if (lawyerId) {
-      localStorage.removeItem(`legis_lawyer_linked_secretary_${lawyerId}`);
+      armazemServidor.removeItem(`legis_lawyer_linked_secretary_${lawyerId}`);
     }
 
     setSecretaries(updated);
-    localStorage.setItem('legis_secretaries', JSON.stringify(updated));
+    armazemServidor.setItem('legis_secretaries', JSON.stringify(updated));
     alert('Atribuição de secretariado cancelada com sucesso.');
     if (onDataChange) onDataChange();
   };
@@ -495,7 +504,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
 
     const nextPermissions = { ...lawyerPermissions, [lawyerId]: updated };
     setLawyerPermissions(nextPermissions);
-    localStorage.setItem(`legis_perms_lawyer_${lawyerId}`, JSON.stringify(updated));
+    armazemServidor.setItem(`legis_perms_lawyer_${lawyerId}`, JSON.stringify(updated));
     if (onDataChange) onDataChange();
   };
 
@@ -503,14 +512,14 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
     const allFeatures = FEATURES_LIST.map(f => f.id);
     const nextPermissions = { ...lawyerPermissions, [lawyerId]: allFeatures };
     setLawyerPermissions(nextPermissions);
-    localStorage.setItem(`legis_perms_lawyer_${lawyerId}`, JSON.stringify(allFeatures));
+    armazemServidor.setItem(`legis_perms_lawyer_${lawyerId}`, JSON.stringify(allFeatures));
     if (onDataChange) onDataChange();
   };
 
   const handleClearAllLawyerPermissions = (lawyerId: number) => {
     const nextPermissions = { ...lawyerPermissions, [lawyerId]: [] };
     setLawyerPermissions(nextPermissions);
-    localStorage.setItem(`legis_perms_lawyer_${lawyerId}`, JSON.stringify([]));
+    armazemServidor.setItem(`legis_perms_lawyer_${lawyerId}`, JSON.stringify([]));
     if (onDataChange) onDataChange();
   };
 
@@ -525,7 +534,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
       return u;
     });
     setAdminUsers(updatedUsers);
-    localStorage.setItem('legis_admin_users', JSON.stringify(updatedUsers));
+    armazemServidor.setItem('legis_admin_users', JSON.stringify(updatedUsers));
     if (onDataChange) onDataChange();
   };
 
@@ -542,7 +551,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
       return u;
     });
     setAdminUsers(updatedUsers);
-    localStorage.setItem('legis_admin_users', JSON.stringify(updatedUsers));
+    armazemServidor.setItem('legis_admin_users', JSON.stringify(updatedUsers));
     if (onDataChange) onDataChange();
   };
 
@@ -557,7 +566,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
       return u;
     });
     setAdminUsers(updatedUsers);
-    localStorage.setItem('legis_admin_users', JSON.stringify(updatedUsers));
+    armazemServidor.setItem('legis_admin_users', JSON.stringify(updatedUsers));
     alert('Permissões restauradas para o padrão do cargo com sucesso!');
     if (onDataChange) onDataChange();
   };
@@ -571,7 +580,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
       return u;
     });
     setAdminUsers(updatedUsers);
-    localStorage.setItem('legis_admin_users', JSON.stringify(updatedUsers));
+    armazemServidor.setItem('legis_admin_users', JSON.stringify(updatedUsers));
     if (onDataChange) onDataChange();
   };
 
@@ -583,7 +592,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
       return u;
     });
     setAdminUsers(updatedUsers);
-    localStorage.setItem('legis_admin_users', JSON.stringify(updatedUsers));
+    armazemServidor.setItem('legis_admin_users', JSON.stringify(updatedUsers));
     if (onDataChange) onDataChange();
   };
 
@@ -610,7 +619,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
 
     const updated = [...packages, newPkg];
     setPackages(updated);
-    localStorage.setItem('legis_packages', JSON.stringify(updated));
+    armazemServidor.setItem('legis_packages', JSON.stringify(updated));
 
     // Reset Form
     setPackageName('');
@@ -628,14 +637,14 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
       return p;
     });
     setPackages(updated);
-    localStorage.setItem('legis_packages', JSON.stringify(updated));
+    armazemServidor.setItem('legis_packages', JSON.stringify(updated));
   };
 
   const handleDeletePackage = (id: string) => {
     if (window.confirm('Excluir este pacote permanentemente?')) {
       const updated = packages.filter(p => p.id !== id);
       setPackages(updated);
-      localStorage.setItem('legis_packages', JSON.stringify(updated));
+      armazemServidor.setItem('legis_packages', JSON.stringify(updated));
     }
   };
 

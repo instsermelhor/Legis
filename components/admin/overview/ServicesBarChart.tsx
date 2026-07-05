@@ -3,7 +3,8 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   Legend, ResponsiveContainer,
 } from 'recharts';
-import { MOCK_SERVICES_BY_DAY } from './adminMockKpis';
+import { useEffect, useState } from 'react';
+import { backend } from '../../../services/modules';
 
 // ─── Custom Tooltip ───────────────────────────────────────────────────────────
 const CustomTooltip: React.FC<{ active?: boolean; payload?: any[]; label?: string }> = ({
@@ -23,19 +24,28 @@ const CustomTooltip: React.FC<{ active?: boolean; payload?: any[]; label?: strin
 };
 
 // ─── Services Grouped Bar Chart ───────────────────────────────────────────────
-export const ServicesBarChart: React.FC = () => (
+export const ServicesBarChart: React.FC = () => {
+  // Dados reais: processos por status (métricas do admin).
+  const [dados, setDados] = useState<Array<{ day: string; total: number }>>([]);
+  useEffect(() => {
+    backend.admin.metricas()
+      .then(m => setDados(m.processos_por_status.map(p => ({ day: p.status, total: p.total }))))
+      .catch(() => setDados([]));
+  }, []);
+
+  return (
   <div className="bg-white dark:bg-[#12102A] rounded-2xl border border-gray-200 dark:border-[#2A2545] shadow-sm p-5">
     {/* Header */}
     <div className="mb-1">
       <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100">
-        Volume de Serviços de Eficiência
+        Processos por Status
       </h3>
-      <p className="text-[10px] text-gray-400 dark:text-gray-500">Requisições por dia da semana</p>
+      <p className="text-[10px] text-gray-400 dark:text-gray-500">Toda a plataforma — dados do banco</p>
     </div>
 
     {/* Chart */}
     <ResponsiveContainer width="100%" height={240}>
-      <BarChart data={MOCK_SERVICES_BY_DAY} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} barGap={3}>
+      <BarChart data={dados} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} barGap={3}>
         <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" strokeOpacity={0.5} vertical={false} />
         <XAxis
           dataKey="day"
@@ -57,18 +67,11 @@ export const ServicesBarChart: React.FC = () => (
           wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
         />
         <Bar
-          dataKey="automacoes" name="Automações"
-          fill="#7C3AED" radius={[4, 4, 0, 0]} maxBarSize={22}
-        />
-        <Bar
-          dataKey="pecas_ia" name="Peças IA"
-          fill="#2563EB" radius={[4, 4, 0, 0]} maxBarSize={22}
-        />
-        <Bar
-          dataKey="consultas" name="Consultas"
-          fill="#10B981" radius={[4, 4, 0, 0]} maxBarSize={22}
+          dataKey="total" name="Processos"
+          fill="#7C3AED" radius={[4, 4, 0, 0]} maxBarSize={48}
         />
       </BarChart>
     </ResponsiveContainer>
   </div>
-);
+  );
+};

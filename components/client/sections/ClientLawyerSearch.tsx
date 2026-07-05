@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import { mockLawyers } from '../../../services/mockLawyerService';
+import React, { useState, useMemo, useEffect } from 'react';
+import { backend } from '../../../services/modules';
+import { advogadoParaLawyer } from '../../../services/modules/pessoas/adaptador';
 import type { Lawyer } from '../../../types';
 import { BadgeCheckIcon, XIcon } from '../../common/IconComponents';
 
@@ -551,6 +552,14 @@ export const ClientLawyerSearch: React.FC<ClientLawyerSearchProps> = ({
 }) => {
   // Filter states
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Vitrine real de advogados verificados (API).
+  const [advogados, setAdvogados] = useState<ReturnType<typeof advogadoParaLawyer>[]>([]);
+  useEffect(() => {
+    backend.pessoas.advogados.listar()
+      .then(lista => setAdvogados(lista.map(advogadoParaLawyer)))
+      .catch(() => setAdvogados([]));
+  }, []);
   const [selectedSpecialty, setSelectedSpecialty] = useState<SpecialtyFilter | null>(null);
   const [minRating, setMinRating] = useState<0 | 3 | 4>(0);
   const [sortBy, setSortBy] = useState<SortBy>('recommended');
@@ -577,7 +586,7 @@ export const ClientLawyerSearch: React.FC<ClientLawyerSearchProps> = ({
 
   // Filtered + sorted lawyers
   const filteredLawyers = useMemo(() => {
-    let result = mockLawyers.filter(lawyer => {
+    let result = advogados.filter(lawyer => {
       // Name search
       if (searchQuery && !lawyer.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
       // Specialty filter

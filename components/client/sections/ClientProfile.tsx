@@ -19,7 +19,8 @@ import SocialLinksEditor from '../../common/SocialLinksEditor';
 import type { SocialLink } from '../../common/SocialLinksEditor';
 import { classifyLegalProblem } from '../../../utils/legalTermTranslator';
 import type { LegalAreaClassification } from '../../../utils/legalTermTranslator';
-import { mockLawyers } from '../../../services/mockLawyerService';
+import { backend } from '../../../services/modules';
+import { advogadoParaLawyer } from '../../../services/modules/pessoas/adaptador';
 import type { Lawyer } from '../../../types';
 
 // ─── Props ───────────────────────────────────────────────────────────────────
@@ -331,14 +332,15 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({
     // Classifica
     const classification = classifyLegalProblem(triageText);
 
-    // Filtra advogados pela área jurídica detectada
+    // Filtra advogados reais (vitrine da API) pela área jurídica detectada
     const areaLower = classification.area.toLowerCase();
-    const matched = mockLawyers.filter((l) =>
+    const todos = (await backend.pessoas.advogados.listar().catch(() => [])).map(advogadoParaLawyer);
+    const matched = todos.filter((l) =>
       l.specialties.some((s) => s.toLowerCase().includes(areaLower) || areaLower.includes(s.toLowerCase()))
     );
     const recommendedLawyers = matched.length >= 3
       ? matched.slice(0, 3)
-      : [...matched, ...mockLawyers.filter((l) => !matched.includes(l))].slice(0, 3);
+      : [...matched, ...todos.filter((l) => !matched.includes(l))].slice(0, 3);
 
     setTriageResult({ classification, recommendedLawyers });
     setTriageLoading(false);

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Lawyer } from '../../types';
-import { mockLawyers } from '../../services/mockLawyerService';
+import { backend } from '../../services/modules';
 import { DashboardShell, LivePill, type ShellNavGroup } from '../ui';
 
 // ── Tabs
@@ -90,11 +90,40 @@ interface AdminDashboardProps {
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   const [activeTab, setActiveTab]     = useState<Tab>('overview');
-  const [lawyers, setLawyers]         = useState<Lawyer[]>(mockLawyers);
+  const [lawyers, setLawyers]         = useState<Lawyer[]>([]);
   const [financeFilter, setFinanceFilter] = useState<string | undefined>(undefined);
+
+  // Advogados reais (todos os status) para a fila de verificação.
+  const carregarAdvogados = () => {
+    backend.admin.advogados().then(lista => setLawyers(lista.map(a => ({
+      id: a.id,
+      name: a.nome,
+      oab: a.oab,
+      specialties: a.especialidades ?? [],
+      location: { city: a.cidade ?? '', state: a.estado ?? '' },
+      photoUrl: a.foto_url ?? `https://i.pravatar.cc/200?u=adv-${a.id}`,
+      rating: 0,
+      reviewCount: 0,
+      bio: a.bio ?? '',
+      experience: { years: 0, cases: 0 },
+      education: [],
+      contact: { phone: a.telefone ?? '', email: a.email },
+      reviews: [],
+      availability: [],
+      status: a.status === 'rejeitado' ? 'suspenso' : a.status,
+    })))).catch(() => setLawyers([]));
+  };
+  useEffect(carregarAdvogados, []);
 
   const handleLawyerUpdate = (updated: Lawyer) => {
     setLawyers(prev => prev.map(l => l.id === updated.id ? updated : l));
+    // Persiste no banco: status de verificação, bio e especialidades.
+    void backend.pessoas.advogados.atualizar(updated.id, {
+      status: updated.status === 'suspenso' ? 'rejeitado' : updated.status,
+      bio: updated.bio,
+      especialidades: updated.specialties,
+      foto_url: updated.photoUrl,
+    }).catch(erro => alert(erro instanceof Error ? erro.message : 'Falha ao salvar no servidor.'));
   };
 
   const navigateToFinance = (filter?: string) => {

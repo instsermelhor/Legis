@@ -1,5 +1,5 @@
 import React from 'react';
-import { MOCK_KPIS, calcMoM, type KpiMetric } from './adminMockKpis';
+import { useAdminKpis, calcMoM, type KpiMetric } from './adminMockKpis';
 
 // ─── Color maps ───────────────────────────────────────────────────────────────
 const BG_MAP: Record<KpiMetric['color'], string> = {
@@ -71,10 +71,13 @@ const KpiCard: React.FC<{ kpi: KpiMetric }> = ({ kpi }) => {
 };
 
 // ─── KPI Cards Row ────────────────────────────────────────────────────────────
-export const KpiCardsRow: React.FC = () => (
-  <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
-    {MOCK_KPIS.map((kpi) => (
-      <KpiCard key={kpi.label} kpi={kpi} />
-    ))}
-  </div>
-);
+export const KpiCardsRow: React.FC = () => {
+  const { kpis } = useAdminKpis();
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
+      {kpis.map((kpi) => (
+        <KpiCard key={kpi.label} kpi={kpi} />
+      ))}
+    </div>
+  );
+};

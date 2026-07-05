@@ -9,6 +9,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import type { Intern, Case } from '../../../types';
 import type { Lawyer } from '../../../types';
 import { KpiCard } from '../../ui';
+import { backend } from '../../../services/modules';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -32,22 +33,6 @@ interface OabSimulado {
 }
 
 // ─── Mock Agenda Items ────────────────────────────────────────────────────────
-
-const MOCK_AGENDA: AgendaItem[] = [
-  { id: 'a1', title: 'Prova — Direito Civil V', date: new Date(Date.now() + 3 * 86400000).toISOString().split('T')[0], type: 'prova', subject: 'Direito Civil V (Família)', priority: 'alta' },
-  { id: 'a2', title: 'Entrega: Petição Inicial (Rascunho)', date: new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0], type: 'praca_peca', caseRef: 'Caso #001', priority: 'alta' },
-  { id: 'a3', title: 'Prova — Direito do Trabalho II', date: new Date(Date.now() + 8 * 86400000).toISOString().split('T')[0], type: 'prova', subject: 'Direito do Trabalho II', priority: 'media' },
-  { id: 'a4', title: 'Audiência de Instrução — Acompanhamento', date: new Date(Date.now() + 10 * 86400000).toISOString().split('T')[0], type: 'audiencia', caseRef: 'Caso #002', priority: 'media' },
-  { id: 'a5', title: 'Prazo: Contestação (revisão final)', date: new Date(Date.now() + 12 * 86400000).toISOString().split('T')[0], type: 'prazo', caseRef: 'Caso #001', priority: 'alta' },
-  { id: 'a6', title: 'Seminário de Ética Profissional', date: new Date(Date.now() + 15 * 86400000).toISOString().split('T')[0], type: 'evento', priority: 'baixa' },
-];
-
-const MOCK_SIMULADOS: OabSimulado[] = [
-  { id: 's1', date: '2024-11-15', area: 'Direito Civil', total: 30, corretas: 22, pct: 73 },
-  { id: 's2', date: '2024-11-22', area: 'Direito Penal', total: 30, corretas: 18, pct: 60 },
-  { id: 's3', date: '2024-11-29', area: 'Dir. Processual', total: 30, corretas: 25, pct: 83 },
-  { id: 's4', date: '2024-12-06', area: 'Ética OAB', total: 20, corretas: 16, pct: 80 },
-];
 
 // ─── OAB Exam Dates ───────────────────────────────────────────────────────────
 // Próxima fase do Exame de Ordem (data simulada)
@@ -193,8 +178,8 @@ const OabCountdownWidget: React.FC = () => {
     return () => clearInterval(t);
   }, []);
 
-  const avgPct = MOCK_SIMULADOS.length > 0
-    ? Math.round(MOCK_SIMULADOS.reduce((a, s) => a + s.pct, 0) / MOCK_SIMULADOS.length)
+  const avgPct = simulados.length > 0
+    ? Math.round(simulados.reduce((a, s) => a + s.pct, 0) / simulados.length)
     : 0;
 
   const performanceColor = avgPct >= 70 ? 'text-emerald-600' : avgPct >= 50 ? 'text-amber-600' : 'text-rose-600';
@@ -230,7 +215,7 @@ const OabCountdownWidget: React.FC = () => {
           <p className={`text-2xl font-black ${performanceColor}`}>{avgPct}%</p>
         </div>
         <div className="text-right">
-          <p className="text-xs text-gray-500">{MOCK_SIMULADOS.length} simulado(s)</p>
+          <p className="text-xs text-gray-500">{simulados.length} simulado(s)</p>
           <p className={`text-xs font-bold ${performanceColor}`}>
             {avgPct >= 70 ? '✅ Aprovado' : avgPct >= 50 ? '⚠️ Atenção' : '❌ Precisa estudar'}
           </p>
@@ -240,7 +225,7 @@ const OabCountdownWidget: React.FC = () => {
       {/* Histórico de simulados */}
       <div className="space-y-2">
         <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wide">Histórico de Simulados</p>
-        {MOCK_SIMULADOS.slice(-3).reverse().map(sim => (
+        {simulados.slice(-3).reverse().map(sim => (
           <div key={sim.id} className="flex items-center gap-3">
             <span className="text-[10px] text-gray-400 w-24 shrink-0">{sim.area}</span>
             <div className="flex-1 bg-gray-100 dark:bg-black/20 rounded-full h-4 overflow-hidden">
@@ -261,7 +246,7 @@ const OabCountdownWidget: React.FC = () => {
 
 // ─── Agenda Híbrida ───────────────────────────────────────────────────────────
 
-const AgendaHibrida: React.FC<{ agendaItems?: AgendaItem[] }> = ({ agendaItems = MOCK_AGENDA }) => {
+const AgendaHibrida: React.FC<{ agendaItems?: AgendaItem[] }> = ({ agendaItems = agendaItems }) => {
   const [filter, setFilter] = useState<'todos' | 'prova' | 'praca_peca' | 'prazo' | 'audiencia'>('todos');
 
   const filtered = agendaItems
@@ -400,6 +385,25 @@ export const InternOverview: React.FC<InternOverviewProps> = ({
   const totalCourseDocs = Object.values(courseDocs).flat().length;
   const semesterNumber = parseInt(intern.semester?.match(/\d+/)?.[0] || '1', 10);
   const semesterProgress = Math.round((semesterNumber / 10) * 100);
+
+  // Agenda real (eventos da pessoa) e simulados OAB persistidos no servidor.
+  const [agendaItems, setAgendaItems] = useState<AgendaItem[]>([]);
+  const [simulados, setSimulados] = useState<OabSimulado[]>([]);
+
+  useEffect(() => {
+    backend.agenda.listar().then(evs => setAgendaItems(evs.map(e => ({
+      id: String(e.id),
+      title: e.titulo,
+      date: e.inicio.split('T')[0],
+      type: e.tipo === 'audiencia' ? 'audiencia' as const : e.tipo === 'prazo' ? 'prazo' as const : 'evento' as const,
+      caseRef: e.processo_numero ?? undefined,
+      priority: e.tipo === 'prazo' ? 'alta' as const : 'media' as const,
+    })))).catch(() => {});
+
+    backend.dados.obter<OabSimulado[]>('oab_simulados')
+      .then(v => { if (v) setSimulados(v); })
+      .catch(() => {});
+  }, []);
 
   return (
     <div className="space-y-5 animate-fade-in">

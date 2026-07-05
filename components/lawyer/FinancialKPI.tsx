@@ -4,12 +4,20 @@
  * Inclui: cards de resumo, histórico de faturamento por mês,
  * tabela de transações com filtros e exportação CSV.
  */
-import React, { useState, useMemo } from 'react';
-import { dbFinancial } from '../../services/dbService';
-import type { FinancialTransaction } from '../../services/dbService';
-import { mockProcessosService } from '../../services/mockProcessosService';
-import type { Processo } from '../../services/mockProcessosService';
-import { mockLawyers } from '../../services/mockLawyerService';
+import React, { useState, useMemo, useEffect } from 'react';
+import { backend } from '../../services/modules';
+import { processoParaLegado, type ProcessoLegado as Processo } from '../../services/modules/processos/adaptador';
+
+/** Lançamento financeiro na forma que a tabela consome (dados da API). */
+interface FinancialTransaction {
+  id: string;
+  clientName: string;
+  description: string;
+  amount: number;
+  date: string;
+  status: 'recebido' | 'pendente' | 'inadimplente';
+  caseId?: string;
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const fmt = (v: number) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -116,13 +124,35 @@ interface FinancialKPIProps {
 }
 
 export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
-  const [txs] = useState<FinancialTransaction[]>(() => dbFinancial.getAll(lawyerId));
+  const [txs, setTxs] = useState<FinancialTransaction[]>([]);
   const [period, setPeriod] = useState<'all' | '30' | '60' | '90' | '120' | '365'>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | FinancialTransaction['status']>('all');
   const [search, setSearch] = useState('');
   const [processSearch, setProcessSearch] = useState('');
 
-  const [processList, setProcessList] = useState<Processo[]>(() => mockProcessosService.getProcessos());
+  const [processList, setProcessList] = useState<Processo[]>([]);
+  const [lawyerOab, setLawyerOab] = useState<string | undefined>(undefined);
+
+  // Dados reais da API (lançamentos + processos do tenant + perfil do advogado).
+  useEffect(() => {
+    backend.financeiro.lancamentos().then(ls => setTxs(ls.map(l => ({
+      id: String(l.id),
+      clientName: l.processo_nome ?? l.responsavel_nome ?? '—',
+      description: l.descricao,
+      amount: l.valor,
+      date: String(l.data).split('T')[0],
+      status: l.status === 'atrasado' ? 'inadimplente' as const : l.status,
+      caseId: l.processo_numero ?? undefined,
+    })))).catch(() => setTxs([]));
+
+    backend.processos.listar()
+      .then(ps => setProcessList(ps.map(processoParaLegado)))
+      .catch(() => setProcessList([]));
+
+    if (lawyerId) {
+      backend.pessoas.advogados.obter(lawyerId).then(a => setLawyerOab(a.oab)).catch(() => {});
+    }
+  }, [lawyerId]);
   const [unlockedProcessIds, setUnlockedProcessIds] = useState<number[]>([]);
   
   // Validation States
@@ -137,7 +167,6 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
   const [manageStatus, setManageStatus] = useState<Processo['status']>('Em Andamento');
   const [manageDataConclusao, setManageDataConclusao] = useState('');
 
-  const lawyerOab = lawyerId ? mockLawyers.find(l => l.id === lawyerId)?.oab : undefined;
 
   const handleStartUnlock = (p: Processo) => {
     setValidatingProcess(p);
@@ -185,20 +214,19 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
     if (!managingProcess) return;
 
     const conclusaoDate = manageStatus === 'Concluído' ? manageDataConclusao : null;
-    mockProcessosService.updateProcesso(managingProcess.id_processo, {
-      valor: Number(manageValor),
+    backend.processos.atualizar(managingProcess.id_processo, {
+      valor_causa: Number(manageValor),
       status: manageStatus,
-      data_conclusao: conclusaoDate
-    });
-
-    setProcessList(mockProcessosService.getProcessos());
+      data_conclusao: conclusaoDate,
+    }).then(() => backend.processos.listar())
+      .then(ps => setProcessList(ps.map(processoParaLegado)))
+      .catch(erro => alert(erro instanceof Error ? erro.message : 'Falha ao atualizar.'));
     setManagingProcess(null);
   };
 
-  // Query processes data
-  const lawyerName = lawyerId ? mockLawyers.find(l => l.id === lawyerId)?.name : undefined;
+  // A API já entrega apenas os processos do tenant (escritório).
   const procKpis = useMemo(() => {
-    const list = lawyerName ? processList.filter(p => p.advogado === lawyerName) : processList;
+    const list = processList;
     const count = list.length;
     const totalVal = list.reduce((acc, p) => acc + p.valor, 0);
     const concluidoVal = list.filter(p => p.status === 'Concluído').reduce((acc, p) => acc + p.valor, 0);
@@ -209,7 +237,7 @@ export const FinancialKPI: React.FC<FinancialKPIProps> = ({ lawyerId }) => {
     const aguardandoCount = list.filter(p => p.status === 'Aguardando Documentação').length;
 
     return { list, count, totalVal, concluidoVal, concluidoCount, andamentoVal, andamentoCount, aguardandoVal, aguardandoCount };
-  }, [lawyerName, processList]);
+  }, [processList]);
 
   const filtered = useMemo(() => {
     const now = new Date();

@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import type { Lawyer, EfficiencyService, EfficiencyServiceGroup, BiApoio, BiDadosBase, BiCliente, BiVenda } from '../../types';
-import { mockClients, mockInterns, mockSecretaries, mockMonthlyRevenue, mockEfficiencyServices, mockEfficiencyServiceGroups, mockBiApoio, mockBiDadosBase, mockBiClientes, mockBiVendas } from '../../services/mockDataService';
+import { backend } from '../../services/modules';
+import type { MockClient, MockIntern, MockSecretary } from '../../services/mockDataService';
 import { SectionTitle, SearchInput, IconBriefcase, IconUsers, IconGradCap, IconSettings } from './AdminShared';
 
 // ─── Secretary Icon ───────────────────────────────────────────────────────────
@@ -29,39 +30,27 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
   // New Equipment Rental Critical Table filter state
   const [criticalFilter, setCriticalFilter] = useState<'all' | 'critical'>('critical');
 
-  // Load BI config
-  const biApoio = useMemo<BiApoio>(() => {
-    const saved = localStorage.getItem('legis_bi_tb_apoio');
-    return saved ? JSON.parse(saved) : mockBiApoio;
-  }, []);
+  // Planilhas de BI do admin — persistidas no PostgreSQL (dado_usuario).
+  // Começam vazias; o admin alimenta pela própria UI.
+  const [biApoio, setBiApoio] = useState<BiApoio>({
+    teto_execucao_anual_ums: 0,
+    meta_razao_final: 0,
+    periodos: [],
+    meta_faturamento_percentual: [],
+  });
+  const [biDadosBase, setBiDadosBase] = useState<BiDadosBase[]>([]);
+  const [biClientes, setBiClientes] = useState<BiCliente[]>([]);
+  const [biVendas, setBiVendas] = useState<BiVenda[]>([]);
 
-  const biDadosBase = useMemo<BiDadosBase[]>(() => {
-    const saved = localStorage.getItem('legis_bi_tb_dados_base');
-    const data = saved ? JSON.parse(saved) : mockBiDadosBase;
-    return [...data].sort((a, b) => a.mes_ano.localeCompare(b.mes_ano));
-  }, []);
-
-  const biClientes = useMemo<BiCliente[]>(() => {
-    const saved = localStorage.getItem('legis_bi_clientes');
-    return saved ? JSON.parse(saved) : mockBiClientes;
-  }, []);
-
-  const biVendas = useMemo<BiVenda[]>(() => {
-    const saved = localStorage.getItem('legis_bi_vendas');
-    let data = saved ? JSON.parse(saved) : mockBiVendas;
-    const hasOldFornecedor = data.some((v: BiVenda) => v.fornecedor && (v.fornecedor.startsWith('F01') || v.fornecedor.startsWith('F02') || v.fornecedor.startsWith('F03')));
-    if (hasOldFornecedor || (data.length > 0 && data[0].produto && !data[0].produto.startsWith('G'))) {
-      data = mockBiVendas;
-      localStorage.setItem('legis_bi_vendas', JSON.stringify(mockBiVendas));
-    }
-    const migrated = data.map((v: BiVenda) => {
-      let status = v.status_aluguel as string;
-      if (status === 'Devolvido') status = 'Entregue';
-      else if (status === 'Não devolvido') status = 'Cancelado';
-      else if (status === 'Não retirado ainda') status = 'Em Realização';
-      return { ...v, status_aluguel: status as BiVenda['status_aluguel'] };
-    });
-    return [...migrated].sort((a, b) => a.data.localeCompare(b.data));
+  React.useEffect(() => {
+    backend.dados.obter<BiApoio>('bi_tb_apoio').then(v => { if (v) setBiApoio(v); }).catch(() => {});
+    backend.dados.obter<BiDadosBase[]>('bi_tb_dados_base')
+      .then(v => { if (v) setBiDadosBase([...v].sort((a, b) => a.mes_ano.localeCompare(b.mes_ano))); })
+      .catch(() => {});
+    backend.dados.obter<BiCliente[]>('bi_clientes').then(v => { if (v) setBiClientes(v); }).catch(() => {});
+    backend.dados.obter<BiVenda[]>('bi_vendas')
+      .then(v => { if (v) setBiVendas([...v].sort((a, b) => a.data.localeCompare(b.data))); })
+      .catch(() => {});
   }, []);
 
   const aluguelMetrics = useMemo(() => {
@@ -258,28 +247,62 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
     };
   }, [processedData, biApoio]);
 
-  const [services, setServices] = useState<EfficiencyService[]>(mockEfficiencyServices);
-  const [groups, setGroups] = useState<EfficiencyServiceGroup[]>(mockEfficiencyServiceGroups);
+  const [services, setServices] = useState<EfficiencyService[]>([]);
+  const [groups, setGroups] = useState<EfficiencyServiceGroup[]>([]);
   const [contractedServicesCounts, setContractedServicesCounts] = useState<Record<string, number>>({});
+  const [receitaRealMes, setReceitaRealMes] = useState(0);
+  const [receitaRealTotal, setReceitaRealTotal] = useState(0);
+  const [pendenteRealTotal, setPendenteRealTotal] = useState(0);
+  const [receitaPorMesReal, setReceitaPorMesReal] = useState<Array<{ mes: string; recebido: number }>>([]);
+  const [clientesReais, setClientesReais] = useState<MockClient[]>([]);
+  const [bachareisReais, setBachareisReais] = useState<MockIntern[]>([]);
+  const [secretariosReais, setSecretariosReais] = useState<MockSecretary[]>([]);
 
   React.useEffect(() => {
-    const savedS = localStorage.getItem('legis_services');
-    if (savedS) setServices(JSON.parse(savedS));
-    const savedG = localStorage.getItem('legis_serviceGroups');
-    if (savedG) setGroups(JSON.parse(savedG));
+    // Catálogo + contagem real de contratações por serviço.
+    backend.contratos.catalogo().then(catalogo => {
+      const nomes = [...new Set(catalogo.map(c => c.grupo).filter((g): g is string => !!g))]
+        .sort((a, b) => (parseInt(a) || 99) - (parseInt(b) || 99));
+      setGroups(nomes.map(nome => ({ id: nome, name: nome })));
+      setServices(catalogo.map(c => ({
+        id: String(c.id), groupId: c.grupo ?? '', name: c.nome,
+        description: c.descricao ?? '', price: c.preco,
+      })));
+    }).catch(() => {});
 
-    const savedCounts = localStorage.getItem('legis_contracted_services');
-    if (savedCounts) {
-      setContractedServicesCounts(JSON.parse(savedCounts));
-    } else {
-      const initialCounts: Record<string, number> = {};
-      const currentServices = savedS ? JSON.parse(savedS) : mockEfficiencyServices;
-      currentServices.forEach((s: EfficiencyService, idx: number) => {
-        initialCounts[s.id] = (idx + 1) * 3;
-      });
-      localStorage.setItem('legis_contracted_services', JSON.stringify(initialCounts));
-      setContractedServicesCounts(initialCounts);
-    }
+    backend.admin.metricas().then(m => {
+      setContractedServicesCounts(Object.fromEntries(
+        m.contratos_por_servico.map(cs => [String(cs.servico_id), cs.total])
+      ));
+      setReceitaRealMes(m.receita_por_mes.at(-1)?.recebido ?? 0);
+      setReceitaRealTotal(m.receita.recebido);
+      setPendenteRealTotal(m.receita.pendente);
+      setReceitaPorMesReal(m.receita_por_mes);
+    }).catch(() => {});
+
+    backend.admin.pessoas('cliente').then(ps => setClientesReais(ps.map(c => ({
+      id: c.id, name: c.nome, email: c.email, phone: c.telefone ?? '',
+      address: '', city: c.cidade ?? '', state: c.estado ?? '', cpf: '',
+      activeCases: 0, totalCases: 0, joinedDate: c.criado_em.split('T')[0],
+      status: c.ativo ? 'ativo' as const : 'inativo' as const,
+      totalPaid: 0, pendingAmount: 0, lastCaseArea: '',
+    })))).catch(() => {});
+
+    backend.pessoas.bachareis.listar().then(bs => setBachareisReais(bs.map(b => ({
+      id: b.id, name: b.nome, email: b.email, phone: b.telefone ?? '',
+      university: b.universidade ?? '', semester: b.semestre ?? '',
+      specialtyInterest: b.interesse ?? '', hoursCompleted: 0, availableHours: 200,
+      status: 'ativo' as const, joinedDate: '',
+      city: b.cidade ?? '', state: b.estado ?? '',
+    })))).catch(() => {});
+
+    backend.pessoas.secretarios.listar().then(ss => setSecretariosReais(ss.map(sec => ({
+      id: sec.id, name: sec.nome, email: sec.email, phone: sec.telefone ?? '',
+      city: sec.cidade ?? '', state: sec.estado ?? '',
+      experience: sec.experiencia_anos, areasOfKnowledge: [],
+      availability: (sec.disponibilidade as MockSecretary['availability']) ?? 'integral',
+      status: 'ativo' as const, joinedDate: '',
+    })))).catch(() => {});
   }, []);
 
   const getScale = (tf: string) => {
@@ -294,11 +317,12 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
   };
   const scale = getScale(timeFilter);
 
-  const baseTotalRevenue = mockMonthlyRevenue.reduce((a, m) => a + m.revenue, 0);
-  const baseTotalPending = lawyers.reduce((a, l) => a + (l.pendingPayments || 0), 0);
-  const baseClientPending = mockClients.reduce((a, c) => a + c.pendingAmount, 0);
-  const baseInternStipends = mockInterns.filter(i => i.status === 'ativo').reduce((a, i) => a + (i.stipend || 0), 0);
-  const baseSecretaryFees = mockSecretaries.filter(s => s.status === 'ativo').reduce((a, s) => a + (s.monthlyFee || 0), 0);
+  // Valores REAIS (agregados de fconta no servidor).
+  const baseTotalRevenue = receitaRealTotal;
+  const baseTotalPending = pendenteRealTotal;
+  const baseClientPending = pendenteRealTotal;
+  const baseInternStipends = 0; // bolsas ainda nao sao lancadas no financeiro
+  const baseSecretaryFees = 0;  // honorarios de secretariado idem
 
 
   // Simulated Services Revenue Base (Mensal)
@@ -314,27 +338,27 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
   const secretaryFees = baseSecretaryFees * scale;
   const servicesRevenue = baseServicesRevenue * scale;
 
-  const maxRev = Math.max(...mockMonthlyRevenue.map(m => m.revenue));
+  const maxRev = Math.max(...receitaPorMesReal.map(m => m.recebido), 1);
 
   const filteredLawyers = useMemo(() => lawyers.filter(l =>
     (stateFilter === 'Todos' || l.location.state === stateFilter) &&
     l.name.toLowerCase().includes(search.toLowerCase())
   ), [lawyers, stateFilter, search]);
 
-  const filteredClients = useMemo(() => mockClients.filter(c =>
+  const filteredClients = useMemo(() => clientesReais.filter(c =>
     (stateFilter === 'Todos' || c.state === stateFilter) &&
     c.name.toLowerCase().includes(search.toLowerCase())
-  ), [stateFilter, search]);
+  ), [clientesReais, stateFilter, search]);
 
-  const filteredInterns = useMemo(() => mockInterns.filter(i =>
+  const filteredInterns = useMemo(() => bachareisReais.filter(i =>
     (stateFilter === 'Todos' || i.state === stateFilter) &&
     i.name.toLowerCase().includes(search.toLowerCase())
-  ), [stateFilter, search]);
+  ), [bachareisReais, stateFilter, search]);
 
-  const filteredSecretaries = useMemo(() => mockSecretaries.filter(s =>
+  const filteredSecretaries = useMemo(() => secretariosReais.filter(s =>
     (stateFilter === 'Todos' || s.state === stateFilter) &&
     s.name.toLowerCase().includes(search.toLowerCase())
-  ), [stateFilter, search]);
+  ), [secretariosReais, stateFilter, search]);
 
   const filteredServices = useMemo(() => services.filter(s =>
     s.name.toLowerCase().includes(search.toLowerCase())
@@ -1146,14 +1170,18 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-violet-500">
         <h3 className="text-base font-bold text-gray-800 mb-5">Evolução de Receita Mensal</h3>
         <div className="flex items-end gap-3 h-40">
-          {mockMonthlyRevenue.map(m => {
-            const pct = Math.round((m.revenue / maxRev) * 100);
+          {receitaPorMesReal.length === 0 && (
+            <p className="text-sm text-gray-400 dark:text-gray-500 w-full text-center self-center">
+              Sem lancamentos financeiros nos ultimos meses.
+            </p>
+          )}
+          {receitaPorMesReal.map(m => {
+            const pct = Math.round((m.recebido / maxRev) * 100);
             return (
-              <div key={m.month} className="flex-1 flex flex-col items-center gap-1">
-                <span className="text-xs text-gray-600 font-medium">R$ {(m.revenue / 1000).toFixed(0)}k</span>
+              <div key={m.mes} className="flex-1 flex flex-col items-center gap-1">
+                <span className="text-xs text-gray-600 font-medium">R$ {(m.recebido / 1000).toFixed(1)}k</span>
                 <div className="w-full bg-primary rounded-t-md" style={{ height: `${pct}%`, minHeight: 8 }} />
-                <span className="text-xs text-gray-500">{m.month}</span>
-                <span className="text-xs text-gray-400">{m.consultations} consul.</span>
+                <span className="text-xs text-gray-500">{m.mes}</span>
               </div>
             );
           })}

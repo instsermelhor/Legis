@@ -4,8 +4,18 @@
  * Com opção de sincronização local (download) do advogado.
  */
 import React, { useState, useRef } from 'react';
-import { dbDocuments } from '../../services/dbService';
-import type { ReceivedDocument } from '../../services/dbService';
+import { backend } from '../../services/modules';
+
+/** Documento na forma que a lista consome (dados reais da API). */
+interface ReceivedDocument {
+  id: string;
+  name: string;
+  type: 'pdf' | 'image';
+  size: number;
+  uploadedAt: string;
+  dataUrl: string; // URL servida por /uploads
+  lawyerId?: number;
+}
 
 const fmt = (bytes: number) => bytes < 1024 * 1024
   ? `${(bytes / 1024).toFixed(1)} KB`
@@ -22,7 +32,21 @@ interface DocumentReceiverProps {
 }
 
 export const DocumentReceiver: React.FC<DocumentReceiverProps> = ({ lawyerId }) => {
-  const [docs, setDocs] = useState<ReceivedDocument[]>(() => dbDocuments.getAll(lawyerId));
+  const [docs, setDocs] = useState<ReceivedDocument[]>([]);
+
+  const carregarDocs = React.useCallback(() => {
+    backend.documentos.listar().then(ds => setDocs(ds
+      .filter(d => d.url)
+      .map(d => ({
+        id: String(d.id),
+        name: d.nome,
+        type: d.nome.toLowerCase().endsWith('.pdf') ? 'pdf' as const : 'image' as const,
+        size: 0,
+        uploadedAt: d.data,
+        dataUrl: d.url!,
+      })))).catch(() => setDocs([]));
+  }, []);
+  React.useEffect(() => { carregarDocs(); }, [carregarDocs]);
   const [activeTab, setActiveTab] = useState<'pdf' | 'image'>('pdf');
   const [uploading, setUploading] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
@@ -36,22 +60,15 @@ export const DocumentReceiver: React.FC<DocumentReceiverProps> = ({ lawyerId }) 
     const readers = files.map(file => new Promise<void>(resolve => {
       const reader = new FileReader();
       reader.onload = ev => {
-        const doc: ReceivedDocument = {
-          id: `doc-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-          name: file.name,
-          type,
-          size: file.size,
-          uploadedAt: new Date().toISOString(),
-          dataUrl: ev.target?.result as string,
-          lawyerId,
-        };
-        dbDocuments.add(doc);
-        setDocs(dbDocuments.getAll(lawyerId));
-        resolve();
+        // dataURL -> base64 puro; o servidor grava o arquivo em /uploads.
+        const base64 = String(ev.target?.result ?? '').split(',')[1] ?? '';
+        backend.documentos.enviar({ nome: file.name, conteudoBase64: base64 })
+          .catch(erro => alert(erro instanceof Error ? erro.message : 'Falha no upload.'))
+          .finally(() => resolve());
       };
       reader.readAsDataURL(file);
     }));
-    Promise.all(readers).then(() => setUploading(false));
+    Promise.all(readers).then(() => { setUploading(false); carregarDocs(); });
     e.target.value = '';
   };
 
@@ -63,8 +80,9 @@ export const DocumentReceiver: React.FC<DocumentReceiverProps> = ({ lawyerId }) 
   };
 
   const handleDelete = (id: string) => {
-    dbDocuments.remove(id);
-    setDocs(dbDocuments.getAll(lawyerId));
+    backend.documentos.remover(Number(id))
+      .then(carregarDocs)
+      .catch(erro => alert(erro instanceof Error ? erro.message : 'Falha ao excluir.'));
     setConfirmDelete(null);
   };
 

@@ -13,6 +13,8 @@ import { rotasDocumentos, DIRETORIO_UPLOADS } from './rotas/documentos';
 import { rotasChats } from './rotas/chats';
 import { rotasAgenda } from './rotas/agenda';
 import { rotasContratos } from './rotas/contratos';
+import { rotasDados } from './rotas/dados';
+import { rotasAdmin } from './rotas/admin';
 
 const PORTA = Number(process.env.PORTA_API ?? 4000);
 
@@ -33,6 +35,8 @@ app.use('/api', rotasDocumentos);
 app.use('/api', rotasChats);
 app.use('/api', rotasAgenda);
 app.use('/api', rotasContratos);
+app.use('/api', rotasDados);
+app.use('/api', rotasAdmin);
 
 app.use('/api', (_req, res) => res.status(404).json({ erro: 'Rota não encontrada.' }));
 

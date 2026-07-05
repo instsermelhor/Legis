@@ -15,7 +15,7 @@ import {
   CalendarIcon, 
   CreditCardIcon 
 } from '../common/IconComponents';
-import { mockEfficiencyServiceGroups, mockEfficiencyServices } from '../../services/mockDataService';
+import { backend } from '../../services/modules';
 import type { EfficiencyServiceGroup, EfficiencyService, User } from '../../types';
 
 const getGroupIcon = (groupId: string, className = "w-4 h-4") => {
@@ -44,27 +44,26 @@ export interface EfficiencyServicesPageProps {
 }
 
 export const EfficiencyServicesPage: React.FC<EfficiencyServicesPageProps> = ({ embedded = false }) => {
-  const [groups] = useState<EfficiencyServiceGroup[]>(() => {
-    const isMigrated = localStorage.getItem('legis_services_initialized_v6');
-    if (!isMigrated) {
-      localStorage.setItem('legis_serviceGroups', JSON.stringify(mockEfficiencyServiceGroups));
-      localStorage.setItem('legis_services', JSON.stringify(mockEfficiencyServices));
-      localStorage.setItem('legis_services_initialized_v6', 'true');
-      return mockEfficiencyServiceGroups;
-    } else {
-      const savedGroups = localStorage.getItem('legis_serviceGroups');
-      return savedGroups ? JSON.parse(savedGroups) : mockEfficiencyServiceGroups;
-    }
-  });
-  const [services] = useState<EfficiencyService[]>(() => {
-    const isMigrated = localStorage.getItem('legis_services_initialized_v6');
-    if (!isMigrated) {
-      return mockEfficiencyServices;
-    } else {
-      const savedServices = localStorage.getItem('legis_services');
-      return savedServices ? JSON.parse(savedServices) : mockEfficiencyServices;
-    }
-  });
+  // Catálogo real (tabela servico). Grupos derivados da coluna `grupo`;
+  // "group-N" preserva os ícones por posição (nomes começam com o número).
+  const [groups, setGroups] = useState<EfficiencyServiceGroup[]>([]);
+  const [services, setServices] = useState<EfficiencyService[]>([]);
+
+  useEffect(() => {
+    backend.contratos.catalogo().then(catalogo => {
+      const nomesGrupos = [...new Set(catalogo.map(c => c.grupo).filter((g): g is string => !!g))]
+        .sort((a, b) => (parseInt(a) || 99) - (parseInt(b) || 99));
+      const idDoGrupo = new Map(nomesGrupos.map((nome, i) => [nome, `group-${i + 1}`]));
+      setGroups(nomesGrupos.map(nome => ({ id: idDoGrupo.get(nome)!, name: nome })));
+      setServices(catalogo.filter(c => c.grupo).map(c => ({
+        id: String(c.id),
+        groupId: idDoGrupo.get(c.grupo!) ?? 'group-0',
+        name: c.nome,
+        description: c.descricao ?? '',
+        price: c.preco,
+      })));
+    }).catch(() => { setGroups([]); setServices([]); });
+  }, []);
   const [groupDiscounts] = useState<Record<string, { lawyer: number; intern: number; secretary: number; client: number }>>(() => {
     const savedGroupDiscounts = localStorage.getItem('legis_group_discounts');
     return savedGroupDiscounts ? JSON.parse(savedGroupDiscounts) : {};
@@ -166,48 +165,19 @@ export const EfficiencyServicesPage: React.FC<EfficiencyServicesPageProps> = ({ 
 
     if (!loggedInUser) {
       if (!validateForm()) return;
+      // Visitante: registra o lead real no banco.
+      void backend.contratos.registrarLead({
+        nome: contactForm.name,
+        email: contactForm.email,
+        telefone: contactForm.phone,
+        servico_id: Number(selectedService.id),
+      }).catch(() => {});
+    } else {
+      // Logado: contrata o serviço de verdade (tabela contrato).
+      void backend.contratos.contratar({ servico_id: Number(selectedService.id) })
+        .catch(erro => alert(erro instanceof Error ? erro.message : 'Falha ao contratar.'));
     }
 
-    // 1. Increment contracted service count in localStorage
-    let counts: Record<string, number> = {};
-    try {
-      const saved = localStorage.getItem('legis_contracted_services');
-      if (saved) counts = JSON.parse(saved);
-      else {
-        // Initialize default mock counts
-        services.forEach((s, idx) => {
-          counts[s.id] = (idx + 1) * 3;
-        });
-      }
-    } catch (e) {
-      console.error(e);
-    }
-    
-    counts[selectedService.id] = (counts[selectedService.id] || 0) + 1;
-    localStorage.setItem('legis_contracted_services', JSON.stringify(counts));
-
-    // 2. Mock adding to financial transactions if user is logged in
-    if (loggedInUser) {
-      try {
-        const savedTxRaw = localStorage.getItem('legis_financial_tx');
-        const txList = savedTxRaw ? JSON.parse(savedTxRaw) : [];
-        const discountPct = getServiceDiscount(selectedService);
-        const finalPrice = discountPct > 0 ? selectedService.price * (1 - discountPct / 100) : selectedService.price;
-        const newTx = {
-          id: `tx-${Date.now()}`,
-          date: new Date().toISOString().split('T')[0],
-          clientName: loggedInUser.name || 'Cliente Logado',
-          description: `Contratação: ${selectedService.name}${discountPct > 0 ? ` (${discountPct}% desc.)` : ''}`,
-          amount: finalPrice,
-          status: 'pendente'
-        };
-        localStorage.setItem('legis_financial_tx', JSON.stringify([...txList, newTx]));
-      } catch (e) {
-        console.error('Error adding financial transaction', e);
-      }
-    }
-
-    // 3. Switch modals
     setIsConfirmModalOpen(false);
     setIsSuccessModalOpen(true);
     

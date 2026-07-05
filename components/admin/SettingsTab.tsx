@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { mockLegalDocuments, mockAdminUsers, mockEfficiencyServiceGroups, hashPassword, mockBiApoio, mockBiDadosBase, mockBiClientes, mockBiProdutos, mockBiFornecedores, mockBiVendas } from '../../services/mockDataService';
+import { armazemServidor } from '../../services/kvStore';
+import { mockLegalDocuments, hashPassword } from '../../services/mockDataService';
+import { backend } from '../../services/modules';
 import type { LegalDocument, AdminUser } from '../../services/mockDataService';
 import { SectionTitle, IconEdit, IconPlus, IconKey, IconUpload, IconTrash } from './AdminShared';
 import { dbCodes, LegalCode, dbCloud, CodeVersion } from '../../services/dbService';
@@ -34,7 +36,7 @@ const extractPrintableText = (arrayBuffer: ArrayBuffer, limit: number = 2000): s
 // ─── Legal Documents ──────────────────────────────────────────────────────────
 const LegalDocuments: React.FC = () => {
   const [docs, setDocs] = useState<LegalDocument[]>(() => {
-    const savedDocs = localStorage.getItem('legis_legal_docs');
+    const savedDocs = armazemServidor.getItem('legis_legal_docs');
     return savedDocs ? JSON.parse(savedDocs) : mockLegalDocuments;
   });
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -45,7 +47,7 @@ const LegalDocuments: React.FC = () => {
 
   const saveDocs = (newDocs: LegalDocument[]) => {
     setDocs(newDocs);
-    localStorage.setItem('legis_legal_docs', JSON.stringify(newDocs));
+    armazemServidor.setItem('legis_legal_docs', JSON.stringify(newDocs));
   };
 
   const handleContentChange = (id: string, content: string) => {
@@ -355,22 +357,34 @@ const Field = ({ label, error, children }: { label: string; error?: string; chil
 );
 
 const AdminUsers: React.FC = () => {
-  const [users, setUsers] = useState<AdminUser[]>(() => {
-    const saved = localStorage.getItem('legis_admin_users');
-    let loaded: AdminUser[] = saved ? JSON.parse(saved) : mockAdminUsers;
-    let needsSave = false;
-    loaded = loaded.map(u => {
-      if (!u.password.startsWith('$scrambled$')) {
-        needsSave = true;
-        return { ...u, password: hashPassword(u.password) };
-      }
-      return u;
-    });
-    if (needsSave) {
-      localStorage.setItem('legis_admin_users', JSON.stringify(loaded));
-    }
-    return loaded;
-  });
+  // Contas REAIS de admin (pessoa tipo=admin); papel/e-mail secundario no KV.
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  useEffect(() => {
+    backend.admin.pessoas('admin').then(ps => {
+      const extras: AdminUser[] = (() => {
+        try {
+          const salvo = armazemServidor.getItem('legis_admin_users');
+          return salvo ? JSON.parse(salvo) : [];
+        } catch { return []; }
+      })();
+      const porEmail = new Map(extras.map(e => [e.email.toLowerCase(), e]));
+      setUsers(ps.map(pss => {
+        const extra = porEmail.get(pss.email.toLowerCase());
+        return {
+          id: pss.id,
+          name: pss.nome,
+          email: pss.email,
+          password: '',
+          role: extra?.role ?? (pss.email === 'admin@legisconnect.com.br' ? 'super' : 'admin'),
+          createdAt: pss.criado_em.split('T')[0],
+          active: pss.ativo,
+          permissions: extra?.permissions,
+          secondaryEmail: extra?.secondaryEmail,
+          phone: extra?.phone ?? pss.telefone ?? undefined,
+        };
+      }));
+    }).catch(() => setUsers([]));
+  }, []);
   const [showForm, setShowForm] = useState(false);
   const [newUser, setNewUser] = useState({
     name: '',
@@ -408,7 +422,7 @@ const AdminUsers: React.FC = () => {
   // Role default permissions modal
   const [showRoleDefaults, setShowRoleDefaults] = useState(false);
   const [roleDefaultsDraft, setRoleDefaultsDraft] = useState<Record<AdminUser['role'], string[]>>(() => {
-    const saved = localStorage.getItem('legis_role_defaults');
+    const saved = armazemServidor.getItem('legis_role_defaults');
     return saved ? JSON.parse(saved) : { ...DEFAULT_PERMISSIONS };
   });
   const [editingRole, setEditingRole] = useState<AdminUser['role']>('admin');
@@ -416,7 +430,7 @@ const AdminUsers: React.FC = () => {
 
   const saveUsers = (newUsers: AdminUser[]) => {
     setUsers(newUsers);
-    localStorage.setItem('legis_admin_users', JSON.stringify(newUsers));
+    armazemServidor.setItem('legis_admin_users', JSON.stringify(newUsers));
   };
 
   const validateForm = () => {
@@ -434,20 +448,24 @@ const AdminUsers: React.FC = () => {
 
   const handleCreate = () => {
     if (!validateForm()) return;
-    const savedDefaults = localStorage.getItem('legis_role_defaults');
+    const savedDefaults = armazemServidor.getItem('legis_role_defaults');
     const defaults = savedDefaults ? JSON.parse(savedDefaults) : DEFAULT_PERMISSIONS;
     const user: AdminUser = {
-      id: Date.now(),
+      id: Date.now(), // substituido pelo id real apos criacao
       name: newUser.name.trim(),
       email: newUser.email.trim(),
       secondaryEmail: newUser.secondaryEmail.trim() || undefined,
       phone: newUser.phone.trim() || undefined,
-      password: hashPassword(newUser.password),
+      password: '',
       role: newUser.role,
       createdAt: new Date().toISOString().split('T')[0],
       active: true,
       permissions: defaults[newUser.role] || [],
     };
+    // Conta REAL: login passa a funcionar imediatamente.
+    void backend.admin.criarAdmin({
+      nome: user.name, email: user.email, senha: newUser.password,
+    }).catch(erro => alert(erro instanceof Error ? erro.message : 'Falha ao criar admin no servidor.'));
     saveUsers([...users, user]);
     setNewUser({ name: '', email: '', confirmSecondaryEmail: '', secondaryEmail: '', phone: '', password: '', role: 'viewer' });
     setFormErrors({});
@@ -457,6 +475,8 @@ const AdminUsers: React.FC = () => {
   };
 
   const toggleActive = (id: number) => {
+    const alvo = users.find(u => u.id === id);
+    if (alvo) void backend.admin.definirAtivo(id, !alvo.active).catch(() => {});
     saveUsers(users.map(u => u.id === id ? { ...u, active: !u.active } : u));
   };
 
@@ -474,6 +494,10 @@ const AdminUsers: React.FC = () => {
   };
 
   const handleSaveEdit = () => {
+    if (editingUser && editForm.newPassword) {
+      void backend.admin.redefinirSenha(editingUser.id, editForm.newPassword)
+        .catch(erro => alert(erro instanceof Error ? erro.message : 'Falha ao redefinir a senha.'));
+    }
     if (!editingUser) return;
     const errors: Record<string, string> = {};
     if (!editForm.name.trim()) errors.name = 'Nome obrigatório';
@@ -499,7 +523,7 @@ const AdminUsers: React.FC = () => {
           name: editForm.name.trim(),
           phone: editForm.phone.trim() || undefined,
           secondaryEmail: editForm.secondaryEmail.trim() || undefined,
-          password: editForm.newPassword ? hashPassword(editForm.newPassword) : u.password,
+          password: '',
         };
       }
       return u;
@@ -540,7 +564,7 @@ const AdminUsers: React.FC = () => {
 
   // ── Permission manager ────────────────────────────────────────────────────
   const openPermManager = (u: AdminUser) => {
-    const savedDefaults = localStorage.getItem('legis_role_defaults');
+    const savedDefaults = armazemServidor.getItem('legis_role_defaults');
     const defaults = savedDefaults ? JSON.parse(savedDefaults) : DEFAULT_PERMISSIONS;
     setPermDraft(u.permissions || defaults[u.role] || []);
     setPermUser(u);
@@ -564,7 +588,7 @@ const AdminUsers: React.FC = () => {
 
   const resetToRoleDefault = () => {
     if (!permUser) return;
-    const savedDefaults = localStorage.getItem('legis_role_defaults');
+    const savedDefaults = armazemServidor.getItem('legis_role_defaults');
     const defaults = savedDefaults ? JSON.parse(savedDefaults) : DEFAULT_PERMISSIONS;
     setPermDraft(defaults[permUser.role] || []);
   };
@@ -581,7 +605,7 @@ const AdminUsers: React.FC = () => {
   };
 
   const saveRoleDefaults = () => {
-    localStorage.setItem('legis_role_defaults', JSON.stringify(roleDefaultsDraft));
+    armazemServidor.setItem('legis_role_defaults', JSON.stringify(roleDefaultsDraft));
     setShowRoleDefaults(false);
   };
 
@@ -710,7 +734,7 @@ const AdminUsers: React.FC = () => {
           </thead>
           <tbody>
             {users.map(u => {
-              const savedDefaults = localStorage.getItem('legis_role_defaults');
+              const savedDefaults = armazemServidor.getItem('legis_role_defaults');
               const defaults = savedDefaults ? JSON.parse(savedDefaults) : DEFAULT_PERMISSIONS;
               const perms = u.permissions || defaults[u.role] || [];
               const customCount = perms.length;
@@ -1248,59 +1272,35 @@ const GeneralSettings: React.FC = () => {
 
   // BI support & transational data states
   const [biApoio, setBiApoio] = useState<BiApoio>(() => {
-    const saved = localStorage.getItem('legis_bi_tb_apoio');
-    return saved ? JSON.parse(saved) : mockBiApoio;
+    const saved = armazemServidor.getItem('legis_bi_tb_apoio');
+    return saved ? JSON.parse(saved) : { teto_execucao_anual_ums: 0, meta_razao_final: 0, periodos: [], meta_faturamento_percentual: [] };
   });
 
   const [biDadosBase, setBiDadosBase] = useState<BiDadosBase[]>(() => {
-    const saved = localStorage.getItem('legis_bi_tb_dados_base');
-    return saved ? JSON.parse(saved) : mockBiDadosBase;
+    const saved = armazemServidor.getItem('legis_bi_tb_dados_base');
+    return saved ? JSON.parse(saved) : [];
   });
 
   // New BI Equipamentos/Serviços de Eficiência states
   const [biClientes, setBiClientes] = useState<BiCliente[]>(() => {
-    const saved = localStorage.getItem('legis_bi_clientes');
-    return saved ? JSON.parse(saved) : mockBiClientes;
+    const saved = armazemServidor.getItem('legis_bi_clientes');
+    return saved ? JSON.parse(saved) : [];
   });
 
   const [biProdutos, setBiProdutos] = useState<BiProduto[]>(() => {
-    const saved = localStorage.getItem('legis_bi_produtos');
-    const parsed = saved ? JSON.parse(saved) : mockBiProdutos;
-    if (parsed.length > 0 && parsed[0].codigo && !parsed[0].codigo.startsWith('G')) {
-      localStorage.setItem('legis_bi_produtos', JSON.stringify(mockBiProdutos));
-      return mockBiProdutos;
-    }
-    return parsed;
+    const saved = armazemServidor.getItem('legis_bi_produtos');
+    return saved ? JSON.parse(saved) : [];
   });
 
   const [biFornecedores, setBiFornecedores] = useState<BiFornecedor[]>(() => {
-    const saved = localStorage.getItem('legis_bi_fornecedores');
-    const parsed = saved ? JSON.parse(saved) : mockBiFornecedores;
-    const needsMigration = parsed.some((f: BiFornecedor) => f.codigo === 'F01' || f.codigo === 'F02' || f.codigo === 'F03') || !parsed.some((f: BiFornecedor) => f.codigo === 'F0001');
-    if (needsMigration) {
-      localStorage.setItem('legis_bi_fornecedores', JSON.stringify(mockBiFornecedores));
-      // NOTE: Do NOT reset biVendas here — fornecedor migration should not destroy sales data
-      return mockBiFornecedores;
-    }
-    return parsed;
+    const saved = armazemServidor.getItem('legis_bi_fornecedores');
+    return saved ? JSON.parse(saved) : [];
   });
 
   const [biVendas, setBiVendas] = useState<BiVenda[]>(() => {
-    const saved = localStorage.getItem('legis_bi_vendas');
-    let data = saved ? JSON.parse(saved) : mockBiVendas;
-    const hasOldFornecedor = data.some((v: BiVenda) => v.fornecedor && (v.fornecedor.startsWith('F01') || v.fornecedor.startsWith('F02') || v.fornecedor.startsWith('F03')));
-    if (hasOldFornecedor || (data.length > 0 && data[0].produto && !data[0].produto.startsWith('G'))) {
-      data = mockBiVendas;
-      localStorage.setItem('legis_bi_vendas', JSON.stringify(mockBiVendas));
-    }
-    const migrated = data.map((v: BiVenda) => {
-      let status = v.status_aluguel as string;
-      if (status === 'Devolvido') status = 'Entregue';
-      else if (status === 'Não devolvido') status = 'Cancelado';
-      else if (status === 'Não retirado ainda') status = 'Em Realização';
-      return { ...v, status_aluguel: status as BiVenda['status_aluguel'] };
-    });
-    return migrated;
+    const saved = armazemServidor.getItem('legis_bi_vendas');
+    const data: BiVenda[] = saved ? JSON.parse(saved) : [];
+    return [...data].sort((a, b) => a.data.localeCompare(b.data));
   });
 
   const [biSubTab, setBiSubTab] = useState<'excel_ums' | 'servicos_aluguel'>('excel_ums');
@@ -1357,7 +1357,7 @@ const GeneralSettings: React.FC = () => {
 
   // Double-Click Inline Editing states
   const [customLabels, setCustomLabels] = useState<Record<string, string>>(() => {
-    const saved = localStorage.getItem('legis_bi_custom_labels');
+    const saved = armazemServidor.getItem('legis_bi_custom_labels');
     const defaults = {
       tab_excel_ums: 'Geral (Excel UMS)',
       tab_servicos_aluguel: 'Config. Serviços',
@@ -1398,12 +1398,12 @@ const GeneralSettings: React.FC = () => {
 
   const isSuperAdmin = () => {
     try {
-      const userRaw = localStorage.getItem('legis_user');
+      const userRaw = armazemServidor.getItem('legis_user');
       if (!userRaw) return false;
       const user = JSON.parse(userRaw);
       if (user.role !== 'admin') return false;
 
-      const adminUsersRaw = localStorage.getItem('legis_admin_users');
+      const adminUsersRaw = armazemServidor.getItem('legis_admin_users');
       const adminUsersList = adminUsersRaw ? JSON.parse(adminUsersRaw) : [
         { id: 1, name: 'Super Admin', email: 'admin@legisconnect.com.br', password: '[senha-removida]', role: 'super', createdAt: '2024-01-01', active: true }
       ];
@@ -1431,7 +1431,7 @@ const GeneralSettings: React.FC = () => {
     }
     const updated = { ...customLabels, [key]: newValue.trim() };
     setCustomLabels(updated);
-    localStorage.setItem('legis_bi_custom_labels', JSON.stringify(updated));
+    armazemServidor.setItem('legis_bi_custom_labels', JSON.stringify(updated));
     setActiveInlineEditor(null);
   };
 
@@ -1448,7 +1448,7 @@ const GeneralSettings: React.FC = () => {
     const nextClientes = [...biClientes];
     nextClientes[index] = updatedClient;
     setBiClientes(nextClientes);
-    localStorage.setItem('legis_bi_clientes', JSON.stringify(nextClientes));
+    armazemServidor.setItem('legis_bi_clientes', JSON.stringify(nextClientes));
 
     if (updatedClient.lista_concatenada !== oldConcat) {
       const updatedSales = biVendas.map(v => {
@@ -1458,7 +1458,7 @@ const GeneralSettings: React.FC = () => {
         return v;
       });
       setBiVendas(updatedSales);
-      localStorage.setItem('legis_bi_vendas', JSON.stringify(updatedSales));
+      armazemServidor.setItem('legis_bi_vendas', JSON.stringify(updatedSales));
     }
 
     setActiveInlineEditor(null);
@@ -1478,7 +1478,7 @@ const GeneralSettings: React.FC = () => {
     const nextProdutos = [...biProdutos];
     nextProdutos[index] = updatedProduct as BiProduto;
     setBiProdutos(nextProdutos);
-    localStorage.setItem('legis_bi_produtos', JSON.stringify(nextProdutos));
+    armazemServidor.setItem('legis_bi_produtos', JSON.stringify(nextProdutos));
 
     if (updatedProduct.lista_concatenada !== oldConcat) {
       const updatedSales = biVendas.map(v => {
@@ -1488,7 +1488,7 @@ const GeneralSettings: React.FC = () => {
         return v;
       });
       setBiVendas(updatedSales);
-      localStorage.setItem('legis_bi_vendas', JSON.stringify(updatedSales));
+      armazemServidor.setItem('legis_bi_vendas', JSON.stringify(updatedSales));
     }
 
     setActiveInlineEditor(null);
@@ -1507,7 +1507,7 @@ const GeneralSettings: React.FC = () => {
     const nextFornecedores = [...biFornecedores];
     nextFornecedores[index] = updatedSupplier;
     setBiFornecedores(nextFornecedores);
-    localStorage.setItem('legis_bi_fornecedores', JSON.stringify(nextFornecedores));
+    armazemServidor.setItem('legis_bi_fornecedores', JSON.stringify(nextFornecedores));
 
     if (updatedSupplier.lista_concatenada !== oldConcat) {
       const updatedSales = biVendas.map(v => {
@@ -1517,7 +1517,7 @@ const GeneralSettings: React.FC = () => {
         return v;
       });
       setBiVendas(updatedSales);
-      localStorage.setItem('legis_bi_vendas', JSON.stringify(updatedSales));
+      armazemServidor.setItem('legis_bi_vendas', JSON.stringify(updatedSales));
     }
 
     setActiveInlineEditor(null);
@@ -1583,7 +1583,7 @@ const GeneralSettings: React.FC = () => {
     const nextVendas = [...biVendas];
     nextVendas[index] = updatedSale as BiVenda;
     setBiVendas(nextVendas);
-    localStorage.setItem('legis_bi_vendas', JSON.stringify(nextVendas));
+    armazemServidor.setItem('legis_bi_vendas', JSON.stringify(nextVendas));
 
     setActiveInlineEditor(null);
   };
@@ -1604,7 +1604,7 @@ const GeneralSettings: React.FC = () => {
     const nextBase = [...biDadosBase];
     nextBase[index] = updatedTx as BiDadosBase;
     setBiDadosBase(nextBase);
-    localStorage.setItem('legis_bi_tb_dados_base', JSON.stringify(nextBase));
+    armazemServidor.setItem('legis_bi_tb_dados_base', JSON.stringify(nextBase));
 
     setActiveInlineEditor(null);
   };
@@ -1733,12 +1733,12 @@ const GeneralSettings: React.FC = () => {
       contactPhone: contactPhone.trim(),
       customFields
     });
-    localStorage.setItem('legis_bi_tb_apoio', JSON.stringify(biApoio));
-    localStorage.setItem('legis_bi_tb_dados_base', JSON.stringify(biDadosBase));
-    localStorage.setItem('legis_bi_clientes', JSON.stringify(biClientes));
-    localStorage.setItem('legis_bi_produtos', JSON.stringify(biProdutos));
-    localStorage.setItem('legis_bi_fornecedores', JSON.stringify(biFornecedores));
-    localStorage.setItem('legis_bi_vendas', JSON.stringify(biVendas));
+    armazemServidor.setItem('legis_bi_tb_apoio', JSON.stringify(biApoio));
+    armazemServidor.setItem('legis_bi_tb_dados_base', JSON.stringify(biDadosBase));
+    armazemServidor.setItem('legis_bi_clientes', JSON.stringify(biClientes));
+    armazemServidor.setItem('legis_bi_produtos', JSON.stringify(biProdutos));
+    armazemServidor.setItem('legis_bi_fornecedores', JSON.stringify(biFornecedores));
+    armazemServidor.setItem('legis_bi_vendas', JSON.stringify(biVendas));
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };
@@ -2071,8 +2071,8 @@ const GeneralSettings: React.FC = () => {
                     type="button"
                     onClick={() => {
                       if (window.confirm('Deseja redefinir a tabela transacional para os dados de teste originais?')) {
-                        setBiDadosBase(mockBiDadosBase);
-                        localStorage.setItem('legis_bi_tb_dados_base', JSON.stringify(mockBiDadosBase));
+                        setBiDadosBase([] as never);
+                        armazemServidor.removeItem('legis_bi_tb_dados_base');
                       }
                     }}
                     className="text-[10px] font-bold text-rose-600 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-900/30 px-2.5 py-1 rounded hover:bg-rose-100 dark:hover:bg-rose-900/40"
@@ -2254,7 +2254,7 @@ const GeneralSettings: React.FC = () => {
                           nextBase = [...biDadosBase, { ...txForm, id_tab: Date.now() }];
                         }
                         setBiDadosBase(nextBase);
-                        localStorage.setItem('legis_bi_tb_dados_base', JSON.stringify(nextBase));
+                        armazemServidor.setItem('legis_bi_tb_dados_base', JSON.stringify(nextBase));
                         setShowTxForm(false);
                         setEditingTxId(null);
                       }}
@@ -2359,7 +2359,7 @@ const GeneralSettings: React.FC = () => {
                               if (window.confirm('Deseja excluir este registro transacional?')) {
                                 const next = biDadosBase.filter(t => t.id_tab !== tx.id_tab);
                                 setBiDadosBase(next);
-                                localStorage.setItem('legis_bi_tb_dados_base', JSON.stringify(next));
+                                armazemServidor.setItem('legis_bi_tb_dados_base', JSON.stringify(next));
                               }
                             }}
                             className="text-rose-600 dark:text-rose-400 hover:underline font-bold"
@@ -2420,10 +2420,10 @@ const GeneralSettings: React.FC = () => {
                   type="button"
                   onClick={() => {
                     if (window.confirm('Deseja redefinir esta tabela para os dados de teste originais?')) {
-                      if (biAluguelTab === 'vendas') { setBiVendas(mockBiVendas); localStorage.setItem('legis_bi_vendas', JSON.stringify(mockBiVendas)); }
-                      else if (biAluguelTab === 'clientes') { setBiClientes(mockBiClientes); localStorage.setItem('legis_bi_clientes', JSON.stringify(mockBiClientes)); }
-                      else if (biAluguelTab === 'produtos') { setBiProdutos(mockBiProdutos); localStorage.setItem('legis_bi_produtos', JSON.stringify(mockBiProdutos)); }
-                      else if (biAluguelTab === 'fornecedores') { setBiFornecedores(mockBiFornecedores); localStorage.setItem('legis_bi_fornecedores', JSON.stringify(mockBiFornecedores)); }
+                      if (biAluguelTab === 'vendas') { setBiVendas([] as never); armazemServidor.removeItem('legis_bi_vendas'); }
+                      else if (biAluguelTab === 'clientes') { setBiClientes([] as never); armazemServidor.removeItem('legis_bi_clientes'); }
+                      else if (biAluguelTab === 'produtos') { setBiProdutos([] as never); armazemServidor.removeItem('legis_bi_produtos'); }
+                      else if (biAluguelTab === 'fornecedores') { setBiFornecedores([] as never); armazemServidor.removeItem('legis_bi_fornecedores'); }
                     }
                   }}
                   className="text-[10px] font-bold text-rose-600 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-900/30 px-2.5 py-1 rounded hover:bg-rose-100 dark:hover:bg-rose-900/40"
@@ -2503,7 +2503,7 @@ const GeneralSettings: React.FC = () => {
                         next = [...biClientes, payload];
                       }
                       setBiClientes(next);
-                      localStorage.setItem('legis_bi_clientes', JSON.stringify(next));
+                      armazemServidor.setItem('legis_bi_clientes', JSON.stringify(next));
                       setShowAluguelForm(false);
                       setEditingAluguelId(null);
                     }}
@@ -2557,7 +2557,7 @@ const GeneralSettings: React.FC = () => {
                         next = [...biProdutos, payload];
                       }
                       setBiProdutos(next);
-                      localStorage.setItem('legis_bi_produtos', JSON.stringify(next));
+                      armazemServidor.setItem('legis_bi_produtos', JSON.stringify(next));
                       setShowAluguelForm(false);
                       setEditingAluguelId(null);
                     }}
@@ -2607,7 +2607,7 @@ const GeneralSettings: React.FC = () => {
                         next = [...biFornecedores, payload];
                       }
                       setBiFornecedores(next);
-                      localStorage.setItem('legis_bi_fornecedores', JSON.stringify(next));
+                      armazemServidor.setItem('legis_bi_fornecedores', JSON.stringify(next));
                       setShowAluguelForm(false);
                       setEditingAluguelId(null);
                     }}
@@ -2795,7 +2795,7 @@ const GeneralSettings: React.FC = () => {
                         next = [...biVendas, saleForm];
                       }
                       setBiVendas(next);
-                      localStorage.setItem('legis_bi_vendas', JSON.stringify(next));
+                      armazemServidor.setItem('legis_bi_vendas', JSON.stringify(next));
                       setShowAluguelForm(false);
                       setEditingAluguelId(null);
                     }}
@@ -2870,7 +2870,7 @@ const GeneralSettings: React.FC = () => {
                               if (window.confirm('Excluir este cliente?')) {
                                 const next = biClientes.filter(x => x.lista_concatenada !== c.lista_concatenada);
                                 setBiClientes(next);
-                                localStorage.setItem('legis_bi_clientes', JSON.stringify(next));
+                                armazemServidor.setItem('legis_bi_clientes', JSON.stringify(next));
                               }
                             }}
                             className="text-rose-600 dark:text-rose-400 hover:underline font-bold"
@@ -2951,7 +2951,7 @@ const GeneralSettings: React.FC = () => {
                               if (window.confirm('Excluir este produto?')) {
                                 const next = biProdutos.filter(x => x.lista_concatenada !== p.lista_concatenada);
                                 setBiProdutos(next);
-                                localStorage.setItem('legis_bi_produtos', JSON.stringify(next));
+                                armazemServidor.setItem('legis_bi_produtos', JSON.stringify(next));
                               }
                             }}
                             className="text-rose-600 dark:text-rose-400 hover:underline font-bold"
@@ -3022,7 +3022,7 @@ const GeneralSettings: React.FC = () => {
                               if (window.confirm('Excluir este fornecedor?')) {
                                 const next = biFornecedores.filter(x => x.lista_concatenada !== f.lista_concatenada);
                                 setBiFornecedores(next);
-                                localStorage.setItem('legis_bi_fornecedores', JSON.stringify(next));
+                                armazemServidor.setItem('legis_bi_fornecedores', JSON.stringify(next));
                               }
                             }}
                             className="text-rose-600 dark:text-rose-400 hover:underline font-bold"
@@ -3140,7 +3140,7 @@ const GeneralSettings: React.FC = () => {
                               if (window.confirm('Excluir este lançamento de aluguer?')) {
                                 const next = biVendas.filter(x => x.id_tab !== v.id_tab);
                                 setBiVendas(next);
-                                localStorage.setItem('legis_bi_vendas', JSON.stringify(next));
+                                armazemServidor.setItem('legis_bi_vendas', JSON.stringify(next));
                               }
                             }}
                             className="text-rose-600 dark:text-rose-400 hover:underline font-bold"
@@ -3460,7 +3460,7 @@ Valor_Cancelado = CALCULATE([Faturamento_Total], fato_vendas[Status do Serviço]
 
 const ServiceGroupsSettings: React.FC = () => {
   const [groups, setGroups] = useState<EfficiencyServiceGroup[]>(() => {
-    const saved = localStorage.getItem('legis_serviceGroups');
+    const saved = armazemServidor.getItem('legis_serviceGroups');
     return saved ? JSON.parse(saved) : mockEfficiencyServiceGroups;
   });
   const [showForm, setShowForm] = useState(false);
@@ -3469,7 +3469,7 @@ const ServiceGroupsSettings: React.FC = () => {
 
   const saveToStorage = (newGroups: EfficiencyServiceGroup[]) => {
     setGroups(newGroups);
-    localStorage.setItem('legis_serviceGroups', JSON.stringify(newGroups));
+    armazemServidor.setItem('legis_serviceGroups', JSON.stringify(newGroups));
   };
 
   const handleSave = () => {
@@ -3813,25 +3813,25 @@ const DatabaseSettings: React.FC = () => {
 
   // Status for Local and Cloud connections
   const [localStatus, setLocalStatus] = useState<'connected' | 'failed' | 'not_connected'>(() => {
-    const savedStatus = localStorage.getItem('legis_db_local_status');
+    const savedStatus = armazemServidor.getItem('legis_db_local_status');
     if (savedStatus) return savedStatus as 'connected' | 'failed' | 'not_connected';
     return config.dbType === 'local' ? 'connected' : 'not_connected';
   });
 
   const [cloudStatus, setCloudStatus] = useState<'connected' | 'failed' | 'not_connected'>(() => {
-    const savedStatus = localStorage.getItem('legis_db_cloud_status');
+    const savedStatus = armazemServidor.getItem('legis_db_cloud_status');
     if (savedStatus) return savedStatus as 'connected' | 'failed' | 'not_connected';
     return config.dbType === 'cloud' ? 'not_connected' : 'not_connected';
   });
 
   const updateLocalStatus = (status: 'connected' | 'failed' | 'not_connected') => {
     setLocalStatus(status);
-    localStorage.setItem('legis_db_local_status', status);
+    armazemServidor.setItem('legis_db_local_status', status);
   };
 
   const updateCloudStatus = (status: 'connected' | 'failed' | 'not_connected') => {
     setCloudStatus(status);
-    localStorage.setItem('legis_db_cloud_status', status);
+    armazemServidor.setItem('legis_db_cloud_status', status);
   };
 
   const handleSave = () => {
@@ -4236,16 +4236,16 @@ const APIConnections: React.FC = () => {
 
   // ── State ──────────────────────────────────────────────────────────────────
   const [customApis, setCustomApis] = useState<ApiEntry[]>(() => {
-    try { return JSON.parse(localStorage.getItem('legis_custom_apis') || '[]'); } catch { return []; }
+    try { return JSON.parse(armazemServidor.getItem('legis_custom_apis') || '[]'); } catch { return []; }
   });
 
   const allApis: ApiEntry[] = [...APIS, ...customApis];
 
   const [enabledApis, setEnabledApis] = useState<Record<string, boolean>>(() => {
-    try { return JSON.parse(localStorage.getItem('legis_api_enabled') || '{}'); } catch { return {}; }
+    try { return JSON.parse(armazemServidor.getItem('legis_api_enabled') || '{}'); } catch { return {}; }
   });
   const [apiValues, setApiValues] = useState<Record<string, Record<string, string>>>(() => {
-    try { return JSON.parse(localStorage.getItem('legis_api_values') || '{}'); } catch { return {}; }
+    try { return JSON.parse(armazemServidor.getItem('legis_api_values') || '{}'); } catch { return {}; }
   });
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
@@ -4274,7 +4274,7 @@ const APIConnections: React.FC = () => {
     };
     const next = [...customApis, entry];
     setCustomApis(next);
-    localStorage.setItem('legis_custom_apis', JSON.stringify(next));
+    armazemServidor.setItem('legis_custom_apis', JSON.stringify(next));
     setNewApi({ label: '', icon: '🔌', description: '', endpoint: '', keyLabel: 'API Key' });
     setShowAddForm(false);
   };
@@ -4285,11 +4285,11 @@ const APIConnections: React.FC = () => {
   const handleDeleteApi = (id: string) => {
     const next = customApis.filter(a => a.id !== id);
     setCustomApis(next);
-    localStorage.setItem('legis_custom_apis', JSON.stringify(next));
+    armazemServidor.setItem('legis_custom_apis', JSON.stringify(next));
     const nextEnabled = { ...enabledApis };
     delete nextEnabled[id];
     setEnabledApis(nextEnabled);
-    localStorage.setItem('legis_api_enabled', JSON.stringify(nextEnabled));
+    armazemServidor.setItem('legis_api_enabled', JSON.stringify(nextEnabled));
     setDeleteConfirmId(null);
   };
 
@@ -4297,14 +4297,14 @@ const APIConnections: React.FC = () => {
   const toggleApi = (id: string) => {
     const next = { ...enabledApis, [id]: !enabledApis[id] };
     setEnabledApis(next);
-    localStorage.setItem('legis_api_enabled', JSON.stringify(next));
+    armazemServidor.setItem('legis_api_enabled', JSON.stringify(next));
   };
 
   const setField = (apiId: string, key: string, value: string) =>
     setApiValues(prev => ({ ...prev, [apiId]: { ...prev[apiId], [key]: value } }));
 
   const handleSaveApi = (id: string) => {
-    localStorage.setItem('legis_api_values', JSON.stringify(apiValues));
+    armazemServidor.setItem('legis_api_values', JSON.stringify(apiValues));
     setSavedId(id);
     setTimeout(() => setSavedId(null), 2500);
   };

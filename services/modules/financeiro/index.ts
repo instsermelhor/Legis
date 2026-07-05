@@ -44,6 +44,10 @@ export const financeiroService = {
   atualizarLancamento: (fcontaId: number, dados: Partial<Pick<FContaApi, 'descricao' | 'valor' | 'status' | 'data'>>) =>
     api.put<FContaApi>(`/fcontas/${fcontaId}`, dados),
 
+  /** Todos os lançamentos no escopo da pessoa (tenant/parte). */
+  lancamentos: () =>
+    api.get<Array<FContaApi & { processo_id: number | null; processo_numero: string | null; processo_nome: string | null }>>('/financeiro/fcontas'),
+
   /** Totais + fluxo de caixa dos últimos 6 meses da pessoa logada. */
   resumo: () => api.get<ResumoFinanceiroApi>('/financeiro/resumo'),
 };

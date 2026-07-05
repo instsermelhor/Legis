@@ -1,3 +1,4 @@
+import { armazemServidor } from './kvStore';
 // ─────────────────────────────────────────────────────────────────────────────
 // services/staffService.ts
 // Gestão de Colaboradores Internos da Plataforma (PlatformStaff)
@@ -96,21 +97,21 @@ const INITIAL_STAFF: PlatformStaff[] = [
 
 // ─── Inicialização ────────────────────────────────────────────────────────────
 function initializeStaff(): void {
-  const existing = localStorage.getItem(STAFF_KEY);
+  const existing = armazemServidor.getItem(STAFF_KEY);
   if (!existing) {
-    localStorage.setItem(STAFF_KEY, JSON.stringify(INITIAL_STAFF));
+    armazemServidor.setItem(STAFF_KEY, JSON.stringify(INITIAL_STAFF));
   }
 }
 
 function readStaff(): PlatformStaff[] {
   try {
-    const raw = localStorage.getItem(STAFF_KEY);
+    const raw = armazemServidor.getItem(STAFF_KEY);
     return raw ? JSON.parse(raw) : INITIAL_STAFF;
   } catch { return INITIAL_STAFF; }
 }
 
 function writeStaff(staff: PlatformStaff[]): void {
-  localStorage.setItem(STAFF_KEY, JSON.stringify(staff));
+  armazemServidor.setItem(STAFF_KEY, JSON.stringify(staff));
 }
 
 function generateStaffId(): string {

@@ -28,6 +28,15 @@ rotasDocumentos.get('/documentos', exigirLogin, async (req, res) => {
   const processoId = req.query.processo_id ? Number(req.query.processo_id) : null;
   const pessoaId = req.query.pessoa_id ? Number(req.query.pessoa_id) : null;
 
+  // Escopo multi-tenant: equipe ve documentos do escritorio; cliente ve os
+  // proprios e os dos processos em que e parte; admin ve tudo.
+  const p = req.pessoa!;
+  const escopo =
+    p.tipo === 'admin' ? { sql: 'TRUE', params: [] as unknown[] } :
+    p.tipo === 'cliente'
+      ? { sql: '(d.pessoa_id = $3 OR EXISTS (SELECT 1 FROM processo pr WHERE pr.id = d.processo_id AND pr.cliente_id = $3))', params: [p.id] }
+      : { sql: 'd.tenant_id = $3', params: [p.tenant_id] };
+
   const r = await q(
     `SELECT d.id, d.nome, d.descricao, d.tipo_id, dt.nome AS tipo_nome,
             d.campos, d.url, d.data, d.pessoa_id, d.processo_id
@@ -35,9 +44,9 @@ rotasDocumentos.get('/documentos', exigirLogin, async (req, res) => {
        LEFT JOIN documento_tipo dt ON dt.id = d.tipo_id
       WHERE ($1::int IS NULL OR d.processo_id = $1)
         AND ($2::int IS NULL OR d.pessoa_id = $2)
-        AND ($1::int IS NOT NULL OR $2::int IS NOT NULL OR d.pessoa_id = $3)
+        AND ${escopo.sql}
       ORDER BY d.data DESC, d.id DESC`,
-    [processoId, pessoaId, req.pessoa!.id]
+    [processoId, pessoaId, ...escopo.params]
   );
   res.json(r.rows);
 });
@@ -58,11 +67,19 @@ rotasDocumentos.post('/documentos', exigirLogin, async (req, res) => {
     url = `/uploads/${nomeArquivo}`;
   }
 
+  // Documento nasce no tenant do processo (se houver) ou no da pessoa.
+  let tenantId = req.pessoa!.tenant_id;
+  if (processo_id) {
+    const pr = await q<{ tenant_id: number }>('SELECT tenant_id FROM processo WHERE id = $1', [processo_id]);
+    if (!pr.rows[0]) return res.status(400).json({ erro: 'Processo nao encontrado.' });
+    tenantId = pr.rows[0].tenant_id;
+  }
+
   const r = await q(
-    `INSERT INTO documento (nome, descricao, tipo_id, url, pessoa_id, processo_id)
-     VALUES ($1, $2, $3, $4, $5, $6)
+    `INSERT INTO documento (tenant_id, nome, descricao, tipo_id, url, pessoa_id, processo_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
      RETURNING id, nome, descricao, tipo_id, campos, url, data, pessoa_id, processo_id`,
-    [nome, descricao ?? null, tipo_id ?? null, url, req.pessoa!.id, processo_id ?? null]
+    [tenantId, nome, descricao ?? null, tipo_id ?? null, url, req.pessoa!.id, processo_id ?? null]
   );
   res.status(201).json(r.rows[0]);
 });

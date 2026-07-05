@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { analyzeCaseWithGemini, findPlacesWithMaps } from '../../services/geminiService';
-import { mockLawyers } from '../../services/mockLawyerService';
+import { backend } from '../../services/modules';
+import { advogadoParaLawyer } from '../../services/modules/pessoas/adaptador';
 import type { Lawyer, MapsSearchResult } from '../../types';
 import { LocationMarkerIcon } from '../common/IconComponents';
 import { CaseStore } from '../../utils/sessionStore';
@@ -62,14 +63,16 @@ export const CaseDescriptionForm: React.FC<CaseDescriptionFormProps> = ({
         findPlacesWithMaps(description, coords || undefined),
       ]);
       const relevantSpecialties = [analysis.primaryArea, ...analysis.specializations];
-      const results = mockLawyers.filter(l =>
-        l.specialties.some(s => relevantSpecialties.includes(s))
+      const todos = (await backend.pessoas.advogados.listar().catch(() => [])).map(advogadoParaLawyer);
+      const results = todos.filter(l =>
+        analysis.recommendedSpecialties.some(spec => l.specialties.includes(spec))
       );
-      onSearch(results.length > 0 ? results : mockLawyers, mapsData);
+      onSearch(results.length > 0 ? results : todos, mapsData);
     } catch (err) {
       console.error(err);
       setError('Ocorreu um erro ao analisar seu caso. Exibindo resultados gerais.');
-      onSearch(mockLawyers, null);
+      const todos = (await backend.pessoas.advogados.listar().catch(() => [])).map(advogadoParaLawyer);
+      onSearch(todos, null);
     } finally {
       setIsLoading(false);
     }

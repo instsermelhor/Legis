@@ -3,7 +3,9 @@ import type { Secretary, Case } from '../../types';
 import { ChangePasswordModal } from '../common/ChangePasswordModal';
 import { ChangeEmailModal } from '../common/ChangeEmailModal';
 import { LawyerInfoPopup } from '../common/LawyerInfoPopup';
-import { mockLawyers } from '../../services/mockLawyerService';
+import { backend } from '../../services/modules';
+import { advogadoParaLawyer } from '../../services/modules/pessoas/adaptador';
+import type { Lawyer } from '../../types';
 import { XIcon } from '../common/IconComponents';
 import SocialLinksEditor from '../common/SocialLinksEditor';
 import type { SocialLink } from '../common/SocialLinksEditor';
@@ -183,9 +185,14 @@ const ProcessDocModal: React.FC<ProcessDocModalProps> = ({ onClose, onConfirm, d
     }
     const matched = delegatedCases.find(c => c.id === caseId);
     if (matched) {
-      const matchedLawyer = mockLawyers.find(l => l.id === matched.lawyerId || l.name === matched.lawyerName);
-      setOab(matchedLawyer ? matchedLawyer.oab : 'OAB N/D');
       setLawyerName(matched.lawyerName);
+      if (matched.lawyerId) {
+        backend.pessoas.advogados.obter(matched.lawyerId)
+          .then(a => setOab(a.oab))
+          .catch(() => setOab('OAB N/D'));
+      } else {
+        setOab('OAB N/D');
+      }
     }
   };
 
@@ -370,12 +377,18 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
     return saved ? JSON.parse(saved) : ['pecas', 'pesquisas', 'audios', 'transcricao', 'fundamentacoes', 'revisao', 'jurisprudencia', 'manifestacao'];
   }, [secretary.id]);
 
-  const delegatedCases = useMemo(() => {
-    const savedDelegated = localStorage.getItem(`legis_delegated_cases_secretary_${secretary.id}`);
-    const delegatedIds: string[] = savedDelegated ? JSON.parse(savedDelegated) : [];
-    const savedCases = localStorage.getItem('legis_lawyer_cases');
-    const allCases: Case[] = savedCases ? JSON.parse(savedCases) : [];
-    return allCases.filter(c => delegatedIds.includes(c.id));
+  // Casos do escritorio — o servidor isola por tenant.
+  const [delegatedCases, setDelegatedCases] = useState<Case[]>([]);
+  React.useEffect(() => {
+    backend.processos.listar().then(ps => setDelegatedCases(ps.map(p2 => ({
+      id: p2.numero,
+      title: p2.nome,
+      clientName: p2.cliente_nome ?? '—',
+      lawyerName: p2.advogado_nome,
+      lawyerId: p2.advogado_id,
+      status: p2.status === 'Concluído' ? 'Concluído' as const : 'Ativo' as const,
+      stages: [],
+    })))).catch(() => setDelegatedCases([]));
   }, [secretary.id]);
 
   const [showEmailModal, setShowEmailModal] = useState(false);
@@ -416,9 +429,16 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
     () => (secretary.socialLinks as SocialLink[] | undefined) || []
   );
 
-  const assignedLawyer = secretary.assignedLawyerId
-    ? mockLawyers.find(l => l.id === secretary.assignedLawyerId) || null
-    : null;
+  const [assignedLawyer, setAssignedLawyer] = useState<Lawyer | null>(null);
+  React.useEffect(() => {
+    if (secretary.assignedLawyerId) {
+      backend.pessoas.advogados.obter(secretary.assignedLawyerId)
+        .then(a => setAssignedLawyer(advogadoParaLawyer(a)))
+        .catch(() => setAssignedLawyer(null));
+    } else {
+      setAssignedLawyer(null);
+    }
+  }, [secretary.assignedLawyerId]);
 
   const handleSaveProfile = () => {
     if (onUpdateSecretary) onUpdateSecretary({

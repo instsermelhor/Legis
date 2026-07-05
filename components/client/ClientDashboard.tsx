@@ -1,6 +1,7 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
-import type { User, Message, Case, View } from '../../types';
-import { mockLawyers } from '../../services/mockLawyerService';
+import React, { useState, useRef, useEffect } from 'react';
+import type { User, Message, Lawyer, View } from '../../types';
+import { advogadoParaLawyer } from '../../services/modules/pessoas/adaptador';
+
 import { PaperAirplaneIcon, BriefcaseIcon, VideoCameraIcon, XIcon } from '../common/IconComponents';
 import { DashboardShell, type ShellNavGroup } from '../ui';
 import { backend } from '../../services/modules';
@@ -47,15 +48,6 @@ const MENU_ITEMS: { id: ClientTab; label: string; emoji: string; desc: string }[
   { id: 'financeiro',         label: 'Financeiro',           emoji: '💳', desc: 'Faturas & Pagamentos' },
 ];
 
-// ─── Fallback data ─────────────────────────────────────────────────────────────
-
-const FALLBACK_LAWYER = mockLawyers[0];
-
-const initialMessages: Message[] = [
-  { id: 1, sender: 'lawyer', text: 'Olá! Recebi os detalhes do seu caso. Para começarmos, poderia me enviar a documentação que mencionei?', timestamp: '10:30', avatarUrl: FALLBACK_LAWYER.photoUrl },
-  { id: 2, sender: 'client', text: 'Bom dia, Dr. Carlos. Sim, já estou com os documentos. Enviando em anexo.', timestamp: '10:32', avatarUrl: 'https://i.pravatar.cc/40?u=client' },
-  { id: 3, sender: 'lawyer', text: 'Perfeito, recebi aqui. Vou analisar e te retorno em breve com os próximos passos.', timestamp: '10:35', avatarUrl: FALLBACK_LAWYER.photoUrl },
-];
 
 // ─── Inline upload types (kept for the Meu Advogado chat panel in overview) ───
 
@@ -71,7 +63,7 @@ interface UploadedDoc {
 // ─── Floating Chat Panel ──────────────────────────────────────────────────────
 
 interface FloatingChatProps {
-  lawyer: typeof FALLBACK_LAWYER;
+  lawyer: Lawyer;
   messages: Message[];
   onSend: (e: React.FormEvent) => void;
   newMessage: string;
@@ -147,20 +139,40 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
   // ── Navigation ──
   const [activeTab, setActiveTab] = useState<ClientTab>('overview');
 
-  // ── Chat (flutuante — persistido no módulo backend.chat) ──
+  // ── Chat (flutuante — persistido no PostgreSQL via API) ──
   const [showChat, setShowChat] = useState(false);
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // ── Derived data ──
+  // ── Advogado do caso ativo, resolvido na API ──
   const activeCase = user.caseHistory?.find(c => c.status === 'Ativo');
-  const resolvedLawyer = useMemo(() => {
+  const [resolvedLawyer, setResolvedLawyer] = useState<Lawyer | null>(null);
+
+  useEffect(() => {
     if (activeCase?.lawyerId) {
-      return mockLawyers.find(l => l.id === activeCase.lawyerId) || FALLBACK_LAWYER;
+      backend.pessoas.advogados.obter(activeCase.lawyerId)
+        .then(a => setResolvedLawyer(advogadoParaLawyer(a)))
+        .catch(() => setResolvedLawyer(null));
+    } else {
+      setResolvedLawyer(null);
     }
-    return FALLBACK_LAWYER;
-  }, [activeCase]);
+  }, [activeCase?.lawyerId]);
+
+  // Historico real do chat quando o painel abre.
+  useEffect(() => {
+    if (!showChat || !resolvedLawyer) return;
+    backend.chat.abrirCom(resolvedLawyer.id)
+      .then(chat => backend.chat.mensagens(chat.id))
+      .then(ms => setMessages(ms.map(m => ({
+        id: m.id,
+        sender: m.pessoa_id === resolvedLawyer.id ? 'lawyer' as const : 'client' as const,
+        text: m.texto,
+        timestamp: new Date(m.criado_em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        avatarUrl: m.pessoa_id === resolvedLawyer.id ? resolvedLawyer.photoUrl : 'https://i.pravatar.cc/40?u=client',
+      }))))
+      .catch(() => {});
+  }, [showChat, resolvedLawyer]);
 
   const upcomingAppointment = useMemo(() => {
     if (!user.appointments) return null;
@@ -203,7 +215,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
       avatarUrl: 'https://i.pravatar.cc/40?u=client',
     };
     // Persiste no PostgreSQL via API (entidades Chat/Mensagens do diagrama)
-    void backend.chat.enviarPara(resolvedLawyer.id, newMessage).catch(() => {});
+    if (resolvedLawyer) void backend.chat.enviarPara(resolvedLawyer.id, newMessage).catch(() => {});
     setMessages(prev => [...prev, msg]);
     setNewMessage('');
   };
@@ -224,7 +236,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
     },
   ];
 
-  const chatSidebarButton = activeCase ? (
+  const chatSidebarButton = activeCase && resolvedLawyer ? (
     <button
       onClick={() => setShowChat(v => !v)}
       className="mb-4 w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-violet-50 dark:bg-violet-900/20 border border-violet-200 dark:border-violet-900/30 text-violet-700 dark:text-violet-300 text-xs font-semibold hover:bg-violet-100 dark:hover:bg-violet-900/30 transition-colors"
@@ -305,7 +317,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
       </DashboardShell>
 
       {/* ── Floating Chat ── */}
-      {showChat && (
+      {showChat && resolvedLawyer && (
         <FloatingChat
           lawyer={resolvedLawyer}
           messages={messages}

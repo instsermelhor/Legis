@@ -1,6 +1,6 @@
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo, useEffect } from 'react';
 import type { Lawyer } from '../../types';
-import { mockClients, mockInterns, mockSecretaries } from '../../services/mockDataService';
+import { backend } from '../../services/modules';
 import type { MockClient, MockIntern, MockSecretary } from '../../services/mockDataService';
 import { SearchInput, SectionTitle, IconEdit, IconBriefcase, IconUsers, IconGradCap, lawyerStatusBadge, clientStatusBadge, internStatusBadge } from './AdminShared';
 import { ConfirmSaveModal, ConfirmSaveField } from '../common/ConfirmSaveModal';
@@ -953,18 +953,39 @@ export const RegistrationsTab: React.FC<{ lawyers: Lawyer[]; onLawyerUpdate: (l:
   const [recordType, setRecordType] = useState<RecordType>('lawyers');
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<{ type: RecordType; id: number } | null>(null);
-  const [clients, setClients] = useState(() => {
-    const stored = localStorage.getItem('legis_clients');
-    return stored ? JSON.parse(stored) : mockClients;
-  });
-  const [interns, setInterns] = useState(() => {
-    const stored = localStorage.getItem('legis_interns');
-    return stored ? JSON.parse(stored) : mockInterns;
-  });
-  const [secretaries, setSecretaries] = useState(() => {
-    const stored = localStorage.getItem('legis_secretaries');
-    return stored ? JSON.parse(stored) : mockSecretaries;
-  });
+  // Cadastros reais (API, escopo admin), mapeados para as formas da UI.
+  const [clients, setClients] = useState<MockClient[]>([]);
+  const [interns, setInterns] = useState<MockIntern[]>([]);
+  const [secretaries, setSecretaries] = useState<MockSecretary[]>([]);
+
+  useEffect(() => {
+    backend.admin.pessoas('cliente').then(ps => setClients(ps.map(c => ({
+      id: c.id, name: c.nome, email: c.email, phone: c.telefone ?? '',
+      address: '', city: c.cidade ?? '', state: c.estado ?? '', cpf: '',
+      activeCases: 0, totalCases: 0, joinedDate: c.criado_em.split('T')[0],
+      status: c.ativo ? 'ativo' as const : 'inativo' as const,
+      totalPaid: 0, pendingAmount: 0, lastCaseArea: '',
+    })))).catch(() => {});
+
+    backend.pessoas.bachareis.listar().then(bs => setInterns(bs.map(b => ({
+      id: b.id, name: b.nome, email: b.email, phone: b.telefone ?? '',
+      university: b.universidade ?? '', semester: b.semestre ?? '',
+      specialtyInterest: b.interesse ?? '', hoursCompleted: 0, availableHours: 200,
+      status: 'ativo' as const, joinedDate: '',
+      city: b.cidade ?? '', state: b.estado ?? '',
+      supervisorLawyerId: b.supervisor_id ?? undefined,
+    })))).catch(() => {});
+
+    backend.pessoas.secretarios.listar().then(ss => setSecretaries(ss.map(sec => ({
+      id: sec.id, name: sec.nome, email: sec.email, phone: sec.telefone ?? '',
+      city: sec.cidade ?? '', state: sec.estado ?? '',
+      experience: sec.experiencia_anos,
+      areasOfKnowledge: [],
+      availability: (sec.disponibilidade as MockSecretary['availability']) ?? 'integral',
+      status: 'ativo' as const, joinedDate: '',
+      assignedLawyerId: sec.advogado_id ?? undefined,
+    })))).catch(() => {});
+  }, []);
 
   const filteredLawyers = useMemo(() => lawyers.filter(l => l.name.toLowerCase().includes(search.toLowerCase())), [lawyers, search]);
   const filteredClients = useMemo(() => clients.filter(c => c.name.toLowerCase().includes(search.toLowerCase())), [clients, search]);
@@ -979,27 +1000,34 @@ export const RegistrationsTab: React.FC<{ lawyers: Lawyer[]; onLawyerUpdate: (l:
     if (editing.type === 'clients') {
       const c = clients.find(x => x.id === editing.id)!;
       return <ClientEditor client={c} onSave={u => {
-        const next = clients.map(x => x.id === u.id ? u : x);
-        setClients(next);
-        localStorage.setItem('legis_clients', JSON.stringify(next));
+        setClients(clients.map(x => x.id === u.id ? u : x));
+        void backend.pessoas.atualizarConta(u.id, { nome: u.name, telefone: u.phone, cidade: u.city, estado: u.state })
+          .catch(() => alert('Falha ao salvar no servidor.'));
+        void backend.admin.definirAtivo(u.id, u.status === 'ativo').catch(() => {});
         setEditing(null);
       }} onBack={() => setEditing(null)} />;
     }
     if (editing.type === 'interns') {
       const i = interns.find(x => x.id === editing.id)!;
       return <InternEditor intern={i} onSave={u => {
-        const next = interns.map(x => x.id === u.id ? u : x);
-        setInterns(next);
-        localStorage.setItem('legis_interns', JSON.stringify(next));
+        setInterns(interns.map(x => x.id === u.id ? u : x));
+        void backend.pessoas.atualizarConta(u.id, { nome: u.name, telefone: u.phone, cidade: u.city, estado: u.state })
+          .catch(() => alert('Falha ao salvar no servidor.'));
+        void backend.pessoas.bachareis.atualizar(u.id, {
+          universidade: u.university, semestre: u.semester, interesse: u.specialtyInterest,
+        }).catch(() => {});
         setEditing(null);
       }} onBack={() => setEditing(null)} />;
     }
     if (editing.type === 'secretaries') {
       const s = secretaries.find(x => x.id === editing.id)!;
       return <SecretaryEditor secretary={s} onSave={u => {
-        const next = secretaries.map(x => x.id === u.id ? u : x);
-        setSecretaries(next);
-        localStorage.setItem('legis_secretaries', JSON.stringify(next));
+        setSecretaries(secretaries.map(x => x.id === u.id ? u : x));
+        void backend.pessoas.atualizarConta(u.id, { nome: u.name, telefone: u.phone, cidade: u.city, estado: u.state })
+          .catch(() => alert('Falha ao salvar no servidor.'));
+        void backend.pessoas.secretarios.atualizar(u.id, {
+          experiencia_anos: u.experience, disponibilidade: u.availability,
+        }).catch(() => {});
         setEditing(null);
       }} onBack={() => setEditing(null)} />;
     }

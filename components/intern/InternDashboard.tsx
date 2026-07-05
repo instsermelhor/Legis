@@ -6,8 +6,8 @@ import { ChangePasswordModal } from '../common/ChangePasswordModal';
 import { ChangeEmailModal } from '../common/ChangeEmailModal';
 import { LawyerInfoPopup } from '../common/LawyerInfoPopup';
 import { ApiStatusPanel } from '../common/ApiStatusPanel';
-import { mockLawyers } from '../../services/mockLawyerService';
-import { mockInterns } from '../../services/mockDataService';
+import { backend } from '../../services/modules';
+import { advogadoParaLawyer } from '../../services/modules/pessoas/adaptador';
 import { LegalAiTools } from '../common/LegalAiTools';
 import { EfficiencyServicesPage } from '../client/EfficiencyServicesPage';
 import SocialLinksEditor from '../common/SocialLinksEditor';
@@ -435,17 +435,31 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
     const [activeTab, setActiveTab] = useState<'overview' | 'perfil' | 'studies' | 'hours' | 'casos' | 'apis' | 'iaTools' | 'efficiency_services'>('overview');
     const [showLawyerPopup, setShowLawyerPopup] = useState(false);
 
-    const mockInternData = mockInterns.find(i => i.name === intern.name);
-    const supervisorLawyerId = intern.supervisorLawyerId !== undefined ? intern.supervisorLawyerId : mockInternData?.supervisorLawyerId;
-    const supervisorLawyer = supervisorLawyerId ? mockLawyers.find(l => l.id === supervisorLawyerId) || null : null;
+    // Supervisor real (vem do perfil do banco) e casos do escritorio (tenant).
+    const supervisorLawyerId = intern.supervisorLawyerId ?? undefined;
+    const [supervisorLawyer, setSupervisorLawyer] = useState<import('../../types').Lawyer | null>(null);
+    const [delegatedCases, setDelegatedCases] = useState<Case[]>([]);
 
-    const delegatedCases = useMemo(() => {
-        const savedDelegated = localStorage.getItem(`legis_delegated_cases_intern_${intern.id}`);
-        const delegatedIds: string[] = savedDelegated ? JSON.parse(savedDelegated) : [];
-        const savedCases = localStorage.getItem('legis_lawyer_cases');
-        const allCases: Case[] = savedCases ? JSON.parse(savedCases) : [];
-        return allCases.filter(c => delegatedIds.includes(c.id));
-    }, [intern.id]);
+    React.useEffect(() => {
+        if (supervisorLawyerId) {
+            backend.pessoas.advogados.obter(supervisorLawyerId)
+                .then(a => setSupervisorLawyer(advogadoParaLawyer(a)))
+                .catch(() => setSupervisorLawyer(null));
+        } else {
+            setSupervisorLawyer(null);
+        }
+
+        // Processos do escritorio — o servidor ja isola por tenant.
+        backend.processos.listar().then(ps => setDelegatedCases(ps.map(p2 => ({
+            id: p2.numero,
+            title: p2.nome,
+            clientName: p2.cliente_nome ?? '—',
+            lawyerName: p2.advogado_nome,
+            lawyerId: p2.advogado_id,
+            status: p2.status === 'Concluído' ? 'Concluído' as const : 'Ativo' as const,
+            stages: [],
+        })))).catch(() => setDelegatedCases([]));
+    }, [supervisorLawyerId]);
 
     const allowedTools = React.useMemo(() => {
         const saved = localStorage.getItem(`legis_perms_intern_${intern.id}`);
