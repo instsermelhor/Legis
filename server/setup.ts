@@ -36,12 +36,13 @@ async function inserirBootstrap() {
   await q(`INSERT INTO tenant (id, nome) VALUES (1, 'Plataforma Legis Connect') ON CONFLICT (id) DO NOTHING`);
   await q(`SELECT setval('tenant_id_seq', GREATEST((SELECT MAX(id) FROM tenant), 1))`);
 
-  // ── Administrador ──
+  // ── Administrador (senha via env ADMIN_SENHA; troque em produção) ──
+  const senhaAdmin = process.env.ADMIN_SENHA ?? 'admin';
   await q(
     `INSERT INTO pessoa (tenant_id, tipo, nome, email, senha_hash)
      VALUES (1, 'admin', 'Super Admin', 'admin@legisconnect.com.br', $1)
      ON CONFLICT (email) DO NOTHING`,
-    [gerarHash('[senha-removida]')]
+    [gerarHash(senhaAdmin)]
   );
 
   // ── Tipos de processo ──

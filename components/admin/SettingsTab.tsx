@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { armazemServidor } from '../../services/kvStore';
+import { ADMIN_EMAIL_DEV, SENHA_ADMIN_DEV, EMAIL_CONTA_GOOGLE, SENHA_CONTA_GOOGLE } from '../../services/devCredenciais';
 import { mockLegalDocuments, hashPassword } from '../../services/mockDataService';
 import { backend } from '../../services/modules';
 import type { LegalDocument, AdminUser } from '../../services/mockDataService';
@@ -1405,7 +1406,7 @@ const GeneralSettings: React.FC = () => {
 
       const adminUsersRaw = armazemServidor.getItem('legis_admin_users');
       const adminUsersList = adminUsersRaw ? JSON.parse(adminUsersRaw) : [
-        { id: 1, name: 'Super Admin', email: 'admin@legisconnect.com.br', password: '[senha-removida]', role: 'super', createdAt: '2024-01-01', active: true }
+        { id: 1, name: 'Super Admin', email: ADMIN_EMAIL_DEV, password: SENHA_ADMIN_DEV, role: 'super', createdAt: '2024-01-01', active: true }
       ];
 
       const matched = adminUsersList.find((u: AdminUser) => u.email.toLowerCase() === user.email.toLowerCase());
@@ -4051,11 +4052,11 @@ const DatabaseSettings: React.FC = () => {
                         <div className="mt-1.5 grid grid-cols-1 sm:grid-cols-2 gap-2 bg-white/70 dark:bg-[#1A1730]/65 p-2 rounded-lg border border-amber-100 dark:border-[#3d3159]">
                           <div className="flex items-center justify-between gap-1 text-[11px]">
                             <span className="text-gray-500">Email:</span>
-                            <code className="bg-gray-100 dark:bg-[#201C3D] px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200">legisconnectonline@gmail.com</code>
+                            <code className="bg-gray-100 dark:bg-[#201C3D] px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200">{EMAIL_CONTA_GOOGLE}</code>
                             <button
                               type="button"
                               onClick={() => {
-                                navigator.clipboard.writeText('legisconnectonline@gmail.com');
+                                navigator.clipboard.writeText(EMAIL_CONTA_GOOGLE);
                                 alert('E-mail copiado!');
                               }}
                               className="text-primary hover:underline text-[10px] shrink-0"
@@ -4065,11 +4066,11 @@ const DatabaseSettings: React.FC = () => {
                           </div>
                           <div className="flex items-center justify-between gap-1 text-[11px]">
                             <span className="text-gray-500">Senha:</span>
-                            <code className="bg-gray-100 dark:bg-[#201C3D] px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200">[senha-removida]</code>
+                            <code className="bg-gray-100 dark:bg-[#201C3D] px-1.5 py-0.5 rounded text-gray-800 dark:text-gray-200">{SENHA_CONTA_GOOGLE}</code>
                             <button
                               type="button"
                               onClick={() => {
-                                navigator.clipboard.writeText('[senha-removida]');
+                                navigator.clipboard.writeText(SENHA_CONTA_GOOGLE);
                                 alert('Senha copiada!');
                               }}
                               className="text-primary hover:underline text-[10px] shrink-0"

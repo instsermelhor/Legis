@@ -24,7 +24,7 @@ async function chamar(metodo: string, caminho: string, corpo?: unknown, token?: 
 
 async function main() {
   // ── Admin ──
-  const admin = await chamar('POST', '/auth/login', { email: 'admin@legisconnect.com.br', senha: '[senha-removida]' });
+  const admin = await chamar('POST', '/auth/login', { email: 'admin@legisconnect.com.br', senha: process.env.ADMIN_SENHA ?? 'admin' });
 
   // ── Escritório 1: Dr. Carlos Andrade ──
   const carlos = await chamar('POST', '/auth/registrar', {

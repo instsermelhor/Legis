@@ -1,5 +1,6 @@
 // Mock data for Admin Panel
 import type { BiApoio, BiDadosBase, BiCliente, BiProduto, BiFornecedor, BiVenda } from '../types';
+import { ADMIN_EMAIL_DEV, SENHA_ADMIN_DEV } from './devCredenciais';
 
 export function hashPassword(password: string): string {
   if (!password) return '';
@@ -84,7 +85,7 @@ export const mockInterns: MockIntern[] = [
 ];
 
 export const mockAdminUsers: AdminUser[] = [
-  { id: 1, name: 'Super Admin', email: 'admin@legisconnect.com.br', password: hashPassword('[senha-removida]'), role: 'super', createdAt: '2024-01-01', active: true },
+  { id: 1, name: 'Super Admin', email: ADMIN_EMAIL_DEV, password: hashPassword(SENHA_ADMIN_DEV), role: 'super', createdAt: '2024-01-01', active: true },
 ];
 
 // Financial mock data

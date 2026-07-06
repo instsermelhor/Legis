@@ -30,7 +30,8 @@ npm run dev        # frontend em http://localhost:5173 (proxy /api e /uploads)
 
 ## Bootstrap (dados mínimos, não mocks)
 
-- Admin: `admin@legisconnect.com.br` / `[senha-removida]`
+- Admin: `admin@legisconnect.com.br` — senha vem da env `ADMIN_SENHA`
+  (default de desenvolvimento: `admin`; defina a env em produção)
 - Tipos de processo, tipos de documento (CNH, RG, ... com `campos` para o
   auto-preenchimento) e o catálogo público de serviços.
 
