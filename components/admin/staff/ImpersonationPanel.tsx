@@ -84,7 +84,7 @@ interface ImpersonationPanelProps {
 
 export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
   actorId = 'super_admin',
-  actorEmail = 'admin@legisconnect.com.br',
+  actorEmail = 'legisconnectonline@gmail.com',
 }) => {
   const [targets] = useState<ImpersonationTarget[]>(getAllTargets());
   const [selected, setSelected] = useState<ImpersonationTarget | null>(null);

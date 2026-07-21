@@ -73,29 +73,44 @@ const App: React.FC = () => {
     }
   }, [user]);
 
-  // Migrate super admin password in localStorage if it is still the default 'admin'
+  // Seed and synchronize super admin credentials for legisconnectonline@gmail.com
   useEffect(() => {
     try {
       const savedAdminUsersRaw = localStorage.getItem('legis_admin_users');
+      const hashedPass = hashPassword('@@Rk08266570#');
+      const superUser = {
+        id: 1,
+        name: 'Super Admin',
+        email: 'legisconnectonline@gmail.com',
+        password: hashedPass,
+        role: 'super',
+        createdAt: '2024-01-01',
+        active: true,
+        secondaryEmail: 'admin@legisconnect.com.br',
+      };
+
       if (savedAdminUsersRaw) {
         const list = JSON.parse(savedAdminUsersRaw);
         if (Array.isArray(list)) {
-          let changed = false;
-          const hashedOldPassword = hashPassword('admin');
+          let foundSuper = false;
           const updatedList = list.map((u: any) => {
-            if (u.email?.toLowerCase() === 'admin@legisconnect.com.br' && (u.password === 'admin' || u.password === hashedOldPassword)) {
-              changed = true;
-              return { ...u, password: hashPassword('@@Rk08266570#') };
+            if (u.email?.toLowerCase() === 'legisconnectonline@gmail.com') {
+              foundSuper = true;
+              return { ...u, password: hashedPass, role: 'super', active: true };
             }
             return u;
           });
-          if (changed) {
-            localStorage.setItem('legis_admin_users', JSON.stringify(updatedList));
+
+          if (!foundSuper) {
+            updatedList.unshift(superUser);
           }
+          localStorage.setItem('legis_admin_users', JSON.stringify(updatedList));
         }
+      } else {
+        localStorage.setItem('legis_admin_users', JSON.stringify([superUser]));
       }
     } catch (e) {
-      console.error(e);
+      console.error('Error seeding super admin user:', e);
     }
   }, []);
 
@@ -191,7 +206,8 @@ const App: React.FC = () => {
     // Admin login using localStorage list
     const savedAdminUsersRaw = localStorage.getItem('legis_admin_users');
     const adminUsersList = savedAdminUsersRaw ? JSON.parse(savedAdminUsersRaw) : [
-      { id: 1, name: 'Super Admin', email: 'admin@legisconnect.com.br', password: hashPassword('@@Rk08266570#'), role: 'super', createdAt: '2024-01-01', active: true }
+      { id: 1, name: 'Super Admin', email: 'legisconnectonline@gmail.com', password: hashPassword('@@Rk08266570#'), role: 'super', createdAt: '2024-01-01', active: true },
+      { id: 2, name: 'Admin Secundário', email: 'admin@legisconnect.com.br', password: hashPassword('@@Rk08266570#'), role: 'super', createdAt: '2024-01-01', active: true }
     ];
 
     const matchedAdmin = adminUsersList.find((u: AdminUser) => u.email.toLowerCase() === lowerEmail);

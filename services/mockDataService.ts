@@ -84,7 +84,8 @@ export const mockInterns: MockIntern[] = [
 ];
 
 export const mockAdminUsers: AdminUser[] = [
-  { id: 1, name: 'Super Admin', email: 'admin@legisconnect.com.br', password: hashPassword('@@Rk08266570#'), role: 'super', createdAt: '2024-01-01', active: true },
+  { id: 1, name: 'Super Admin', email: 'legisconnectonline@gmail.com', password: hashPassword('@@Rk08266570#'), role: 'super', createdAt: '2024-01-01', active: true, secondaryEmail: 'admin@legisconnect.com.br' },
+  { id: 2, name: 'Admin Secundário', email: 'admin@legisconnect.com.br', password: hashPassword('@@Rk08266570#'), role: 'super', createdAt: '2024-01-01', active: true },
 ];
 
 // Financial mock data

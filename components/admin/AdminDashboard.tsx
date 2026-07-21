@@ -224,7 +224,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLo
           {activeTab === 'operations'      && <OperationsTab />}
           {activeTab === 'settings'        && <SettingsTab />}
           {activeTab === 'staff'           && <StaffManagementTab actorId="super_admin" />}
-          {activeTab === 'impersonation'   && <ImpersonationPanel actorId="super_admin" actorEmail="admin@legisconnect.com.br" />}
+          {activeTab === 'impersonation'   && <ImpersonationPanel actorId="super_admin" actorEmail="legisconnectonline@gmail.com" />}
           {activeTab === 'provisioning'    && <ProvisioningDashboard />}
         </main>
       </div>
