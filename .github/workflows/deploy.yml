@@ -1,4 +1,4 @@
-name: 🚀 Deploy — Legis Connect → legisconnect.com.br
+name: 🚀 Deploy — Legis Connect → www.legisconnect.com.br
 
 on:
   push:
@@ -85,7 +85,7 @@ jobs:
           path: dist
 
   deploy:
-    name: 🌐 Deploy → legisconnect.com.br
+    name: 🌐 Deploy → www.legisconnect.com.br
     needs: build
     runs-on: ubuntu-latest
     environment:

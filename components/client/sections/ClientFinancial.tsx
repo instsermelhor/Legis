@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 'use client';
 
 import React, { useState, useCallback } from 'react';
@@ -214,7 +215,7 @@ function PaymentOptions({ metodos, faturaId }: { metodos: MetodoPagamento[]; fat
       {activeMethod === 'pix' && (
         <div className="rounded-xl border border-slate-200 dark:border-[#2A2545] bg-slate-50 dark:bg-[#12102A] p-4 animate-fade-in space-y-3">
           <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
-            <span>📲</span> QR Code Pix
+            <span><Icon name="📲" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> QR Code Pix
           </p>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
             <SimulatedQRCode />
@@ -244,7 +245,7 @@ function PaymentOptions({ metodos, faturaId }: { metodos: MetodoPagamento[]; fat
       {activeMethod === 'boleto' && (
         <div className="rounded-xl border border-slate-200 dark:border-[#2A2545] bg-slate-50 dark:bg-[#12102A] p-4 animate-fade-in space-y-2">
           <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
-            <span>🧾</span> Linha Digitável do Boleto
+            <span><Icon name="🧾" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> Linha Digitável do Boleto
           </p>
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
             <code className="flex-1 text-xs bg-white dark:bg-[#1A1730] border border-slate-200 dark:border-[#2A2545] rounded-lg px-3 py-2 text-slate-600 dark:text-slate-300 font-mono tracking-wider break-all">
@@ -301,7 +302,7 @@ function FaturaCard({ fatura }: { fatura: Fatura }) {
         <div className="flex-1">
           <div className="flex items-start gap-2">
             {fatura.status === 'vencida' && (
-              <span className="text-base mt-0.5 flex-shrink-0" aria-hidden="true">⚠️</span>
+              <span className="text-base mt-0.5 flex-shrink-0" aria-hidden="true"><Icon name="⚠" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</span>
             )}
             <div>
               <p className="text-sm font-semibold text-slate-800 dark:text-white leading-snug">
@@ -329,7 +330,7 @@ function FaturaCard({ fatura }: { fatura: Fatura }) {
       {/* Vencida warning */}
       {fatura.status === 'vencida' && (
         <div className="mt-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/50">
-          <span className="text-red-500 text-xs" aria-hidden="true">⚠️</span>
+          <span className="text-red-500 text-xs" aria-hidden="true"><Icon name="⚠" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" />️</span>
           <p className="text-xs text-red-600 dark:text-red-400 font-medium">
             Regularize para evitar juros e cobranças adicionais.
           </p>
@@ -339,7 +340,7 @@ function FaturaCard({ fatura }: { fatura: Fatura }) {
       {/* Paga info */}
       {fatura.status === 'paga' && fatura.dataPagamento && (
         <div className="mt-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50">
-          <span className="text-emerald-500" aria-hidden="true">✅</span>
+          <span className="text-emerald-500" aria-hidden="true"><Icon name="✅" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
           <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
             Pago em {fatura.dataPagamento}
           </p>
@@ -392,7 +393,7 @@ export const ClientFinancial: React.FC = () => {
       {/* ------------------------------------------------------------------ */}
       <section>
         <div className="mb-4">
-          <h2 className="text-xl font-bold text-slate-800 dark:text-white">💰 Resumo Financeiro</h2>
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white"><Icon name="💰" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Resumo Financeiro</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Visão geral dos seus pagamentos e obrigações.
           </p>
@@ -429,7 +430,7 @@ export const ClientFinancial: React.FC = () => {
       <section>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
           <div>
-            <h2 className="text-xl font-bold text-slate-800 dark:text-white">🧾 Minhas Faturas</h2>
+            <h2 className="text-xl font-bold text-slate-800 dark:text-white"><Icon name="🧾" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Minhas Faturas</h2>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
               Gerencie e pague suas faturas com facilidade.
             </p>
@@ -461,7 +462,7 @@ export const ClientFinancial: React.FC = () => {
 
         {faturasFiltradas.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-14 text-center animate-fade-in">
-            <span className="text-5xl mb-4" aria-hidden="true">🎉</span>
+            <span className="text-5xl mb-4" aria-hidden="true"><Icon name="🎉" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
             <h3 className="text-base font-semibold text-slate-700 dark:text-white">Nenhuma fatura encontrada</h3>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
               Não há faturas nesta categoria no momento.
@@ -483,7 +484,7 @@ export const ClientFinancial: React.FC = () => {
       {/* ------------------------------------------------------------------ */}
       <section>
         <div className="mb-4">
-          <h2 className="text-xl font-bold text-slate-800 dark:text-white">💳 Cartões Salvos</h2>
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white"><Icon name="💳" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Cartões Salvos</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Seus métodos de pagamento cadastrados.
           </p>
@@ -540,7 +541,7 @@ export const ClientFinancial: React.FC = () => {
           role="note"
           aria-label="Dica de economia"
         >
-          <span className="text-2xl flex-shrink-0 mt-0.5" aria-hidden="true">💡</span>
+          <span className="text-2xl flex-shrink-0 mt-0.5" aria-hidden="true"><Icon name="💡" className="w-6 h-6 inline-block mr-1.5 align-middle" /></span>
           <div>
             <p className="text-sm font-semibold text-indigo-800 dark:text-indigo-300">
               Dica: Pague no Pix e economize tempo!

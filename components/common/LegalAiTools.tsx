@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState } from 'react';
 
 interface LegalAiToolsProps {
@@ -111,7 +112,7 @@ export const LegalAiTools: React.FC<LegalAiToolsProps> = ({ role, allowedTools }
       {/* Header */}
       <div>
         <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-          <span>⚡</span> Inteligência Jurídica & Automações
+          <span><Icon name="⚡" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> Inteligência Jurídica & Automações
         </h3>
         <p className="text-sm text-gray-500 mt-1">
           Acesse ferramentas baseadas em inteligência artificial generativa integradas à plataforma.
@@ -329,7 +330,7 @@ export const LegalAiTools: React.FC<LegalAiToolsProps> = ({ role, allowedTools }
                       Processando com IA...
                     </>
                   ) : (
-                    <>✨ Executar Inteligência Artificial</>
+                    <><Icon name="✨" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Executar Inteligência Artificial</>
                   )}
                 </button>
               </form>

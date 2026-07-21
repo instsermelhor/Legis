@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState, useRef, useMemo } from 'react';
 import type { Secretary, Case } from '../../types';
 import { ChangePasswordModal } from '../common/ChangePasswordModal';
@@ -101,7 +102,7 @@ const PersonalDocModal: React.FC<PersonalDocModalProps> = ({ onClose, onConfirm 
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between p-5 border-b">
           <div>
-            <h2 className="text-base font-bold text-gray-800">📎 Upload de Documento Pessoal</h2>
+            <h2 className="text-base font-bold text-gray-800"><Icon name="📎" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Upload de Documento Pessoal</h2>
             <p className="text-xs text-gray-500 mt-0.5">Identifique o tipo de documento antes de enviar</p>
           </div>
           <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100"><XIcon className="w-5 h-5 text-gray-500" /></button>
@@ -128,22 +129,22 @@ const PersonalDocModal: React.FC<PersonalDocModalProps> = ({ onClose, onConfirm 
             {!pendingFile ? (
               <button onClick={() => fileInputRef.current?.click()}
                 className="w-full border-2 border-dashed border-purple-200 rounded-xl py-6 text-center hover:bg-purple-50 hover:border-purple-400 transition-colors">
-                <p className="text-2xl mb-1">📁</p>
+                <p className="text-2xl mb-1"><Icon name="📁" className="w-6 h-6 inline-block mr-1.5 align-middle" /></p>
                 <p className="text-sm font-medium text-gray-600">Clique para selecionar o arquivo</p>
                 <p className="text-xs text-gray-400 mt-0.5">{ALLOWED_LABEL}</p>
               </button>
             ) : (
               <div className="flex items-center gap-3 bg-purple-50 border border-purple-200 rounded-xl px-4 py-3">
-                <span className="text-xl shrink-0">{pendingFile.fileType === 'PDF' ? '📄' : '🖼️'}</span>
+                <span className="text-xl shrink-0">{pendingFile.fileType === 'PDF' ? '📄' : '<Icon name="🖼" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️'}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-800 truncate">{pendingFile.name}</p>
                   <p className="text-xs text-gray-400">{pendingFile.fileType} · {pendingFile.size}</p>
                 </div>
-                <button onClick={() => setPendingFile(null)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+                <button onClick={() => setPendingFile(null)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold"><Icon name="✕" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /></button>
               </div>
             )}
           </div>
-          {sent && <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-2 text-green-800 text-sm font-semibold">✅ Documento enviado com sucesso!</div>}
+          {sent && <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-2 text-green-800 text-sm font-semibold"><Icon name="✅" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Documento enviado com sucesso!</div>}
         </div>
         <div className="flex gap-3 px-5 py-4 border-t bg-gray-50 rounded-b-2xl">
           <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">Cancelar</button>
@@ -214,7 +215,7 @@ const ProcessDocModal: React.FC<ProcessDocModalProps> = ({ onClose, onConfirm, d
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-[#2A2545]">
           <div>
-            <h2 className="text-base font-bold text-gray-800 dark:text-white">📂 Enviar Documento de Processo</h2>
+            <h2 className="text-base font-bold text-gray-800 dark:text-white"><Icon name="📂" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Enviar Documento de Processo</h2>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Vincule o documento ao processo e ao advogado</p>
           </div>
           <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-[#2A2545]"><XIcon className="w-5 h-5 text-gray-500 dark:text-gray-400" /></button>
@@ -267,32 +268,32 @@ const ProcessDocModal: React.FC<ProcessDocModalProps> = ({ onClose, onConfirm, d
               <button onClick={() => fileInputRef.current?.click()}
                 disabled={delegatedCases.length === 0}
                 className="w-full border-2 border-dashed border-purple-200 dark:border-purple-900/60 rounded-xl py-5 text-center hover:bg-purple-50 dark:hover:bg-purple-950/20 hover:border-purple-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                <p className="text-2xl mb-1">📁</p>
+                <p className="text-2xl mb-1"><Icon name="📁" className="w-6 h-6 inline-block mr-1.5 align-middle" /></p>
                 <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Clique para selecionar o arquivo</p>
                 <p className="text-xs text-gray-400 mt-0.5">{ALLOWED_LABEL}</p>
               </button>
             ) : (
               <div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900 rounded-xl px-4 py-3">
-                <span className="text-xl shrink-0">{pendingFile.fileType === 'PDF' ? '📄' : '🖼️'}</span>
+                <span className="text-xl shrink-0">{pendingFile.fileType === 'PDF' ? '📄' : '<Icon name="🖼" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️'}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-800 dark:text-white truncate">{pendingFile.name}</p>
                   <p className="text-xs text-gray-400 dark:text-gray-400">{pendingFile.fileType} · {pendingFile.size}</p>
                 </div>
-                <button onClick={() => setPendingFile(null)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+                <button onClick={() => setPendingFile(null)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold"><Icon name="✕" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /></button>
               </div>
             )}
           </div>
           {/* Confirmation summary */}
           {pendingFile && processNumber && oab && lawyerName && !sent && (
             <div className="bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-900 rounded-xl p-4 space-y-1 text-xs animate-fade-in">
-              <p className="font-bold text-purple-800 dark:text-purple-400 text-sm mb-2">✔ Confirme os dados antes de enviar</p>
+              <p className="font-bold text-purple-800 dark:text-purple-400 text-sm mb-2"><Icon name="✔" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Confirme os dados antes de enviar</p>
               <p><span className="font-semibold text-gray-600 dark:text-gray-400">Arquivo:</span> {pendingFile.name}</p>
               <p><span className="font-semibold text-gray-600 dark:text-gray-400">Processo:</span> {processNumber}</p>
               <p><span className="font-semibold text-gray-600 dark:text-gray-400">OAB:</span> {oab}</p>
               <p><span className="font-semibold text-gray-600 dark:text-gray-400">Advogado:</span> {lawyerName}</p>
             </div>
           )}
-          {sent && <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 rounded-xl px-4 py-2 text-green-800 dark:text-green-400 text-sm font-semibold">✅ Documento enviado e vinculado ao processo!</div>}
+          {sent && <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 rounded-xl px-4 py-2 text-green-800 dark:text-green-400 text-sm font-semibold"><Icon name="✅" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Documento enviado e vinculado ao processo!</div>}
         </div>
         <div className="flex gap-3 px-5 py-4 border-t border-gray-200 dark:border-[#2A2545] bg-gray-50 dark:bg-black/20 rounded-b-2xl">
           <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">Cancelar</button>
@@ -350,7 +351,7 @@ const SyncCard: React.FC<SyncCardProps> = ({ title, subtitle, icon, synced, sync
     </div>
     <div className="shrink-0">
       {synced
-        ? <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold bg-green-100 text-green-700 rounded-full">✓ {syncedLabel}</span>
+        ? <span className="inline-flex items-center gap-1 px-3 py-1 text-xs font-bold bg-green-100 text-green-700 rounded-full"><Icon name="✓" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> {syncedLabel}</span>
         : <span className={`inline-flex items-center px-3 py-1 text-xs font-semibold ${borderColor} border rounded-full`}>{unSyncedLabel}</span>}
     </div>
   </button>
@@ -492,7 +493,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
         {assignedLawyer && (
           <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-4 mb-6 text-white flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <span className="text-2xl">🎉</span>
+              <span className="text-2xl"><Icon name="🎉" className="w-6 h-6 inline-block mr-1.5 align-middle" /></span>
               <div>
                 <p className="font-bold text-sm">Você foi selecionado por um advogado!</p>
                 <p className="text-xs text-white/85">Dr(a). {assignedLawyer.name} — OAB {assignedLawyer.oab}</p>
@@ -580,7 +581,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
 
             {/* Areas of Knowledge */}
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-              <h3 className="text-base font-bold text-gray-800 border-b pb-2">🎯 Áreas de Conhecimento</h3>
+              <h3 className="text-base font-bold text-gray-800 border-b pb-2"><Icon name="🎯" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Áreas de Conhecimento</h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {AREAS_CONHECIMENTO.map(area => {
                   const selected = profile.areasOfKnowledge.includes(area);
@@ -596,7 +597,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
 
             {/* Redes Sociais */}
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-2 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545]">
-              <h3 className="text-base font-bold text-gray-800 border-b pb-2">🌐 Redes Sociais</h3>
+              <h3 className="text-base font-bold text-gray-800 border-b pb-2"><Icon name="🌐" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Redes Sociais</h3>
               <p className="text-xs text-gray-500 mb-3">Links visíveis para o advogado ao qual você está vinculado.</p>
               <SocialLinksEditor
                 value={secretarySocialLinks}
@@ -608,7 +609,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-bold text-gray-800">📎 Documentos Pessoais</h3>
+                  <h3 className="text-base font-bold text-gray-800"><Icon name="📎" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Documentos Pessoais</h3>
                   <p className="text-xs text-gray-500 mt-0.5">Somente para documentos de identificação pessoal (RG, CPF, CNH, etc.)</p>
                 </div>
                 <button onClick={() => setShowPersonalDocModal(true)}
@@ -620,7 +621,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
               {personalDocs.length === 0 ? (
                 <button onClick={() => setShowPersonalDocModal(true)}
                   className="w-full border-2 border-dashed border-purple-200 rounded-xl py-7 text-center hover:bg-purple-50 hover:border-purple-400 transition-colors">
-                  <p className="text-3xl mb-1">📁</p>
+                  <p className="text-3xl mb-1"><Icon name="📁" className="w-6 h-6 inline-block mr-1.5 align-middle" /></p>
                   <p className="text-sm font-medium text-gray-500">Clique para adicionar um documento pessoal</p>
                 </button>
               ) : (
@@ -628,14 +629,14 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
                   {personalDocs.map((d, i) => (
                     <div key={i} className="flex items-center justify-between bg-purple-50 border border-purple-100 rounded-xl px-4 py-3 gap-3">
                       <div className="flex items-center gap-3 min-w-0">
-                        <span className="text-xl shrink-0">{d.fileType === 'PDF' ? '📄' : '🖼️'}</span>
+                        <span className="text-xl shrink-0">{d.fileType === 'PDF' ? '📄' : '<Icon name="🖼" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️'}</span>
                         <div className="min-w-0">
                           <p className="text-sm font-semibold text-gray-800 truncate">{d.name}</p>
                           <p className="text-[10px] text-gray-400">{d.fileType} · {d.size} · {d.date}</p>
                           <span className="inline-block mt-0.5 px-2 py-0.5 bg-purple-100 text-purple-700 text-[10px] font-bold rounded-full">{d.docType}</span>
                         </div>
                       </div>
-                      <button onClick={() => setPersonalDocs(prev => prev.filter((_, idx) => idx !== i))} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold p-1">✕</button>
+                      <button onClick={() => setPersonalDocs(prev => prev.filter((_, idx) => idx !== i))} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold p-1"><Icon name="✕" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /></button>
                     </div>
                   ))}
                   <button onClick={() => setShowPersonalDocModal(true)} className="text-xs text-purple-600 hover:underline font-semibold py-1">+ Adicionar mais documentos</button>
@@ -645,10 +646,10 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
 
             {/* Security */}
             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-              <h3 className="text-base font-bold text-gray-800">🔐 Segurança de Acesso</h3>
+              <h3 className="text-base font-bold text-gray-800"><Icon name="🔐" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Segurança de Acesso</h3>
               <div className="flex flex-wrap gap-3">
-                <button onClick={() => setShowPasswordModal(true)} className="px-4 py-2.5 text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200 rounded-lg hover:bg-amber-100">🔑 Alterar Senha</button>
-                <button onClick={() => setShowEmailModal(true)} className="px-4 py-2.5 text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100">📧 Alterar E-mail</button>
+                <button onClick={() => setShowPasswordModal(true)} className="px-4 py-2.5 text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200 rounded-lg hover:bg-amber-100"><Icon name="🔑" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Alterar Senha</button>
+                <button onClick={() => setShowEmailModal(true)} className="px-4 py-2.5 text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100"><Icon name="📧" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Alterar E-mail</button>
               </div>
               <p className="text-xs text-gray-400 bg-gray-50 rounded-lg p-2">E-mail atual: <strong>{userEmail || secretary.email}</strong></p>
             </div>

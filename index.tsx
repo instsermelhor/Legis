@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 // FIX: Correct import path for App component.
 import App from './App';
 import { AppProvider } from './context/AppContext';
+import { AppDataProvider } from './context/AppDataContext';
 import { ToastProvider } from './components/common/Toast';
 
 const rootElement = document.getElementById('root');
@@ -15,7 +16,9 @@ root.render(
   <React.StrictMode>
     <ToastProvider>
       <AppProvider>
-        <App />
+        <AppDataProvider>
+          <App />
+        </AppDataProvider>
       </AppProvider>
     </ToastProvider>
   </React.StrictMode>

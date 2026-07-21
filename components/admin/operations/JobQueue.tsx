@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -122,7 +123,7 @@ export const JobQueue: React.FC = () => {
       {/* Failed banner */}
       {counts.failed > 0 && (
         <div className="flex items-start gap-3 p-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-700 rounded-xl">
-          <span className="text-xl mt-0.5">⚠️</span>
+          <span className="text-xl mt-0.5"><Icon name="⚠" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</span>
           <div className="flex-1">
             <p className="text-sm font-bold text-rose-700 dark:text-rose-400">
               {counts.failed} job(s) falharam e necessitam de ação
@@ -210,7 +211,7 @@ export const JobQueue: React.FC = () => {
                     <tr>
                       <td colSpan={6} className="px-4 py-1.5 bg-rose-50 dark:bg-rose-900/10">
                         <p className="text-xs text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
-                          <span>🔴</span> {job.errorMsg}
+                          <span><Icon name="🔴" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> {job.errorMsg}
                         </p>
                       </td>
                     </tr>

@@ -1,6 +1,7 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState, useRef, useMemo } from 'react';
 import type { Lawyer } from '../../types';
-import { mockClients, mockInterns, mockSecretaries } from '../../services/mockDataService';
+import { useAppData } from '../../context/AppDataContext';
 import type { MockClient, MockIntern, MockSecretary } from '../../services/mockDataService';
 import { SearchInput, SectionTitle, IconEdit, IconBriefcase, IconUsers, IconGradCap, lawyerStatusBadge, clientStatusBadge, internStatusBadge } from './AdminShared';
 import { ConfirmSaveModal, ConfirmSaveField } from '../common/ConfirmSaveModal';
@@ -66,10 +67,10 @@ const DocUploadModal: React.FC<DocUploadModalProps> = ({ onClose, onConfirm }) =
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between p-5 border-b">
           <div>
-            <h2 className="text-base font-bold text-gray-800">📎 Upload de Documento</h2>
+            <h2 className="text-base font-bold text-gray-800"><Icon name="📎" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Upload de Documento</h2>
             <p className="text-xs text-gray-500 mt-0.5">Identifique o tipo de documento antes de enviar</p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 text-gray-500 text-lg font-bold">✕</button>
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 text-gray-500 text-lg font-bold"><Icon name="✕" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></button>
         </div>
         <div className="p-5 space-y-4">
           {/* Step 1 */}
@@ -93,22 +94,22 @@ const DocUploadModal: React.FC<DocUploadModalProps> = ({ onClose, onConfirm }) =
             {!pendingFile ? (
               <button onClick={() => fileInputRef.current?.click()}
                 className="w-full border-2 border-dashed border-primary/30 rounded-xl py-6 text-center hover:bg-primary/5 hover:border-primary/50 transition-colors">
-                <p className="text-2xl mb-1">📁</p>
+                <p className="text-2xl mb-1"><Icon name="📁" className="w-6 h-6 inline-block mr-1.5 align-middle" /></p>
                 <p className="text-sm font-medium text-gray-600">Clique para selecionar o arquivo</p>
                 <p className="text-xs text-gray-400 mt-0.5">{ALLOWED_LABEL}</p>
               </button>
             ) : (
               <div className="flex items-center gap-3 bg-primary/5 border border-primary/20 rounded-xl px-4 py-3">
-                <span className="text-xl shrink-0">{pendingFile.fileType === 'PDF' ? '📄' : '🖼️'}</span>
+                <span className="text-xl shrink-0">{pendingFile.fileType === 'PDF' ? '📄' : '<Icon name="🖼" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️'}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-gray-800 truncate">{pendingFile.name}</p>
                   <p className="text-xs text-gray-400">{pendingFile.fileType} · {pendingFile.size}</p>
                 </div>
-                <button onClick={() => setPendingFile(null)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+                <button onClick={() => setPendingFile(null)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold"><Icon name="✕" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /></button>
               </div>
             )}
           </div>
-          {sent && <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-2 text-green-800 text-sm font-semibold">✅ Documento enviado com sucesso!</div>}
+          {sent && <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-2 text-green-800 text-sm font-semibold"><Icon name="✅" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Documento enviado com sucesso!</div>}
         </div>
         <div className="flex gap-3 px-5 py-4 border-t bg-gray-50 rounded-b-2xl">
           <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">Cancelar</button>
@@ -132,7 +133,7 @@ const AdminDocUploadPanel: React.FC = () => {
     <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 space-y-3">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs font-bold text-blue-800 uppercase tracking-wider">📎 Documentos do Cadastro</p>
+          <p className="text-xs font-bold text-blue-800 uppercase tracking-wider"><Icon name="📎" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Documentos do Cadastro</p>
           <p className="text-xs text-blue-600 mt-0.5">Adicione documentos vinculados a este cadastro (PDF, JPG, JPEG, PNG)</p>
         </div>
         <button onClick={() => setShowModal(true)}
@@ -144,7 +145,7 @@ const AdminDocUploadPanel: React.FC = () => {
       {docs.length === 0 ? (
         <button onClick={() => setShowModal(true)}
           className="w-full border-2 border-dashed border-blue-200 rounded-xl py-5 text-center hover:bg-blue-100/30 transition-colors">
-          <p className="text-2xl mb-1">📂</p>
+          <p className="text-2xl mb-1"><Icon name="📂" className="w-6 h-6 inline-block mr-1.5 align-middle" /></p>
           <p className="text-xs font-medium text-blue-600">Clique para adicionar um documento</p>
           <p className="text-[11px] text-blue-400 mt-0.5">{ALLOWED_LABEL} · Identifique o tipo ao enviar</p>
         </button>
@@ -153,14 +154,14 @@ const AdminDocUploadPanel: React.FC = () => {
           {docs.map((d, i) => (
             <div key={i} className="flex items-center justify-between bg-white border border-blue-100 rounded-xl px-4 py-2.5 gap-3 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <div className="flex items-center gap-3 min-w-0">
-                <span className="text-lg shrink-0">{d.fileType === 'PDF' ? '📄' : '🖼️'}</span>
+                <span className="text-lg shrink-0">{d.fileType === 'PDF' ? '📄' : '<Icon name="🖼" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️'}</span>
                 <div className="min-w-0">
                   <p className="text-xs font-semibold text-gray-800 truncate">{d.name}</p>
                   <p className="text-[10px] text-gray-400">{d.fileType} · {d.size} · {d.date}</p>
                 </div>
               </div>
               <span className="shrink-0 px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-full whitespace-nowrap">{d.docType}</span>
-              <button onClick={() => setDocs(prev => prev.filter((_, idx) => idx !== i))} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold ml-1">✕</button>
+              <button onClick={() => setDocs(prev => prev.filter((_, idx) => idx !== i))} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold ml-1"><Icon name="✕" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /></button>
             </div>
           ))}
           <button onClick={() => setShowModal(true)} className="text-xs text-blue-600 hover:underline font-semibold py-1">+ Adicionar mais documentos</button>
@@ -204,13 +205,13 @@ const ResetPasswordButton: React.FC<{ email: string; name: string }> = ({ email,
   if (confirm) {
     return (
       <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 space-y-3">
-        <p className="text-sm font-semibold text-orange-800">⚠️ Confirmar Reset de Senha</p>
+        <p className="text-sm font-semibold text-orange-800"><Icon name="⚠" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" />️ Confirmar Reset de Senha</p>
         <p className="text-xs text-orange-700">
           Será enviado um link de redefinição para:<br />
           <strong>{email}</strong> ({name})
         </p>
         <div className="flex gap-2">
-          <button onClick={() => { setSent(true); setConfirm(false); setTimeout(() => setSent(false), 5000); }} className="px-4 py-2 text-xs font-semibold text-white bg-orange-600 rounded-lg hover:bg-orange-700">✉️ Confirmar Envio</button>
+          <button onClick={() => { setSent(true); setConfirm(false); setTimeout(() => setSent(false), 5000); }} className="px-4 py-2 text-xs font-semibold text-white bg-orange-600 rounded-lg hover:bg-orange-700"><Icon name="✉" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" />️ Confirmar Envio</button>
           <button onClick={() => setConfirm(false)} className="px-4 py-2 text-xs font-semibold text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200">Cancelar</button>
         </div>
       </div>
@@ -219,7 +220,7 @@ const ResetPasswordButton: React.FC<{ email: string; name: string }> = ({ email,
 
   return (
     <div className="space-y-2">
-      {sent && <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2 font-semibold">✅ Link enviado para {email}</div>}
+      {sent && <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2 font-semibold"><Icon name="✅" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Link enviado para {email}</div>}
       <button onClick={() => setConfirm(true)} className="flex items-center gap-2 px-4 py-2.5 text-xs font-semibold text-orange-700 bg-orange-50 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors">
         🔑 Resetar Senha (enviar link por e-mail)
       </button>
@@ -317,7 +318,7 @@ const LawyerEditor: React.FC<{ lawyer: Lawyer; onSave: (l: Lawyer) => void; onBa
       {/* Redes Sociais */}
       <div className="bg-gray-50 dark:bg-[#1E1B38] border border-gray-200 dark:border-[#2A2545] rounded-xl p-4 space-y-3">
         <div>
-          <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">🌐 Redes Sociais (Máx. 3)</label>
+          <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider"><Icon name="🌐" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Redes Sociais (Máx. 3)</label>
           <p className="text-[11px] text-gray-500 mt-0.5">Ative a caixa de seleção para incluir o link da respectiva rede social no cadastro.</p>
         </div>
 
@@ -385,13 +386,13 @@ const LawyerEditor: React.FC<{ lawyer: Lawyer; onSave: (l: Lawyer) => void; onBa
 
       {/* Admin Notes */}
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
-        <label className="block text-xs font-bold text-amber-700 uppercase tracking-wider">📋 Informações Adicionais do Administrador</label>
+        <label className="block text-xs font-bold text-amber-700 uppercase tracking-wider"><Icon name="📋" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Informações Adicionais do Administrador</label>
         <textarea value={data.adminNotes} onChange={e => setData(d => ({ ...d, adminNotes: e.target.value }))} rows={3} placeholder="Notas internas, observações administrativas, histórico..." className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
       </div>
 
       {/* Password Reset */}
       <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-        <p className="text-xs font-bold text-gray-600 uppercase tracking-wider">🔐 Gestão de Acesso</p>
+        <p className="text-xs font-bold text-gray-600 uppercase tracking-wider"><Icon name="🔐" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Gestão de Acesso</p>
         <ResetPasswordButton email={data.contact.email} name={data.name} />
       </div>
 
@@ -488,7 +489,7 @@ const ClientEditor: React.FC<{ client: MockClient; onSave: (c: MockClient) => vo
       {/* Redes Sociais */}
       <div className="bg-gray-50 dark:bg-[#1E1B38] border border-gray-200 dark:border-[#2A2545] rounded-xl p-4 space-y-3">
         <div>
-          <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">🌐 Redes Sociais (Máx. 3)</label>
+          <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider"><Icon name="🌐" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Redes Sociais (Máx. 3)</label>
           <p className="text-[11px] text-gray-500 mt-0.5">Ative a caixa de seleção para incluir o link da respectiva rede social no cadastro.</p>
         </div>
 
@@ -556,13 +557,13 @@ const ClientEditor: React.FC<{ client: MockClient; onSave: (c: MockClient) => vo
 
       {/* Admin Notes */}
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
-        <label className="block text-xs font-bold text-amber-700 uppercase tracking-wider">📋 Informações Adicionais do Administrador</label>
+        <label className="block text-xs font-bold text-amber-700 uppercase tracking-wider"><Icon name="📋" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Informações Adicionais do Administrador</label>
         <textarea value={data.adminNotes} onChange={e => setData(d => ({ ...d, adminNotes: e.target.value }))} rows={3} placeholder="Notas internas, histórico..." className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
       </div>
 
       {/* Password Reset */}
       <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-        <p className="text-xs font-bold text-gray-600 uppercase tracking-wider">🔐 Gestão de Acesso</p>
+        <p className="text-xs font-bold text-gray-600 uppercase tracking-wider"><Icon name="🔐" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Gestão de Acesso</p>
         <ResetPasswordButton email={data.email} name={data.name} />
       </div>
 
@@ -663,7 +664,7 @@ const InternEditor: React.FC<{ intern: MockIntern; onSave: (i: MockIntern) => vo
       {/* Redes Sociais */}
       <div className="bg-gray-50 dark:bg-[#1E1B38] border border-gray-200 dark:border-[#2A2545] rounded-xl p-4 space-y-3">
         <div>
-          <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">🌐 Redes Sociais (Máx. 3)</label>
+          <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider"><Icon name="🌐" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Redes Sociais (Máx. 3)</label>
           <p className="text-[11px] text-gray-500 mt-0.5">Ative a caixa de seleção para incluir o link da respectiva rede social no cadastro.</p>
         </div>
 
@@ -731,13 +732,13 @@ const InternEditor: React.FC<{ intern: MockIntern; onSave: (i: MockIntern) => vo
 
       {/* Admin Notes */}
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
-        <label className="block text-xs font-bold text-amber-700 uppercase tracking-wider">📋 Informações Adicionais do Administrador</label>
+        <label className="block text-xs font-bold text-amber-700 uppercase tracking-wider"><Icon name="📋" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Informações Adicionais do Administrador</label>
         <textarea value={data.adminNotes} onChange={e => setData(d => ({ ...d, adminNotes: e.target.value }))} rows={3} placeholder="Histórico de estágio, recomendações, ocorrências..." className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
       </div>
 
       {/* Password Reset */}
       <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-        <p className="text-xs font-bold text-gray-600 uppercase tracking-wider">🔐 Gestão de Acesso</p>
+        <p className="text-xs font-bold text-gray-600 uppercase tracking-wider"><Icon name="🔐" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Gestão de Acesso</p>
         <ResetPasswordButton email={data.email} name={data.name} />
       </div>
 
@@ -847,7 +848,7 @@ const SecretaryEditor: React.FC<{ secretary: MockSecretary; onSave: (s: MockSecr
       {/* Redes Sociais */}
       <div className="bg-gray-50 dark:bg-[#1E1B38] border border-gray-200 dark:border-[#2A2545] rounded-xl p-4 space-y-3">
         <div>
-          <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider">🌐 Redes Sociais (Máx. 3)</label>
+          <label className="block text-xs font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider"><Icon name="🌐" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Redes Sociais (Máx. 3)</label>
           <p className="text-[11px] text-gray-500 mt-0.5">Ative a caixa de seleção para incluir o link da respectiva rede social no cadastro.</p>
         </div>
 
@@ -915,13 +916,13 @@ const SecretaryEditor: React.FC<{ secretary: MockSecretary; onSave: (s: MockSecr
 
       {/* Admin Notes */}
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-2">
-        <label className="block text-xs font-bold text-amber-700 uppercase tracking-wider">📋 Informações Adicionais do Administrador</label>
+        <label className="block text-xs font-bold text-amber-700 uppercase tracking-wider"><Icon name="📋" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Informações Adicionais do Administrador</label>
         <textarea value={data.adminNotes} onChange={e => setData(d => ({ ...d, adminNotes: e.target.value }))} rows={3} placeholder="Notas sobre o(a) Secret./Assist. Jurídico(a), histórico de vinculações..." className="w-full border border-amber-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-300 bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" />
       </div>
 
       {/* Password Reset */}
       <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-2 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-        <p className="text-xs font-bold text-gray-600 uppercase tracking-wider">🔐 Gestão de Acesso</p>
+        <p className="text-xs font-bold text-gray-600 uppercase tracking-wider"><Icon name="🔐" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Gestão de Acesso</p>
         <ResetPasswordButton email={data.email} name={data.name} />
       </div>
 
@@ -950,21 +951,12 @@ const SecretaryEditor: React.FC<{ secretary: MockSecretary; onSave: (s: MockSecr
 // ─── Main RegistrationsTab ────────────────────────────────────────────────────
 
 export const RegistrationsTab: React.FC<{ lawyers: Lawyer[]; onLawyerUpdate: (l: Lawyer) => void }> = ({ lawyers, onLawyerUpdate }) => {
+  // Dados via AppDataContext — compartilhados com o site público
+  const { clients, interns, secretaries, updateClient, updateIntern, updateSecretary } = useAppData();
+
   const [recordType, setRecordType] = useState<RecordType>('lawyers');
   const [search, setSearch] = useState('');
   const [editing, setEditing] = useState<{ type: RecordType; id: number } | null>(null);
-  const [clients, setClients] = useState(() => {
-    const stored = localStorage.getItem('legis_clients');
-    return stored ? JSON.parse(stored) : mockClients;
-  });
-  const [interns, setInterns] = useState(() => {
-    const stored = localStorage.getItem('legis_interns');
-    return stored ? JSON.parse(stored) : mockInterns;
-  });
-  const [secretaries, setSecretaries] = useState(() => {
-    const stored = localStorage.getItem('legis_secretaries');
-    return stored ? JSON.parse(stored) : mockSecretaries;
-  });
 
   const filteredLawyers = useMemo(() => lawyers.filter(l => l.name.toLowerCase().includes(search.toLowerCase())), [lawyers, search]);
   const filteredClients = useMemo(() => clients.filter(c => c.name.toLowerCase().includes(search.toLowerCase())), [clients, search]);
@@ -979,27 +971,21 @@ export const RegistrationsTab: React.FC<{ lawyers: Lawyer[]; onLawyerUpdate: (l:
     if (editing.type === 'clients') {
       const c = clients.find(x => x.id === editing.id)!;
       return <ClientEditor client={c} onSave={u => {
-        const next = clients.map(x => x.id === u.id ? u : x);
-        setClients(next);
-        localStorage.setItem('legis_clients', JSON.stringify(next));
+        updateClient(u);
         setEditing(null);
       }} onBack={() => setEditing(null)} />;
     }
     if (editing.type === 'interns') {
       const i = interns.find(x => x.id === editing.id)!;
       return <InternEditor intern={i} onSave={u => {
-        const next = interns.map(x => x.id === u.id ? u : x);
-        setInterns(next);
-        localStorage.setItem('legis_interns', JSON.stringify(next));
+        updateIntern(u);
         setEditing(null);
       }} onBack={() => setEditing(null)} />;
     }
     if (editing.type === 'secretaries') {
       const s = secretaries.find(x => x.id === editing.id)!;
       return <SecretaryEditor secretary={s} onSave={u => {
-        const next = secretaries.map(x => x.id === u.id ? u : x);
-        setSecretaries(next);
-        localStorage.setItem('legis_secretaries', JSON.stringify(next));
+        updateSecretary(u);
         setEditing(null);
       }} onBack={() => setEditing(null)} />;
     }
@@ -1103,7 +1089,7 @@ export const RegistrationsTab: React.FC<{ lawyers: Lawyer[]; onLawyerUpdate: (l:
       {recordType === 'secretaries' && (
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
           <div className="px-5 py-3 bg-purple-50 border-b border-purple-100 flex items-center gap-2">
-            <span className="text-purple-700">🗂️</span>
+            <span className="text-purple-700"><Icon name="🗂" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</span>
             <span className="text-xs font-bold text-purple-800 uppercase tracking-wider">Gestão de Secret./Assist. Jurídico — {secretaries.length} cadastro(s)</span>
           </div>
           <table className="w-full text-sm text-left text-gray-600">

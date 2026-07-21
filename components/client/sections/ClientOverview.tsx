@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState } from 'react';
 import type { User, Case, Appointment } from '../../../types';
 
@@ -150,7 +151,7 @@ export const ClientOverview: React.FC<ClientOverviewProps> = ({
   if (!hasCase) {
     return (
       <div className="animate-fade-in min-h-screen bg-[#0F0C1E] p-6 flex flex-col items-center justify-center gap-6 text-center">
-        <div className="text-8xl">⚖️</div>
+        <div className="text-8xl"><Icon name="⚖" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</div>
         <div>
           <h2 className="text-2xl font-bold text-white mb-2">Comece sua jornada jurídica</h2>
           <p className="text-gray-400">Encontre o advogado ideal para resolver seu caso</p>
@@ -277,7 +278,7 @@ export const ClientOverview: React.FC<ClientOverviewProps> = ({
           {/* Pending task */}
           <div className="bg-black/20 rounded-xl p-3 mb-4 border border-purple-700/30">
             <p className="text-xs text-purple-300 font-medium mb-2">Próxima ação necessária</p>
-            <p className="text-sm text-white mb-3">📎 Falta anexar comprovante de residência</p>
+            <p className="text-sm text-white mb-3"><Icon name="📎" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Falta anexar comprovante de residência</p>
             <button
               onClick={onGoToLawyer}
               className="text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg transition-all duration-200 font-medium"
@@ -299,7 +300,7 @@ export const ClientOverview: React.FC<ClientOverviewProps> = ({
       {/* 4. Linha do Tempo Visual do Processo */}
       {activeCase && activeCase.stages && activeCase.stages.length > 0 && (
         <div className="bg-[#1A1730] rounded-2xl border border-[#2A2545] p-5">
-          <h2 className="text-sm font-bold text-white mb-4">📋 Progresso do Processo</h2>
+          <h2 className="text-sm font-bold text-white mb-4"><Icon name="📋" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Progresso do Processo</h2>
 
           <div className="overflow-x-auto pb-2">
             <div className="flex items-center gap-0 min-w-max">
@@ -313,7 +314,7 @@ export const ClientOverview: React.FC<ClientOverviewProps> = ({
                       {/* Circle */}
                       {stage.status === 'completed' && (
                         <div className="w-9 h-9 rounded-full bg-green-500 flex items-center justify-center shadow-lg shadow-green-900/40">
-                          <span className="text-white text-sm font-bold">✓</span>
+                          <span className="text-white text-sm font-bold"><Icon name="✓" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /></span>
                         </div>
                       )}
                       {stage.status === 'current' && (
@@ -380,7 +381,7 @@ export const ClientOverview: React.FC<ClientOverviewProps> = ({
       {nextAppointment && (
         <div className="bg-[#1A1730] rounded-2xl border border-[#2A2545] p-5 shadow-lg">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-bold text-white">🗓️ Próxima Consulta</h2>
+            <h2 className="text-sm font-bold text-white"><Icon name="🗓" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" />️ Próxima Consulta</h2>
             <span className="text-xs bg-green-900/50 text-green-400 border border-green-700/40 px-2.5 py-1 rounded-full font-medium">
               ✓ Confirmada
             </span>

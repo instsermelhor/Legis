@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState, useMemo } from 'react';
 import type { Lawyer, EfficiencyService, EfficiencyServiceGroup, BiApoio, BiDadosBase, BiCliente, BiVenda } from '../../types';
 import { mockClients, mockInterns, mockSecretaries, mockMonthlyRevenue, mockEfficiencyServices, mockEfficiencyServiceGroups, mockBiApoio, mockBiDadosBase, mockBiClientes, mockBiVendas } from '../../services/mockDataService';
@@ -398,7 +399,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
              <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 shadow-sm space-y-1">
                <div className="flex items-center justify-between">
                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Faturamento Acumulado</span>
-                 <span className="text-xl">💰</span>
+                 <span className="text-xl"><Icon name="💰" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
                </div>
                <p className="text-2xl font-black text-gray-800 dark:text-white">R$ {biKpis.totalFat.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</p>
                <p className="text-[10px] text-gray-400">Soma de receita_fat</p>
@@ -453,7 +454,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
              <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-6 shadow-sm flex flex-col justify-between">
                <div>
                  <h4 className="text-sm font-bold text-gray-800 dark:text-white flex items-center justify-between">
-                   <span>📈 Visão 1: Análise de Eficiência</span>
+                   <span><Icon name="📈" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Visão 1: Análise de Eficiência</span>
                    <span className="text-[10px] font-medium text-gray-400">Razão Mensal vs Meta ({ (biApoio.meta_razao_final * 100).toFixed(1) }%)</span>
                  </h4>
                  <p className="text-xs text-gray-400 mt-0.5">Valores ACIMA da linha de meta indicam ineficiência (estouro de gastos).</p>
@@ -572,7 +573,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                  <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-6 shadow-sm space-y-4">
                    <div>
                      <h4 className="text-sm font-bold text-gray-800 dark:text-white flex items-center justify-between">
-                       <span>🍩 Visão 2: Composição de Despesas</span>
+                       <span><Icon name="🍩" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Visão 2: Composição de Despesas</span>
                        <span className="text-[10px] font-medium text-gray-400">Total: R$ {totalDespesa.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</span>
                      </h4>
                      <p className="text-xs text-gray-400 mt-0.5">Distribuição percentual do desembolso total por categoria de saída.</p>
@@ -645,7 +646,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
            <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-6 shadow-sm">
              <div>
                <h4 className="text-sm font-bold text-gray-800 dark:text-white flex items-center justify-between">
-                 <span>📊 Visão 3: Execução de Metas de Faturamento</span>
+                 <span><Icon name="📊" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Visão 3: Execução de Metas de Faturamento</span>
                  <span className="text-[10px] font-medium text-gray-400">Mensal: Executado UMS vs Meta de Faturamento</span>
                </h4>
                <p className="text-xs text-gray-400 mt-0.5">Mês a mês comparativo do volume UMS executado contra a meta calculada de acordo com as premissas da tabela de apoio.</p>
@@ -758,7 +759,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
              <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 shadow-sm space-y-1">
                <div className="flex items-center justify-between">
                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Faturamento Total</span>
-                 <span className="text-xl">💰</span>
+                 <span className="text-xl"><Icon name="💰" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
                </div>
                <p className="text-2xl font-black text-gray-800 dark:text-white">R$ {aluguelMetrics.totalFat.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</p>
                <p className="text-[10px] text-gray-400">Soma de fato_vendas[Valor Total]</p>
@@ -768,7 +769,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
              <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 shadow-sm space-y-1">
                <div className="flex items-center justify-between">
                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Lucro Líquido Acumulado</span>
-                 <span className="text-xl">📈</span>
+                 <span className="text-xl"><Icon name="📈" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
                </div>
                <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400">
                  R$ {aluguelMetrics.totalLucro.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}
@@ -803,7 +804,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
            <div className="bg-purple-50/20 dark:bg-purple-950/10 border border-purple-100 dark:border-purple-900/30 rounded-2xl p-5 space-y-6">
              <div className="border-b dark:border-purple-900/30 pb-2">
                <h3 className="text-sm font-bold text-purple-800 dark:text-purple-300 uppercase tracking-wide flex items-center gap-1.5">
-                 <span>📈</span> PERSPECTIVA 1: Performance Financeira e Comercial
+                 <span><Icon name="📈" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> PERSPECTIVA 1: Performance Financeira e Comercial
                </h3>
              </div>
 
@@ -812,7 +813,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-6 shadow-sm flex flex-col justify-between lg:col-span-2">
                  <div>
                    <h4 className="text-sm font-bold text-gray-800 dark:text-white flex items-center justify-between">
-                     <span>📈 Evolução Mensal (Ago - Dez)</span>
+                     <span><Icon name="📈" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Evolução Mensal (Ago - Dez)</span>
                      <span className="text-[10px] font-medium text-gray-400">Valores em R$</span>
                    </h4>
                    <p className="text-xs text-gray-400 mt-0.5">Evolução do faturamento total e do lucro líquido no período.</p>
@@ -900,7 +901,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                {/* Ranking de Serviços / Produtos */}
                <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-6 shadow-sm space-y-4">
                  <div>
-                   <h4 className="text-sm font-bold text-gray-800 dark:text-white">🏷️ Faturamento por Serviço</h4>
+                   <h4 className="text-sm font-bold text-gray-800 dark:text-white"><Icon name="🏷" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" />️ Faturamento por Serviço</h4>
                    <p className="text-xs text-gray-400 mt-0.5">Ranking dos serviços/produtos mais rentáveis.</p>
                  </div>
 
@@ -928,7 +929,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
              {/* Geográfico / Cidade do Cliente */}
              <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-6 shadow-sm">
                <div>
-                 <h4 className="text-sm font-bold text-gray-800 dark:text-white">📍 Faturamento por Cidade do Cliente</h4>
+                 <h4 className="text-sm font-bold text-gray-800 dark:text-white"><Icon name="📍" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Faturamento por Cidade do Cliente</h4>
                  <p className="text-xs text-gray-400 mt-0.5">Distribuição das contratações por localização do cliente.</p>
                </div>
                
@@ -951,7 +952,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
            <div className="bg-blue-50/20 dark:bg-blue-950/10 border border-blue-100 dark:border-blue-900/30 rounded-2xl p-5 space-y-6">
              <div className="border-b dark:border-blue-900/30 pb-2">
                <h3 className="text-sm font-bold text-blue-800 dark:text-blue-300 uppercase tracking-wide flex items-center gap-1.5">
-                 <span>⚙️</span> PERSPECTIVA 2: Controlo Logístico e Operacional
+                 <span><Icon name="⚙" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</span> PERSPECTIVA 2: Controlo Logístico e Operacional
                </h3>
              </div>
 
@@ -959,7 +960,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                {/* Rosca / Donut: Status dos Serviços */}
                <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-6 shadow-sm space-y-4 flex flex-col justify-between">
                  <div>
-                   <h4 className="text-sm font-bold text-gray-800 dark:text-white">🍩 Status dos Serviços</h4>
+                   <h4 className="text-sm font-bold text-gray-800 dark:text-white"><Icon name="🍩" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Status dos Serviços</h4>
                    <p className="text-xs text-gray-400 mt-0.5">Distribuição do faturamento total por status de devolução/retirada.</p>
                  </div>
 
@@ -1030,7 +1031,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                {/* Desempenho por Fornecedor (Qtd) */}
                <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-6 shadow-sm space-y-4">
                  <div>
-                   <h4 className="text-sm font-bold text-gray-800 dark:text-white">🏢 Desempenho por Fornecedor</h4>
+                   <h4 className="text-sm font-bold text-gray-800 dark:text-white"><Icon name="🏢" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Desempenho por Fornecedor</h4>
                    <p className="text-xs text-gray-400 mt-0.5">Quantidade total de serviços contratados de cada parceiro.</p>
                  </div>
 
@@ -1060,7 +1061,7 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                  <div>
                    <h4 className="text-sm font-bold text-red-600 dark:text-red-400 flex items-center gap-1.5">
-                     <span>⚠️</span> Detalhe de Serviços Críticos (Ativos Retidos)
+                     <span><Icon name="⚠" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</span> Detalhe de Serviços Críticos (Ativos Retidos)
                    </h4>
                    <p className="text-xs text-gray-400 mt-0.5">Lista de equipamentos em atraso ou não devolvidos para cobrança operacional.</p>
                  </div>

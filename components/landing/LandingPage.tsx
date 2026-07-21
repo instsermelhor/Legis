@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useEffect, useRef, useState } from 'react';
 import { CaseDescriptionForm } from './CaseDescriptionForm';
 import type { Lawyer, MapsSearchResult, View } from '../../types';
@@ -38,11 +39,11 @@ const useVisible = () => {
 };
 
 // ── Stat card ─────────────────────────────────────────────────────────────
-const StatCard: React.FC<{ value: number; suffix?: string; label: string; icon: string; started: boolean }> = ({ value, suffix = '+', label, icon, started }) => {
+const StatCard: React.FC<{ value: number; suffix?: string; label: string; icon: React.ReactNode; started: boolean }> = ({ value, suffix = '+', label, icon, started }) => {
   const count = useCounter(value, 2200, started);
   return (
     <div className="text-center">
-      <div className="text-4xl mb-2">{icon}</div>
+      <div className="mb-2 flex justify-center">{icon}</div>
       <div className="font-montserrat text-4xl md:text-5xl font-bold text-gradient-purple mb-1">
         {count.toLocaleString('pt-BR')}{suffix}
       </div>
@@ -227,7 +228,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate }
               <div className="card-dark p-8 hover-glow">
                 {/* Form header */}
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-xl">⚖️</div>
+                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-xl"><Icon name="⚖" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</div>
                   <div>
                     <h2 className="font-montserrat text-lg font-bold text-white">Descreva seu Caso</h2>
                     <p className="text-sm text-gray-400">Nossa IA encontrará o advogado ideal</p>
@@ -257,10 +258,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate }
         <div className="absolute inset-0 dot-grid opacity-20 pointer-events-none" />
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
-            <StatCard value={1200} label="Advogados Verificados" icon="⚖️" started={statsVisible} />
-            <StatCard value={8500} label="Casos Conectados" icon="📁" started={statsVisible} />
-            <StatCard value={27} label="Estados Atendidos" icon="🗺️" started={statsVisible} suffix="+" />
-            <StatCard value={98} label="Satisfação dos Clientes" icon="⭐" started={statsVisible} suffix="%" />
+            <StatCard value={1200} label="Advogados Verificados" icon={<Icon name="scale" className="w-10 h-10 text-accent" />} started={statsVisible} />
+            <StatCard value={8500} label="Casos Conectados" icon={<Icon name="folder" className="w-10 h-10 text-accent" />} started={statsVisible} />
+            <StatCard value={27} label="Estados Atendidos" icon={<Icon name="globe" className="w-10 h-10 text-accent" />} started={statsVisible} suffix="+" />
+            <StatCard value={98} label="Satisfação dos Clientes" icon={<Icon name="star" className="w-10 h-10 text-accent" />} started={statsVisible} suffix="%" />
           </div>
         </div>
       </section>
@@ -457,11 +458,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate }
             </div>
             {/* Social proof */}
             <div className="mt-12 flex items-center justify-center gap-6 text-white/50 text-sm flex-wrap">
-              <span>✓ Sem cartão de crédito</span>
+              <span><Icon name="✓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Sem cartão de crédito</span>
               <span className="hidden sm:inline w-1 h-1 rounded-full bg-white/30" />
-              <span>✓ Configuração em 2 minutos</span>
+              <span><Icon name="✓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Configuração em 2 minutos</span>
               <span className="hidden sm:inline w-1 h-1 rounded-full bg-white/30" />
-              <span>✓ Cancele quando quiser</span>
+              <span><Icon name="✓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Cancele quando quiser</span>
             </div>
           </div>
         </div>

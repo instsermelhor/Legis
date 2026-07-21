@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 /**
  * LawyerOverviewDashboard.tsx
  * Dashboard Gerencial do Painel do Advogado — Fase 1
@@ -338,7 +339,7 @@ export const LawyerOverviewDashboard: React.FC<Props> = ({
         {/* Widget de Agenda do Dia */}
         <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-gray-800 dark:text-white">📅 Agenda de Hoje</h3>
+            <h3 className="text-sm font-bold text-gray-800 dark:text-white"><Icon name="📅" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Agenda de Hoje</h3>
             <span className="text-xs text-gray-400 dark:text-gray-500">{MOCK_AGENDA_HOJE.length} compromissos</span>
           </div>
           <div className="relative">
@@ -395,7 +396,7 @@ export const LawyerOverviewDashboard: React.FC<Props> = ({
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0">
                     <p className={`text-xs font-black ${item.urgente ? 'text-rose-800 dark:text-rose-300' : 'text-amber-800 dark:text-amber-300'}`}>
-                      {item.urgente && <span className="animate-pulse mr-1">⚡</span>}
+                      {item.urgente && <span className="animate-pulse mr-1"><Icon name="⚡" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>}
                       {item.tipo}
                     </p>
                     <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5 truncate">{item.tribunal}</p>
@@ -435,7 +436,7 @@ export const LawyerOverviewDashboard: React.FC<Props> = ({
           {cases.slice(0, 3).map((c) => (
             <div key={c.id} className="bg-white/10 backdrop-blur-sm border border-white/10 rounded-xl p-3.5">
               <p className="text-xs font-black text-white truncate">{c.title}</p>
-              <p className="text-[10px] text-violet-200 mt-0.5 truncate">👤 {c.clientName}</p>
+              <p className="text-[10px] text-violet-200 mt-0.5 truncate"><Icon name="👤" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> {c.clientName}</p>
               <div className="mt-2 flex items-center gap-1.5">
                 <span className="px-2 py-0.5 text-[9px] font-bold bg-white/20 text-white rounded-full">{c.status}</span>
                 {c.group && <span className="text-[9px] text-violet-300">{c.group}</span>}

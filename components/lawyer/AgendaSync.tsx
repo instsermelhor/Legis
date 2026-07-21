@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 /**
  * AgendaSync.tsx
  * Agenda integrada com botões de sincronização:
@@ -80,9 +81,9 @@ const ConnectModal: React.FC<{ option: SyncOption; onClose: () => void }> = ({ o
               Em produção, você será redirecionado para a página de login da {option.name.split(' ')[0]}.
             </div>
             <div className="text-sm text-gray-600 space-y-1">
-              <p>✓ Sincronização bidirecional de eventos</p>
-              <p>✓ Criação automática de links de reunião</p>
-              <p>✓ Notificações e lembretes integrados</p>
+              <p><Icon name="✓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Sincronização bidirecional de eventos</p>
+              <p><Icon name="✓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Criação automática de links de reunião</p>
+              <p><Icon name="✓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Notificações e lembretes integrados</p>
             </div>
             <div className="flex gap-2">
               <button onClick={handleConnect} className="flex-1 py-2 px-4 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90">Conectar</button>
@@ -101,7 +102,7 @@ const ConnectModal: React.FC<{ option: SyncOption; onClose: () => void }> = ({ o
         {step === 'done' && (
           <>
             <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-              <p className="text-2xl mb-1">✅</p>
+              <p className="text-2xl mb-1"><Icon name="✅" className="w-6 h-6 inline-block mr-1.5 align-middle" /></p>
               <p className="font-semibold text-green-800">{option.name} conectado!</p>
               <p className="text-xs text-green-600 mt-1">Seus eventos serão sincronizados automaticamente.</p>
             </div>
@@ -150,7 +151,7 @@ export const AgendaSync: React.FC = () => {
           >
             <span className="text-2xl">{opt.icon}</span>
             <span className="text-xs font-semibold text-gray-700 text-center leading-tight">{opt.name}</span>
-            {connected.includes(opt.id) && <span className="text-xs text-green-600 font-medium">✓ Conectado</span>}
+            {connected.includes(opt.id) && <span className="text-xs text-green-600 font-medium"><Icon name="✓" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Conectado</span>}
           </button>
         ))}
       </div>

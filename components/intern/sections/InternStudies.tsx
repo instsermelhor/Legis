@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 /**
  * InternStudies.tsx
  * Mural de Estudos — Painel do Bacharelando
@@ -219,7 +220,7 @@ const OabSimulator: React.FC = () => {
 
   if (!currentQ) return (
     <div className="text-center py-10 text-gray-400">
-      <p className="text-3xl mb-2">📚</p>
+      <p className="text-3xl mb-2"><Icon name="📚" className="w-6 h-6 inline-block mr-1.5 align-middle" /></p>
       <p className="text-sm">Nenhuma questão disponível para esta área.</p>
     </div>
   );
@@ -235,7 +236,7 @@ const OabSimulator: React.FC = () => {
             <span className={`text-lg font-black ${scorePct >= 70 ? 'text-emerald-600' : scorePct >= 50 ? 'text-amber-600' : 'text-red-600'}`}>{scorePct}%</span>
             <div>
               <p className="text-xs font-bold text-gray-700 dark:text-gray-300">{score.corretas}/{score.total} corretas</p>
-              <p className="text-[10px] text-gray-400">{scorePct >= 70 ? '✅ Aprovado' : '⚠️ Precisa melhorar'}</p>
+              <p className="text-[10px] text-gray-400">{scorePct >= 70 ? '<Icon name="✅" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Aprovado' : '<Icon name="⚠" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️ Precisa melhorar'}</p>
             </div>
             <button onClick={resetSimulator} className="ml-2 text-xs text-gray-400 hover:text-red-500 transition-colors" title="Reiniciar">↺</button>
           </div>
@@ -278,8 +279,8 @@ const OabSimulator: React.FC = () => {
               <button key={i} onClick={() => handleAnswer(i)}
                 className={`w-full text-left rounded-xl px-4 py-3 text-xs leading-relaxed transition-all ${cls}`}>
                 <span className="font-black mr-2">{String.fromCharCode(65 + i)})</span>{alt}
-                {selectedAnswer !== null && isCorrect && <span className="ml-2 font-bold text-emerald-600">✓ Correta</span>}
-                {isSelected && !isCorrect && <span className="ml-2 font-bold text-red-600">✗ Incorreta</span>}
+                {selectedAnswer !== null && isCorrect && <span className="ml-2 font-bold text-emerald-600"><Icon name="✓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Correta</span>}
+                {isSelected && !isCorrect && <span className="ml-2 font-bold text-red-600"><Icon name="✗" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Incorreta</span>}
               </button>
             );
           })}
@@ -288,7 +289,7 @@ const OabSimulator: React.FC = () => {
         {/* Explicação */}
         {showExplanation && (
           <div className="mx-5 mb-4 bg-indigo-50 dark:bg-indigo-900/10 border border-indigo-200 dark:border-indigo-900/30 rounded-xl px-4 py-3">
-            <p className="text-[10px] font-bold text-indigo-700 dark:text-indigo-400 uppercase mb-1">💡 Explicação</p>
+            <p className="text-[10px] font-bold text-indigo-700 dark:text-indigo-400 uppercase mb-1"><Icon name="💡" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Explicação</p>
             <p className="text-xs text-indigo-800 dark:text-indigo-300 leading-relaxed">{currentQ.explicacao}</p>
           </div>
         )}
@@ -353,7 +354,7 @@ export const InternStudies: React.FC<InternStudiesProps> = ({ grades: _grades })
       {subTab === 'simulador' && (
         <div>
           <div className="mb-4">
-            <h4 className="text-sm font-bold text-gray-700 dark:text-gray-200">🎯 Simulador de Questões OAB</h4>
+            <h4 className="text-sm font-bold text-gray-700 dark:text-gray-200"><Icon name="🎯" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Simulador de Questões OAB</h4>
             <p className="text-xs text-gray-400 mt-0.5">Pratique questões do Exame de Ordem com gabarito comentado por área.</p>
           </div>
           <OabSimulator />

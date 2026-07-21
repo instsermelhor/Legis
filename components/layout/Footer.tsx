@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React from 'react';
 import type { View } from '../../types';
 import { useAppConfig } from '../../context/AppContext';
@@ -96,12 +97,12 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onShowTerms, onShowP
               <div className="space-y-1 pt-1">
                 {config.contactEmail && (
                   <p className="text-sm text-gray-500 flex items-center gap-2">
-                    <span className="text-primary/60">✉</span> {config.contactEmail}
+                    <span className="text-primary/60"><Icon name="✉" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> {config.contactEmail}
                   </p>
                 )}
                 {config.contactPhone && (
                   <p className="text-sm text-gray-500 flex items-center gap-2">
-                    <span className="text-primary/60">📞</span> {config.contactPhone}
+                    <span className="text-primary/60"><Icon name="📞" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> {config.contactPhone}
                   </p>
                 )}
               </div>
@@ -156,7 +157,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onShowTerms, onShowP
           </p>
           <div className="flex items-center gap-1 text-xs text-gray-700">
             <span>Desenvolvido com</span>
-            <span className="text-primary">♥</span>
+            <span className="text-primary"><Icon name="♥" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
             <span>e tecnologia de ponta para o Direito Brasileiro</span>
           </div>
         </div>

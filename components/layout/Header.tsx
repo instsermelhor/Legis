@@ -149,9 +149,21 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
               </button>
             ))}
             {user?.role === 'admin' && (
-              <span className={`px-3.5 py-2 text-sm font-semibold ${isLandingOrPublic ? 'text-accent' : 'text-primary'}`}>
-                Painel Administrativo
-              </span>
+              <button
+                onClick={() => onNavigate('adminDashboard')}
+                className={`relative px-3.5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                  currentView === 'adminDashboard'
+                    ? 'text-primary bg-primary/10'
+                    : isLandingOrPublic
+                      ? 'text-accent hover:text-white hover:bg-white/8'
+                      : 'text-primary hover:bg-primary/8'
+                }`}
+              >
+                Painel Admin
+                {currentView === 'adminDashboard' && (
+                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+                )}
+              </button>
             )}
           </nav>
 
@@ -264,6 +276,20 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
                 }`}
               >
                 Entrar
+              </button>
+            )}
+            {user?.role === 'admin' && (
+              <button
+                onClick={() => { onNavigate('adminDashboard'); setMobileOpen(false); }}
+                className={`w-full text-left px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                  currentView === 'adminDashboard'
+                    ? 'bg-primary/12 text-primary'
+                    : isLandingOrPublic
+                      ? 'text-accent hover:text-white hover:bg-white/8'
+                      : 'text-primary hover:bg-primary/8'
+                }`}
+              >
+                Painel Admin
               </button>
             )}
           </nav>

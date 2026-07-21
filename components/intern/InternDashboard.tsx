@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState, useRef, useMemo } from 'react';
 import type { Intern, Case } from '../../types';
 import { AcademicCapIcon, ClipboardListIcon, UsersIcon, ChatBubbleIcon, XIcon } from '../common/IconComponents';
@@ -133,7 +134,7 @@ const CourseDocModal: React.FC<CourseDocModalProps> = ({ semester, onClose, onCo
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center justify-between p-5 border-b">
                     <div>
-                        <h2 className="text-base font-bold text-gray-800">📎 Upload — {semester}</h2>
+                        <h2 className="text-base font-bold text-gray-800"><Icon name="📎" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Upload — {semester}</h2>
                         <p className="text-xs text-gray-500 mt-0.5">Identifique o documento antes de enviar</p>
                     </div>
                     <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100"><XIcon className="w-5 h-5 text-gray-500" /></button>
@@ -158,22 +159,22 @@ const CourseDocModal: React.FC<CourseDocModalProps> = ({ semester, onClose, onCo
                         {!pendingFile ? (
                             <button onClick={() => fileInputRef.current?.click()}
                                 className="w-full border-2 border-dashed border-primary/30 rounded-xl py-6 text-center hover:bg-primary/5 hover:border-primary/50 transition-colors">
-                                <p className="text-2xl mb-1">📁</p>
+                                <p className="text-2xl mb-1"><Icon name="📁" className="w-6 h-6 inline-block mr-1.5 align-middle" /></p>
                                 <p className="text-sm font-medium text-gray-600">Clique para selecionar</p>
                                 <p className="text-xs text-gray-400 mt-0.5">{ALLOWED_LABEL}</p>
                             </button>
                         ) : (
                             <div className="flex items-center gap-3 bg-primary/5 border border-primary/20 rounded-xl px-4 py-3">
-                                <span className="text-xl shrink-0">{pendingFile.fileType === 'PDF' ? '📄' : '🖼️'}</span>
+                                <span className="text-xl shrink-0">{pendingFile.fileType === 'PDF' ? '📄' : '<Icon name="🖼" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️'}</span>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-semibold text-gray-800 truncate">{pendingFile.name}</p>
                                     <p className="text-xs text-gray-400">{pendingFile.fileType} · {pendingFile.size}</p>
                                 </div>
-                                <button onClick={() => setPendingFile(null)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+                                <button onClick={() => setPendingFile(null)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold"><Icon name="✕" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /></button>
                             </div>
                         )}
                     </div>
-                    {sent && <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-2 text-green-800 text-sm font-semibold">✅ Documento enviado com sucesso!</div>}
+                    {sent && <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-2 text-green-800 text-sm font-semibold"><Icon name="✅" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Documento enviado com sucesso!</div>}
                 </div>
                 <div className="flex gap-3 px-5 py-4 border-t bg-gray-50 rounded-b-2xl">
                     <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">Cancelar</button>
@@ -226,7 +227,7 @@ const PersonalDocModal: React.FC<PersonalDocModalProps> = ({ onClose, onConfirm 
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
                 <div className="flex items-center justify-between p-5 border-b">
                     <div>
-                        <h2 className="text-base font-bold text-gray-800">📎 Upload de Documento Pessoal</h2>
+                        <h2 className="text-base font-bold text-gray-800"><Icon name="📎" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Upload de Documento Pessoal</h2>
                         <p className="text-xs text-gray-500 mt-0.5">Identifique o documento antes de enviar</p>
                     </div>
                     <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100"><XIcon className="w-5 h-5 text-gray-500" /></button>
@@ -251,22 +252,22 @@ const PersonalDocModal: React.FC<PersonalDocModalProps> = ({ onClose, onConfirm 
                         {!pendingFile ? (
                             <button onClick={() => fileInputRef.current?.click()}
                                 className="w-full border-2 border-dashed border-primary/30 rounded-xl py-6 text-center hover:bg-primary/5 hover:border-primary/50 transition-colors">
-                                <p className="text-2xl mb-1">📁</p>
+                                <p className="text-2xl mb-1"><Icon name="📁" className="w-6 h-6 inline-block mr-1.5 align-middle" /></p>
                                 <p className="text-sm font-medium text-gray-600">Clique para selecionar</p>
                                 <p className="text-xs text-gray-400 mt-0.5">{ALLOWED_LABEL}</p>
                             </button>
                         ) : (
                             <div className="flex items-center gap-3 bg-primary/5 border border-primary/20 rounded-xl px-4 py-3">
-                                <span className="text-xl shrink-0">{pendingFile.fileType === 'PDF' ? '📄' : '🖼️'}</span>
+                                <span className="text-xl shrink-0">{pendingFile.fileType === 'PDF' ? '📄' : '<Icon name="🖼" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️'}</span>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-semibold text-gray-800 truncate">{pendingFile.name}</p>
                                     <p className="text-xs text-gray-400">{pendingFile.fileType} · {pendingFile.size}</p>
                                 </div>
-                                <button onClick={() => setPendingFile(null)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+                                <button onClick={() => setPendingFile(null)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold"><Icon name="✕" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /></button>
                             </div>
                         )}
                     </div>
-                    {sent && <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-2 text-green-800 text-sm font-semibold">✅ Documento pessoal enviado!</div>}
+                    {sent && <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-2 text-green-800 text-sm font-semibold"><Icon name="✅" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Documento pessoal enviado!</div>}
                 </div>
                 <div className="flex gap-3 px-5 py-4 border-t bg-gray-50 rounded-b-2xl">
                     <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-semibold text-gray-600 bg-white border border-gray-300 rounded-xl hover:bg-gray-100 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">Cancelar</button>
@@ -358,7 +359,7 @@ const SemesterGradeCard: React.FC<SemesterGradeCardProps> = ({
                                         className="w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-sm text-center focus:outline-none focus:ring-2 focus:ring-primary/30 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500"
                                     />
                                 </div>
-                                <button onClick={() => onRemoveSubject(i)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold p-1">✕</button>
+                                <button onClick={() => onRemoveSubject(i)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold p-1"><Icon name="✕" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /></button>
                             </>
                         ) : (
                             <>
@@ -384,7 +385,7 @@ const SemesterGradeCard: React.FC<SemesterGradeCardProps> = ({
                 <div className="flex items-center justify-between">
                     <button onClick={() => setDocsOpen(v => !v)}
                         className="flex items-center gap-2 text-xs font-semibold text-gray-600 hover:text-primary transition-colors">
-                        <span>📎 Documentos do Semestre</span>
+                        <span><Icon name="📎" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Documentos do Semestre</span>
                         {courseDocs.length > 0 && (
                             <span className="px-1.5 py-0.5 bg-primary/10 text-primary rounded-full text-[10px] font-bold">{courseDocs.length}</span>
                         )}
@@ -401,7 +402,7 @@ const SemesterGradeCard: React.FC<SemesterGradeCardProps> = ({
                         {courseDocs.length === 0 ? (
                             <button onClick={onUploadClick}
                                 className="w-full border-2 border-dashed border-primary/20 rounded-xl py-5 text-center hover:bg-primary/5 transition-colors">
-                                <p className="text-2xl mb-1">📁</p>
+                                <p className="text-2xl mb-1"><Icon name="📁" className="w-6 h-6 inline-block mr-1.5 align-middle" /></p>
                                 <p className="text-xs font-medium text-gray-500">Clique para enviar documentos deste semestre</p>
                                 <p className="text-[11px] text-gray-400 mt-0.5">{ALLOWED_LABEL}</p>
                             </button>
@@ -409,14 +410,14 @@ const SemesterGradeCard: React.FC<SemesterGradeCardProps> = ({
                             courseDocs.map((d, i) => (
                                 <div key={i} className="flex items-center justify-between bg-primary/5 border border-primary/10 rounded-xl px-4 py-2.5 gap-3">
                                     <div className="flex items-center gap-2 min-w-0">
-                                        <span className="text-base shrink-0">{d.fileType === 'PDF' ? '📄' : '🖼️'}</span>
+                                        <span className="text-base shrink-0">{d.fileType === 'PDF' ? '📄' : '<Icon name="🖼" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️'}</span>
                                         <div className="min-w-0">
                                             <p className="text-xs font-semibold text-gray-800 truncate">{d.name}</p>
                                             <p className="text-[10px] text-gray-400">{d.fileType} · {d.size} · {d.date}</p>
                                         </div>
                                     </div>
                                     <span className="shrink-0 px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded-full">{d.docType}</span>
-                                    <button onClick={() => onRemoveDoc(i)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+                                    <button onClick={() => onRemoveDoc(i)} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold"><Icon name="✕" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /></button>
                                 </div>
                             ))
                         )}
@@ -588,7 +589,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                 {supervisorLawyer && (
                     <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-xl p-4 mb-6 text-white flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
-                            <span className="text-2xl">🎉</span>
+                            <span className="text-2xl"><Icon name="🎉" className="w-6 h-6 inline-block mr-1.5 align-middle" /></span>
                             <div>
                                 <p className="font-bold text-sm">Você foi escolhido como estagiário!</p>
                                 <p className="text-xs text-white/85">Dr(a). {supervisorLawyer.name} — OAB {supervisorLawyer.oab}</p>
@@ -655,7 +656,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
 
                         {/* ── Progresso Educacional ── */}
                         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 dark:bg-[#1A1730] dark:border-[#2A2545]">
-                            <h3 className="text-base font-bold text-gray-800 mb-4 flex items-center gap-2">🎓 Desenvolvimento Educacional</h3>
+                            <h3 className="text-base font-bold text-gray-800 mb-4 flex items-center gap-2"><Icon name="🎓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Desenvolvimento Educacional</h3>
                             <div className="space-y-4">
                                 {/* Horas complementares */}
                                 <div>
@@ -704,7 +705,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
 
                         {/* ── Desempenho Acadêmico — Gráfico de Barras Horizontal ── */}
                         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 dark:bg-[#1A1730] dark:border-[#2A2545]">
-                            <h3 className="text-base font-bold text-gray-800 mb-4">📊 Desempenho Acadêmico por Semestre</h3>
+                            <h3 className="text-base font-bold text-gray-800 mb-4"><Icon name="📊" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Desempenho Acadêmico por Semestre</h3>
                             <div className="space-y-2">
                                 {DETAILED_SEMESTERS.map((sem, idx) => {
                                     const semGrades = grades[sem] ? (Object.values(grades[sem]) as string[]).filter(v => v.trim()) : [];
@@ -729,7 +730,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
 
                         {/* ── Estágio — Dados do Vínculo ── */}
                         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 dark:bg-[#1A1730] dark:border-[#2A2545]">
-                            <h3 className="text-base font-bold text-gray-800 mb-4">⚖️ Dashboard de Estágio</h3>
+                            <h3 className="text-base font-bold text-gray-800 mb-4"><Icon name="⚖" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️ Dashboard de Estágio</h3>
                             {supervisorLawyer ? (
                                 <div className="space-y-4">
                                     {/* Advogado supervisor */}
@@ -817,7 +818,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                         {/* ── Grade Curricular rápida ── */}
                         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 dark:bg-[#1A1730] dark:border-[#2A2545]">
                             <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-base font-bold text-gray-800">📚 Grade Curricular</h3>
+                                <h3 className="text-base font-bold text-gray-800"><Icon name="📚" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Grade Curricular</h3>
                                 <span className="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded-lg hidden sm:block">Edite no Mural de Estudos ↗</span>
                             </div>
                             <div className="flex flex-wrap gap-2 mb-4">
@@ -832,7 +833,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                                 <div className="flex items-center justify-between mb-3">
                                     <h4 className="font-bold text-primary text-sm">{selectedDetailSemester}</h4>
                                     {courseDocs[selectedDetailSemester]?.length > 0 && (
-                                        <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">📎 {courseDocs[selectedDetailSemester].length} doc(s)</span>
+                                        <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full"><Icon name="📎" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> {courseDocs[selectedDetailSemester].length} doc(s)</span>
                                     )}
                                 </div>
                                 <ul className="space-y-2">
@@ -855,7 +856,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
 
                         {/* ── Editar Grade (colapsável) ── */}
                         <div>
-                            <h3 className="text-base font-bold text-gray-800 mb-1">✏️ Editar Grade e Notas por Semestre</h3>
+                            <h3 className="text-base font-bold text-gray-800 mb-1"><Icon name="✏" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️ Editar Grade e Notas por Semestre</h3>
                             <p className="text-xs text-gray-500 mb-4">Personalize as disciplinas de acordo com sua universidade e registre suas notas.</p>
                             <div className="space-y-4">
                                 {DETAILED_SEMESTERS.map(sem => (
@@ -907,7 +908,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                                 <div className="md:col-span-2">
                                     <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 space-y-3">
                                         <div className="flex items-center gap-4">
-                                            <p className="text-sm font-semibold text-gray-700">⚖️ Possui OAB?</p>
+                                            <p className="text-sm font-semibold text-gray-700"><Icon name="⚖" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" />️ Possui OAB?</p>
                                             {['Sim', 'Não'].map(opt => (
                                                 <label key={opt} className="flex items-center gap-2 cursor-pointer">
                                                     <input type="radio" name="hasOab" checked={opt === 'Sim' ? hasOab : !hasOab} onChange={() => setHasOab(opt === 'Sim')} className="accent-primary" />
@@ -970,7 +971,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h3 className="text-base font-bold text-gray-800">📎 Documentos Pessoais</h3>
+                                    <h3 className="text-base font-bold text-gray-800"><Icon name="📎" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Documentos Pessoais</h3>
                                     <p className="text-xs text-gray-500 mt-0.5">RG, CPF, CNH e outros documentos de identificação</p>
                                 </div>
                                 <button onClick={() => setShowPersonalDocModal(true)}
@@ -982,7 +983,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                             {personalDocs.length === 0 ? (
                                 <button onClick={() => setShowPersonalDocModal(true)}
                                     className="w-full border-2 border-dashed border-primary/30 rounded-xl py-7 text-center hover:bg-primary/5 hover:border-primary/50 transition-colors">
-                                    <p className="text-3xl mb-1">📁</p>
+                                    <p className="text-3xl mb-1"><Icon name="📁" className="w-6 h-6 inline-block mr-1.5 align-middle" /></p>
                                     <p className="text-sm font-medium text-gray-500">Clique para adicionar documento pessoal</p>
                                 </button>
                             ) : (
@@ -990,14 +991,14 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                                     {personalDocs.map((d, i) => (
                                         <div key={i} className="flex items-center justify-between bg-primary/5 border border-primary/10 rounded-xl px-4 py-3 gap-3">
                                             <div className="flex items-center gap-3 min-w-0">
-                                                <span className="text-xl shrink-0">{d.fileType === 'PDF' ? '📄' : '🖼️'}</span>
+                                                <span className="text-xl shrink-0">{d.fileType === 'PDF' ? '📄' : '<Icon name="🖼" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️'}</span>
                                                 <div className="min-w-0">
                                                     <p className="text-sm font-semibold text-gray-800 truncate">{d.name}</p>
                                                     <p className="text-[10px] text-gray-400">{d.fileType} · {d.size} · {d.date}</p>
                                                 </div>
                                             </div>
                                             <span className="shrink-0 px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded-full">{d.docType}</span>
-                                            <button onClick={() => setPersonalDocs(prev => prev.filter((_, idx) => idx !== i))} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold p-1">✕</button>
+                                            <button onClick={() => setPersonalDocs(prev => prev.filter((_, idx) => idx !== i))} className="shrink-0 text-red-400 hover:text-red-600 text-xs font-bold p-1"><Icon name="✕" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /></button>
                                         </div>
                                     ))}
                                     <button onClick={() => setShowPersonalDocModal(true)} className="text-xs text-primary hover:underline font-semibold py-1">+ Adicionar mais documentos</button>
@@ -1007,11 +1008,11 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
 
                         {/* Segurança */}
                         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-                            <h3 className="text-base font-bold text-gray-800">🔐 Segurança de Acesso</h3>
+                            <h3 className="text-base font-bold text-gray-800"><Icon name="🔐" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Segurança de Acesso</h3>
                             <p className="text-sm text-gray-500">Mantenha seus dados de acesso seguros e atualizados.</p>
                             <div className="flex flex-wrap gap-3">
-                                <button onClick={() => setShowPasswordModal(true)} className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200 rounded-lg hover:bg-amber-100">🔑 Alterar Senha</button>
-                                <button onClick={() => setShowEmailModal(true)} className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100">📧 Alterar E-mail</button>
+                                <button onClick={() => setShowPasswordModal(true)} className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200 rounded-lg hover:bg-amber-100"><Icon name="🔑" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Alterar Senha</button>
+                                <button onClick={() => setShowEmailModal(true)} className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100"><Icon name="📧" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Alterar E-mail</button>
                             </div>
                             <div className="text-xs text-gray-400 bg-gray-50 rounded-lg p-3">
                                 E-mail atual de acesso: <strong>{userEmail || intern.contact?.email || 'Não definido'}</strong>

@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState, useMemo } from 'react';
 import { mockLawyers } from '../../../services/mockLawyerService';
 import type { Lawyer } from '../../../types';
@@ -55,7 +56,7 @@ function truncateBio(bio: string, max = 80): string {
 const StarDisplay: React.FC<{ rating: number }> = ({ rating }) => (
   <span className="flex items-center gap-0.5">
     {[1, 2, 3, 4, 5].map(i => (
-      <span key={i} className={i <= Math.round(rating) ? 'text-amber-400' : 'text-gray-300 dark:text-gray-600'}>★</span>
+      <span key={i} className={i <= Math.round(rating) ? 'text-amber-400' : 'text-gray-300 dark:text-gray-600'}><Icon name="★" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
     ))}
   </span>
 );
@@ -132,7 +133,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ lawyer, onClose }) => {
 
         {success ? (
           <div className="p-10 text-center">
-            <div className="text-6xl mb-4">✅</div>
+            <div className="text-6xl mb-4"><Icon name="✅" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></div>
             <h3 className="text-xl font-bold text-gray-800 dark:text-white">Agendamento confirmado!</h3>
             <p className="text-gray-500 dark:text-gray-400 mt-2 text-sm">
               {selectedDate && new Date(selectedDate + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })} às {selectedTime} — {modality}
@@ -255,7 +256,7 @@ const BookingModal: React.FC<BookingModalProps> = ({ lawyer, onClose }) => {
             {/* Fee info */}
             {lawyer.consultationFee && (
               <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-xl px-4 py-3 flex items-center gap-3">
-                <span className="text-xl">💰</span>
+                <span className="text-xl"><Icon name="💰" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
                 <div>
                   <p className="text-xs text-amber-700 dark:text-amber-400 font-semibold">Valor da consulta</p>
                   <p className="text-base font-bold text-amber-800 dark:text-amber-300">
@@ -377,7 +378,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ lawyer, onClose, onBook }) 
             <ul className="space-y-1">
               {lawyer.education.map(e => (
                 <li key={e} className="text-sm text-gray-700 dark:text-gray-300 flex items-start gap-2">
-                  <span className="text-purple-500 mt-0.5">🎓</span> {e}
+                  <span className="text-purple-500 mt-0.5"><Icon name="🎓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> {e}
                 </li>
               ))}
             </ul>
@@ -507,7 +508,7 @@ const LawyerCard: React.FC<LawyerCardProps> = ({
       {/* Stats row */}
       <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-[#2A2545] pt-3">
         <span className="flex items-center gap-1">
-          📋 <strong className="text-gray-700 dark:text-gray-300">{lawyer.experience.cases}</strong> casos
+          <Icon name="📋" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> <strong className="text-gray-700 dark:text-gray-300">{lawyer.experience.cases}</strong> casos
         </span>
         <span className="flex items-center gap-1">
           ⏱ Resposta: <strong className="text-gray-700 dark:text-gray-300">~24h</strong>
@@ -642,7 +643,7 @@ export const ClientLawyerSearch: React.FC<ClientLawyerSearchProps> = ({
         {/* AI suggestion banner */}
         {aiSuggestedArea && (
           <div className="mt-3 flex items-center gap-3 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800/40 rounded-xl px-4 py-3">
-            <span className="text-xl shrink-0">🤖</span>
+            <span className="text-xl shrink-0"><Icon name="🤖" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
             <p className="text-sm text-purple-800 dark:text-purple-300 font-medium">
               Com base no seu caso, buscamos advogados de{' '}
               <strong className="text-purple-900 dark:text-purple-200">{aiSuggestedArea}</strong>
@@ -683,7 +684,7 @@ export const ClientLawyerSearch: React.FC<ClientLawyerSearchProps> = ({
               Buscar por nome
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"><Icon name="🔍" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
               <input
                 id="lawyer-search-input"
                 type="text"
@@ -769,8 +770,8 @@ export const ClientLawyerSearch: React.FC<ClientLawyerSearchProps> = ({
                 className="w-full px-3 py-2 text-sm border border-gray-200 dark:border-[#2A2545] rounded-xl bg-white dark:bg-[#120F24] text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-purple-400 transition-all"
               >
                 <option value="recommended">⭐ Mais Indicados</option>
-                <option value="rating">🏆 Avaliação</option>
-                <option value="price">💰 Menor Preço</option>
+                <option value="rating"><Icon name="🏆" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Avaliação</option>
+                <option value="price"><Icon name="💰" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Menor Preço</option>
               </select>
             </div>
           </div>
@@ -803,7 +804,7 @@ export const ClientLawyerSearch: React.FC<ClientLawyerSearchProps> = ({
       {/* ─── Grid ─── */}
       {filteredLawyers.length === 0 ? (
         <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-12 text-center">
-          <div className="text-6xl mb-4">🔍</div>
+          <div className="text-6xl mb-4"><Icon name="🔍" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></div>
           <h3 className="text-lg font-bold text-gray-700 dark:text-white">
             Nenhum advogado encontrado com esses filtros
           </h3>

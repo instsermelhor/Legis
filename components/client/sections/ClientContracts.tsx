@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 'use client';
 
 import React, { useState } from 'react';
@@ -195,7 +196,7 @@ function ServicoItem({ servico }: { servico: typeof MOCK_SERVICOS_CONTRATADOS[0]
         hover:bg-white dark:hover:bg-[#1A1730] hover:shadow-sm transition-all duration-200 animate-fade-in"
     >
       <div className="flex items-center gap-3">
-        <span className="text-xl" aria-hidden="true">📦</span>
+        <span className="text-xl" aria-hidden="true"><Icon name="📦" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
         <div>
           <p className="text-sm font-semibold text-slate-800 dark:text-white">{servico.nome}</p>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Contratado em {servico.data}</p>
@@ -253,7 +254,7 @@ function TimelineItem({
 function EmptyState({ section }: { section: string }) {
   return (
     <div className="flex flex-col items-center justify-center py-14 text-center animate-fade-in">
-      <span className="text-5xl mb-4" aria-hidden="true">📭</span>
+      <span className="text-5xl mb-4" aria-hidden="true"><Icon name="📭" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
       <h3 className="text-base font-semibold text-slate-700 dark:text-white">Nenhum {section} encontrado</h3>
       <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-xs">
         Quando você formalizar acordos com advogados, eles aparecerão aqui.
@@ -285,7 +286,7 @@ export const ClientContracts: React.FC<ClientContractsProps> = ({ user: _user })
       <section>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
           <div>
-            <h2 className="text-xl font-bold text-slate-800 dark:text-white">📄 Meus Contratos</h2>
+            <h2 className="text-xl font-bold text-slate-800 dark:text-white"><Icon name="📄" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Meus Contratos</h2>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
               Contratos ativos e histórico com advogados parceiros.
             </p>
@@ -333,7 +334,7 @@ export const ClientContracts: React.FC<ClientContractsProps> = ({ user: _user })
       {/* ------------------------------------------------------------------ */}
       <section>
         <div className="mb-4">
-          <h2 className="text-xl font-bold text-slate-800 dark:text-white">📦 Meus Serviços Contratados</h2>
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white"><Icon name="📦" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Meus Serviços Contratados</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Serviços de eficiência jurídica que você adquiriu.
           </p>
@@ -357,7 +358,7 @@ export const ClientContracts: React.FC<ClientContractsProps> = ({ user: _user })
       {/* ------------------------------------------------------------------ */}
       <section>
         <div className="mb-5">
-          <h2 className="text-xl font-bold text-slate-800 dark:text-white">📅 Histórico de Atividades</h2>
+          <h2 className="text-xl font-bold text-slate-800 dark:text-white"><Icon name="📅" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Histórico de Atividades</h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Todos os eventos e marcos da sua jornada jurídica.
           </p>

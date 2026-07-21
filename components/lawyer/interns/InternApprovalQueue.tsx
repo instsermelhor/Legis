@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 /**
  * InternApprovalQueue.tsx
  * Fila de Aprovação de Estagiários — Painel do Advogado
@@ -102,7 +103,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ submission, onClose, onDecisi
       <div className="bg-white dark:bg-[#1A1730] rounded-2xl shadow-2xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
         <div className="p-6">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">👨‍⚖️ Revisão da Peça</h2>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white"><Icon name="👨" className="w-4 h-4 inline-block mr-1 align-text-bottom" />‍<Icon name="⚖" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️ Revisão da Peça</h2>
             <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl font-bold">×</button>
           </div>
           <div className="bg-gray-50 dark:bg-black/20 rounded-xl p-4 mb-4">
@@ -113,7 +114,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({ submission, onClose, onDecisi
             <p className="text-xs text-gray-600 dark:text-gray-300 mt-2 leading-relaxed">{submission.description}</p>
             {submission.attachmentName && (
               <div className="mt-2 flex items-center gap-2 bg-violet-50 dark:bg-violet-900/20 rounded-lg px-3 py-2">
-                <span>📎</span>
+                <span><Icon name="📎" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
                 <span className="text-[10px] text-violet-700 dark:text-violet-300 font-bold">{submission.attachmentName}</span>
               </div>
             )}
@@ -256,7 +257,7 @@ export const InternApprovalQueue: React.FC<InternApprovalQueueProps> = ({ lawyer
           return (
             <div key={stat.name} className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-4">
               <div className="flex items-center gap-2 mb-3">
-                <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center text-sm">🎓</div>
+                <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center text-sm"><Icon name="🎓" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /></div>
                 <p className="text-xs font-bold text-gray-800 dark:text-white truncate">{stat.name}</p>
               </div>
               <div className="grid grid-cols-2 gap-2 mb-3">
@@ -278,8 +279,8 @@ export const InternApprovalQueue: React.FC<InternApprovalQueueProps> = ({ lawyer
                 </div>
               </div>
               <div className="flex justify-between mt-2 text-[8px] text-gray-400 font-bold">
-                <span className="text-emerald-600 dark:text-emerald-400">✅ {stat.approved} aprov.</span>
-                <span className="text-amber-600 dark:text-amber-400">🔄 {stat.revision} revis.</span>
+                <span className="text-emerald-600 dark:text-emerald-400"><Icon name="✅" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> {stat.approved} aprov.</span>
+                <span className="text-amber-600 dark:text-amber-400"><Icon name="🔄" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> {stat.revision} revis.</span>
                 <span className="text-amber-500">⏳ {stat.pending} pend.</span>
               </div>
             </div>
@@ -292,9 +293,9 @@ export const InternApprovalQueue: React.FC<InternApprovalQueueProps> = ({ lawyer
         {([
           { id: 'all', label: 'Todas', count: submissions.length },
           { id: 'pending_approval', label: '⏳ Aguardando', count: submissions.filter(s => s.status === 'pending_approval').length },
-          { id: 'needs_revision', label: '🔄 Em Revisão', count: submissions.filter(s => s.status === 'needs_revision').length },
-          { id: 'approved', label: '✅ Aprovadas', count: submissions.filter(s => s.status === 'approved').length },
-          { id: 'rejected', label: '❌ Rejeitadas', count: submissions.filter(s => s.status === 'rejected').length },
+          { id: 'needs_revision', label: '<Icon name="🔄" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Em Revisão', count: submissions.filter(s => s.status === 'needs_revision').length },
+          { id: 'approved', label: '<Icon name="✅" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Aprovadas', count: submissions.filter(s => s.status === 'approved').length },
+          { id: 'rejected', label: '<Icon name="❌" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Rejeitadas', count: submissions.filter(s => s.status === 'rejected').length },
         ] as { id: QueueFilter; label: string; count: number }[]).map(f => (
           <button
             key={f.id}
@@ -317,7 +318,7 @@ export const InternApprovalQueue: React.FC<InternApprovalQueueProps> = ({ lawyer
       <div className="space-y-3">
         {filtered.length === 0 && (
           <div className="text-center py-10 text-gray-400 dark:text-gray-600">
-            <span className="text-4xl block mb-2">🎓</span>
+            <span className="text-4xl block mb-2"><Icon name="🎓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
             <p className="text-sm">Nenhuma peça nesta categoria.</p>
           </div>
         )}
@@ -354,13 +355,13 @@ export const InternApprovalQueue: React.FC<InternApprovalQueueProps> = ({ lawyer
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">{sub.description}</p>
                   {sub.attachmentName && (
                     <div className="mt-2 flex items-center gap-2 bg-violet-50 dark:bg-violet-900/20 rounded-lg px-3 py-1.5 w-fit">
-                      <span className="text-xs">📎</span>
+                      <span className="text-xs"><Icon name="📎" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /></span>
                       <span className="text-[10px] text-violet-700 dark:text-violet-300 font-bold">{sub.attachmentName}</span>
                     </div>
                   )}
                   <div className="flex items-center gap-3 mt-3 text-[10px] text-gray-400 dark:text-gray-500">
-                    <span>🎓 {sub.internName}</span>
-                    {sub.wordCount && <span>📄 {sub.wordCount.toLocaleString('pt-BR')} palavras</span>}
+                    <span><Icon name="🎓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> {sub.internName}</span>
+                    {sub.wordCount && <span><Icon name="📄" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> {sub.wordCount.toLocaleString('pt-BR')} palavras</span>}
                     <span>⏱ Enviado {timeAgo}</span>
                   </div>
                   {/* Lawyer comment */}

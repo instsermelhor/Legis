@@ -1,6 +1,7 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState } from 'react';
 import type { Lawyer } from '../../types';
-import { mockLawyers } from '../../services/mockLawyerService';
+import { useAppData } from '../../context/AppDataContext';
 
 // ── Tabs
 import { OverviewTab }          from './overview/OverviewTab';
@@ -84,18 +85,17 @@ const TAB_GROUPS = [
 ];
 
 interface AdminDashboardProps {
+  onNavigate?: (view: import('../../types').View) => void;
   onLogout?: () => void;
 }
 
-export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLogout }) => {
+  // Dados de advogados vindos do AppDataContext — compartilhados com o site público
+  const { lawyers, updateLawyer } = useAppData();
+
   const [activeTab, setActiveTab]     = useState<Tab>('overview');
-  const [lawyers, setLawyers]         = useState<Lawyer[]>(mockLawyers);
   const [financeFilter, setFinanceFilter] = useState<string | undefined>(undefined);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-
-  const handleLawyerUpdate = (updated: Lawyer) => {
-    setLawyers(prev => prev.map(l => l.id === updated.id ? updated : l));
-  };
 
   const navigateToFinance = (filter?: string) => {
     setFinanceFilter(filter);
@@ -105,12 +105,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0D0B1E]">
       {/* ── Top bar ── */}
-      <div className="bg-white dark:bg-[#12102A] border-b border-gray-200 dark:border-[#2A2545] shadow-sm px-4 sm:px-8 py-4 flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">Painel Administrativo</h1>
-          <p className="text-xs text-gray-500 dark:text-gray-400">Legis Connect — Backoffice Interno</p>
+      <div className="bg-white dark:bg-[#12102A] border-b border-gray-200 dark:border-[#2A2545] shadow-sm px-4 sm:px-8 py-3 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          {/* Voltar ao site */}
+          {onNavigate && (
+            <button
+              onClick={() => onNavigate('landing')}
+              title="Voltar ao site principal"
+              className="flex items-center gap-1.5 text-xs font-semibold text-violet-600 dark:text-violet-400 hover:text-violet-800 dark:hover:text-violet-200 bg-violet-50 dark:bg-violet-900/30 hover:bg-violet-100 dark:hover:bg-violet-900/50 border border-violet-200 dark:border-violet-700 px-2.5 py-1.5 rounded-lg transition-all duration-150 shrink-0"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              <span className="hidden sm:inline">Site</span>
+            </button>
+          )}
+          <div className="min-w-0">
+            <h1 className="text-base sm:text-xl font-bold text-gray-900 dark:text-gray-100 truncate">Painel Administrativo</h1>
+            <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Legis Connect — Backoffice Interno</p>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           <span className="hidden sm:flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block" />
             Sistema online
@@ -119,7 +134,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
             onClick={() => setShowMobileMenu(!showMobileMenu)}
             className="md:hidden px-3 py-1.5 bg-violet-600 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow"
           >
-            <span>{showMobileMenu ? '✕ Fechar' : '☰ Menu'}</span>
+            <span>{showMobileMenu ? 'Fechar' : 'Menu'}</span>
           </button>
         </div>
       </div>
@@ -179,7 +194,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
           </nav>
 
           {/* Sidebar footer */}
-          <div className="p-3 mt-4 border-t border-gray-100 dark:border-[#2A2545]">
+          <div className="p-3 mt-4 border-t border-gray-100 dark:border-[#2A2545] space-y-2">
+            {/* Link para o site principal */}
+            {onNavigate && (
+              <button
+                onClick={() => onNavigate('landing')}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium text-violet-600 dark:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-all duration-150 border border-dashed border-violet-200 dark:border-violet-800"
+              >
+                <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Ir para o site público
+              </button>
+            )}
             <div className="px-3 py-2 rounded-lg bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-800">
               <p className="text-[10px] font-bold text-violet-700 dark:text-violet-400 uppercase tracking-widest mb-0.5">Legis Connect</p>
               <p className="text-xs text-violet-500 dark:text-violet-500">Plataforma Jurídica</p>
@@ -191,7 +218,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
         <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">
           {activeTab === 'overview'        && <OverviewTab lawyers={lawyers} onNavigateToFinance={navigateToFinance} />}
           {activeTab === 'admin_commands'  && <AdminCommandsTab />}
-          {activeTab === 'registrations'   && <RegistrationsTab lawyers={lawyers} onLawyerUpdate={handleLawyerUpdate} />}
+          {activeTab === 'registrations'   && <RegistrationsTab lawyers={lawyers} onLawyerUpdate={updateLawyer} />}
           {activeTab === 'finance'         && <FinanceTab lawyers={lawyers} initialFilter={financeFilter} />}
           {activeTab === 'services'        && <ServicesManagementTab />}
           {activeTab === 'operations'      && <OperationsTab />}

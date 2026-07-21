@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 /**
  * SecretaryOverview.tsx
  * Visão Geral — Painel do Secret./Assist. Jurídico
@@ -162,7 +163,7 @@ const ApptTypeMap = {
 
 const LawyerScheduleWidget: React.FC<{ appointments: LawyerAppointment[] }> = ({ appointments }) => (
   <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 space-y-4">
-    <h4 className="text-sm font-bold text-gray-700 dark:text-gray-200">📅 Próximos Compromissos dos Sócios</h4>
+    <h4 className="text-sm font-bold text-gray-700 dark:text-gray-200"><Icon name="📅" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Próximos Compromissos dos Sócios</h4>
     <div className="space-y-2">
       {appointments.map(ap => {
         const typeMeta = ApptTypeMap[ap.type];
@@ -217,7 +218,7 @@ const LeadQueueWidget: React.FC<{ leads: LeadQueueItem[]; onDismiss: (id: string
     </div>
     {leads.length === 0 ? (
       <div className="text-center py-6 text-gray-400">
-        <p className="text-3xl mb-1">✅</p>
+        <p className="text-3xl mb-1"><Icon name="✅" className="w-6 h-6 inline-block mr-1.5 align-middle" /></p>
         <p className="text-sm font-semibold">Fila vazia — tudo em dia!</p>
       </div>
     ) : (

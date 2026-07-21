@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState } from 'react';
 import type { Lawyer, Secretary } from '../../types';
 import { mockLawyers } from '../../services/mockLawyerService';
@@ -1059,7 +1060,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                                       {/* Funcionalidades */}
                                       <div className="space-y-3">
                                         <h5 className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider flex items-center gap-1">
-                                          <span>🧠</span> Funcionalidades & Ferramentas
+                                          <span><Icon name="🧠" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> Funcionalidades & Ferramentas
                                         </h5>
                                         <div className="space-y-2">
                                           {FEATURES_LIST.filter(f => f.category === 'funcionalidade').map(f => {
@@ -1092,7 +1093,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                                       {/* APIs */}
                                       <div className="space-y-3">
                                         <h5 className="text-xs font-bold text-teal-600 dark:text-teal-400 uppercase tracking-wider flex items-center gap-1">
-                                          <span>🌐</span> Conexões & Integrações de APIs
+                                          <span><Icon name="🌐" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> Conexões & Integrações de APIs
                                         </h5>
                                         <div className="space-y-2">
                                           {FEATURES_LIST.filter(f => f.category === 'api').map(f => {

@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState } from 'react';
 import type { Lawyer } from '../../types';
 
@@ -33,7 +34,7 @@ export const LawyerInfoPopup: React.FC<LawyerInfoPopupProps> = ({ lawyer, messag
       >
         {/* Top gradient banner */}
         <div className="bg-gradient-to-r from-primary to-primary/70 p-6 text-white text-center">
-          <p className="text-3xl mb-2">🎉</p>
+          <p className="text-3xl mb-2"><Icon name="🎉" className="w-6 h-6 inline-block mr-1.5 align-middle" /></p>
           <h2 className="text-lg font-bold leading-snug">{message}</h2>
           <p className="text-xs text-white/80 mt-1">Veja abaixo as informações do profissional responsável</p>
         </div>
@@ -55,15 +56,15 @@ export const LawyerInfoPopup: React.FC<LawyerInfoPopupProps> = ({ lawyer, messag
 
           {/* Info grid */}
           <div className="bg-gray-50 rounded-xl p-4 space-y-2 text-sm">
-            <InfoRow icon="📍" label="Localização" value={`${lawyer.location.city} / ${lawyer.location.state}`} />
-            <InfoRow icon="📞" label="Telefone" value={lawyer.contact.phone} />
-            <InfoRow icon="📧" label="E-mail" value={lawyer.contact.email} />
+            <InfoRow icon={<Icon name="pin" className="w-4 h-4 text-gray-400" />} label="Localização" value={`${lawyer.location.city} / ${lawyer.location.state}`} />
+            <InfoRow icon={<Icon name="phone" className="w-4 h-4 text-gray-400" />} label="Telefone" value={lawyer.contact.phone} />
+            <InfoRow icon={<Icon name="mail" className="w-4 h-4 text-gray-400" />} label="E-mail" value={lawyer.contact.email} />
             {lawyer.commercialAddress && (
-              <InfoRow icon="🏛️" label="Escritório" value={lawyer.commercialAddress} />
+              <InfoRow icon={<Icon name="court" className="w-4 h-4 text-gray-400" />} label="Escritório" value={lawyer.commercialAddress} />
             )}
             {lawyer.specialties.length > 0 && (
               <div className="flex gap-2 items-start">
-                <span className="text-base shrink-0">⚖️</span>
+                <span className="text-base shrink-0"><Icon name="scale" className="w-4 h-4 text-gray-400 mt-0.5" /></span>
                 <div>
                   <p className="text-xs font-semibold text-gray-500 uppercase">Especialidades</p>
                   <p className="text-gray-700 text-xs">{lawyer.specialties.slice(0, 3).join(', ')}</p>
@@ -79,12 +80,12 @@ export const LawyerInfoPopup: React.FC<LawyerInfoPopupProps> = ({ lawyer, messag
           {/* Confirmation feedback */}
           {confirmed === 'accept' && (
             <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 text-center">
-              <p className="text-sm font-bold text-green-700">✅ Proposta aceita! O advogado será notificado.</p>
+              <p className="text-sm font-bold text-green-700"><Icon name="check" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Proposta aceita! O advogado será notificado.</p>
             </div>
           )}
           {confirmed === 'reject' && (
             <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-center">
-              <p className="text-sm font-bold text-red-700">❌ Proposta recusada. O advogado será notificado.</p>
+              <p className="text-sm font-bold text-red-700"><Icon name="x" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Proposta recusada. O advogado será notificado.</p>
             </div>
           )}
 
@@ -120,9 +121,9 @@ export const LawyerInfoPopup: React.FC<LawyerInfoPopupProps> = ({ lawyer, messag
   );
 };
 
-const InfoRow: React.FC<{ icon: string; label: string; value: string }> = ({ icon, label, value }) => (
+const InfoRow: React.FC<{ icon: React.ReactNode; label: string; value: string }> = ({ icon, label, value }) => (
   <div className="flex gap-2 items-start">
-    <span className="text-base shrink-0">{icon}</span>
+    <span className="text-base shrink-0 flex items-center justify-center mt-0.5">{icon}</span>
     <div>
       <p className="text-xs font-semibold text-gray-500 uppercase">{label}</p>
       <p className="text-gray-700">{value}</p>

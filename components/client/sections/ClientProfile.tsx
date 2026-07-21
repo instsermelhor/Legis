@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 /**
  * ClientProfile.tsx
  * Componente "Meu Perfil + Triagem Inteligente com IA" do Painel do Cliente — Legis Connect.
@@ -382,7 +383,7 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({
       ═══════════════════════════════════════════════════════════════════ */}
       <div className={sectionCardCls}>
         <h2 className={sectionTitleCls}>
-          <span className="text-2xl">🪪</span> Dados Pessoais
+          <span className="text-2xl"><Icon name="🪪" className="w-6 h-6 inline-block mr-1.5 align-middle" /></span> Dados Pessoais
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -620,7 +621,7 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({
       ═══════════════════════════════════════════════════════════════════ */}
       <div className={sectionCardCls}>
         <h2 className={sectionTitleCls}>
-          <span className="text-2xl">📁</span> Documentos Pessoais
+          <span className="text-2xl"><Icon name="📁" className="w-6 h-6 inline-block mr-1.5 align-middle" /></span> Documentos Pessoais
         </h2>
 
         {/* Controles de envio */}
@@ -664,7 +665,7 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({
         {/* Lista de documentos */}
         {profileDocs.length === 0 ? (
           <div className="text-center py-10 border-2 border-dashed border-gray-200 dark:border-[#2A2545] rounded-xl">
-            <p className="text-3xl mb-2">📄</p>
+            <p className="text-3xl mb-2"><Icon name="📄" className="w-6 h-6 inline-block mr-1.5 align-middle" /></p>
             <p className="text-sm text-gray-500 dark:text-gray-400">
               Nenhum documento enviado ainda.
             </p>
@@ -706,7 +707,7 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({
       ═══════════════════════════════════════════════════════════════════ */}
       <div className={sectionCardCls}>
         <h2 className={sectionTitleCls}>
-          <span className="text-2xl">🌐</span> Redes Sociais
+          <span className="text-2xl"><Icon name="🌐" className="w-6 h-6 inline-block mr-1.5 align-middle" /></span> Redes Sociais
         </h2>
         <SocialLinksEditor value={socialLinks} onChange={setSocialLinks} />
       </div>
@@ -808,7 +809,7 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({
                         >
                           {/* Ícone de status */}
                           {isDone ? (
-                            <span className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-xs shrink-0">✓</span>
+                            <span className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center text-white text-xs shrink-0"><Icon name="✓" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /></span>
                           ) : isCurrent ? (
                             <svg className="w-6 h-6 text-purple-500 animate-spin shrink-0" fill="none" viewBox="0 0 24 24">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -852,12 +853,12 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({
       ═══════════════════════════════════════════════════════════════════ */}
       <div className={sectionCardCls}>
         <h2 className={sectionTitleCls}>
-          <span className="text-2xl">🛡️</span> Segurança da Conta
+          <span className="text-2xl"><Icon name="🛡" className="w-6 h-6 inline-block mr-1.5 align-middle" />️</span> Segurança da Conta
         </h2>
 
         {/* E-mail mascarado */}
         <div className="bg-gray-50 dark:bg-[#1E1B38] border border-gray-200 dark:border-[#2A2545] rounded-xl px-4 py-3 mb-5 flex items-center gap-3">
-          <span className="text-xl">📧</span>
+          <span className="text-xl"><Icon name="📧" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
           <div>
             <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">E-mail de acesso</p>
             <p className="text-sm font-semibold text-gray-800 dark:text-white">{maskEmail(userEmail)}</p>

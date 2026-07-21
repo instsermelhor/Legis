@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 /**
  * LawyerKanban.tsx
  * Quadro Kanban de Tarefas Jurídicas — Painel do Advogado
@@ -128,7 +129,7 @@ const PRIORITY_MAP: Record<Priority, { label: string; dot: string; text: string 
   low:    { label: 'Baixa',   dot: 'bg-gray-300',               text: 'text-gray-400' },
 };
 
-const ROLE_ICON: Record<AssigneeRole, string> = { lawyer: '👨‍⚖️', intern: '🎓', secretary: '🗂️' };
+const ROLE_ICON: Record<AssigneeRole, string> = { lawyer: '<Icon name="👨" className="w-4 h-4 inline-block mr-1 align-text-bottom" />‍<Icon name="⚖" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️', intern: '🎓', secretary: '<Icon name="🗂" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️' };
 
 // ─── Task Card ────────────────────────────────────────────────────────────────
 interface TaskCardProps {
@@ -270,7 +271,7 @@ const AddTaskModal: React.FC<AddTaskModalProps> = ({ onAdd, onClose }) => {
       <div className="bg-white dark:bg-[#1A1730] rounded-2xl shadow-2xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
         <div className="p-6">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">➕ Nova Tarefa Jurídica</h2>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white"><Icon name="➕" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Nova Tarefa Jurídica</h2>
             <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl font-bold leading-none">×</button>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">

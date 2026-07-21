@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 /**
  * SecretaryAi.tsx
  * Secretária Virtual Assistiva — IA Jurídica para Secret./Assist. Jurídico
@@ -58,7 +59,7 @@ const AudioTranscriber: React.FC = () => {
   return (
     <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 space-y-4">
       <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-xl shrink-0">🎙️</div>
+        <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-xl shrink-0"><Icon name="🎙" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</div>
         <div>
           <h4 className="text-sm font-bold text-gray-800 dark:text-white">Transcritor de Áudio para Texto</h4>
           <p className="text-xs text-gray-500 dark:text-gray-400">Faça upload de áudios do WhatsApp e gere atas estruturadas automaticamente</p>
@@ -68,35 +69,35 @@ const AudioTranscriber: React.FC = () => {
       {!file ? (
         <button onClick={() => fileRef.current?.click()}
           className="w-full border-2 border-dashed border-purple-200 dark:border-purple-900/40 rounded-xl py-6 text-center hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-colors">
-          <p className="text-2xl mb-1">🎵</p>
+          <p className="text-2xl mb-1"><Icon name="🎵" className="w-6 h-6 inline-block mr-1.5 align-middle" /></p>
           <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Clique para selecionar o áudio</p>
           <p className="text-xs text-gray-400 mt-0.5">MP3, OGG, WAV, M4A, OPUS (áudios do WhatsApp)</p>
         </button>
       ) : (
         <div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-900/30 rounded-xl px-4 py-3">
-          <span className="text-xl">🎵</span>
+          <span className="text-xl"><Icon name="🎵" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-gray-800 dark:text-white truncate">{file.name}</p>
             <p className="text-xs text-gray-400">{file.size}</p>
           </div>
-          <button onClick={() => { setFile(null); setTranscript(''); }} className="text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+          <button onClick={() => { setFile(null); setTranscript(''); }} className="text-red-400 hover:text-red-600 text-xs font-bold"><Icon name="✕" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /></button>
         </div>
       )}
       {file && !transcript && (
         <button onClick={handleTranscribe} disabled={loading}
           className="w-full py-3 text-sm font-bold text-white bg-purple-600 rounded-xl hover:bg-purple-700 disabled:opacity-60 transition-all flex items-center justify-center gap-2">
-          {loading ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Transcrevendo...</> : '✨ Gerar Transcrição com IA'}
+          {loading ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Transcrevendo...</> : '<Icon name="✨" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Gerar Transcrição com IA'}
         </button>
       )}
       {transcript && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-green-600 dark:text-green-400">✅ Transcrição concluída</span>
+            <span className="text-xs font-bold text-green-600 dark:text-green-400"><Icon name="✅" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Transcrição concluída</span>
             <div className="flex gap-2">
               <button onClick={handleCopy} className="px-3 py-1.5 text-[10px] font-bold text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors">
                 {copied ? '✓ Copiado!' : '📋 Copiar'}
               </button>
-              <button className="px-3 py-1.5 text-[10px] font-bold text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors">📤 Exportar</button>
+              <button className="px-3 py-1.5 text-[10px] font-bold text-blue-600 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors"><Icon name="📤" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Exportar</button>
             </div>
           </div>
           <div className="bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-[#2A2545] rounded-xl p-4 max-h-64 overflow-y-auto">
@@ -193,7 +194,7 @@ const MessageGenerator: React.FC = () => {
   return (
     <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 space-y-4">
       <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-xl shrink-0">✉️</div>
+        <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-xl shrink-0"><Icon name="✉" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</div>
         <div>
           <h4 className="text-sm font-bold text-gray-800 dark:text-white">Gerador de Mensagens Formais</h4>
           <p className="text-xs text-gray-500 dark:text-gray-400">IA cria e formata mensagens no padrão do escritório</p>
@@ -260,7 +261,7 @@ const MessageGenerator: React.FC = () => {
       {message && (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-green-600 dark:text-green-400">✅ Mensagem gerada</span>
+            <span className="text-xs font-bold text-green-600 dark:text-green-400"><Icon name="✅" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Mensagem gerada</span>
             <button onClick={handleCopy} className="px-3 py-1.5 text-[10px] font-bold text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors">
               {copied ? '✓ Copiado!' : '📋 Copiar'}
             </button>
@@ -318,7 +319,7 @@ const OcrParser: React.FC = () => {
   return (
     <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 space-y-4">
       <div className="flex items-start gap-3">
-        <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-xl shrink-0">🔍</div>
+        <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-xl shrink-0"><Icon name="🔍" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></div>
         <div>
           <h4 className="text-sm font-bold text-gray-800 dark:text-white">Parser de Documentos por OCR</h4>
           <p className="text-xs text-gray-500 dark:text-gray-400">Extraia dados de CNH/RG automaticamente para preenchimento do cadastro</p>
@@ -329,32 +330,32 @@ const OcrParser: React.FC = () => {
       {!file ? (
         <button onClick={() => fileRef.current?.click()}
           className="w-full border-2 border-dashed border-amber-200 dark:border-amber-900/40 rounded-xl py-6 text-center hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-colors">
-          <p className="text-2xl mb-1">📷</p>
+          <p className="text-2xl mb-1"><Icon name="📷" className="w-6 h-6 inline-block mr-1.5 align-middle" /></p>
           <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Foto ou scan do documento</p>
           <p className="text-xs text-gray-400 mt-0.5">CNH, RG, Passaporte · JPG, PNG, PDF</p>
         </button>
       ) : (
         <div className="flex items-center gap-3 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/30 rounded-xl px-4 py-3">
-          <span className="text-xl">{file.type === 'PDF' ? '📄' : '🖼️'}</span>
+          <span className="text-xl">{file.type === 'PDF' ? '📄' : '<Icon name="🖼" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️'}</span>
           <div className="flex-1 min-w-0">
             <p className="text-xs font-bold text-gray-800 dark:text-white truncate">{file.name}</p>
             <p className="text-[10px] text-gray-400">{file.type} · {file.size}</p>
           </div>
-          <button onClick={() => { setFile(null); setResult(null); }} className="text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+          <button onClick={() => { setFile(null); setResult(null); }} className="text-red-400 hover:text-red-600 text-xs font-bold"><Icon name="✕" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /></button>
         </div>
       )}
 
       {file && !result && (
         <button onClick={handleOcr} disabled={loading}
           className="w-full py-3 text-sm font-bold text-white bg-amber-500 rounded-xl hover:bg-amber-600 disabled:opacity-60 transition-all flex items-center justify-center gap-2">
-          {loading ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Processando OCR...</> : '🔍 Extrair Dados com IA'}
+          {loading ? <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />Processando OCR...</> : '<Icon name="🔍" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Extrair Dados com IA'}
         </button>
       )}
 
       {result && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-green-600 dark:text-green-400">✅ Dados extraídos</span>
+            <span className="text-xs font-bold text-green-600 dark:text-green-400"><Icon name="✅" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Dados extraídos</span>
             <button onClick={handleCopyAll} className="px-3 py-1.5 text-[10px] font-bold text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors">
               {copied ? '✓ Copiado!' : '📋 Copiar Tudo'}
             </button>
@@ -382,7 +383,7 @@ export const SecretaryAi: React.FC = () => {
   return (
     <div className="space-y-5 animate-fade-in">
       <div>
-        <h3 className="text-lg font-bold text-gray-800 dark:text-white">⚡ Secretária Virtual Assistiva</h3>
+        <h3 className="text-lg font-bold text-gray-800 dark:text-white"><Icon name="⚡" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Secretária Virtual Assistiva</h3>
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Inteligência Artificial para acelerar o trabalho operacional repetitivo</p>
       </div>
       <AudioTranscriber />

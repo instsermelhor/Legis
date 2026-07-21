@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState } from 'react';
 
 interface ChangePasswordModalProps {
@@ -29,13 +30,13 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({ onClos
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm relative dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500" onClick={e => e.stopPropagation()}>
         <div className="p-6">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">🔑 Alterar Senha</h2>
+            <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2"><Icon name="🔑" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Alterar Senha</h2>
             <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-2xl font-bold leading-none">&times;</button>
           </div>
 
           {success ? (
             <div className="text-center py-6">
-              <p className="text-4xl mb-2">✅</p>
+              <p className="text-4xl mb-2"><Icon name="✅" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></p>
               <p className="font-semibold text-green-700">Senha alterada com sucesso!</p>
             </div>
           ) : (

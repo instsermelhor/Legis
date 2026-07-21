@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState, useEffect } from 'react';
 import { 
   BriefcaseIcon, 
@@ -242,7 +243,7 @@ export const EfficiencyServicesPage: React.FC<EfficiencyServicesPageProps> = ({ 
 
       {embedded && (
         <div className="mb-4">
-          <h2 className="text-xl font-bold text-gray-800 dark:text-white">💼 Serviços Administrativos e de Eficiência</h2>
+          <h2 className="text-xl font-bold text-gray-800 dark:text-white"><Icon name="💼" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Serviços Administrativos e de Eficiência</h2>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             Contrate soluções administrativas e de otimização de forma nativa e integrada.
           </p>
@@ -441,7 +442,7 @@ export const EfficiencyServicesPage: React.FC<EfficiencyServicesPageProps> = ({ 
         <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={() => setIsConfirmModalOpen(false)}>
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden dark:bg-[#1A1730] dark:border-[#2A2545]" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-black/10">
-              <h2 className="text-lg font-bold text-gray-950 dark:text-white">🚀 Contratar Serviço</h2>
+              <h2 className="text-lg font-bold text-gray-950 dark:text-white"><Icon name="🚀" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Contratar Serviço</h2>
               <button onClick={() => setIsConfirmModalOpen(false)} className="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
             </div>
             

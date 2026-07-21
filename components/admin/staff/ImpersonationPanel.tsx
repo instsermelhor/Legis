@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState, useEffect, useRef } from 'react';
 import { validateImpersonation } from '../../../security/scopeValidator';
 import { logImpersonationStart, AuditLogger } from '../../../security/auditLogger';
@@ -54,7 +55,7 @@ export const ImpersonationBanner: React.FC<{ onEnd: () => void }> = ({ onEnd }) 
   return (
     <div className="fixed top-0 left-0 right-0 z-[9999] bg-amber-500 text-white px-4 py-2 flex items-center justify-between shadow-lg">
       <div className="flex items-center gap-3">
-        <span className="text-lg">👁️</span>
+        <span className="text-lg"><Icon name="👁" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</span>
         <div>
           <span className="font-bold text-sm">MODO ESPELHO ATIVO</span>
           <span className="text-sm ml-2">
@@ -202,7 +203,7 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
       <div className="flex items-start justify-between">
         <div>
           <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            👁️ Modo Espelho <span className="text-sm text-gray-400 font-normal">(Impersonation Panel)</span>
+            <Icon name="👁" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" />️ Modo Espelho <span className="text-sm text-gray-400 font-normal">(Impersonation Panel)</span>
           </h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             Visualize o painel exato de um cliente ou advogado para suporte técnico avançado.
@@ -214,7 +215,7 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
       {/* Aviso de Segurança */}
       <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-4">
         <div className="flex items-start gap-3">
-          <span className="text-2xl">⚠️</span>
+          <span className="text-2xl"><Icon name="⚠" className="w-6 h-6 inline-block mr-1.5 align-middle" />️</span>
           <div>
             <p className="text-sm font-bold text-amber-800 dark:text-amber-300">Recurso de Alto Risco — Uso Restrito</p>
             <ul className="text-xs text-amber-700 dark:text-amber-400 mt-1 space-y-1 list-disc list-inside">
@@ -233,7 +234,7 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
         <div className="bg-amber-50 dark:bg-amber-900/30 border-2 border-amber-400 rounded-xl p-5">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-2">🔴 Sessão de Espelho Ativa</p>
+              <p className="text-sm font-bold text-amber-800 dark:text-amber-300 mb-2"><Icon name="🔴" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Sessão de Espelho Ativa</p>
               <div className="space-y-1 text-sm text-amber-700 dark:text-amber-400">
                 <p><strong>Usuário espelhado:</strong> {activeSession.targetUserEmail}</p>
                 <p><strong>Perfil:</strong> {activeSession.targetRole}</p>
@@ -305,7 +306,7 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
                 }`}>
                   {t.role}
                 </span>
-                {selected?.id === t.id && <span className="text-violet-500 text-lg">✓</span>}
+                {selected?.id === t.id && <span className="text-violet-500 text-lg"><Icon name="✓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>}
               </button>
             ))}
           </div>
@@ -327,7 +328,7 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
               <p className={`text-xs ${justification.length < 20 ? 'text-red-400' : 'text-green-500'}`}>
                 {justification.length}/20 caracteres mínimos
               </p>
-              {justification.length >= 20 && <p className="text-xs text-green-500">✓ Justificativa válida</p>}
+              {justification.length >= 20 && <p className="text-xs text-green-500"><Icon name="✓" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Justificativa válida</p>}
             </div>
           </div>
 

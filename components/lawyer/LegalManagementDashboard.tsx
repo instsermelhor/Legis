@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState, useMemo, useRef } from 'react';
 import { mockProcessosService, Processo } from '../../services/mockProcessosService';
 import { mockLawyers } from '../../services/mockLawyerService';
@@ -523,7 +524,7 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
         <div className="bg-gradient-to-r from-[#1E1B38] to-[#120F24] p-5 rounded-xl border border-primary/30 shadow-md space-y-3 text-white">
           <div className="flex items-center justify-between border-b border-white/10 pb-2">
             <h3 className="text-xs font-bold uppercase tracking-wider text-primary-light flex items-center gap-1.5">
-              <span>💻</span> Console de Comandos do Gestor
+              <span><Icon name="💻" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> Console de Comandos do Gestor
             </h3>
             <span className="text-[10px] text-gray-400 font-mono">Modo: Full Access</span>
           </div>
@@ -554,7 +555,7 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
                 onClick={handleExecuteCommand}
                 className="px-4 py-2 bg-primary hover:bg-primary/90 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5"
               >
-                <span>⚙</span> Executar
+                <span><Icon name="⚙" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> Executar
               </button>
             </div>
             {commandError && <p className="text-[11px] text-red-400 font-semibold">{commandError}</p>}
@@ -592,7 +593,7 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {kpis.aguardandoDoc > 0 && (
             <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 rounded-xl p-4 flex gap-3">
-              <span className="text-xl animate-bounce">⚠️</span>
+              <span className="text-xl animate-bounce"><Icon name="⚠" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</span>
               <div>
                 <h4 className="font-bold text-amber-800 dark:text-amber-300 text-sm">Gargalo Operacional: Aguardando Documentos</h4>
                 <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
@@ -763,7 +764,7 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
       {drillDown && (
         <div className="bg-primary/10 border border-primary/20 rounded-xl p-3.5 flex items-center justify-between text-xs font-semibold text-primary">
           <span className="flex items-center gap-1.5">
-            🔍 Filtro de Gráfico (Drill-Down) ativo: <strong>{drillDown.field.toUpperCase()} = {drillDown.value}</strong>
+            <Icon name="🔍" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Filtro de Gráfico (Drill-Down) ativo: <strong>{drillDown.field.toUpperCase()} = {drillDown.value}</strong>
           </span>
           <button
             onClick={handleClearDrillDown}
@@ -778,35 +779,35 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
       <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
         {/* Total */}
         <div className="bg-white dark:bg-[#1A1730] p-4 rounded-xl border border-gray-200 dark:border-[#2A2545] shadow-sm relative overflow-hidden">
-          <div className="absolute right-3 top-3 text-lg opacity-40">📁</div>
+          <div className="absolute right-3 top-3 text-lg opacity-40"><Icon name="📁" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></div>
           <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wide">Total de Processos</p>
           <p className="text-2xl font-black text-gray-800 dark:text-white mt-1.5">{kpis.total}</p>
         </div>
 
         {/* Em Andamento */}
         <div className="bg-white dark:bg-[#1A1730] p-4 rounded-xl border border-gray-200 dark:border-[#2A2545] shadow-sm relative overflow-hidden">
-          <div className="absolute right-3 top-3 text-lg opacity-40">⚙️</div>
+          <div className="absolute right-3 top-3 text-lg opacity-40"><Icon name="⚙" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</div>
           <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wide">Em Andamento</p>
           <p className="text-2xl font-black text-blue-600 dark:text-blue-400 mt-1.5">{kpis.emAndamento}</p>
         </div>
 
         {/* Concluídos */}
         <div className="bg-white dark:bg-[#1A1730] p-4 rounded-xl border border-gray-200 dark:border-[#2A2545] shadow-sm relative overflow-hidden">
-          <div className="absolute right-3 top-3 text-lg opacity-40">✅</div>
+          <div className="absolute right-3 top-3 text-lg opacity-40"><Icon name="✅" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></div>
           <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wide">Concluídos</p>
           <p className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-1.5">{kpis.concluidos}</p>
         </div>
 
         {/* Aguardando doc */}
         <div className="bg-white dark:bg-[#1A1730] p-4 rounded-xl border border-gray-200 dark:border-[#2A2545] shadow-sm relative overflow-hidden">
-          <div className="absolute right-3 top-3 text-lg opacity-40 animate-pulse text-amber-500">⚠️</div>
+          <div className="absolute right-3 top-3 text-lg opacity-40 animate-pulse text-amber-500"><Icon name="⚠" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</div>
           <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wide">Aguardando Doc</p>
           <p className="text-2xl font-black text-amber-500 mt-1.5">{kpis.aguardandoDoc}</p>
         </div>
 
         {/* Faturamento (Restricted) */}
         <div className="bg-white dark:bg-[#1A1730] p-4 rounded-xl border border-gray-200 dark:border-[#2A2545] shadow-sm relative overflow-hidden">
-          <div className="absolute right-3 top-3 text-lg opacity-40">💰</div>
+          <div className="absolute right-3 top-3 text-lg opacity-40"><Icon name="💰" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></div>
           <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase font-bold tracking-wide">Faturamento Total</p>
           {userRole === 'gestor' ? (
             <p className="text-base sm:text-lg font-black text-emerald-700 dark:text-emerald-400 mt-2 truncate">
@@ -832,7 +833,7 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
       {/* Monthly Dynamic metrics (Current and predicted) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50 dark:bg-[#151226] border border-gray-200 dark:border-[#252042] p-4 rounded-xl">
         <div className="flex items-center gap-3">
-          <span className="text-2xl">📅</span>
+          <span className="text-2xl"><Icon name="📅" className="w-6 h-6 inline-block mr-1.5 align-middle" /></span>
           <div>
             <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Processos Ativos no Mês Atual</h4>
             <p className="text-2xl font-black text-primary mt-0.5">{monthlyMetrics.ativosMesAtual}</p>
@@ -840,7 +841,7 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
           </div>
         </div>
         <div className="flex items-center gap-3 border-t sm:border-t-0 sm:border-l border-gray-200 dark:border-[#2A2545] pt-3 sm:pt-0 sm:pl-6">
-          <span className="text-2xl">📈</span>
+          <span className="text-2xl"><Icon name="📈" className="w-6 h-6 inline-block mr-1.5 align-middle" /></span>
           <div>
             <h4 className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Previstos para o Próximo Mês</h4>
             <p className="text-2xl font-black text-indigo-600 dark:text-indigo-400 mt-0.5">{monthlyMetrics.previstosProximoMes}</p>
@@ -1088,7 +1089,7 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-10 text-center text-gray-400 bg-gray-50 dark:bg-[#1E1B38] rounded-xl border border-dashed border-gray-200 dark:border-[#2A2545]">
-              <span className="text-3xl mb-2">🔒</span>
+              <span className="text-3xl mb-2"><Icon name="🔒" className="w-6 h-6 inline-block mr-1.5 align-middle" /></span>
               <p className="text-xs font-bold text-gray-700 dark:text-gray-300">Restrição de Acesso Financeiro</p>
               <p className="text-[10px] text-gray-500 max-w-xs mt-1">
                 Seu perfil atual de Advogado Comum não possui permissões para ver gráficos monetários. Alterne para Gestor acima para visualizar.
@@ -1224,7 +1225,7 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
                       </div>
                     </td>
                     <td className="px-4 py-3 font-bold">
-                      {userRole === 'gestor' ? fmtCurrency(p.valor) : <span className="text-gray-400">🔒</span>}
+                      {userRole === 'gestor' ? fmtCurrency(p.valor) : <span className="text-gray-400"><Icon name="🔒" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>}
                     </td>
                     <td className="px-4 py-3 text-center font-semibold text-gray-800 dark:text-gray-200">
                       {p.status === 'Concluído' ? (
@@ -1491,13 +1492,13 @@ export const LegalManagementDashboard: React.FC<LegalManagementDashboardProps> =
                     onClick={() => subFileInputRef.current?.click()}
                     className="w-full border-2 border-dashed border-primary/20 dark:border-primary/40 rounded-xl py-5 text-center hover:bg-primary/5 dark:hover:bg-primary/10 transition-colors"
                   >
-                    <p className="text-2xl mb-1">📤</p>
+                    <p className="text-2xl mb-1"><Icon name="📤" className="w-6 h-6 inline-block mr-1.5 align-middle" /></p>
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-300">Carregar arquivo da procuração</p>
                     <p className="text-xs text-gray-400 mt-0.5">PDF, JPG, JPEG ou PNG</p>
                   </button>
                 ) : (
                   <div className="flex items-center gap-3 bg-primary/10 border border-primary/30 rounded-xl px-4 py-3">
-                    <span className="text-xl shrink-0">{subFile.fileType === 'PDF' ? '📄' : '🖼️'}</span>
+                    <span className="text-xl shrink-0">{subFile.fileType === 'PDF' ? '📄' : '<Icon name="🖼" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️'}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-gray-800 dark:text-white truncate">{subFile.name}</p>
                       <p className="text-xs text-gray-400 dark:text-gray-400">{subFile.fileType} · {subFile.size}</p>

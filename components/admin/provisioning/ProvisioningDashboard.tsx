@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState, useEffect, useCallback } from 'react';
 import { ProvisioningService } from '../../../services/provisioningService';
 import type { ServiceProvisioning, ProvisioningStatus, ServiceProvisioningGroup } from '../../../types';
@@ -231,7 +232,7 @@ export const ProvisioningDashboard: React.FC = () => {
       {failures.length > 0 && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-xl p-4">
           <div className="flex items-start gap-3">
-            <span className="text-2xl">🚨</span>
+            <span className="text-2xl"><Icon name="🚨" className="w-6 h-6 inline-block mr-1.5 align-middle" /></span>
             <div className="flex-1">
               <p className="text-sm font-bold text-red-700 dark:text-red-400">
                 {failures.length} provisionamento{failures.length > 1 ? 's' : ''} com falha — ação requerida
@@ -295,10 +296,10 @@ export const ProvisioningDashboard: React.FC = () => {
           className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-[#1E1B3A] text-gray-900 dark:text-white text-sm"
         >
           <option value="">Todos os Grupos</option>
-          <option value="client">👤 Clientes</option>
-          <option value="lawyer">⚖️ Advogados</option>
-          <option value="intern">🎓 Bacharelandos</option>
-          <option value="secretary">📋 Secretários</option>
+          <option value="client"><Icon name="👤" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Clientes</option>
+          <option value="lawyer"><Icon name="⚖" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️ Advogados</option>
+          <option value="intern"><Icon name="🎓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Bacharelandos</option>
+          <option value="secretary"><Icon name="📋" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Secretários</option>
         </select>
       </div>
 
@@ -308,7 +309,7 @@ export const ProvisioningDashboard: React.FC = () => {
           <div className="bg-white dark:bg-[#12102A] rounded-2xl border border-gray-200 dark:border-[#2A2545] shadow-2xl w-full max-w-lg p-6" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-bold text-gray-900 dark:text-white">Detalhes do Provisionamento</h3>
-              <button onClick={() => setDetail(null)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-xl">✕</button>
+              <button onClick={() => setDetail(null)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-xl"><Icon name="✕" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></button>
             </div>
             <div className="space-y-2 text-sm">
               {[
@@ -392,7 +393,7 @@ export const ProvisioningDashboard: React.FC = () => {
                       </button>
                     )}
                     {p.status === 'PROVISIONED' && (
-                      <span className="text-xs text-green-500">✓</span>
+                      <span className="text-xs text-green-500"><Icon name="✓" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /></span>
                     )}
                   </td>
                 </tr>

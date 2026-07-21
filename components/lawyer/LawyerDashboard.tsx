@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState, useMemo } from 'react';
 import type { Lawyer, Appointment, Case, CaseStage } from '../../types';
 import { CalendarIcon, ClockIcon, VideoCameraIcon, UsersIcon, ClipboardListIcon, CurrencyDollarIcon, PencilIcon, CalendarPlusIcon } from '../common/IconComponents';
@@ -582,7 +583,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
         return (
             <div className="container mx-auto px-4 py-12 max-w-md text-center">
                 <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-xl p-8 shadow-sm">
-                    <span className="text-5xl block mb-4">🚫</span>
+                    <span className="text-5xl block mb-4"><Icon name="🚫" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
                     <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-2">Acesso Restrito</h2>
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
                         Este painel é de uso exclusivo para advogados cadastrados e com status verificado no sistema.
@@ -617,7 +618,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                         onClick={() => setShowMobileMenu(!showMobileMenu)}
                         className="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow"
                     >
-                        <span>{showMobileMenu ? '✕ Fechar' : '☰ Menu'}</span>
+                        <span>{showMobileMenu ? '<Icon name="✕" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Fechar' : '<Icon name="☰" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Menu'}</span>
                     </button>
                 </div>
 
@@ -646,7 +647,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
                                     }`}
                                 >
-                                    <span>📊</span> Visão Geral
+                                    <span><Icon name="📊" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> Visão Geral
                                 </button>
                                 <button
                                     onClick={() => { setActiveSection('gestaoJuridica'); setShowMobileMenu(false); }}
@@ -656,7 +657,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
                                     }`}
                                 >
-                                    <span>⚖️</span> Gestão Jurídica
+                                    <span><Icon name="⚖" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</span> Gestão Jurídica
                                 </button>
                                 <button
                                     onClick={() => { setActiveSection('meusCasos'); setShowMobileMenu(false); }}
@@ -666,7 +667,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
                                     }`}
                                 >
-                                    <span>📂</span> Meus Casos
+                                    <span><Icon name="📂" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> Meus Casos
                                 </button>
                                 <button
                                     onClick={() => { setActiveSection('financeiro'); setShowMobileMenu(false); }}
@@ -676,7 +677,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
                                     }`}
                                 >
-                                    <span>💰</span> Financeiro
+                                    <span><Icon name="💰" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> Financeiro
                                 </button>
                             </div>
 
@@ -691,7 +692,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
                                     }`}
                                 >
-                                    <span>🎓</span> Estagiários
+                                    <span><Icon name="🎓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> Estagiários
                                 </button>
                                 <button
                                     onClick={() => { setActiveSection('secretariado'); setShowMobileMenu(false); }}
@@ -701,7 +702,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
                                     }`}
                                 >
-                                    <span>🗂️</span> Secret./Assist. Jurídico
+                                    <span><Icon name="🗂" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</span> Secret./Assist. Jurídico
                                 </button>
                                 <button
                                     onClick={() => { setActiveSection('efficiency_services'); setShowMobileMenu(false); }}
@@ -711,7 +712,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
                                     }`}
                                 >
-                                    <span>💼</span> Serviços de Eficiência
+                                    <span><Icon name="💼" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> Serviços de Eficiência
                                 </button>
                             </div>
 
@@ -726,7 +727,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
                                     }`}
                                 >
-                                    <span>⚡</span> IA Jurídica
+                                    <span><Icon name="⚡" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> IA Jurídica
                                 </button>
                                 <button
                                     onClick={() => { handleActivateCodes(); setShowMobileMenu(false); }}
@@ -736,7 +737,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
                                     }`}
                                 >
-                                    <span>📖</span> Códigos Legais
+                                    <span><Icon name="📖" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> Códigos Legais
                                 </button>
                                 <button
                                     onClick={() => { setActiveSection('apis'); setShowMobileMenu(false); }}
@@ -746,7 +747,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
                                     }`}
                                 >
-                                    <span>🔌</span> APIs / Conexões
+                                    <span><Icon name="🔌" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> APIs / Conexões
                                 </button>
                             </div>
 
@@ -760,14 +761,14 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-black/10'
                                     }`}
                                 >
-                                    <span>👤</span> Meu Perfil
+                                    <span><Icon name="👤" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> Meu Perfil
                                 </button>
                                 {onLogout && (
                                     <button
                                         onClick={onLogout}
                                         className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-bold text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all duration-150 mt-2"
                                     >
-                                        <span>🚪</span> Sair da Conta
+                                        <span><Icon name="🚪" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> Sair da Conta
                                     </button>
                                 )}
                             </div>
@@ -1126,7 +1127,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                         <div className="animate-fade-in space-y-6">
                             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                                 <div>
-                                    <h2 className="text-xl font-semibold text-gray-700 flex items-center gap-2">⚖️ Biblioteca de Códigos Legais</h2>
+                                    <h2 className="text-xl font-semibold text-gray-700 flex items-center gap-2"><Icon name="⚖" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️ Biblioteca de Códigos Legais</h2>
                                     <p className="text-sm text-gray-500">Acesse as legislações federais necessárias para o exercício de sua advocacia.</p>
                                 </div>
                             </div>
@@ -1218,7 +1219,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                         </>
                                     ) : (
                                         <div className="flex flex-col items-center justify-center h-full text-center text-gray-400 space-y-3">
-                                            <span className="text-5xl">⚖️</span>
+                                            <span className="text-5xl"><Icon name="⚖" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</span>
                                             <p className="font-medium">Selecione uma legislação na barra lateral para começar a leitura.</p>
                                         </div>
                                     )}
@@ -1339,7 +1340,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
 
                                 {/* Residencial */}
                                 <div className="space-y-3">
-                                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">🏠 Endereço Residencial</h4>
+                                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2"><Icon name="🏠" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Endereço Residencial</h4>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div>
                                             <label className="block text-xs font-medium text-gray-600 mb-1">CEP</label>
@@ -1378,7 +1379,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                 {/* Comercial */}
                                 <div className="space-y-3 pt-4 border-t">
                                     <div className="flex items-center justify-between">
-                                        <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">🏢 Endereço Comercial (Escritório)</h4>
+                                        <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2"><Icon name="🏢" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Endereço Comercial (Escritório)</h4>
                                         <label className="flex items-center gap-2 text-xs font-semibold text-primary cursor-pointer select-none">
                                             <input
                                                 type="checkbox"
@@ -1442,7 +1443,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
 
                             {/* Redes Sociais */}
                             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-2 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545]">
-                                <h3 className="text-base font-bold text-gray-800 border-b pb-2">🌐 Redes Sociais</h3>
+                                <h3 className="text-base font-bold text-gray-800 border-b pb-2"><Icon name="🌐" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Redes Sociais</h3>
                                 <p className="text-xs text-gray-500 mb-3">Links visíveis pelos clientes e estagiários vinculados ao seu escritório.</p>
                                 <SocialLinksEditor
                                     value={lawyerSocialLinks}
@@ -1450,7 +1451,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                 />
                             </div>
                             <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-                                <h3 className="text-base font-bold text-gray-800 border-b pb-2">🔐 Segurança de Acesso</h3>
+                                <h3 className="text-base font-bold text-gray-800 border-b pb-2"><Icon name="🔐" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Segurança de Acesso</h3>
                                 <p className="text-sm text-gray-500">Mantenha seus dados de acesso seguros e atualizados.</p>
                                 <div className="flex flex-wrap gap-3">
                                     <button onClick={() => setShowPasswordModal(true)} className="flex items-center gap-2 px-4 py-2.5 text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors">
@@ -1498,12 +1499,12 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                             <>
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h3 className="text-lg font-bold text-gray-800">🎓 Escolher Estagiário</h3>
+                                    <h3 className="text-lg font-bold text-gray-800"><Icon name="🎓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Escolher Estagiário</h3>
                                     <p className="text-sm text-gray-500 mt-0.5">Selecione um bacharelando para atuar como estagiário vinculado ao seu escritório.</p>
                                 </div>
                                 {linkedInternId && (
                                     <div className="bg-indigo-50 border border-indigo-200 rounded-xl px-4 py-2 text-xs font-semibold text-indigo-700">
-                                        ✅ Estagiário vinculado: {mockInterns.find(i => i.id === linkedInternId)?.name}
+                                        <Icon name="✅" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Estagiário vinculado: {mockInterns.find(i => i.id === linkedInternId)?.name}
                                     </div>
                                 )}
                             </div>
@@ -1520,7 +1521,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                             {linkedInternId && (
                                 <div className="bg-white rounded-xl border border-indigo-200 shadow-sm p-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                                     <h4 className="font-bold text-xs text-gray-800 mb-1 flex items-center gap-1.5 dark:text-gray-100">
-                                        <span>⚙️</span> Controle de Acesso do Estagiário ({mockInterns.find(i => i.id === linkedInternId)?.name})
+                                        <span><Icon name="⚙" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</span> Controle de Acesso do Estagiário ({mockInterns.find(i => i.id === linkedInternId)?.name})
                                     </h4>
                                     <p className="text-[11px] text-gray-500 mb-3">Selecione quais ferramentas baseadas em IA o estagiário poderá acessar no painel dele:</p>
                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
@@ -1543,7 +1544,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                     {/* Caso Access Delegation */}
                                     <div className="mt-4 pt-4 border-t border-gray-200 dark:border-[#2A2545]">
                                         <h5 className="font-bold text-xs text-gray-800 mb-1 flex items-center gap-1.5 dark:text-gray-100">
-                                            <span>📁</span> Casos Delegados (Acesso do Estagiário)
+                                            <span><Icon name="📁" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> Casos Delegados (Acesso do Estagiário)
                                         </h5>
                                         <p className="text-[11px] text-gray-500 mb-3">Selecione quais dos seus casos ativos este estagiário poderá acessar:</p>
                                         <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
@@ -1689,12 +1690,12 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                             <>
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <h3 className="text-lg font-bold text-gray-800">🗂️ Secret./Assist. Jurídico</h3>
+                                    <h3 className="text-lg font-bold text-gray-800"><Icon name="🗂" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️ Secret./Assist. Jurídico</h3>
                                     <p className="text-sm text-gray-500 mt-0.5">Encontre e contrate profissionais de Secret./Assist. Jurídico para o seu escritório.</p>
                                 </div>
                                 {linkedSecretaryId && (
                                     <div className="bg-purple-50 border border-purple-200 rounded-xl px-4 py-2 text-xs font-semibold text-purple-700">
-                                        ✅ Secretário(a) vinculado: {mockSecretaries.find(s => s.id === linkedSecretaryId)?.name}
+                                        <Icon name="✅" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Secretário(a) vinculado: {mockSecretaries.find(s => s.id === linkedSecretaryId)?.name}
                                     </div>
                                 )}
                             </div>
@@ -1711,7 +1712,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                             {linkedSecretaryId && (
                                 <div className="bg-white rounded-xl border border-purple-200 shadow-sm p-4 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
                                     <h4 className="font-bold text-xs text-gray-800 mb-1 flex items-center gap-1.5 dark:text-gray-100">
-                                        <span>⚙️</span> Controle de Acesso do(a) Secretário(a) ({mockSecretaries.find(s => s.id === linkedSecretaryId)?.name})
+                                        <span><Icon name="⚙" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</span> Controle de Acesso do(a) Secretário(a) ({mockSecretaries.find(s => s.id === linkedSecretaryId)?.name})
                                     </h4>
                                     <p className="text-[11px] text-gray-500 mb-3">Selecione quais ferramentas baseadas em IA o(a) secretário(a) poderá acessar no painel dele(a):</p>
                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
@@ -1734,7 +1735,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                     {/* Caso Access Delegation */}
                                     <div className="mt-4 pt-4 border-t border-purple-200 dark:border-[#2A2545]">
                                         <h5 className="font-bold text-xs text-gray-800 mb-1 flex items-center gap-1.5 dark:text-gray-100">
-                                            <span>📁</span> Casos Delegados (Acesso do(a) Secretário(a))
+                                            <span><Icon name="📁" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> Casos Delegados (Acesso do(a) Secretário(a))
                                         </h5>
                                         <p className="text-[11px] text-gray-500 mb-3">Selecione quais dos seus casos ativos este(a) secretário(a) poderá acessar:</p>
                                         <div className="space-y-1.5 max-h-40 overflow-y-auto pr-1">
@@ -1873,7 +1874,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                     {activeSection === 'apis' && (
                         <div className="space-y-6 animate-fade-in">
                             <div>
-                                <h2 className="text-lg font-bold text-gray-800">🔌 APIs Habilitadas</h2>
+                                <h2 className="text-lg font-bold text-gray-800"><Icon name="🔌" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> APIs Habilitadas</h2>
                                 <p className="text-sm text-gray-500 mt-0.5">Integrações ativas configuradas pelo administrador da plataforma.</p>
                             </div>
                             <ApiStatusPanel />
@@ -2299,7 +2300,7 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
                                 <label className="block text-xs font-bold text-gray-500 uppercase">Localização no GPS</label>
                                 <div className="h-48 bg-blue-100 rounded-lg border border-blue-200 flex flex-col items-center justify-center text-center p-4 relative overflow-hidden">
                                     <div className="absolute inset-0 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:16px_16px] opacity-35" />
-                                    <span className="text-4xl z-10 animate-bounce">📍</span>
+                                    <span className="text-4xl z-10 animate-bounce"><Icon name="📍" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
                                     <p className="text-sm font-semibold text-gray-800 z-10 mt-2">Localização Carregada</p>
                                     <p className="text-xs text-gray-500 z-10 max-w-xs truncate">
                                         {viewingCaseDetails.clientAddress || 'Sem coordenadas'}

@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 /**
  * SecretaryEfficiency.tsx
  * Serviços de Eficiência & Automações — Painel do Secret./Assist. Jurídico
@@ -147,7 +148,7 @@ const NotificationRulesSection: React.FC = () => {
               rows={3} placeholder="Use {cliente}, {data}, {hora}, {advogado} como variáveis..." className={inputCls} />
             <p className="text-[9px] text-gray-400 mt-1">Variáveis: {'{cliente}'}, {'{data}'}, {'{hora}'}, {'{advogado}'}, {'{local}'}</p>
           </div>
-          {saved && <div className="bg-green-50 border border-green-200 text-green-700 text-xs font-semibold rounded-xl px-3 py-2">✅ Regra criada com sucesso!</div>}
+          {saved && <div className="bg-green-50 border border-green-200 text-green-700 text-xs font-semibold rounded-xl px-3 py-2"><Icon name="✅" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Regra criada com sucesso!</div>}
           <div className="flex gap-2">
             <button onClick={() => setShowNew(false)} className="flex-1 py-2 text-xs font-bold text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50">Cancelar</button>
             <button onClick={handleSaveNew} disabled={!newRule.name.trim() || !newRule.template.trim() || saved}
@@ -186,7 +187,7 @@ const NotificationRulesSection: React.FC = () => {
                 <div className="border-t border-gray-100 dark:border-[#2A2545] px-4 pb-4 pt-3">
                   <p className="text-[10px] font-bold text-gray-500 uppercase mb-1.5">Template</p>
                   <p className="text-xs text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-black/20 rounded-xl p-3 font-mono">{rule.template}</p>
-                  <button className="mt-3 px-3 py-1.5 text-[10px] font-bold text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors">✏️ Editar Template</button>
+                  <button className="mt-3 px-3 py-1.5 text-[10px] font-bold text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 transition-colors"><Icon name="✏" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️ Editar Template</button>
                 </div>
               )}
             </div>
@@ -222,14 +223,22 @@ const AutoRegLinkSection: React.FC = () => {
     }, 1200);
   };
 
+  const getBaseUrl = () => {
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (isLocal) {
+      return process.env.LOCAL_URL || 'http://localhost:3000';
+    }
+    return process.env.ONLINE_URL || 'https://www.legisconnect.com.br';
+  };
+
   const copyLink = (token: string, id: string) => {
-    navigator.clipboard.writeText(`https://legisconnect.com.br/autocadastro/${token}`);
+    navigator.clipboard.writeText(`${getBaseUrl()}/autocadastro/${token}`);
     setCopiedId(id);
     setTimeout(() => setCopiedId(null), 2000);
   };
 
   const shareWhatsApp = (token: string) => {
-    const url = `https://wa.me/?text=Olá! Por favor, preencha seu pré-cadastro em nosso sistema pelo link: https://legisconnect.com.br/autocadastro/${token}`;
+    const url = `https://wa.me/?text=Olá! Por favor, preencha seu pré-cadastro em nosso sistema pelo link: ${getBaseUrl()}/autocadastro/${token}`;
     window.open(url, '_blank');
   };
 
@@ -242,7 +251,7 @@ const AutoRegLinkSection: React.FC = () => {
   return (
     <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 space-y-4">
       <div>
-        <h4 className="text-sm font-bold text-gray-800 dark:text-white">🔗 Gerador de Link de Autocadastro</h4>
+        <h4 className="text-sm font-bold text-gray-800 dark:text-white"><Icon name="🔗" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Gerador de Link de Autocadastro</h4>
         <p className="text-[11px] text-gray-500 dark:text-gray-400">Gere um link único para novos clientes preencherem seus dados automaticamente</p>
       </div>
 
@@ -252,7 +261,7 @@ const AutoRegLinkSection: React.FC = () => {
         <p className="text-xs text-white/80 mb-4">O cliente preenche nome, contato, área de interesse e breve descrição do caso. Validade: 7 dias.</p>
         <button onClick={generateLink} disabled={generating}
           className="bg-white text-purple-700 font-bold text-sm px-6 py-3 rounded-xl hover:bg-purple-50 transition-all disabled:opacity-60 flex items-center gap-2">
-          {generating ? <><span className="w-4 h-4 border-2 border-purple-300 border-t-purple-700 rounded-full animate-spin" />Gerando...</> : '🔗 Gerar Link Agora'}
+          {generating ? <><span className="w-4 h-4 border-2 border-purple-300 border-t-purple-700 rounded-full animate-spin" />Gerando...</> : '<Icon name="🔗" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Gerar Link Agora'}
         </button>
       </div>
 
@@ -271,7 +280,7 @@ const AutoRegLinkSection: React.FC = () => {
                 </div>
                 <p className="text-[10px] text-gray-400 mt-0.5">Criado: {link.createdAt} · Expira: {link.expiresAt}</p>
                 {link.usedBy && <p className="text-[10px] text-blue-600 dark:text-blue-400 mt-0.5">Usado por: {link.usedBy}</p>}
-                <p className="text-[10px] text-gray-400 font-mono truncate">legisconnect.com.br/autocadastro/{link.token}</p>
+                <p className="text-[10px] text-gray-400 font-mono truncate">{getBaseUrl().replace(/^https?:\/\//, '')}/autocadastro/{link.token}</p>
               </div>
               {link.status === 'ativo' && (
                 <div className="flex flex-col gap-1.5 shrink-0">
@@ -304,7 +313,7 @@ const DispatchHistory: React.FC = () => {
     <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h4 className="text-sm font-bold text-gray-800 dark:text-white">📊 Histórico de Disparos</h4>
+          <h4 className="text-sm font-bold text-gray-800 dark:text-white"><Icon name="📊" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Histórico de Disparos</h4>
           {failedCount > 0 && <p className="text-[10px] text-red-500">{failedCount} disparo(s) com falha</p>}
         </div>
         <div className="flex gap-1.5">
@@ -349,7 +358,7 @@ export const SecretaryEfficiency: React.FC = () => {
   return (
     <div className="space-y-5 animate-fade-in">
       <div>
-        <h3 className="text-lg font-bold text-gray-800 dark:text-white">💼 Serviços de Eficiência</h3>
+        <h3 className="text-lg font-bold text-gray-800 dark:text-white"><Icon name="💼" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Serviços de Eficiência</h3>
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Automações de atendimento para ganho de escala e redução de inadimplência</p>
       </div>
       <NotificationRulesSection />

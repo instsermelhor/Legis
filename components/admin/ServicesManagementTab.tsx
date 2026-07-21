@@ -1,11 +1,12 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState, useEffect } from 'react';
-import { mockEfficiencyServiceGroups, mockEfficiencyServices } from '../../services/mockDataService';
+import { useAppData } from '../../context/AppDataContext';
 import type { EfficiencyServiceGroup, EfficiencyService } from '../../types';
 import { SectionTitle, IconPlus, IconEdit, IconTrash } from './AdminShared';
 
 export const ServicesManagementTab: React.FC = () => {
-  const [groups, setGroups] = useState<EfficiencyServiceGroup[]>([]);
-  const [services, setServices] = useState<EfficiencyService[]>([]);
+  // Dados de serviços/grupos via AppDataContext — compartilhados com site público
+  const { services, serviceGroups: groups, updateServices, updateServiceGroups } = useAppData();
   const [groupDiscounts, setGroupDiscounts] = useState<Record<string, { lawyer: number; intern: number; secretary: number; client: number }>>({});
   const [localGroupDiscounts, setLocalGroupDiscounts] = useState<Record<string, { lawyer: number; intern: number; secretary: number; client: number }>>({});
   const [savedGroupsState, setSavedGroupsState] = useState<Record<string, boolean>>({});
@@ -22,25 +23,8 @@ export const ServicesManagementTab: React.FC = () => {
   const [formDiscountSecretary, setFormDiscountSecretary] = useState('');
   const [formDiscountClient, setFormDiscountClient] = useState('');
 
-  // Load from local storage
+  // Carregar descontos por grupo do localStorage (não estão no AppDataContext)
   useEffect(() => {
-    const isMigrated = localStorage.getItem('legis_services_initialized_v6');
-    if (!isMigrated) {
-      localStorage.setItem('legis_serviceGroups', JSON.stringify(mockEfficiencyServiceGroups));
-      localStorage.setItem('legis_services', JSON.stringify(mockEfficiencyServices));
-      localStorage.setItem('legis_services_initialized_v6', 'true');
-      setGroups(mockEfficiencyServiceGroups);
-      setServices(mockEfficiencyServices);
-    } else {
-      const savedGroups = localStorage.getItem('legis_serviceGroups');
-      if (savedGroups) setGroups(JSON.parse(savedGroups));
-      else setGroups(mockEfficiencyServiceGroups);
-
-      const savedServices = localStorage.getItem('legis_services');
-      if (savedServices) setServices(JSON.parse(savedServices));
-      else setServices(mockEfficiencyServices);
-    }
-
     const savedGroupDiscounts = localStorage.getItem('legis_group_discounts');
     if (savedGroupDiscounts) {
       const parsed = JSON.parse(savedGroupDiscounts);
@@ -50,8 +34,7 @@ export const ServicesManagementTab: React.FC = () => {
   }, []);
 
   const saveServicesToStorage = (newServices: EfficiencyService[]) => {
-    setServices(newServices);
-    localStorage.setItem('legis_services', JSON.stringify(newServices));
+    updateServices(newServices);
   };
 
   const handleSave = () => {
@@ -275,7 +258,7 @@ export const ServicesManagementTab: React.FC = () => {
                       }`}
                       disabled={!isGroupDiscountDirty(group.id)}
                     >
-                      <span>💾</span>
+                      <span><Icon name="💾" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
                       <span>{savedGroupsState[group.id] ? 'Salvo!' : 'Salvar'}</span>
                     </button>
                   </div>

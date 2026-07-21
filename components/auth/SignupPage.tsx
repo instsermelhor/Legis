@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState } from 'react';
 import type { View } from '../../types';
 import { ClientSignupForm, ClientSignupData } from './ClientSignupForm';
@@ -73,7 +74,7 @@ export const SignupPage: React.FC<SignupPageProps> = ({ onClientSignup, onNaviga
                   </button>
 
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-xl">👤</div>
+                    <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-xl"><Icon name="👤" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></div>
                     <div>
                       <h2 className="font-montserrat text-lg font-bold text-white">Cadastro de Cliente</h2>
                       <p className="text-xs text-gray-400">Preencha seus dados para criar sua conta</p>

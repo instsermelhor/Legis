@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 /**
  * SecretaryApis.tsx
  * Conexões de Comunicação & Telefonia — Painel do Secret./Assist. Jurídico
@@ -171,7 +172,7 @@ const VoipPanel: React.FC = () => {
     <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl overflow-hidden">
       <div className="p-4 border-b border-gray-100 dark:border-[#2A2545] flex items-center justify-between">
         <div>
-          <h4 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-2">📞 Telefonia VoIP</h4>
+          <h4 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-2"><Icon name="📞" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Telefonia VoIP</h4>
           {lostCount > 0 && <p className="text-[10px] text-red-500 mt-0.5">{lostCount} chamada(s) perdida(s) hoje</p>}
         </div>
         <div className="flex items-center gap-2">
@@ -223,7 +224,7 @@ const VoipPanel: React.FC = () => {
       {/* Audio player mock */}
       {playingId && (
         <div className="mx-4 mb-4 bg-purple-50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-900/30 rounded-xl p-3">
-          <p className="text-[10px] font-bold text-purple-700 dark:text-purple-400 mb-2">🎵 Reproduzindo gravação...</p>
+          <p className="text-[10px] font-bold text-purple-700 dark:text-purple-400 mb-2"><Icon name="🎵" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Reproduzindo gravação...</p>
           <div className="flex items-center gap-2">
             <span className="text-[10px] text-gray-400">0:00</span>
             <div className="flex-1 bg-gray-200 dark:bg-black/20 rounded-full h-2">
@@ -248,7 +249,7 @@ const EmailPanel: React.FC = () => {
 
   return (
     <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 space-y-4">
-      <h4 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-2">📧 E-mail Corporativo</h4>
+      <h4 className="text-sm font-bold text-gray-800 dark:text-white flex items-center gap-2"><Icon name="📧" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> E-mail Corporativo</h4>
       <div className="space-y-3">
         {emails.map(email => (
           <div key={email.account} className={`flex items-center gap-3 p-3.5 rounded-xl border transition-all ${email.connected ? 'border-green-200 dark:border-green-900/30 bg-green-50 dark:bg-green-900/10' : 'border-red-200 dark:border-red-900/30 bg-red-50 dark:bg-red-900/10'}`}>
@@ -259,9 +260,9 @@ const EmailPanel: React.FC = () => {
               <p className="text-xs font-bold text-gray-800 dark:text-white truncate">{email.account}</p>
               <p className="text-[10px] text-gray-400">{email.protocol} · {email.server}</p>
               {email.connected && (
-                <p className="text-[10px] text-green-600 dark:text-green-400">✓ Sincronizado {email.lastSync} · {email.unread} não lida(s)</p>
+                <p className="text-[10px] text-green-600 dark:text-green-400"><Icon name="✓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Sincronizado {email.lastSync} · {email.unread} não lida(s)</p>
               )}
-              {!email.connected && <p className="text-[10px] text-red-500">✕ Desconectado</p>}
+              {!email.connected && <p className="text-[10px] text-red-500"><Icon name="✕" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Desconectado</p>}
             </div>
             <button onClick={() => toggleConnect(email.account)}
               className={`shrink-0 px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all ${email.connected ? 'text-red-600 border border-red-200 hover:bg-red-100' : 'text-white bg-blue-600 hover:bg-blue-700'}`}>
@@ -283,7 +284,7 @@ export const SecretaryApis: React.FC = () => {
   return (
     <div className="space-y-5 animate-fade-in">
       <div>
-        <h3 className="text-lg font-bold text-gray-800 dark:text-white">🔌 Central de Comunicações</h3>
+        <h3 className="text-lg font-bold text-gray-800 dark:text-white"><Icon name="🔌" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Central de Comunicações</h3>
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Monitoramento de canais integrados da secretaria — WhatsApp, VoIP e E-mail Corporativo</p>
       </div>
 

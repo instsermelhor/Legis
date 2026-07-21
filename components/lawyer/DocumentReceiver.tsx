@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 /**
  * DocumentReceiver.tsx
  * Recebimento de documentos PDF e imagens separados.
@@ -107,7 +108,7 @@ export const DocumentReceiver: React.FC<DocumentReceiverProps> = ({ lawyerId }) 
             onClick={() => setActiveTab(tab)}
             className={`px-4 py-1.5 text-sm font-medium rounded-md transition-colors ${activeTab === tab ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
           >
-            {tab === 'pdf' ? '📄 PDFs' : '🖼 Imagens'} ({docs.filter(d => d.type === tab).length})
+            {tab === 'pdf' ? '<Icon name="📄" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> PDFs' : '<Icon name="🖼" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Imagens'} ({docs.filter(d => d.type === tab).length})
           </button>
         ))}
       </div>
@@ -155,7 +156,7 @@ export const DocumentReceiver: React.FC<DocumentReceiverProps> = ({ lawyerId }) 
       {confirmDelete && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 text-center space-y-4">
-            <p className="text-3xl">🗑️</p>
+            <p className="text-3xl"><Icon name="🗑" className="w-6 h-6 inline-block mr-1.5 align-middle" />️</p>
             <h3 className="text-lg font-bold text-gray-900">Excluir documento?</h3>
             <p className="text-sm text-gray-500">Esta ação não pode ser desfeita.</p>
             <div className="flex gap-3">

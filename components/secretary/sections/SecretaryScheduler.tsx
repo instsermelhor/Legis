@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 /**
  * SecretaryScheduler.tsx
  * Central Multi-Agenda dos Advogados — Painel do Secret./Assist. Jurídico
@@ -116,10 +117,10 @@ const NewApptModal: React.FC<NewApptModalProps> = ({ onClose, onSave, lawyers, p
       <div className="bg-white dark:bg-[#12102A] rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
         <div className="sticky top-0 bg-white dark:bg-[#12102A] flex items-center justify-between p-5 border-b border-gray-200 dark:border-[#2A2545] z-10">
           <div>
-            <h2 className="text-base font-bold text-gray-800 dark:text-white">📅 Novo Agendamento</h2>
+            <h2 className="text-base font-bold text-gray-800 dark:text-white"><Icon name="📅" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Novo Agendamento</h2>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Preencha os dados e confirme o horário</p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-[#2A2545] text-gray-500">✕</button>
+          <button onClick={onClose} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-[#2A2545] text-gray-500"><Icon name="✕" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></button>
         </div>
         <div className="p-5 space-y-4">
           {/* Advogado */}
@@ -189,7 +190,7 @@ const NewApptModal: React.FC<NewApptModalProps> = ({ onClose, onSave, lawyers, p
             <textarea value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
               rows={2} placeholder="Instruções para o cliente, pauta da reunião..." className={inputCls} />
           </div>
-          {saved && <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900 text-green-700 dark:text-green-400 text-sm font-semibold rounded-xl px-4 py-2">✅ Agendamento confirmado!</div>}
+          {saved && <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900 text-green-700 dark:text-green-400 text-sm font-semibold rounded-xl px-4 py-2"><Icon name="✅" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Agendamento confirmado!</div>}
         </div>
         <div className="flex gap-3 p-5 border-t border-gray-200 dark:border-[#2A2545]">
           <button onClick={onClose} className="flex-1 py-2.5 text-sm font-semibold text-gray-600 dark:text-gray-300 border border-gray-300 dark:border-[#2A2545] rounded-xl hover:bg-gray-50 dark:hover:bg-black/20">Cancelar</button>
@@ -224,9 +225,9 @@ const ApptCard: React.FC<{ appt: Appointment; lawyer: MockLawyer | undefined; on
         </div>
       </div>
       <div className="flex items-center gap-3 flex-wrap text-[10px] text-gray-500 dark:text-gray-400">
-        <span className="flex items-center gap-1">🕐 {appt.startTime}–{appt.endTime}</span>
-        <span className="flex items-center gap-1">📍 {appt.room}</span>
-        {lawyer && <span className="flex items-center gap-1">👤 {lawyer.name}</span>}
+        <span className="flex items-center gap-1"><Icon name="🕐" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> {appt.startTime}–{appt.endTime}</span>
+        <span className="flex items-center gap-1"><Icon name="📍" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> {appt.room}</span>
+        {lawyer && <span className="flex items-center gap-1"><Icon name="👤" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> {lawyer.name}</span>}
       </div>
       {appt.meetLink && (
         <a href={appt.meetLink} target="_blank" rel="noopener noreferrer"
@@ -236,9 +237,9 @@ const ApptCard: React.FC<{ appt: Appointment; lawyer: MockLawyer | undefined; on
       )}
       {appt.notes && <p className="text-[10px] text-gray-400 italic border-t border-gray-100 dark:border-[#2A2545] pt-2">{appt.notes}</p>}
       <div className="flex gap-2 pt-1">
-        <button className="flex-1 py-1.5 text-[10px] font-bold text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-colors">✉️ Enviar Lembrete</button>
+        <button className="flex-1 py-1.5 text-[10px] font-bold text-purple-600 border border-purple-200 rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-colors"><Icon name="✉" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️ Enviar Lembrete</button>
         {appt.status !== 'cancelado' && (
-          <button onClick={() => onCancel(appt.id)} className="flex-1 py-1.5 text-[10px] font-bold text-red-500 border border-red-200 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors">✕ Cancelar</button>
+          <button onClick={() => onCancel(appt.id)} className="flex-1 py-1.5 text-[10px] font-bold text-red-500 border border-red-200 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"><Icon name="✕" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Cancelar</button>
         )}
       </div>
     </div>
@@ -285,7 +286,7 @@ export const SecretaryScheduler: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h3 className="text-lg font-bold text-gray-800 dark:text-white">📅 Central Multi-Agenda</h3>
+          <h3 className="text-lg font-bold text-gray-800 dark:text-white"><Icon name="📅" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Central Multi-Agenda</h3>
           <p className="text-xs text-gray-500 dark:text-gray-400">{totalToday} compromisso(s) hoje · {totalPending} pendente(s)</p>
         </div>
         <button onClick={() => setShowModal(true)}
@@ -337,7 +338,7 @@ export const SecretaryScheduler: React.FC = () => {
       {/* Appointments grid */}
       {filteredAppts.length === 0 ? (
         <div className="bg-gray-50 dark:bg-[#1A1730] border border-dashed border-gray-300 dark:border-[#2A2545] rounded-2xl p-12 text-center">
-          <p className="text-4xl mb-3">📅</p>
+          <p className="text-4xl mb-3"><Icon name="📅" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></p>
           <h4 className="font-bold text-gray-700 dark:text-gray-300">Nenhum compromisso neste dia</h4>
           <p className="text-xs text-gray-400 mt-1 max-w-xs mx-auto">Selecione outro dia ou clique em "Novo Agendamento"</p>
           <button onClick={() => setShowModal(true)} className="mt-4 px-5 py-2 bg-purple-600 text-white text-xs font-bold rounded-xl hover:bg-purple-700 transition-colors">
@@ -359,7 +360,7 @@ export const SecretaryScheduler: React.FC = () => {
 
       {/* Room status */}
       <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5">
-        <h4 className="text-sm font-bold text-gray-700 dark:text-gray-200 mb-3">🏢 Status das Salas — {new Date(selectedDate + 'T12:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}</h4>
+        <h4 className="text-sm font-bold text-gray-700 dark:text-gray-200 mb-3"><Icon name="🏢" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Status das Salas — {new Date(selectedDate + 'T12:00:00').toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' })}</h4>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {['Sala A', 'Sala B', 'Sala de Reuniões'].map(room => {
             const roomAppts = appointments.filter(a => a.date === selectedDate && a.room === room && a.status !== 'cancelado');

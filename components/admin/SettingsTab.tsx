@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState } from 'react';
 import { mockLegalDocuments, mockAdminUsers, mockEfficiencyServiceGroups, hashPassword, mockBiApoio, mockBiDadosBase, mockBiClientes, mockBiProdutos, mockBiFornecedores, mockBiVendas } from '../../services/mockDataService';
 import type { LegalDocument, AdminUser } from '../../services/mockDataService';
@@ -157,7 +158,7 @@ const LegalDocuments: React.FC = () => {
                 <button onClick={() => handleDelete(doc.id)} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors">
                   <IconTrash /> Excluir
                 </button>
-                {saved === doc.id && <span className="text-xs text-green-600 font-medium self-center">✓ Salvo!</span>}
+                {saved === doc.id && <span className="text-xs text-green-600 font-medium self-center"><Icon name="✓" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Salvo!</span>}
               </div>
             </div>
 
@@ -613,7 +614,7 @@ const AdminUsers: React.FC = () => {
         </div>
       </div>
 
-      {saved && <p className="text-sm text-green-600 font-medium bg-green-50 border border-green-200 rounded-lg px-3 py-2">✓ Usuário criado com sucesso!</p>}
+      {saved && <p className="text-sm text-green-600 font-medium bg-green-50 border border-green-200 rounded-lg px-3 py-2"><Icon name="✓" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Usuário criado com sucesso!</p>}
 
       {/* ── New user form ── */}
       {showForm && (
@@ -649,7 +650,7 @@ const AdminUsers: React.FC = () => {
             </Field>
             <Field label="Celular / WhatsApp" error={formErrors.phone}>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base">📱</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base"><Icon name="📱" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
                 <input value={newUser.phone} onChange={e => setNewUser(u => ({ ...u, phone: e.target.value }))}
                   className={`w-full border rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white ${formErrors.phone ? 'border-red-400' : 'border-gray-300'}`}
                   placeholder="(11) 99999-9999" />
@@ -666,7 +667,7 @@ const AdminUsers: React.FC = () => {
 
           {/* Row 4: Secondary email */}
           <div className="bg-white border border-dashed border-blue-300 rounded-xl p-3 space-y-3 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
-            <p className="text-xs font-bold text-blue-800 flex items-center gap-1.5">✉️ E-mail Secundário <span className="font-normal text-gray-400">(opcional — usado para reset de senha)</span></p>
+            <p className="text-xs font-bold text-blue-800 flex items-center gap-1.5"><Icon name="✉" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" />️ E-mail Secundário <span className="font-normal text-gray-400">(opcional — usado para reset de senha)</span></p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="E-mail Secundário" error={formErrors.secondaryEmail}>
                 <input type="email" value={newUser.secondaryEmail} onChange={e => setNewUser(u => ({ ...u, secondaryEmail: e.target.value }))}
@@ -721,9 +722,9 @@ const AdminUsers: React.FC = () => {
                   <td className="px-4 py-3 font-semibold text-gray-900 whitespace-nowrap">{u.name}</td>
                   <td className="px-4 py-3">
                     <div className="space-y-0.5">
-                      <p className="text-xs text-gray-600">📧 {u.email}</p>
-                      {u.secondaryEmail && <p className="text-xs text-gray-400">✉️ {u.secondaryEmail}</p>}
-                      {u.phone && <p className="text-xs text-green-600">📱 {u.phone}</p>}
+                      <p className="text-xs text-gray-600"><Icon name="📧" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> {u.email}</p>
+                      {u.secondaryEmail && <p className="text-xs text-gray-400"><Icon name="✉" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" />️ {u.secondaryEmail}</p>}
+                      {u.phone && <p className="text-xs text-green-600"><Icon name="📱" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> {u.phone}</p>}
                     </div>
                   </td>
                   <td className="px-4 py-3">
@@ -805,7 +806,7 @@ const AdminUsers: React.FC = () => {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <div>
-                <h2 className="text-base font-bold text-gray-900">🔒 Resetar Senha</h2>
+                <h2 className="text-base font-bold text-gray-900"><Icon name="🔒" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Resetar Senha</h2>
                 <p className="text-xs text-gray-500 mt-0.5">Usuário: <strong>{resetUser.name}</strong></p>
               </div>
               <button onClick={() => setResetUser(null)} className="text-gray-400 hover:text-gray-700 text-xl leading-none">×</button>
@@ -820,7 +821,7 @@ const AdminUsers: React.FC = () => {
                   <label className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 cursor-pointer transition-all ${resetMethod === 'email' ? 'border-primary bg-primary/5' : 'border-gray-200 hover:border-gray-300'}`}>
                     <input type="radio" name="resetMethod" value="email" checked={resetMethod === 'email'} onChange={() => setResetMethod('email')} className="accent-primary" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-800">📧 E-mail Principal</p>
+                      <p className="text-sm font-semibold text-gray-800"><Icon name="📧" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> E-mail Principal</p>
                       <p className="text-xs text-gray-500 truncate">{resetUser.email}</p>
                     </div>
                   </label>
@@ -830,7 +831,7 @@ const AdminUsers: React.FC = () => {
                     <input type="radio" name="resetMethod" value="secondary" disabled={!resetUser.secondaryEmail}
                       checked={resetMethod === 'secondary'} onChange={() => setResetMethod('secondary')} className="accent-primary" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-800">✉️ E-mail Secundário</p>
+                      <p className="text-sm font-semibold text-gray-800"><Icon name="✉" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" />️ E-mail Secundário</p>
                       <p className="text-xs text-gray-500 truncate">{resetUser.secondaryEmail || 'Não cadastrado'}</p>
                     </div>
                   </label>
@@ -840,7 +841,7 @@ const AdminUsers: React.FC = () => {
                     <input type="radio" name="resetMethod" value="sms" disabled={!resetUser.phone}
                       checked={resetMethod === 'sms'} onChange={() => setResetMethod('sms')} className="accent-primary" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-800">💬 SMS</p>
+                      <p className="text-sm font-semibold text-gray-800"><Icon name="💬" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> SMS</p>
                       <p className="text-xs text-gray-500 truncate">{resetUser.phone || 'Não cadastrado'}</p>
                     </div>
                   </label>
@@ -850,7 +851,7 @@ const AdminUsers: React.FC = () => {
                     <input type="radio" name="resetMethod" value="whatsapp" disabled={!resetUser.phone}
                       checked={resetMethod === 'whatsapp'} onChange={() => setResetMethod('whatsapp')} className="accent-green-600" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-gray-800">📱 WhatsApp</p>
+                      <p className="text-sm font-semibold text-gray-800"><Icon name="📱" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> WhatsApp</p>
                       <p className="text-xs text-gray-500 truncate">{resetUser.phone || 'Não cadastrado'}</p>
                     </div>
                   </label>
@@ -858,7 +859,7 @@ const AdminUsers: React.FC = () => {
 
                 <div className="bg-amber-50 border border-amber-200 rounded-xl px-4 py-3">
                   <p className="text-xs text-amber-800 font-medium">
-                    ⚠️ Um link seguro de redefinição de senha será enviado para: <strong>{resetMethodLabel(resetUser)[resetMethod]}</strong>
+                    <Icon name="⚠" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️ Um link seguro de redefinição de senha será enviado para: <strong>{resetMethodLabel(resetUser)[resetMethod]}</strong>
                   </p>
                 </div>
 
@@ -875,7 +876,7 @@ const AdminUsers: React.FC = () => {
               </div>
             ) : (
               <div className="px-6 py-10 text-center space-y-3">
-                <div className="text-5xl">✅</div>
+                <div className="text-5xl"><Icon name="✅" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></div>
                 <p className="text-base font-bold text-gray-800">Link enviado com sucesso!</p>
                 <p className="text-sm text-gray-500">O link de redefinição foi enviado para <strong>{resetMethodLabel(resetUser)[resetMethod]}</strong>.</p>
                 <p className="text-xs text-gray-400">O link expira em 24 horas por segurança.</p>
@@ -894,7 +895,7 @@ const AdminUsers: React.FC = () => {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-[#2A2545]">
               <div>
-                <h2 className="text-base font-bold text-gray-900 dark:text-white">⚙️ Editar Acesso</h2>
+                <h2 className="text-base font-bold text-gray-900 dark:text-white"><Icon name="⚙" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️ Editar Acesso</h2>
                 <p className="text-xs text-gray-500 mt-0.5 dark:text-gray-400">Usuário: <strong>{editingUser.email}</strong></p>
               </div>
               <button onClick={() => setEditingUser(null)} className="text-gray-400 hover:text-gray-700 text-xl leading-none">×</button>
@@ -911,7 +912,7 @@ const AdminUsers: React.FC = () => {
               {/* Phone */}
               <Field label="Celular / WhatsApp" error={editErrors.phone}>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base">📱</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-base"><Icon name="📱" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
                   <input value={editForm.phone} onChange={e => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
                     className="w-full border border-gray-300 rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 bg-white text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] p-2"
                     placeholder="(11) 99999-9999" />
@@ -920,7 +921,7 @@ const AdminUsers: React.FC = () => {
 
               {/* Secondary Email section */}
               <div className="bg-blue-50/50 border border-dashed border-blue-200 rounded-xl p-3 space-y-3 dark:bg-purple-950/20 dark:border-purple-900">
-                <p className="text-xs font-bold text-blue-800 dark:text-purple-300 flex items-center gap-1.5">✉️ E-mail Secundário <span className="font-normal text-gray-400 dark:text-gray-500">(usado para recuperar a senha em caso de esquecimento)</span></p>
+                <p className="text-xs font-bold text-blue-800 dark:text-purple-300 flex items-center gap-1.5"><Icon name="✉" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" />️ E-mail Secundário <span className="font-normal text-gray-400 dark:text-gray-500">(usado para recuperar a senha em caso de esquecimento)</span></p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Field label="E-mail Secundário" error={editErrors.secondaryEmail}>
                     <input type="email" value={editForm.secondaryEmail} onChange={e => setEditForm(prev => ({ ...prev, secondaryEmail: e.target.value }))}
@@ -937,7 +938,7 @@ const AdminUsers: React.FC = () => {
 
               {/* Password Section (Optional) */}
               <div className="bg-amber-50/50 border border-dashed border-amber-200 rounded-xl p-3 space-y-3 dark:bg-amber-950/10 dark:border-amber-900">
-                <p className="text-xs font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">🔒 Nova Senha <span className="font-normal text-gray-400 dark:text-gray-500">(deixe em branco para manter a atual)</span></p>
+                <p className="text-xs font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5"><Icon name="🔒" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Nova Senha <span className="font-normal text-gray-400 dark:text-gray-500">(deixe em branco para manter a atual)</span></p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Field label="Nova Senha" error={editErrors.newPassword}>
                     <input type="password" value={editForm.newPassword} onChange={e => setEditForm(prev => ({ ...prev, newPassword: e.target.value }))}
@@ -977,7 +978,7 @@ const AdminUsers: React.FC = () => {
             {/* Modal header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <div>
-                <h2 className="text-base font-bold text-gray-900">🔑 Permissões — {permUser.name}</h2>
+                <h2 className="text-base font-bold text-gray-900"><Icon name="🔑" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Permissões — {permUser.name}</h2>
                 <p className="text-xs text-gray-500 mt-0.5">
                   Nível: <span className={`px-1.5 py-0.5 rounded font-bold text-[10px] ${roleColors[permUser.role]}`}>{roleLabels[permUser.role]}</span>
                   &nbsp;· {permDraft.length} de {allFunctionIds.length} funções habilitadas
@@ -1070,7 +1071,7 @@ const AdminUsers: React.FC = () => {
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 shrink-0 bg-gradient-to-r from-purple-600 to-primary rounded-t-2xl dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
               <div>
-                <h2 className="text-base font-bold text-white">🛡️ Painel do Super Admin</h2>
+                <h2 className="text-base font-bold text-white"><Icon name="🛡" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️ Painel do Super Admin</h2>
                 <p className="text-xs text-purple-200 mt-0.5">Configure permissões padrão por nível e gerencie usuários ativos/inativos.</p>
               </div>
               <button onClick={() => setShowRoleDefaults(false)} className="text-white/70 hover:text-white text-2xl leading-none">×</button>
@@ -1084,7 +1085,7 @@ const AdminUsers: React.FC = () => {
               </button>
               <button onClick={() => setSuperAdminTab('users')}
                 className={`px-4 py-2 text-sm font-bold rounded-t-lg border-b-2 transition-colors ${superAdminTab === 'users' ? 'border-purple-600 text-purple-700' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
-                👤 Usuários ({users.filter(u => u.role !== 'super').length})
+                <Icon name="👤" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Usuários ({users.filter(u => u.role !== 'super').length})
               </button>
             </div>
 
@@ -1116,7 +1117,7 @@ const AdminUsers: React.FC = () => {
                               {u.active ? '● Ativo' : '○ Inativo'}
                             </span>
                           </div>
-                          <p className="text-xs text-gray-500 mt-0.5 truncate">📧 {u.email}{u.phone ? ` · 📱 ${u.phone}` : ''}</p>
+                          <p className="text-xs text-gray-500 mt-0.5 truncate"><Icon name="📧" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> {u.email}{u.phone ? ` · <Icon name="📱" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> ${u.phone}` : ''}</p>
                         </div>
                         <div className="shrink-0 text-right">
                           <p className="text-xs text-gray-400">Desde {new Date(u.createdAt).toLocaleDateString('pt-BR')}</p>
@@ -1986,7 +1987,7 @@ const GeneralSettings: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h4 className="text-sm font-bold text-purple-700 uppercase tracking-wider flex items-center gap-2">
-              <span>📊</span> Modelagem de Dados Financeiros & BI
+              <span><Icon name="📊" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> Modelagem de Dados Financeiros & BI
             </h4>
             <p className="text-xs text-gray-500 mt-1">
               Gerencie os modelos de dados e premissas financeiras que alimentam os Dashboards de Analytics da plataforma.
@@ -2112,7 +2113,7 @@ const GeneralSettings: React.FC = () => {
               {/* Tx Form */}
               {showTxForm && (
                 <div className="bg-white dark:bg-[#1A1730] border border-blue-200 dark:border-[#2A2545] p-4 rounded-lg space-y-4">
-                  <p className="text-xs font-bold text-blue-900 dark:text-blue-300">{editingTxId ? `📝 Editar Registro #${editingTxId}` : '➕ Novo Registro Transacional'}</p>
+                  <p className="text-xs font-bold text-blue-900 dark:text-blue-300">{editingTxId ? `<Icon name="📝" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Editar Registro #${editingTxId}` : '<Icon name="➕" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Novo Registro Transacional'}</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                     <div>
                       <label className="block text-[10px] font-bold text-gray-500 uppercase">Semestre *</label>
@@ -2467,7 +2468,7 @@ const GeneralSettings: React.FC = () => {
             {/* Form for dim_clientes */}
             {showAluguelForm && biAluguelTab === 'clientes' && (
               <div className="bg-white dark:bg-[#1A1730] border border-purple-200 dark:border-[#2A2545] p-4 rounded-lg space-y-4">
-                <p className="text-xs font-bold text-purple-900 dark:text-purple-300">{editingAluguelId ? '📝 Editar Cliente' : '➕ Novo Cliente'}</p>
+                <p className="text-xs font-bold text-purple-900 dark:text-purple-300">{editingAluguelId ? '<Icon name="📝" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Editar Cliente' : '<Icon name="➕" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Novo Cliente'}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Código *</label>
@@ -2521,7 +2522,7 @@ const GeneralSettings: React.FC = () => {
             {/* Form for dim_produtos */}
             {showAluguelForm && biAluguelTab === 'produtos' && (
               <div className="bg-white dark:bg-[#1A1730] border border-purple-200 dark:border-[#2A2545] p-4 rounded-lg space-y-4">
-                <p className="text-xs font-bold text-purple-900 dark:text-purple-300">{editingAluguelId ? '📝 Editar Produto' : '➕ Novo Produto'}</p>
+                <p className="text-xs font-bold text-purple-900 dark:text-purple-300">{editingAluguelId ? '<Icon name="📝" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Editar Produto' : '<Icon name="➕" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Novo Produto'}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3">
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Código *</label>
@@ -2575,7 +2576,7 @@ const GeneralSettings: React.FC = () => {
             {/* Form for dim_fornecedores */}
             {showAluguelForm && biAluguelTab === 'fornecedores' && (
               <div className="bg-white dark:bg-[#1A1730] border border-purple-200 dark:border-[#2A2545] p-4 rounded-lg space-y-4">
-                <p className="text-xs font-bold text-purple-900 dark:text-purple-300">{editingAluguelId ? '📝 Editar Fornecedor' : '➕ Novo Fornecedor'}</p>
+                <p className="text-xs font-bold text-purple-900 dark:text-purple-300">{editingAluguelId ? '<Icon name="📝" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Editar Fornecedor' : '<Icon name="➕" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Novo Fornecedor'}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">Código *</label>
@@ -2625,7 +2626,7 @@ const GeneralSettings: React.FC = () => {
             {/* Form for fato_vendas */}
             {showAluguelForm && biAluguelTab === 'vendas' && (
               <div className="bg-white dark:bg-[#1A1730] border border-purple-200 dark:border-[#2A2545] p-4 rounded-lg space-y-4">
-                <p className="text-xs font-bold text-purple-900 dark:text-purple-300">{editingAluguelId ? '📝 Editar Registro de Venda' : '➕ Novo Registro de Venda'}</p>
+                <p className="text-xs font-bold text-purple-900 dark:text-purple-300">{editingAluguelId ? '<Icon name="📝" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Editar Registro de Venda' : '<Icon name="➕" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Novo Registro de Venda'}</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                   <div>
                     <label className="block text-[10px] font-bold text-gray-500 uppercase">ID Lançamento *</label>
@@ -3165,7 +3166,7 @@ const GeneralSettings: React.FC = () => {
         {/* Documentação BI */}
         <div className="bg-slate-50 dark:bg-[#1A1730]/40 border border-slate-200 dark:border-[#2A2545] rounded-xl p-4 space-y-3">
           <h5 className="text-xs font-bold text-slate-800 dark:text-slate-300 uppercase flex items-center gap-1">
-            <span>📖</span> Documentação do Modelo de Dados & Relacionamentos
+            <span><Icon name="📖" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span> Documentação do Modelo de Dados & Relacionamentos
           </h5>
           <p className="text-xs text-gray-600 dark:text-gray-400">
             Copie os scripts de transformação de dados para Power BI (DAX), Python (Pandas) ou SQL para recriar o modelo de dados de forma idêntica ou otimizada:
@@ -3173,7 +3174,7 @@ const GeneralSettings: React.FC = () => {
 
           <div className="space-y-3 text-left">
             <div className="bg-white dark:bg-[#1A1730] p-3 rounded-lg border border-slate-100 dark:border-[#2A2545] space-y-1.5">
-              <p className="text-xs font-bold text-slate-700 dark:text-slate-300">🔗 Estrutura de Relacionamentos</p>
+              <p className="text-xs font-bold text-slate-700 dark:text-slate-300"><Icon name="🔗" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Estrutura de Relacionamentos</p>
               {biSubTab === 'excel_ums' ? (
                 <ol className="list-decimal list-inside text-[11px] text-gray-600 dark:text-gray-400 space-y-1 leading-relaxed">
                   <li><strong>Chave de Relação:</strong> Ligue as tabelas usando <code>tb_apoio[periodos]</code> &rarr; <code>tb_dados_base[semestre]</code>.</li>
@@ -3450,7 +3451,7 @@ Valor_Cancelado = CALCULATE([Faturamento_Total], fato_vendas[Status do Serviço]
         <button onClick={handleSave} className="px-5 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary/90">
           {saved ? '✓ Salvo!' : 'Salvar Configurações'}
         </button>
-        {saved && <span className="text-xs text-green-600 font-medium">✓ Configurações salvas e aplicadas em tempo real.</span>}
+        {saved && <span className="text-xs text-green-600 font-medium"><Icon name="✓" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Configurações salvas e aplicadas em tempo real.</span>}
       </div>
     </div>
   );
@@ -3683,7 +3684,7 @@ const LegalCodesSettings: React.FC = () => {
                 <p className="font-semibold text-gray-800 dark:text-white text-sm">{code.title}</p>
                 <p className="text-xs text-gray-400">Total de versões: {code.versions?.length || 0}</p>
               </div>
-              {saved === code.id && <span className="text-xs text-green-600 font-medium">✓ Versão adicionada!</span>}
+              {saved === code.id && <span className="text-xs text-green-600 font-medium"><Icon name="✓" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Versão adicionada!</span>}
             </div>
 
             {/* Version List */}
@@ -3738,7 +3739,7 @@ const LegalCodesSettings: React.FC = () => {
 
               {/* Upload / Add New Version Form */}
               <div className="bg-purple-50/25 dark:bg-purple-950/5 border border-purple-100/60 dark:border-purple-950/20 rounded-xl p-4 space-y-3">
-                <p className="text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider">📤 Adicionar Nova Versão</p>
+                <p className="text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider"><Icon name="📤" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Adicionar Nova Versão</p>
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="flex-1">
                     <input
@@ -3919,7 +3920,7 @@ const DatabaseSettings: React.FC = () => {
         {/* Local Connection Indicator */}
         <div className="flex items-center justify-between p-3 bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-xl shadow-sm">
           <div className="flex items-center gap-2.5">
-            <span className="text-lg">💻</span>
+            <span className="text-lg"><Icon name="💻" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
             <div>
               <p className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Conexão Local</p>
               <p className="text-[10px] text-gray-500">localStorage do Navegador</p>
@@ -3942,7 +3943,7 @@ const DatabaseSettings: React.FC = () => {
         {/* Cloud Connection Indicator */}
         <div className="flex items-center justify-between p-3 bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-xl shadow-sm">
           <div className="flex items-center gap-2.5">
-            <span className="text-lg">☁️</span>
+            <span className="text-lg"><Icon name="☁" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</span>
             <div>
               <p className="text-xs font-bold text-gray-700 dark:text-gray-300 uppercase">Conexão Nuvem</p>
               <p className="text-[10px] text-gray-500">Firebase / Supabase</p>
@@ -4027,7 +4028,7 @@ const DatabaseSettings: React.FC = () => {
             {dbCloudProvider === 'firebase' && (
               <div className="bg-gradient-to-br from-amber-50 to-orange-50 dark:from-[#2a243d] dark:to-[#221c33] border border-amber-200 dark:border-[#3d3159] p-4 rounded-xl mt-4 space-y-3">
                 <div className="flex items-center gap-2 text-amber-800 dark:text-amber-300 font-bold text-xs uppercase tracking-wider">
-                  <span>🔑</span>
+                  <span><Icon name="🔑" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
                   <span>Guia de Acesso e Configuração do Firebase</span>
                 </div>
                 
@@ -4110,7 +4111,7 @@ const DatabaseSettings: React.FC = () => {
                     <div className="flex gap-2">
                       <span className="flex items-center justify-center w-5 h-5 bg-amber-200 dark:bg-[#3d3159] text-amber-900 dark:text-amber-200 font-bold rounded-full text-[10px] shrink-0">6</span>
                       <div>
-                        Clique em <strong>Salvar Conexão</strong> e depois em <strong>🔌 Testar Conexão</strong> para validar a sincronização.
+                        Clique em <strong>Salvar Conexão</strong> e depois em <strong><Icon name="🔌" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Testar Conexão</strong> para validar a sincronização.
                       </div>
                     </div>
                   </div>
@@ -4353,7 +4354,7 @@ const APIConnections: React.FC = () => {
       {showAddForm && (
         <div className="bg-teal-50 border-2 border-teal-300 rounded-2xl p-5 space-y-4">
           <div className="flex items-center gap-2 mb-1">
-            <span className="text-xl">📡</span>
+            <span className="text-xl"><Icon name="📡" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
             <p className="text-sm font-bold text-teal-800">Incluir Nova API</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

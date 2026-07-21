@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 /**
  * SecretaryWorkspace.tsx
  * Workspace da Secretária/Assistente Jurídico — Painel do Advogado
@@ -165,7 +166,7 @@ const LeadCard: React.FC<{
         </div>
       </div>
       <div className="flex items-center gap-1.5 mb-2">
-        <span className="px-2 py-0.5 text-[9px] font-bold bg-gray-100 dark:bg-black/20 text-gray-600 dark:text-gray-400 rounded-full">⚖️ {lead.area}</span>
+        <span className="px-2 py-0.5 text-[9px] font-bold bg-gray-100 dark:bg-black/20 text-gray-600 dark:text-gray-400 rounded-full"><Icon name="⚖" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️ {lead.area}</span>
       </div>
       <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{lead.summary}</p>
 
@@ -261,7 +262,7 @@ export const SecretaryWorkspace: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-200 dark:border-[#2A2545] pb-4">
         <div>
-          <h2 className="text-xl font-bold text-gray-800 dark:text-white">🗂️ Central da Secretária / Assist. Jurídico</h2>
+          <h2 className="text-xl font-bold text-gray-800 dark:text-white"><Icon name="🗂" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️ Central da Secretária / Assist. Jurídico</h2>
           <p className="text-sm text-gray-400 dark:text-gray-500">Triagem de demandas, agenda do escritório e comunicados internos.</p>
         </div>
       </div>
@@ -306,7 +307,7 @@ export const SecretaryWorkspace: React.FC = () => {
           </div>
           {filteredLeads.length === 0 ? (
             <div className="text-center py-10 text-gray-400 dark:text-gray-600">
-              <span className="text-4xl block mb-2">🚦</span>
+              <span className="text-4xl block mb-2"><Icon name="🚦" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
               <p className="text-sm">Nenhuma demanda nesta categoria.</p>
             </div>
           ) : (
@@ -410,7 +411,7 @@ export const SecretaryWorkspace: React.FC = () => {
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 leading-relaxed">{msg.body}</p>
               {msg.status === 'read' && (
-                <p className="text-[9px] text-gray-300 dark:text-gray-600 mt-2">✓ Lido</p>
+                <p className="text-[9px] text-gray-300 dark:text-gray-600 mt-2"><Icon name="✓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Lido</p>
               )}
             </div>
           ))}

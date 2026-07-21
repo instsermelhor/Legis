@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 /**
  * InternOverview.tsx
  * Visão Geral do Painel do Bacharelando — Dashboard Central Analítico
@@ -224,7 +225,7 @@ const OabCountdownWidget: React.FC = () => {
 
       {/* Countdown */}
       <div className="bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl p-4 text-white">
-        <p className="text-xs font-semibold text-white/70 mb-2">🗓 Exame da Ordem — 1ª Fase · Aug 2025</p>
+        <p className="text-xs font-semibold text-white/70 mb-2"><Icon name="🗓" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Exame da Ordem — 1ª Fase · Aug 2025</p>
         <div className="grid grid-cols-3 gap-2 text-center">
           {[
             { value: countdown.days, label: 'Dias' },
@@ -248,7 +249,7 @@ const OabCountdownWidget: React.FC = () => {
         <div className="text-right">
           <p className="text-xs text-gray-500">{MOCK_SIMULADOS.length} simulado(s)</p>
           <p className={`text-xs font-bold ${performanceColor}`}>
-            {avgPct >= 70 ? '✅ Aprovado' : avgPct >= 50 ? '⚠️ Atenção' : '❌ Precisa estudar'}
+            {avgPct >= 70 ? '<Icon name="✅" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Aprovado' : avgPct >= 50 ? '<Icon name="⚠" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️ Atenção' : '<Icon name="❌" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Precisa estudar'}
           </p>
         </div>
       </div>
@@ -288,7 +289,7 @@ const AgendaHibrida: React.FC<{ agendaItems?: AgendaItem[] }> = ({ agendaItems =
   return (
     <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <h4 className="text-sm font-bold text-gray-700 dark:text-gray-200">📅 Agenda de Prazos — Próximos 30 dias</h4>
+        <h4 className="text-sm font-bold text-gray-700 dark:text-gray-200"><Icon name="📅" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Agenda de Prazos — Próximos 30 dias</h4>
         <div className="flex gap-1 flex-wrap">
           {(['todos', 'prova', 'praca_peca', 'prazo'] as const).map(f => (
             <button
@@ -305,7 +306,7 @@ const AgendaHibrida: React.FC<{ agendaItems?: AgendaItem[] }> = ({ agendaItems =
       <div className="space-y-2">
         {filtered.length === 0 ? (
           <div className="text-center py-8 text-gray-400">
-            <p className="text-3xl mb-2">📅</p>
+            <p className="text-3xl mb-2"><Icon name="📅" className="w-6 h-6 inline-block mr-1.5 align-middle" /></p>
             <p className="text-sm">Nenhum prazo para este filtro</p>
           </div>
         ) : (
@@ -351,7 +352,7 @@ const GradeEvolutionChart: React.FC<{ grades: Record<string, Record<string, stri
   return (
     <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5 space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-bold text-gray-700 dark:text-gray-200">📊 Evolução Acadêmica por Semestre</h4>
+        <h4 className="text-sm font-bold text-gray-700 dark:text-gray-200"><Icon name="📊" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Evolução Acadêmica por Semestre</h4>
         {!hasAny && <p className="text-xs text-gray-400">Lance notas no Mural de Estudos para ver o gráfico</p>}
       </div>
       <div className="flex items-end gap-2 h-32">
@@ -457,7 +458,7 @@ export const InternOverview: React.FC<InternOverviewProps> = ({
 
       {/* Progresso do Semestre */}
       <div className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-5">
-        <h4 className="text-sm font-bold text-gray-700 dark:text-gray-200 mb-3">🎓 Progresso do Curso — 1° ao 10° Semestre</h4>
+        <h4 className="text-sm font-bold text-gray-700 dark:text-gray-200 mb-3"><Icon name="🎓" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Progresso do Curso — 1° ao 10° Semestre</h4>
         <div className="flex items-center gap-2 mb-2">
           <div className="flex-1 flex gap-1 items-end h-8">
             {Array.from({ length: 10 }, (_, i) => {
@@ -493,7 +494,7 @@ export const InternOverview: React.FC<InternOverviewProps> = ({
           </div>
           {totalCourseDocs > 0 && (
             <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-[#2A2545] rounded-lg px-3 py-1.5">
-              <span className="text-xs font-semibold text-gray-500">📎</span>
+              <span className="text-xs font-semibold text-gray-500"><Icon name="📎" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /></span>
               <span className="text-xs font-bold text-gray-700 dark:text-gray-300">{totalCourseDocs} doc(s) do curso</span>
             </div>
           )}

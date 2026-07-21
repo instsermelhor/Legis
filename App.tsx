@@ -28,16 +28,19 @@ import { PrivacyPolicyModal } from './components/common/PrivacyPolicyModal';
 import { EticaOABModal } from './components/common/EticaOABModal';
 import { chatWithGemini } from './services/geminiService';
 import type { View, Lawyer, Intern, Secretary, ChatMessage, User, Case, Appointment, Review, MapsSearchResult } from './types';
-import { mockLawyers } from './services/mockLawyerService';
 import { hashPassword, AdminUser } from './services/mockDataService';
 import { LoginModal } from './components/common/LoginModal';
 import { ProfileSelectorModal } from './components/common/ProfileSelectorModal';
+import { useAppData } from './context/AppDataContext';
 
 const TEST_EMAIL = 'teste@legisconnect.com.br';
 const TEST_PASSWORD = 'teste';
 
 
 const App: React.FC = () => {
+  // ── Dados compartilhados com o painel admin via AppDataContext ──
+  const { lawyers: allLawyers, addLawyer, updateLawyer } = useAppData();
+
   const [currentView, setCurrentView] = useState<View>(() => {
     const savedView = localStorage.getItem('legis_currentView') as View | null;
     const savedUser = localStorage.getItem('legis_user');
@@ -56,7 +59,6 @@ const App: React.FC = () => {
   });
   const [searchResults, setSearchResults] = useState<Lawyer[]>([]);
   const [selectedLawyer, setSelectedLawyer] = useState<Lawyer | null>(null);
-  const [allLawyers, setAllLawyers] = useState<Lawyer[]>(mockLawyers);
   const [mapsResult, setMapsResult] = useState<MapsSearchResult | null>(null);
 
   useEffect(() => {
@@ -94,6 +96,21 @@ const App: React.FC = () => {
       }
     } catch (e) {
       console.error(e);
+    }
+  }, []);
+
+  // Capture autocadastro token from URL on app load and redirect to signup
+  useEffect(() => {
+    const href = window.location.href;
+    const isAutoCadastro = href.includes('/autocadastro/') || href.includes('?/autocadastro/');
+    if (isAutoCadastro) {
+      const tokenMatch = href.match(/(?:autocadastro\/)(LEGIS-[A-Z0-9]+)/);
+      if (tokenMatch && tokenMatch[1]) {
+        const token = tokenMatch[1];
+        console.log("Landed via auto-registration token:", token);
+        setCurrentView('signup');
+        sessionStorage.setItem('legis_autocadastro_token', token);
+      }
     }
   }, []);
 
@@ -445,16 +462,8 @@ const App: React.FC = () => {
       status: 'pendente',
       ...data,
     };
-    const updatedLawyers = [...allLawyers, newLawyer];
-    setAllLawyers(updatedLawyers);
-    // Persist to localStorage so Admin panel can see the new lawyer
-    try {
-      const existing = localStorage.getItem('legis_lawyers');
-      const existingList: Lawyer[] = existing ? JSON.parse(existing) : [];
-      // Avoid duplicate if already exists
-      const deduped = existingList.filter(l => l.id !== newLawyer.id);
-      localStorage.setItem('legis_lawyers', JSON.stringify([...deduped, newLawyer]));
-    } catch { /* ignore storage errors */ }
+    // Adicionar ao contexto compartilhado (persiste no localStorage automaticamente)
+    addLawyer(newLawyer);
     const lawyerUser: User = { email: newLawyer.contact.email, role: 'lawyer', data: newLawyer, name: newLawyer.name };
     setUser(lawyerUser);
     handleNavigate('lawyerDashboard', lawyerUser);
@@ -563,31 +572,24 @@ const App: React.FC = () => {
   }
 
   const handleUpdateLawyerReview = (lawyerId: number, caseId: string, rating: number, comment: string) => {
-    setAllLawyers(prevLawyers => {
-      return prevLawyers.map(lawyer => {
-        if (lawyer.id === lawyerId) {
-          const newReview: Review = {
-            id: lawyer.reviews.length + 1,
-            clientName: user?.name || 'Anônimo',
-            rating,
-            comment,
-            date: new Date().toLocaleDateString('pt-BR'),
-          };
-
-          const updatedReviews = [...lawyer.reviews, newReview];
-          const newTotalRating = updatedReviews.reduce((acc, r) => acc + r.rating, 0);
-          const newAverageRating = newTotalRating / updatedReviews.length;
-
-          return {
-            ...lawyer,
-            reviews: updatedReviews,
-            rating: parseFloat(newAverageRating.toFixed(1)),
-            reviewCount: updatedReviews.length,
-          };
-        }
-        return lawyer;
+    const targetLawyer = allLawyers.find(l => l.id === lawyerId);
+    if (targetLawyer) {
+      const newReview: Review = {
+        id: targetLawyer.reviews.length + 1,
+        clientName: user?.name || 'Anônimo',
+        rating,
+        comment,
+        date: new Date().toLocaleDateString('pt-BR'),
+      };
+      const updatedReviews = [...targetLawyer.reviews, newReview];
+      const newAverageRating = updatedReviews.reduce((acc, r) => acc + r.rating, 0) / updatedReviews.length;
+      updateLawyer({
+        ...targetLawyer,
+        reviews: updatedReviews,
+        rating: parseFloat(newAverageRating.toFixed(1)),
+        reviewCount: updatedReviews.length,
       });
-    });
+    }
 
     setUser(prevUser => {
       if (!prevUser || !prevUser.caseHistory) return prevUser;

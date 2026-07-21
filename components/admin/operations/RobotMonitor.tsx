@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState, useEffect } from 'react';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -134,7 +135,7 @@ export const RobotMonitor: React.FC = () => {
       {/* Offline alert */}
       {counts.offline > 0 && (
         <div className="flex items-start gap-3 p-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-700 rounded-xl">
-          <span className="text-xl mt-0.5">🚨</span>
+          <span className="text-xl mt-0.5"><Icon name="🚨" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
           <div>
             <p className="text-sm font-bold text-rose-700 dark:text-rose-400">
               {counts.offline} tribunal(is) indisponível(eis)
@@ -186,7 +187,7 @@ export const RobotMonitor: React.FC = () => {
                   <tr>
                     <td colSpan={7} className="px-4 py-1.5 bg-amber-50 dark:bg-amber-900/10">
                       <p className="text-xs text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
-                        <span>⚠️</span> {robot.errorMsg}
+                        <span><Icon name="⚠" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</span> {robot.errorMsg}
                       </p>
                     </td>
                   </tr>

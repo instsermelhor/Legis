@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 /**
  * InternMentorship.tsx
  * Mentorias & Clínicas Jurídicas — Painel do Bacharelando
@@ -109,7 +110,7 @@ const MOCK_NPJ_CASES: NpjCase[] = [
 const StarRating: React.FC<{ rating: number }> = ({ rating }) => (
   <div className="flex items-center gap-0.5">
     {[1, 2, 3, 4, 5].map(i => (
-      <span key={i} className={`text-xs ${i <= Math.round(rating) ? 'text-amber-400' : 'text-gray-200 dark:text-gray-700'}`}>★</span>
+      <span key={i} className={`text-xs ${i <= Math.round(rating) ? 'text-amber-400' : 'text-gray-200 dark:text-gray-700'}`}><Icon name="★" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /></span>
     ))}
     <span className="text-[10px] text-gray-400 ml-1">{rating}</span>
   </div>
@@ -257,7 +258,7 @@ export const InternMentorship: React.FC = () => {
           {/* Sessões Agendadas */}
           {sessions.filter(s => s.status === 'agendada').length > 0 && (
             <div>
-              <h4 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3">📅 Sessões Agendadas</h4>
+              <h4 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-3"><Icon name="📅" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Sessões Agendadas</h4>
               <div className="space-y-2">
                 {sessions.filter(s => s.status === 'agendada').map(s => (
                   <div key={s.id} className="bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-900/40 rounded-xl p-4">
@@ -267,7 +268,7 @@ export const InternMentorship: React.FC = () => {
                         <p className="text-xs text-indigo-500">
                           {new Date(s.data + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })} às {s.hora}
                         </p>
-                        <p className="text-xs text-indigo-400">{s.tipo === 'online' ? '💻 Online' : '🏢 Presencial'} · {s.area}</p>
+                        <p className="text-xs text-indigo-400">{s.tipo === 'online' ? '<Icon name="💻" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Online' : '<Icon name="🏢" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Presencial'} · {s.area}</p>
                       </div>
                       <span className="text-xs font-bold bg-indigo-600 text-white px-3 py-1.5 rounded-full">Confirmada</span>
                     </div>
@@ -335,7 +336,7 @@ export const InternMentorship: React.FC = () => {
       {subTab === 'npj' && (
         <div className="space-y-4">
           <div className="bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-950/20 dark:to-indigo-950/20 border border-violet-200 dark:border-violet-900/30 rounded-2xl p-5">
-            <h4 className="text-sm font-bold text-violet-900 dark:text-violet-200 mb-1">🏛️ Núcleo de Prática Jurídica</h4>
+            <h4 className="text-sm font-bold text-violet-900 dark:text-violet-200 mb-1"><Icon name="🏛" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" />️ Núcleo de Prática Jurídica</h4>
             <p className="text-xs text-violet-600 dark:text-violet-400">
               Assistência jurídica gratuita aos hipossuficientes. Atendimentos exigidos pela faculdade para validação do estágio supervisionado.
             </p>
@@ -372,7 +373,7 @@ export const InternMentorship: React.FC = () => {
                   <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">{c.descricao}</p>
                   {c.plantaoDate && (
                     <div className="mt-2 bg-blue-50 dark:bg-blue-900/10 rounded-lg px-3 py-1.5">
-                      <p className="text-[10px] font-bold text-blue-700 dark:text-blue-400">📅 Plantão agendado: {new Date(c.plantaoDate + 'T12:00:00').toLocaleDateString('pt-BR')}</p>
+                      <p className="text-[10px] font-bold text-blue-700 dark:text-blue-400"><Icon name="📅" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Plantão agendado: {new Date(c.plantaoDate + 'T12:00:00').toLocaleDateString('pt-BR')}</p>
                     </div>
                   )}
                 </div>

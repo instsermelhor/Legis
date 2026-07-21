@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import type { User, Message, Case, View } from '../../types';
 import { mockLawyers } from '../../services/mockLawyerService';
@@ -250,7 +251,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
             onClick={() => setShowChat(v => !v)}
             className="mt-3 w-full flex items-center gap-2 px-3 py-2 rounded-xl bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-semibold hover:bg-purple-100 transition-colors"
           >
-            <span>💬</span>
+            <span><Icon name="💬" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
             <span className="truncate">Chat com {resolvedLawyer.name.split(' ')[1]}</span>
             <span className="ml-auto w-2 h-2 rounded-full bg-green-400 animate-pulse shrink-0" />
           </button>
@@ -269,7 +270,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
             onClick={onLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
           >
-            <span className="text-xl">🚪</span>
+            <span className="text-xl"><Icon name="🚪" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
             <span className="text-sm font-semibold">Sair</span>
           </button>
         </div>
@@ -320,7 +321,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
               onClick={() => setShowChat(v => !v)}
               className="p-2 rounded-xl bg-purple-100 dark:bg-purple-900/30 text-purple-600 hover:bg-purple-200 transition-colors relative"
             >
-              <span className="text-lg">💬</span>
+              <span className="text-lg"><Icon name="💬" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
               <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-green-400 animate-pulse" />
             </button>
           )}

@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState } from 'react';
 import type { User } from '../../types';
 import { UserCircleIcon, MailIcon, PhoneIcon, LocationMarkerIcon } from '../common/IconComponents';
@@ -84,7 +85,7 @@ export const ClientProfileCard: React.FC<ClientProfileCardProps> = ({ user, onUp
 
             {/* Security Section */}
             <div className="border-t pt-4 space-y-2">
-                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">🔐 Segurança</p>
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider"><Icon name="🔐" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Segurança</p>
                 <div className="flex flex-col gap-2">
                     <button
                         onClick={() => setShowPasswordModal(true)}

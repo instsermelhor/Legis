@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { b2cServices, b2bServices, ServiceItem } from '../../data/servicesData';
 import type { View } from '../../types';
 import { ServiceStore } from '../../utils/sessionStore';
+import { Icon } from '../common/IconComponents';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type TabId = 'B2C' | 'B2B';
@@ -37,17 +38,16 @@ function ServiceCard({
         </span>
       )}
 
-      {/* Icon + Title */}
       <div className="flex items-start gap-4 mb-4">
-        <div className="w-12 h-12 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-2xl shrink-0 group-hover:scale-110 transition-transform duration-300">
-          {service.icon}
+        <div className="w-12 h-12 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">
+          <Icon name={service.icon} className="w-6 h-6 text-purple-400" />
         </div>
         <div className="pt-1">
           <h3 className="text-white font-bold text-base leading-snug font-montserrat">
             {service.title}
           </h3>
-          <p className="text-[#9CA3D4] text-xs mt-0.5">
-            ⏱ Prazo: até {service.deliveryDays === 1 ? '24h' : `${service.deliveryDays} dias`}
+          <p className="text-[#9CA3D4] text-xs mt-0.5 flex items-center gap-1">
+            <Icon name="clock" className="w-3.5 h-3.5 text-purple-400" /> Prazo: até {service.deliveryDays === 1 ? '24h' : `${service.deliveryDays} dias`}
           </p>
         </div>
       </div>
@@ -61,7 +61,7 @@ function ServiceCard({
       <ul className="space-y-1.5 mb-6">
         {service.features.map((f, i) => (
           <li key={i} className="flex items-start gap-2 text-xs text-[#C4B5FD]">
-            <span className="text-purple-400 mt-0.5 shrink-0">✓</span>
+            <span className="text-purple-400 mt-0.5 shrink-0"><Icon name="✓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
             {f}
           </li>
         ))}
@@ -179,10 +179,9 @@ function ContractModal({
         className="w-full max-w-md bg-gradient-to-b from-[#1E1B38] to-[#15122A] border border-[#2A2545] rounded-2xl shadow-2xl overflow-hidden animate-scale-in"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#2A2545] bg-black/20">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">{service.icon}</span>
+            <Icon name={service.icon} className="w-8 h-8 text-purple-400" />
             <div>
               <p className="text-xs text-purple-400 font-semibold uppercase tracking-wider">Contratar Serviço</p>
               <p className="text-white font-bold text-sm">{service.title}</p>
@@ -454,19 +453,19 @@ export const ServicesPublicPage: React.FC<ServicesPublicPageProps> = ({ onNaviga
               {[
                 {
                   step: '01',
-                  icon: '🎯',
+                  icon: 'target',
                   title: 'Escolha o Serviço',
                   desc: 'Navegue pelo catálogo e selecione o serviço que resolve sua situação. Preço e prazo mostrados com clareza.',
                 },
                 {
                   step: '02',
-                  icon: '🤖',
+                  icon: 'robot',
                   title: 'IA Faz a Triagem',
                   desc: 'Nossa inteligência artificial analisa seu caso e conecta você ao advogado especialista ideal na sua região.',
                 },
                 {
                   step: '03',
-                  icon: '📊',
+                  icon: 'chart-bar',
                   title: 'Acompanhe Online',
                   desc: 'Acesse seu painel 24h para ver o progresso, enviar documentos e se comunicar com seu advogado.',
                 },
@@ -475,9 +474,8 @@ export const ServicesPublicPage: React.FC<ServicesPublicPageProps> = ({ onNaviga
                   key={step}
                   className={`relative flex flex-col items-center text-center animate-slide-up delay-${(i + 1) * 200}`}
                 >
-                  {/* Step number */}
                   <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-600/30 to-indigo-600/20 border border-purple-500/30 flex flex-col items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                    <span className="text-3xl">{icon}</span>
+                    <Icon name={icon} className="w-8 h-8 text-purple-400" />
                   </div>
                   <span className="absolute top-0 right-0 sm:right-auto sm:-top-2 sm:left-1/2 text-[10px] font-bold text-purple-400 bg-[#1E1B38] border border-purple-500/30 rounded-full px-2 py-0.5">
                     {step}
@@ -629,7 +627,7 @@ export const ServicesPublicPage: React.FC<ServicesPublicPageProps> = ({ onNaviga
                   <ul className="space-y-2">
                     {items.map((item) => (
                       <li key={item} className="flex items-start gap-2 text-sm text-[#C4B5FD]">
-                        <span className="text-purple-400 mt-0.5 shrink-0">✓</span>
+                        <span className="text-purple-400 mt-0.5 shrink-0"><Icon name="✓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
                         {item}
                       </li>
                     ))}
@@ -714,7 +712,7 @@ export const ServicesPublicPage: React.FC<ServicesPublicPageProps> = ({ onNaviga
                   {/* Stars */}
                   <div className="flex gap-0.5 mb-3">
                     {Array.from({ length: rating }).map((_, i) => (
-                      <span key={i} className="text-amber-400 text-sm">★</span>
+                      <span key={i} className="text-amber-400 text-sm"><Icon name="★" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /></span>
                     ))}
                   </div>
                   <p className="text-[#C4B5FD] text-sm leading-relaxed mb-5 italic">

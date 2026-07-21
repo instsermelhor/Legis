@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 /**
  * InternCases.tsx
  * Meus Casos — Painel do Bacharelando
@@ -118,7 +119,7 @@ const AddMinutaModal: React.FC<AddMinutaModalProps> = ({ cases, onAdd, onClose }
       <div className="bg-white dark:bg-[#1A1730] rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
         <div className="p-6">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-base font-bold text-gray-900 dark:text-white">📄 Nova Minuta / Peça</h2>
+            <h2 className="text-base font-bold text-gray-900 dark:text-white"><Icon name="📄" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Nova Minuta / Peça</h2>
             <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl font-bold">×</button>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -188,7 +189,7 @@ const AddDiarioModal: React.FC<AddDiarioModalProps> = ({ onAdd, onClose }) => {
       <div className="bg-white dark:bg-[#1A1730] rounded-2xl shadow-2xl w-full max-w-lg" onClick={e => e.stopPropagation()}>
         <div className="p-6">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-base font-bold text-gray-900 dark:text-white">📓 Novo Registro — Diário de Bordo</h2>
+            <h2 className="text-base font-bold text-gray-900 dark:text-white"><Icon name="📓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Novo Registro — Diário de Bordo</h2>
             <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl font-bold">×</button>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -223,7 +224,7 @@ const AddDiarioModal: React.FC<AddDiarioModalProps> = ({ onAdd, onClose }) => {
             </label>
             <div className="flex gap-3 pt-1">
               <button type="button" onClick={onClose} className="flex-1 py-2.5 text-sm font-bold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-black/20 rounded-xl">Cancelar</button>
-              <button type="submit" className="flex-1 py-2.5 text-sm font-bold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-colors">✓ Registrar</button>
+              <button type="submit" className="flex-1 py-2.5 text-sm font-bold text-white bg-indigo-600 rounded-xl hover:bg-indigo-700 transition-colors"><Icon name="✓" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Registrar</button>
             </div>
           </form>
         </div>
@@ -315,7 +316,7 @@ export const InternCases: React.FC<InternCasesProps> = ({
                   onClick={() => setExpandedCase(expandedCase === c.id ? null : c.id)}
                 >
                   <div className="flex items-center gap-3 p-4">
-                    <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center text-lg shrink-0">⚖️</div>
+                    <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center text-lg shrink-0"><Icon name="⚖" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-gray-800 dark:text-white truncate">{c.title}</p>
                       <p className="text-xs text-gray-400 truncate">Cliente: {c.clientName} · {c.area}</p>
@@ -361,7 +362,7 @@ export const InternCases: React.FC<InternCasesProps> = ({
             </div>
           ) : (
             <div className="bg-gray-50 dark:bg-black/10 border-2 border-dashed border-gray-200 dark:border-[#2A2545] rounded-2xl p-10 text-center">
-              <p className="text-4xl mb-3">📂</p>
+              <p className="text-4xl mb-3"><Icon name="📂" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></p>
               <h4 className="font-bold text-gray-700 dark:text-gray-300 mb-1">Nenhum caso delegado ainda</h4>
               <p className="text-xs text-gray-500">Quando seu advogado supervisor atribuir casos, eles aparecerão aqui.</p>
             </div>
@@ -413,7 +414,7 @@ export const InternCases: React.FC<InternCasesProps> = ({
           <div className="space-y-3">
             {filteredMinutas.length === 0 ? (
               <div className="text-center py-10 text-gray-400">
-                <p className="text-4xl mb-2">📄</p>
+                <p className="text-4xl mb-2"><Icon name="📄" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></p>
                 <p className="text-sm">Nenhuma peça neste status.</p>
                 <button onClick={() => setShowAddMinuta(true)} className="mt-3 px-4 py-2 text-xs font-bold text-indigo-600 border border-indigo-200 rounded-xl hover:bg-indigo-50">
                   + Criar nova peça
@@ -431,7 +432,7 @@ export const InternCases: React.FC<InternCasesProps> = ({
                         {m.wordCount && m.wordCount > 0 && <span className="text-[9px] text-gray-400">~{m.wordCount.toLocaleString()} palavras</span>}
                       </div>
                       <p className="text-sm font-bold text-gray-800 dark:text-white">{m.titulo}</p>
-                      {m.caseTitle && <p className="text-xs text-gray-400 mt-0.5">📁 {m.caseTitle}</p>}
+                      {m.caseTitle && <p className="text-xs text-gray-400 mt-0.5"><Icon name="📁" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> {m.caseTitle}</p>}
                     </div>
                     <div className="text-right shrink-0">
                       <p className="text-[10px] text-gray-400">Atualizado</p>
@@ -470,7 +471,7 @@ export const InternCases: React.FC<InternCasesProps> = ({
 
           {diario.length === 0 ? (
             <div className="bg-gray-50 dark:bg-black/10 border-2 border-dashed border-gray-200 dark:border-[#2A2545] rounded-2xl p-10 text-center">
-              <p className="text-4xl mb-2">📓</p>
+              <p className="text-4xl mb-2"><Icon name="📓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></p>
               <h4 className="font-bold text-gray-700 dark:text-gray-300 mb-1">Nenhum registro ainda</h4>
               <p className="text-xs text-gray-500 mb-3">Registre suas atividades diárias de estágio para comprovação.</p>
               <button onClick={() => setShowAddDiario(true)} className="px-4 py-2 text-xs font-bold text-indigo-600 border border-indigo-200 rounded-xl hover:bg-indigo-50">
@@ -483,7 +484,7 @@ export const InternCases: React.FC<InternCasesProps> = ({
                 <div key={entry.id} className="bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-2xl p-4 shadow-sm space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center text-lg shrink-0">📓</div>
+                      <div className="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/20 rounded-xl flex items-center justify-center text-lg shrink-0"><Icon name="📓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></div>
                       <div>
                         <p className="text-sm font-bold text-gray-800 dark:text-white">
                           {new Date(entry.data + 'T12:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
@@ -500,7 +501,7 @@ export const InternCases: React.FC<InternCasesProps> = ({
                       onClick={() => setDiario(prev => prev.filter(e => e.id !== entry.id))}
                       className="p-1.5 text-gray-300 dark:text-gray-600 hover:text-red-500 dark:hover:text-red-400 transition-colors text-xs"
                       title="Excluir registro"
-                    >🗑</button>
+                    ><Icon name="🗑" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></button>
                   </div>
                   <div>
                     <p className="text-[10px] text-gray-400 uppercase font-bold mb-1">Atividades Realizadas</p>
@@ -508,7 +509,7 @@ export const InternCases: React.FC<InternCasesProps> = ({
                   </div>
                   {entry.aprendizados && (
                     <div className="bg-indigo-50 dark:bg-indigo-900/10 rounded-xl px-3 py-2">
-                      <p className="text-[10px] text-indigo-600 dark:text-indigo-400 uppercase font-bold mb-1">💡 Aprendizados</p>
+                      <p className="text-[10px] text-indigo-600 dark:text-indigo-400 uppercase font-bold mb-1"><Icon name="💡" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Aprendizados</p>
                       <p className="text-xs text-indigo-800 dark:text-indigo-300">{entry.aprendizados}</p>
                     </div>
                   )}

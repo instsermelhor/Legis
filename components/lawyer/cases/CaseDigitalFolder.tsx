@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 /**
  * CaseDigitalFolder.tsx
  * Pasta Digital do Caso — Fase 3
@@ -131,7 +132,7 @@ const AddAndamentoModal: React.FC<AddAndamentoModalProps> = ({ caseId, onAdd, on
       <div className="bg-white dark:bg-[#1A1730] rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
         <div className="p-6">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">📝 Novo Andamento</h2>
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white"><Icon name="📝" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Novo Andamento</h2>
             <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl font-bold">×</button>
           </div>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -270,7 +271,7 @@ export const CaseDigitalFolder: React.FC<CaseDigitalFolderProps> = ({ selectedCa
         </button>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h2 className="text-lg font-bold text-gray-800 dark:text-white truncate">📂 {selectedCase.title}</h2>
+            <h2 className="text-lg font-bold text-gray-800 dark:text-white truncate"><Icon name="📂" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> {selectedCase.title}</h2>
             <span className="px-2 py-0.5 text-xs font-bold bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 rounded-full">
               {selectedCase.status}
             </span>
@@ -331,7 +332,7 @@ export const CaseDigitalFolder: React.FC<CaseDigitalFolderProps> = ({ selectedCa
             <div className="space-y-4">
               {andamentos.length === 0 && (
                 <div className="text-center py-10 text-gray-400 dark:text-gray-600">
-                  <span className="text-4xl block mb-2">📜</span>
+                  <span className="text-4xl block mb-2"><Icon name="📜" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
                   <p className="text-sm">Nenhum andamento registrado. Clique em "Registrar Andamento".</p>
                 </div>
               )}
@@ -413,7 +414,7 @@ export const CaseDigitalFolder: React.FC<CaseDigitalFolderProps> = ({ selectedCa
           {/* Documents Grid */}
           {filteredDocs.length === 0 ? (
             <div className="text-center py-10 text-gray-400 dark:text-gray-600 border-2 border-dashed border-gray-200 dark:border-[#2A2545] rounded-2xl">
-              <span className="text-4xl block mb-2">📎</span>
+              <span className="text-4xl block mb-2"><Icon name="📎" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></span>
               <p className="text-sm">Nenhum documento. Clique em "Fazer Upload".</p>
             </div>
           ) : (

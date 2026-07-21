@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState } from 'react';
 import { BRAZILIAN_STATES } from '../../constants';
 
@@ -165,7 +166,7 @@ export const SecretariadoSignupForm: React.FC<SecretariadoSignupFormProps> = ({ 
             {/* Foreigner toggle */}
             <label className="flex items-center gap-3 p-3 bg-orange-50 border border-orange-200 rounded-xl cursor-pointer hover:bg-orange-100 transition-colors">
               <input type="checkbox" checked={data.isForeigner} onChange={e => setData(d => ({ ...d, isForeigner: e.target.checked }))} className="rounded" />
-              <span className="text-sm font-semibold text-orange-700">🌍 Estrangeiro(a)</span>
+              <span className="text-sm font-semibold text-orange-700"><Icon name="🌍" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Estrangeiro(a)</span>
             </label>
 
             {data.isForeigner && (

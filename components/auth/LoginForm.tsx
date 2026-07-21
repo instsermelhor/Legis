@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState } from 'react';
 import { mockLawyers } from '../../services/mockLawyerService';
 import { hashPassword } from '../../services/mockDataService';
@@ -300,7 +301,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
                     <div className="space-y-4">
                       {showSimulatedEmail && matchedUser && (
                         <div className="p-4 bg-orange-500/5 border border-dashed border-orange-500/35 rounded-xl text-xs space-y-2 text-gray-300">
-                          <p className="font-bold text-orange-400">📬 [Simulação de Envio de E-mail]</p>
+                          <p className="font-bold text-orange-400"><Icon name="📬" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> [Simulação de Envio de E-mail]</p>
                           <p><strong>De:</strong> no-reply@legisconnect.com.br</p>
                           <p><strong>Para:</strong> {matchedUser.secondaryEmail}</p>
                           <hr className="border-white/10" />

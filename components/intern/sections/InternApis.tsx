@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 /**
  * InternApis.tsx
  * Central de APIs — Painel do Bacharelando
@@ -127,7 +128,7 @@ export const InternApis: React.FC = () => {
     <div className="space-y-5 animate-fade-in">
       {/* Stats Banner */}
       <div className="bg-gradient-to-r from-indigo-500 to-violet-600 rounded-2xl p-5 text-white">
-        <h4 className="text-sm font-bold mb-1">🔌 Central de Integrações</h4>
+        <h4 className="text-sm font-bold mb-1"><Icon name="🔌" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Central de Integrações</h4>
         <p className="text-xs text-white/70 mb-3">Conecte sua conta a sistemas universitários e tribunais para sincronizar dados automaticamente.</p>
         <div className="flex gap-5">
           <div>
@@ -281,7 +282,7 @@ export const InternApis: React.FC = () => {
 
           {/* Info about process search */}
           <div className="bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-200 dark:border-indigo-900/30 rounded-2xl p-5">
-            <h4 className="text-sm font-bold text-indigo-800 dark:text-indigo-200 mb-2">🔍 Consulta de Processos</h4>
+            <h4 className="text-sm font-bold text-indigo-800 dark:text-indigo-200 mb-2"><Icon name="🔍" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Consulta de Processos</h4>
             <p className="text-xs text-indigo-600 dark:text-indigo-400 mb-3">
               Para consultar andamentos específicos, use o número do processo CNJ (NNNNNNN-DD.AAAA.J.TT.OOOO) nos sistemas conectados acima.
             </p>

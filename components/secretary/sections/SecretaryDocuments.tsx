@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 /**
  * SecretaryDocuments.tsx
  * GED & Protocolo de Entrada — Painel do Secret./Assist. Jurídico
@@ -119,7 +120,7 @@ const ForwardModal: React.FC<ForwardModalProps> = ({ doc, onClose, onConfirm }) 
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-white dark:bg-[#12102A] rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
         <div className="p-5 border-b border-gray-200 dark:border-[#2A2545]">
-          <h2 className="text-base font-bold text-gray-800 dark:text-white">📤 Encaminhar Documento</h2>
+          <h2 className="text-base font-bold text-gray-800 dark:text-white"><Icon name="📤" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Encaminhar Documento</h2>
           <p className="text-xs text-gray-500 mt-0.5 truncate">Arquivo: {doc.name}</p>
         </div>
         <div className="p-5 space-y-4">
@@ -134,7 +135,7 @@ const ForwardModal: React.FC<ForwardModalProps> = ({ doc, onClose, onConfirm }) 
             <label className="block text-xs font-bold text-gray-500 uppercase mb-1.5">Nº do Caso / Processo (opcional)</label>
             <input value={caseRef} onChange={e => setCaseRef(e.target.value)} placeholder="Ex: Caso #0042 ou Proc. nº 0012345..." className={inputCls} />
           </div>
-          {done && <div className="bg-green-50 border border-green-200 text-green-700 text-sm font-semibold rounded-xl px-4 py-2">✅ Documento encaminhado com sucesso!</div>}
+          {done && <div className="bg-green-50 border border-green-200 text-green-700 text-sm font-semibold rounded-xl px-4 py-2"><Icon name="✅" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Documento encaminhado com sucesso!</div>}
         </div>
         <div className="flex gap-3 p-5 border-t border-gray-200 dark:border-[#2A2545]">
           <button onClick={onClose} className="flex-1 py-2.5 text-sm font-semibold text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50">Cancelar</button>
@@ -181,7 +182,7 @@ const UploadModal: React.FC<UploadModalProps> = ({ onClose, onSave }) => {
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onClick={onClose}>
       <div className="bg-white dark:bg-[#12102A] rounded-2xl shadow-2xl w-full max-w-md" onClick={e => e.stopPropagation()}>
         <div className="p-5 border-b border-gray-200 dark:border-[#2A2545]">
-          <h2 className="text-base font-bold text-gray-800 dark:text-white">📥 Receber Documento de Cliente</h2>
+          <h2 className="text-base font-bold text-gray-800 dark:text-white"><Icon name="📥" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Receber Documento de Cliente</h2>
         </div>
         <div className="p-5 space-y-4">
           <div>
@@ -200,21 +201,21 @@ const UploadModal: React.FC<UploadModalProps> = ({ onClose, onSave }) => {
             <input ref={fileRef} type="file" accept=".pdf,.jpg,.jpeg,.png" className="hidden" onChange={handleFile} />
             {!file ? (
               <button onClick={() => fileRef.current?.click()} className="w-full border-2 border-dashed border-purple-200 dark:border-purple-900/40 rounded-xl py-6 text-center hover:bg-purple-50 dark:hover:bg-purple-900/10 transition-colors">
-                <p className="text-2xl mb-1">📁</p>
+                <p className="text-2xl mb-1"><Icon name="📁" className="w-6 h-6 inline-block mr-1.5 align-middle" /></p>
                 <p className="text-xs font-medium text-gray-500">Clique para selecionar (PDF, JPG, PNG)</p>
               </button>
             ) : (
               <div className="flex items-center gap-3 bg-purple-50 dark:bg-purple-900/10 border border-purple-200 rounded-xl px-4 py-3">
-                <span className="text-xl">{file.type === 'PDF' ? '📄' : '🖼️'}</span>
+                <span className="text-xl">{file.type === 'PDF' ? '📄' : '<Icon name="🖼" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️'}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-bold text-gray-800 dark:text-white truncate">{file.name}</p>
                   <p className="text-[10px] text-gray-400">{file.type} · {file.size}</p>
                 </div>
-                <button onClick={() => setFile(null)} className="text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+                <button onClick={() => setFile(null)} className="text-red-400 hover:text-red-600 text-xs font-bold"><Icon name="✕" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /></button>
               </div>
             )}
           </div>
-          {done && <div className="bg-green-50 border border-green-200 text-green-700 text-sm font-semibold rounded-xl px-4 py-2">✅ Documento recebido!</div>}
+          {done && <div className="bg-green-50 border border-green-200 text-green-700 text-sm font-semibold rounded-xl px-4 py-2"><Icon name="✅" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" /> Documento recebido!</div>}
         </div>
         <div className="flex gap-3 p-5 border-t border-gray-200 dark:border-[#2A2545]">
           <button onClick={onClose} className="flex-1 py-2.5 text-sm font-semibold text-gray-600 border border-gray-300 rounded-xl hover:bg-gray-50">Cancelar</button>
@@ -274,7 +275,7 @@ export const SecretaryDocuments: React.FC = () => {
           </div>
           {inbox.length === 0 ? (
             <div className="bg-gray-50 dark:bg-[#1A1730] border border-dashed border-gray-300 dark:border-[#2A2545] rounded-2xl p-12 text-center">
-              <p className="text-4xl mb-2">📭</p>
+              <p className="text-4xl mb-2"><Icon name="📭" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></p>
               <h4 className="font-bold text-gray-700 dark:text-gray-300">Inbox vazio</h4>
               <p className="text-xs text-gray-400 mt-1">Clique em "Receber Documento" para adicionar</p>
             </div>
@@ -284,7 +285,7 @@ export const SecretaryDocuments: React.FC = () => {
                 <div key={doc.id} className={`bg-white dark:bg-[#1A1730] border rounded-2xl p-4 transition-all ${doc.status === 'pendente' ? 'border-amber-200 dark:border-amber-900/30' : doc.status === 'encaminhado' ? 'border-green-200 dark:border-green-900/30' : 'border-gray-200 dark:border-[#2A2545] opacity-60'}`}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-3 min-w-0">
-                      <span className="text-2xl shrink-0">{doc.fileType === 'PDF' ? '📄' : '🖼️'}</span>
+                      <span className="text-2xl shrink-0">{doc.fileType === 'PDF' ? '📄' : '<Icon name="🖼" className="w-6 h-6 inline-block mr-1.5 align-middle" />️'}</span>
                       <div className="min-w-0">
                         <p className="text-sm font-bold text-gray-800 dark:text-white truncate">{doc.name}</p>
                         <p className="text-[11px] text-gray-500 dark:text-gray-400">De: {doc.sender} · {doc.date}</p>
@@ -301,8 +302,8 @@ export const SecretaryDocuments: React.FC = () => {
                     </div>
                     {doc.status === 'pendente' && (
                       <div className="flex flex-col gap-1.5 shrink-0">
-                        <button onClick={() => setForwardingDoc(doc)} className="px-3 py-1.5 text-[10px] font-bold text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors whitespace-nowrap">📤 Encaminhar</button>
-                        <button onClick={() => handleArchive(doc.id)} className="px-3 py-1.5 text-[10px] font-bold text-gray-500 bg-gray-100 dark:bg-black/20 rounded-lg hover:bg-gray-200 transition-colors">🗄️ Arquivar</button>
+                        <button onClick={() => setForwardingDoc(doc)} className="px-3 py-1.5 text-[10px] font-bold text-white bg-purple-600 rounded-lg hover:bg-purple-700 transition-colors whitespace-nowrap"><Icon name="📤" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Encaminhar</button>
+                        <button onClick={() => handleArchive(doc.id)} className="px-3 py-1.5 text-[10px] font-bold text-gray-500 bg-gray-100 dark:bg-black/20 rounded-lg hover:bg-gray-200 transition-colors"><Icon name="🗄" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️ Arquivar</button>
                       </div>
                     )}
                   </div>

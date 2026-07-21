@@ -1,3 +1,4 @@
+import { Icon } from '@/components/common/IconComponents';
 import React, { useState, useRef, useCallback } from 'react';
 
 export interface UploadedFile {
@@ -162,7 +163,7 @@ export const DocUploadModal: React.FC<DocUploadModalProps> = ({
               {errors.length > 0 && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3 space-y-1">
                   {errors.map((e, i) => (
-                    <p key={i} className="text-xs text-red-700">⚠️ {e}</p>
+                    <p key={i} className="text-xs text-red-700"><Icon name="⚠" className="w-3.5 h-3.5 inline-block mr-0.5 align-text-bottom" />️ {e}</p>
                   ))}
                 </div>
               )}
@@ -176,7 +177,7 @@ export const DocUploadModal: React.FC<DocUploadModalProps> = ({
                   {pending.map((f, i) => (
                     <div key={i} className="flex items-center justify-between bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
                       <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-base shrink-0">{f.type === 'PDF' ? '📄' : '🖼️'}</span>
+                        <span className="text-base shrink-0">{f.type === 'PDF' ? '📄' : '<Icon name="🖼" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️'}</span>
                         <div className="min-w-0">
                           <p className="text-xs font-semibold text-gray-800 truncate">{f.name}</p>
                           <p className="text-[10px] text-gray-400">{f.type} · {f.size}</p>
@@ -185,7 +186,7 @@ export const DocUploadModal: React.FC<DocUploadModalProps> = ({
                       <button
                         onClick={() => setPending(prev => prev.filter((_, idx) => idx !== i))}
                         className="text-red-400 hover:text-red-600 ml-2 shrink-0 text-sm"
-                      >✕</button>
+                      ><Icon name="✕" className="w-4 h-4 inline-block mr-1 align-text-bottom" /></button>
                     </div>
                   ))}
                 </div>
