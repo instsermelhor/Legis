@@ -1,0 +1,30 @@
+# platform/evolution/evergreen-config.yaml
+# Evergreen Architecture & Platform Health Index Configuration — Legis Connect
+# Padrão: Evergreen Platform Strategy (Prompt 243 - Etapa 17 & 18)
+# Governança: Chief Software Sustainability Officer + Architecture Governance Lead
+
+version: "1.0"
+effective_date: "2026-07-27"
+status: "APPROVED"
+
+platform_health_index_targets:
+  overall_phi_target: 92.5
+  maintainability_target: 75.0
+  coverage_target_pct: 88.0
+  tech_debt_ratio_max_pct: 10.0
+
+sprint_capacity_allocation:
+  new_features_pct: 70
+  tech_debt_and_refactoring_pct: 20
+  bug_fixes_and_maintenance_pct: 10
+
+technology_lifecycle_rules:
+  max_runtime_age_months: 24
+  sunset_window_months: 6
+  deprecation_header_mandatory: true
+
+fitness_functions_ci:
+  block_pr_on_failure: true
+  min_test_coverage_pct: 85.0
+  min_maintainability_index: 70.0
+  max_circular_deps: 0
