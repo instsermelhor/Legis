@@ -1,0 +1,36 @@
+# platform/data/governance/legal-cases-dataproduct.yaml
+# Contrato de Produto de Dados (Data Product Contract) — Legal Domain
+# Padrão: Data Product Operating Model (Prompt 232 - Etapa 8)
+
+apiVersion: dataproduct.legis.io/v1
+kind: DataProduct
+metadata:
+  name: legal-cases-intelligence
+  domain: legal
+  owner: "team-legal-data@legis-connect.com"
+  description: "Produto de dados contendo processos judiciais curados, enriquecidos e prontos para analytics e RAG de IA."
+spec:
+  sla:
+    freshness: "5m"
+    availability: "99.9%"
+    qualityScoreTarget: 99.5
+  storageLocation: "s3://legis-lake-silver/legal_domain/cases_curated/"
+  format: "apache-iceberg"
+  schema:
+    - name: case_id
+      type: string
+      classification: CONFIDENTIAL
+      description: "Identificador único interno do processo"
+    - name: cnj_number
+      type: string
+      classification: PUBLIC
+      description: "Número Único CNJ do processo judicial"
+    - name: tenant_id
+      type: string
+      classification: INTERNAL
+      description: "ID do tenant proprietário dos dados"
+    - name: client_pii_name
+      type: string
+      classification: PII
+      maskingRule: SHA256_HASH
+      description: "Nome do cliente envolvido (Mascarado por política LGPD)"
