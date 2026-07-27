@@ -1,0 +1,66 @@
+// platform/data/data-lakehouse-schema.prisma
+// Prisma Database Schema — Data Platform & Metadata Catalog (Prompt 254 - Etapa 14)
+// Governança: Chief Data Officer + Data Governance Officer
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model DataProduct {
+  id                String             @id @default(uuid())
+  tenantId          String
+  domainName        String             // Identity | Marketplace | LegalOps | Communication | AI
+  productName       String             @unique
+  storagePathIceberg String
+  schemaVersion     String             @default("1.0.0")
+  dataOwner         String
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  qualityRules      DataQualityRule[]
+
+  @@map("data_products")
+}
+
+model DataQualityRule {
+  id                String       @id @default(uuid())
+  dataProductId     String
+  dataProduct       DataProduct  @relation(fields: [dataProductId], references: [id], onDelete: Cascade)
+  ruleName          String       // COMPLETENESS | UNIQNESS | TIMELINESS
+  targetColumn      String
+  thresholdPct      Float        @default(99.0)
+  lastTestPassed    Boolean      @default(true)
+  lastTestedAt      DateTime     @default(now())
+
+  @@map("data_quality_rules")
+}
+
+model KpiSummaryRecord {
+  id                            String   @id @default(uuid())
+  tenantId                      String
+  period                        String
+  activeCasesCount              Int
+  totalConsultationsCompleted   Int
+  avgMatchingScorePct           Float
+  avgDeadlineFulfillmentRatePct Float
+  totalRevenueBrl               Float
+  npsScore                      Int
+  calculatedAt                  DateTime @default(now())
+
+  @@index([tenantId, period])
+  @@map("kpi_summary_records")
+}
+
+model DataLineageRecord {
+  id                String   @id @default(uuid())
+  sourceKafkaTopic  String
+  targetIcebergTable String
+  transformationDbt String
+  lastSyncAt        DateTime @default(now())
+
+  @@map("data_lineage_records")
+}
