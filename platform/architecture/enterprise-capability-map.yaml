@@ -1,0 +1,205 @@
+# platform/architecture/enterprise-capability-map.yaml
+# Enterprise Capability Map — Legis Connect
+# Framework: BIZBOK (Business Architecture Body of Knowledge)
+# Padrao: Enterprise Capability Map (Prompt 237 - Etapa 3)
+# Governanca: Architecture Review Board (ARB) revisa anualmente
+
+version: "1.0"
+last_updated: "2026-07-27"
+owner: "arb@legis.io"
+framework: "BIZBOK 7.0"
+
+capability_map:
+
+  # NIVEL 1 — ESTRATEGIA & VISAO
+  strategy_capabilities:
+    - id: "CAP-STR-001"
+      name: "Gestao de Estrategia Corporativa"
+      description: "OKRs, planejamento estrategico, gestao de portfólio"
+      classification: "Estrategica"
+      maturity_current: 3
+      maturity_target: 5
+      owner: "CEO"
+      blueprints: ["prompt_237"]
+
+    - id: "CAP-STR-002"
+      name: "Inovacao e Gestao de Tecnologias Emergentes"
+      description: "Technology Radar, Innovation Lab, parcerias de pesquisa"
+      classification: "Estrategica"
+      maturity_current: 2
+      maturity_target: 4
+      owner: "CTO + CBO"
+      blueprints: ["prompt_236"]
+
+    - id: "CAP-STR-003"
+      name: "Gestao de Parcerias e Ecosistema"
+      description: "API Economy, Marketplace Partners, M&A Readiness"
+      classification: "Estrategica"
+      maturity_current: 3
+      maturity_target: 5
+      owner: "CEO + CPO"
+      blueprints: ["prompt_219", "prompt_227"]
+
+  # NIVEL 2 — CORE BUSINESS (Capacidades Diferenciadoras)
+  core_business_capabilities:
+    - id: "CAP-LEGAL-001"
+      name: "Servicos Juridicos Digitais"
+      description: "Gestao de processos, peticoes digitais, contratos, jurisprudencia"
+      classification: "Core Business"
+      maturity_current: 7
+      maturity_target: 10
+      owner: "CPO + CDO"
+      blueprints: ["prompt_215", "prompt_218"]
+
+    - id: "CAP-AI-001"
+      name: "Plataforma de IA Juridica"
+      description: "LLM Fine-Tuned BR, AI Agents, RAG, Legal Copilot"
+      classification: "Core Business"
+      maturity_current: 8
+      maturity_target: 10
+      owner: "CDO + CTO"
+      blueprints: ["prompt_217", "prompt_220", "prompt_231"]
+
+    - id: "CAP-MKT-001"
+      name: "Marketplace LegalTech"
+      description: "App Store juridica, Partner API, Revenue Share, ISV Onboarding"
+      classification: "Estrategica"
+      maturity_current: 5
+      maturity_target: 9
+      owner: "CPO + CEO"
+      blueprints: ["prompt_219", "prompt_227"]
+
+    - id: "CAP-BLK-001"
+      name: "Identidade Digital e Blockchain"
+      description: "DID/VC, Smart Contracts, Evidence Chain, Hyperledger Besu"
+      classification: "Diferenciadora"
+      maturity_current: 6
+      maturity_target: 9
+      owner: "CBO + CISO"
+      blueprints: ["prompt_234"]
+
+    - id: "CAP-FIN-001"
+      name: "Plataforma Financeira e Monetizacao"
+      description: "SaaS Billing, Pix, Escrow, Revenue Operations, FinOps"
+      classification: "Core Business"
+      maturity_current: 7
+      maturity_target: 9
+      owner: "CFO + CPO"
+      blueprints: ["prompt_219", "prompt_233"]
+
+  # NIVEL 3 — PLATAFORMAS DE APOIO (Shared Services)
+  shared_services_capabilities:
+    - id: "CAP-DATA-001"
+      name: "Governanca e Inteligencia de Dados"
+      description: "Data Mesh, Data Warehouse, Knowledge Graph, MDM"
+      classification: "Core Business"
+      maturity_current: 7
+      maturity_target: 10
+      owner: "CDO"
+      blueprints: ["prompt_216", "prompt_223", "prompt_232"]
+
+    - id: "CAP-SEC-001"
+      name: "Seguranca e Compliance"
+      description: "Zero Trust, IAM, SOC, SIEM, GRC, LGPD, PQC"
+      classification: "Shared Services"
+      maturity_current: 8
+      maturity_target: 10
+      owner: "CISO"
+      blueprints: ["prompt_213", "prompt_221", "prompt_224", "prompt_236"]
+
+    - id: "CAP-CX-001"
+      name: "Customer Experience e Success"
+      description: "CRM, NPS, Customer 360, Onboarding, Churn Prevention"
+      classification: "Estrategica"
+      maturity_current: 6
+      maturity_target: 9
+      owner: "CPO + CMO"
+      blueprints: ["prompt_226"]
+
+    - id: "CAP-OBS-001"
+      name: "Observabilidade e Confiabilidade"
+      description: "SRE, APM, OpenTelemetry, SLOs, Incident Management"
+      classification: "Shared Services"
+      maturity_current: 7
+      maturity_target: 9
+      owner: "CTO + Head SRE"
+      blueprints: ["prompt_228"]
+
+    - id: "CAP-DR-001"
+      name: "Resiliencia e Continuidade de Negocio"
+      description: "Disaster Recovery, BCP, RTO/RPO, Failover Automatico"
+      classification: "Shared Services"
+      maturity_current: 6
+      maturity_target: 9
+      owner: "CISO + CTO"
+      blueprints: ["prompt_229"]
+
+  # NIVEL 4 — SUPORTE & INOVACAO
+  support_innovation_capabilities:
+    - id: "CAP-DW-001"
+      name: "Digital Workplace e Gestao do Conhecimento"
+      description: "Intranet 3.0, Knowledge Base, AI Productivity, Meeting Intelligence"
+      classification: "Suporte"
+      maturity_current: 4
+      maturity_target: 8
+      owner: "CDWO + CDO"
+      blueprints: ["prompt_235"]
+
+    - id: "CAP-DEVSEC-001"
+      name: "DevSecOps e Engenharia de Plataforma"
+      description: "CI/CD, GitOps, SBOM, DAST/SAST, Supply Chain Security"
+      classification: "Suporte"
+      maturity_current: 7
+      maturity_target: 9
+      owner: "CTO + Head Platform"
+      blueprints: ["prompt_222"]
+
+    - id: "CAP-QNT-001"
+      name: "Quantum Readiness e Tecnologias Avancadas"
+      description: "PQC Migration, HPC/GPU, Confidential Computing, Innovation Lab"
+      classification: "Inovacao"
+      maturity_current: 2
+      maturity_target: 7
+      owner: "CTO + CBO"
+      blueprints: ["prompt_236"]
+
+    - id: "CAP-GLOBAL-001"
+      name: "Expansao Global e Multi-Tenant SaaS"
+      description: "Multi-Region, i18n/L10n, Regional Compliance, Tenant Isolation"
+      classification: "Estrategica"
+      maturity_current: 5
+      maturity_target: 9
+      owner: "CTO + CEO"
+      blueprints: ["prompt_230"]
+
+  # GAP ANALYSIS (Lacunas Identificadas)
+  identified_gaps:
+    - gap_id: "GAP-001"
+      description: "API formal entre Meeting Intelligence (235) e Blockchain Audit Ledger (234)"
+      impact: "MEDIO"
+      priority: "Q3 2026"
+      owner: "Squad Platform"
+
+    - gap_id: "GAP-002"
+      description: "Workplace Analytics (235) sem dominio no Data Mesh (232)"
+      impact: "MEDIO"
+      priority: "Q4 2026"
+      owner: "Squad Data"
+
+    - gap_id: "GAP-003"
+      description: "PQC Migration Plan sem cronograma de atualizacao dos ADRs 001-014"
+      impact: "ALTO"
+      priority: "Q4 2026"
+      owner: "ARB + CISO"
+
+    - gap_id: "GAP-004"
+      description: "AI Governance Board sem politica formalizada para EU AI Act Annex III"
+      impact: "ALTO"
+      priority: "Q1 2027"
+      owner: "CDO + Legal"
+
+    - gap_id: "GAP-005"
+      description: "Innovation Lab sem metricas de sucesso e criterios de graduacao para producao"
+      impact: "BAIXO"
+      priority: "Q3 2026"
+      owner: "CTO + CBO"

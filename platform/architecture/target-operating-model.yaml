@@ -1,0 +1,158 @@
+# platform/architecture/target-operating-model.yaml
+# Target Operating Model (TOM) — Legis Connect
+# Framework: TOGAF 10 + SAFe 6.0 + COBIT 2019
+# Padrao: Enterprise Target Operating Model (Prompt 237 - Etapa 7)
+# Governanca: Transformation Steering Committee (TSC) revisa semestralmente
+
+version: "1.0"
+effective_date: "2026-07-27"
+owner: "chief-enterprise-architect@legis.io"
+status: "APPROVED"
+
+tom_principles:
+  - "AI-AUGMENTED: Todo fluxo operacional tem IA como copiloto, nao como substituto."
+  - "DATA-DRIVEN: Todas as decisoes sao guiadas por metricas em tempo real."
+  - "COMPLIANCE-BY-DEFAULT: Conformidade embutida no processo, nao adicionada depois."
+  - "CUSTOMER-CENTRIC: Experiencia do cliente e o norte de toda decisao operacional."
+  - "SECURITY-FIRST: Zero Trust em todos os sistemas — nunca confiar, sempre verificar."
+  - "ASYNC-FIRST: Documentacao antes de reunioes, decisoes registradas em ADRs."
+
+organizational_model:
+  type: "Squads Autonomos + Centros de Excelencia + Governanca Centralizada"
+  framework: "Spotify Model Adaptado para Enterprise LegalTech"
+
+  csuite:
+    - role: "CEO"
+      focus: "Visao estrategica, stakeholders, crescimento e lideranca organizacional"
+    - role: "CTO"
+      focus: "Arquitetura tecnologica, plataforma, engenharia e inovacao"
+    - role: "CPO"
+      focus: "Roadmap de produto, experiencia do usuario e product-market fit"
+    - role: "CISO"
+      focus: "Seguranca, compliance, blockchain, identidade digital e PQC"
+    - role: "CFO"
+      focus: "Financeiro, FinOps, unit economics e relacoes com investidores"
+    - role: "CBO"
+      focus: "Blockchain, DID/VC, Smart Contracts e infraestrutura juridica digital"
+    - role: "CDO"
+      focus: "Dados, IA, Knowledge Graph e Data Governance"
+    - role: "CDWO"
+      focus: "Digital Workplace, Knowledge Management e experiencia do colaborador"
+
+  squads:
+    - name: "Squad Legal AI"
+      mission: "Plataforma de IA juridica e inteligencia de conhecimento"
+      owns: ["AI Models", "RAG Pipeline", "Knowledge Graph", "Legal Copilot"]
+      key_prompts: [217, 220, 231]
+      tech_lead: "Head of AI"
+
+    - name: "Squad Platform"
+      mission: "Infraestrutura, confiabilidade e seguranca da plataforma"
+      owns: ["Kubernetes EKS", "CI/CD", "Observability", "DR/BCP", "Blockchain"]
+      key_prompts: [211, 212, 222, 228, 229, 234]
+      tech_lead: "Head of Platform Engineering"
+
+    - name: "Squad Product"
+      mission: "Features de produto e experiencia do usuario"
+      owns: ["Frontend Web/Mobile", "API Gateway", "UX Design System"]
+      key_prompts: [214, 218, 225, 226]
+      tech_lead: "Head of Product Engineering"
+
+    - name: "Squad Data"
+      mission: "Data Mesh, Analytics, Data Governance e MDM"
+      owns: ["Data Products", "Data Warehouse", "Data Quality", "OpenMetadata"]
+      key_prompts: [216, 223, 232]
+      tech_lead: "Head of Data Engineering"
+
+    - name: "Squad Security"
+      mission: "SOC, SIEM, GRC, IAM, PQC e Compliance"
+      owns: ["SOC 24/7", "IAM/Keycloak", "LGPD Tools", "Vulnerability Management"]
+      key_prompts: [213, 221, 224, 236]
+      tech_lead: "Head of Security Engineering"
+
+    - name: "Squad Growth"
+      mission: "Aquisicao, retencao e experiencia do cliente"
+      owns: ["CRM", "Marketing Automation", "Marketplace", "Customer Success"]
+      key_prompts: [219, 226, 230]
+      tech_lead: "Head of Growth Engineering"
+
+    - name: "Squad Finance"
+      mission: "Plataforma financeira, billing e otimizacao de custos"
+      owns: ["Billing Engine", "FinOps Dashboard", "Payment Processing"]
+      key_prompts: [219, 233]
+      tech_lead: "Head of Finance Engineering"
+
+  centers_of_excellence:
+    - name: "AI Center of Excellence (AI CoE)"
+      mission: "Pesquisa, padroes e boas praticas de IA corporativa"
+      leads: ["CDO", "Head of AI Research"]
+      outputs: ["AI Governance Policies", "Model Evaluation Standards", "AI Playbooks"]
+
+    - name: "Security Center of Excellence (Security CoE)"
+      mission: "Padroes de seguranca, PQC, blockchain e compliance"
+      leads: ["CISO", "CBO"]
+      outputs: ["Security Policies", "PQC Migration Checklist", "ADR Security Templates"]
+
+    - name: "Data Center of Excellence (Data CoE)"
+      mission: "Governanca de dados, qualidade e arquitetura de dados"
+      leads: ["CDO", "Head of Data Governance"]
+      outputs: ["Data Policies", "LGPD Compliance Reports", "Data Product Templates"]
+
+    - name: "Digital Workplace CoE (DW CoE)"
+      mission: "Knowledge Management, colaboracao e produtividade com IA"
+      leads: ["CDWO", "Head of Knowledge Management"]
+      outputs: ["Knowledge Taxonomy", "Learning Paths", "Meeting Intelligence Reports"]
+
+governance_forums:
+  - name: "Architecture Review Board (ARB)"
+    cadence: "Mensal (4a semana)"
+    duration_max_minutes: 90
+    participants: ["CTO", "Enterprise Architect", "Domain Architects", "CISO"]
+    decisions: ["ADR Approval", "Technology Radar Updates", "Architecture Standards"]
+    output_artifacts: ["ADR Documents", "Technology Radar YAML"]
+
+  - name: "AI Governance Board (AIGB)"
+    cadence: "Quinzenal"
+    duration_max_minutes: 60
+    participants: ["CDO", "CTO", "CISO", "Head AI", "Legal Counsel", "Compliance Officer"]
+    decisions: ["Model Production Approvals", "AI Bias Reports", "EU AI Act Compliance"]
+    output_artifacts: ["AI Risk Assessments", "Model Approval Records"]
+
+  - name: "Data Governance Council (DGC)"
+    cadence: "Mensal (2a semana)"
+    duration_max_minutes: 90
+    participants: ["CDO", "DPO", "Domain Data Owners", "Head Data Quality"]
+    decisions: ["Data Policies", "LGPD DSARs", "Data Product Approvals"]
+    output_artifacts: ["Data Policy Documents", "LGPD Compliance Reports"]
+
+  - name: "Security Board"
+    cadence: "Semanal (Sexta-feira)"
+    duration_max_minutes: 45
+    participants: ["CISO", "SOC Lead", "SRE Lead", "Head Platform"]
+    decisions: ["Incident Escalations", "Critical Vulnerability Prioritization"]
+    output_artifacts: ["Incident Reports", "Vulnerability Remediation Plans"]
+
+  - name: "Transformation Steering Committee (TSC)"
+    cadence: "Trimestral"
+    duration_max_minutes: 180
+    participants: ["CEO", "CTO", "CPO", "CISO", "CFO", "CDO", "Board Representatives"]
+    decisions: ["Strategic Milestones", "Budget Approvals", "Strategic Pivots"]
+    output_artifacts: ["Executive Transformation Report", "Strategic Roadmap Updates"]
+
+  - name: "FinOps Council"
+    cadence: "Mensal (1a semana)"
+    duration_max_minutes: 60
+    participants: ["CFO", "CTO", "FinOps Lead", "Squad Leads"]
+    decisions: ["Budget Allocations", "Cost Optimization Initiatives", "Savings Plans"]
+    output_artifacts: ["FinOps Monthly Report", "Cost Optimization Roadmap"]
+
+operating_model_kpis:
+  squad_performance:
+    - "Lead Time for Changes < 2 dias"
+    - "Deployment Frequency > 10/semana"
+    - "Change Failure Rate < 5%"
+    - "MTTR < 30 minutos"
+  governance_effectiveness:
+    - "ARB Decision Backlog < 3 items"
+    - "ADR approval cycle < 5 dias"
+    - "100% de sistemas criticos com ADR aprovado"

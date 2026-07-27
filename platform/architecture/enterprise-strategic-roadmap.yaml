@@ -1,0 +1,157 @@
+# platform/architecture/enterprise-strategic-roadmap.yaml
+# Enterprise Strategic Roadmap — Legis Connect 2026-2031
+# Padrao: Enterprise Strategic Roadmap (Prompt 237 - Etapa 25)
+# Framework: SAFe Program Increment + OKR-Driven Horizons
+# Governanca: Transformation Steering Committee (TSC) revisa trimestralmente
+
+version: "1.0"
+created: "2026-07-27"
+owner: "cto@legis.io + ceo@legis.io"
+review_cadence: "quarterly"
+
+strategic_north_star:
+  vision_2031: "Maior plataforma de infraestrutura juridica digital da America Latina com presenca global e IPO readiness."
+  mission: "Democratizar acesso a Justica atraves de IA, automacao e confianca criptografica."
+  positioning: "World-Class AI Native Enterprise Legal Platform"
+
+horizons:
+
+  horizon_12m:
+    label: "12 MESES (Q3 2026 - Q2 2027)"
+    theme: "Consolidar Fundacoes e Acelerar Crescimento"
+    north_star_kpis:
+      arr: "R$ 10M"
+      mau: "50.000"
+      availability: "99.95%"
+    strategic_initiatives:
+      - id: "SI-2026-01"
+        title: "PQC Hybrid TLS Migration (Phase 1)"
+        description: "Habilitar X25519Kyber768 no API Gateway e migrar JWT para Dilithium-3"
+        owner: "CISO + Squad Security"
+        quarter: "Q4 2026"
+        priority: "CRITICA"
+        gap_closed: "GAP-003"
+
+      - id: "SI-2026-02"
+        title: "Data Mesh — Todos os 5 Dominios em Producao"
+        description: "Legal, Financial, Customer, AI e Security domains com Data Products publicados"
+        owner: "CDO + Squad Data"
+        quarter: "Q1 2027"
+        priority: "ALTA"
+        gap_closed: "GAP-002"
+
+      - id: "SI-2026-03"
+        title: "Marketplace LegalTech — 25 Parceiros ISVs"
+        description: "Onboarding de 25 parceiros com SDK publicado e revenue share ativo"
+        owner: "CPO + Squad Growth"
+        quarter: "Q2 2027"
+        priority: "ALTA"
+
+      - id: "SI-2026-04"
+        title: "AI Governance Board (AIGB) Formalizado"
+        description: "Politica de EU AI Act, aprovacao de modelos, bias monitoring"
+        owner: "CDO + Legal"
+        quarter: "Q1 2027"
+        priority: "ALTA"
+        gap_closed: "GAP-004"
+
+      - id: "SI-2026-05"
+        title: "Confidential Computing — Dados Governamentais"
+        description: "AWS Nitro Enclaves em producao para contratos B2G sigilosos"
+        owner: "CTO + CISO"
+        quarter: "Q1 2027"
+        priority: "MEDIA"
+
+  horizon_24m:
+    label: "24 MESES (Q3 2027 - Q2 2028)"
+    theme: "Escalar Produto e Atingir PQC-First"
+    north_star_kpis:
+      arr: "R$ 28M"
+      mau: "150.000"
+      nrr: "> 120%"
+    strategic_initiatives:
+      - id: "SI-2027-01"
+        title: "Full PQC-First Architecture"
+        description: "Dilithium-3 como algoritmo primario de assinatura em todos os sistemas"
+        owner: "CISO + ARB"
+        quarter: "Q4 2027"
+        priority: "CRITICA"
+
+      - id: "SI-2027-02"
+        title: "EU AI Act — Compliance Certification"
+        description: "Certificacao de conformidade com EU AI Act Annex III para sistemas de alto risco"
+        owner: "CDO + Legal"
+        quarter: "Q3 2027"
+        priority: "ALTA"
+
+      - id: "SI-2027-03"
+        title: "Edge AI — Dispositivos de Campo"
+        description: "Inferencia offline em tablets de advogados (OCR, resumo) sem cloud"
+        owner: "CTO + Squad Product"
+        quarter: "Q2 2028"
+        priority: "MEDIA"
+
+      - id: "SI-2027-04"
+        title: "Global Expansion — Mercado Hispanohablante"
+        description: "LATAM (Mexico, Colombia, Argentina) com i18n e compliance local"
+        owner: "CEO + Squad Growth"
+        quarter: "Q2 2028"
+        priority: "ALTA"
+
+  horizon_36m:
+    label: "36 MESES (Q3 2028 - Q2 2029)"
+    theme: "Liderar o Mercado LATAM e Iniciar Presenca Global"
+    north_star_kpis:
+      arr: "R$ 60M"
+      mau: "400.000"
+      markets: "5 paises"
+    strategic_initiatives:
+      - id: "SI-2028-01"
+        title: "Quantum Hybrid Computing — Amazon Braket"
+        description: "Primeiros workloads de otimizacao juridica em hardware quantico (QAOA)"
+        owner: "CTO + Innovation Lab"
+        quarter: "Q3 2028"
+        priority: "MEDIA"
+
+      - id: "SI-2028-02"
+        title: "Federated Learning LGPD-Compliant"
+        description: "Treinamento de modelos sem mover dados de clientes — conformidade total"
+        owner: "CDO + Squad Data"
+        quarter: "Q4 2028"
+        priority: "MEDIA"
+
+      - id: "SI-2028-03"
+        title: "Expansao Europa (EU)"
+        description: "Compliance GDPR + EU AI Act nativo, foco em Legal Operations Enterprise"
+        owner: "CEO + CISO + Legal"
+        quarter: "Q2 2029"
+        priority: "ALTA"
+
+  horizon_60m:
+    label: "60 MESES (2029-2031)"
+    theme: "IPO Readiness e Plataforma Cognitiva de Proxima Geracao"
+    north_star_kpis:
+      arr: "R$ 150M"
+      mau: "1.000.000+"
+      markets: "10+ paises"
+    strategic_initiatives:
+      - id: "SI-2030-01"
+        title: "QML em Producao para Pesquisa Juridica"
+        description: "Quantum ML como backend de pesquisa de jurisprudencia (quadratic speedup)"
+        owner: "CTO + CDO"
+        quarter: "2030-Q1"
+        priority: "INOVACAO"
+
+      - id: "SI-2030-02"
+        title: "IPO Readiness Program"
+        description: "Auditoria externa, corporate governance IBGC, S-1 readiness, investor relations"
+        owner: "CEO + CFO"
+        quarter: "2031-Q1"
+        priority: "ESTRATEGICA"
+
+      - id: "SI-2030-03"
+        title: "Autonomous Legal Agents (Fase 3)"
+        description: "Agentes autonomos para tarefas repetitivas completas (triagem, prazo, notificacao)"
+        owner: "CDO + CPO"
+        quarter: "2030-Q3"
+        priority: "INOVACAO"
