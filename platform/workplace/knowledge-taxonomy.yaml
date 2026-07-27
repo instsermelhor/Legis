@@ -1,0 +1,74 @@
+# platform/workplace/knowledge-taxonomy.yaml
+# Taxonomia Central da Knowledge Base Corporativa da Legis Connect
+# Padrao: Enterprise Knowledge Management Architecture (Prompt 235 - Etapa 6)
+# Governanca: Knowledge Council (DWCoE) revisa a cada 90 dias
+
+version: "2.0"
+last_updated: "2026-07-27"
+owner: "knowledge-council@legis.io"
+
+knowledge_domains:
+  - domain: "Legal"
+    description: "Conhecimento juridico interno, jurisprudencia e modelos"
+    categories:
+      - name: "Jurisprudencia Interna"
+        tags: ["stj", "stf", "precedentes", "sumulas"]
+      - name: "Modelos de Contratos"
+        tags: ["contratos", "templates", "clausulas", "honorarios"]
+      - name: "Playbooks de Area Juridica"
+        tags: ["processos", "procedimentos", "civel", "trabalhista", "tributario"]
+      - name: "Pareceres e Opinioes Legais"
+        tags: ["compliance", "lgpd", "regulatorio", "opiniao-legal"]
+
+  - domain: "Engenharia"
+    description: "Arquitetura, desenvolvimento e operacoes de plataforma"
+    categories:
+      - name: "Architecture Decision Records (ADRs)"
+        tags: ["adr", "decisao", "arquitetura", "tecnico"]
+      - name: "Runbooks Operacionais"
+        tags: ["ops", "incidente", "sre", "runbook", "producao"]
+      - name: "Guias de Desenvolvimento"
+        tags: ["dev", "typescript", "python", "kubernetes", "ci-cd"]
+      - name: "Postmortems de Incidentes"
+        tags: ["postmortem", "incidente", "aprendizado", "melhoria"]
+
+  - domain: "Produto & Design"
+    description: "Estrategia de produto, research e design system"
+    categories:
+      - name: "Design System"
+        tags: ["ui", "ux", "componentes", "figma", "acessibilidade"]
+      - name: "Product Requirements Documents (PRDs)"
+        tags: ["prd", "funcionalidade", "epico", "historia-usuario"]
+      - name: "Customer Research Reports"
+        tags: ["pesquisa", "usuario", "nps", "entrevista", "insights"]
+
+  - domain: "Recursos Humanos"
+    description: "Politicas internas, carreira e cultura organizacional"
+    categories:
+      - name: "Politicas Internas"
+        tags: ["politica", "rh", "compliance", "conduta"]
+      - name: "Manual do Colaborador"
+        tags: ["manual", "onboarding", "beneficios", "cultura"]
+      - name: "Plano de Carreira"
+        tags: ["carreira", "nivel", "competencias", "promocao"]
+      - name: "Trilhas de Onboarding"
+        tags: ["onboarding", "novo-colaborador", "integracao"]
+
+  - domain: "Financeiro & FinOps"
+    description: "Processos financeiros, aprovacoes e gestao de custos"
+    categories:
+      - name: "Politicas de Aprovacao Financeira"
+        tags: ["aprovacao", "orcamento", "finops", "custos"]
+      - name: "Guias de FinOps Cloud"
+        tags: ["aws", "custos", "otimizacao", "opencost", "tagging"]
+
+lifecycle:
+  review_cycle_days: 90
+  owner_required: true
+  auto_archive_after_days: 365
+  classification_required: true
+  classification_levels:
+    - "PUBLIC"
+    - "INTERNAL"
+    - "CONFIDENTIAL"
+    - "RESTRICTED"
