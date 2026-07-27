@@ -1,0 +1,78 @@
+// platform/communication/communication-schema.prisma
+// Prisma Database Schema — Secure Communication & Digital Vault (Prompt 251 - Etapa 12)
+// Governança: CISO + Secure Communications Architect
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Conversation {
+  id                String             @id @default(uuid())
+  tenantId          String
+  type              String             @default("DIRECT") // DIRECT | GROUP | CASE_ROOM
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  messages          Message[]
+  evidences         DigitalEvidence[]
+  webRtcSessions    WebRtcSession[]
+
+  @@map("conversations")
+}
+
+model Message {
+  id                String       @id @default(uuid())
+  conversationId   String
+  conversation     Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderUserId      String
+  ciphertextPayload String       // Signal Protocol E2EE Encrypted Payload
+  keyFingerprint    String
+  createdAt         DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+  @@map("messages")
+}
+
+model WebRtcSession {
+  id                String       @id @default(uuid())
+  conversationId   String
+  conversation     Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sessionType       String       @default("VIDEO") // AUDIO | VIDEO
+  status            String       @default("ACTIVE") // ACTIVE | ENDED
+  startedAt         DateTime     @default(now())
+  endedAt           DateTime?
+
+  @@map("webrtc_sessions")
+}
+
+model DigitalEvidence {
+  id                String               @id @default(uuid())
+  conversationId   String
+  conversation     Conversation         @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  vaultedByUserId   String
+  fileName          String
+  fileHashSha256    String
+  fileSizeBytes     BigInt
+  s3ObjectPath      String
+  createdAt         DateTime             @default(now())
+  custodyLogs       ChainOfCustodyLog[]
+
+  @@index([fileHashSha256])
+  @@map("digital_evidences")
+}
+
+model ChainOfCustodyLog {
+  id                String          @id @default(uuid())
+  evidenceId        String
+  evidence          DigitalEvidence @relation(fields: [evidenceId], references: [id], onDelete: Cascade)
+  action            String          // UPLOAD | ACCESS | DOWNLOAD | EXPORT
+  performedByUserId String
+  besuLedgerHash    String?
+  timestamp         DateTime        @default(now())
+
+  @@map("chain_of_custody_logs")
+}
