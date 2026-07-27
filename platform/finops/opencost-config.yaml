@@ -1,0 +1,18 @@
+# platform/finops/opencost-config.yaml
+# Configuração OpenCost para Alocação de Custos EKS por Tenant
+# Padrão: Kubernetes FinOps Framework (Prompt 233 - Etapa 6)
+
+apiVersion: opencost.io/v1alpha1
+kind: OpenCostConfiguration
+metadata:
+  name: opencost-eks-config
+  namespace: finops
+spec:
+  currency: USD
+  customPricing:
+    cpu: 0.0316  # Custo por vCPU hora (AWS sa-east-1)
+    ram: 0.0042  # Custo por GB RAM hora
+    gpu: 0.9500  # Custo por GPU hora
+    storage: 0.0001 # Custo por GB EBS hora
+  allocationLabel: "tenant_id"
+  window: "7d"

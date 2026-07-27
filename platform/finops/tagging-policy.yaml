@@ -1,0 +1,24 @@
+# platform/finops/tagging-policy.yaml
+# Política Estrita de Tagging para Todos os Recursos de Infraestrutura
+# Padrão: Cost Allocation Model (Prompt 233 - Etapa 4)
+
+version: "1.0"
+enforcement: "STRICT"
+action_on_missing_tag: "ALERT_AND_QUARANTINE"
+
+required_tags:
+  Environment:
+    allowed_values: ["production", "staging", "dr-standby", "development"]
+    description: "Ambiente de execução do recurso"
+  Domain:
+    allowed_values: ["legal", "financial", "customer", "ai", "security"]
+    description: "Domínio do Data Mesh proprietário do recurso"
+  CostCenter:
+    allowed_values: ["CC-101-ENGINEERING", "CC-102-AI-RESEARCH", "CC-103-INFRASTRUCTURE"]
+    description: "Centro de custo contábil"
+  Owner:
+    allowed_values: ["team-backend@legis.io", "team-ai@legis.io", "team-sre@legis.io"]
+    description: "Equipe responsável pela manutenção"
+  Component:
+    allowed_values: ["microservice", "database", "cache", "vector-store", "k8s-pod"]
+    description: "Tipo de componente de software"
