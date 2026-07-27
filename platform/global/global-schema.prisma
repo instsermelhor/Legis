@@ -1,0 +1,65 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// global-schema.prisma — Sprint 14 Enterprise Global Platform
+// Legis Connect | Global Infrastructure Master Blueprint
+// Multi-Region · Multi-Cloud · Sovereign Cloud · Active-Active · Disaster Recovery
+// ═══════════════════════════════════════════════════════════════════════════
+
+model GlobalRegionRecord {
+  regionId          String   @id @default(uuid()) @map("region_id")
+  regionCode        String   @unique @map("region_code")                       // sa-east-1 | us-east-1 | eu-west-1
+  cloudProvider     String   @map("cloud_provider")                             // AWS | GCP | AZURE
+  isPrimary         Boolean  @default(false) @map("is_primary")
+  healthScorePct    Decimal  @map("health_score_pct") @db.Decimal(5, 2)
+  latencyP95Ms      Int      @map("latency_p95_ms")
+  replicationLagMs  Int      @map("replication_lag_ms")
+  activeTenantsCount Int     @default(0) @map("active_tenants_count")
+  lastCheckedAt     DateTime @default(now()) @map("last_checked_at")
+
+  @@index([cloudProvider, isPrimary])
+  @@map("global_region_records")
+}
+
+model SovereignBoundaryRecord {
+  boundaryId            String   @id @default(uuid()) @map("boundary_id")
+  tenantId              String   @unique @map("tenant_id")
+  jurisdiction          String                                                   // LGPD_BR | GDPR_EU | CCPA_US | GLOBAL
+  allowedRegions        String[] @map("allowed_regions")
+  primaryRegion         String   @map("primary_region")
+  kmsKeyArn             String   @map("kms_key_arn")
+  enforceStrictBoundary Boolean  @default(true) @map("enforce_strict_boundary")
+  createdAt             DateTime @default(now()) @map("created_at")
+
+  @@index([jurisdiction])
+  @@map("sovereign_boundary_records")
+}
+
+model FailoverEventRecord {
+  eventId             String    @id @default(uuid()) @map("event_id")
+  primaryRegion       String    @map("primary_region")
+  failoverRegion      String    @map("failover_region")
+  status              String    @default("INITIATED")                           // INITIATED | IN_PROGRESS | COMPLETED | FAILED
+  reason              String    @db.Text
+  rtoActualSeconds    Decimal?  @map("rto_actual_seconds") @db.Decimal(6, 2)
+  rpoActualSeconds    Decimal?  @map("rpo_actual_seconds") @db.Decimal(6, 2)
+  initiatedAt         DateTime  @default(now()) @map("initiated_at")
+  completedAt         DateTime? @map("completed_at")
+
+  @@index([primaryRegion, failoverRegion, status])
+  @@map("failover_event_records")
+}
+
+model GlobalAuditLog {
+  auditId            String   @id @default(uuid()) @map("audit_id")
+  tenantId           String   @map("tenant_id")
+  eventType          String   @map("event_type")
+  actorId            String   @map("actor_id")
+  entityType         String   @map("entity_type")
+  entityId           String   @map("entity_id")
+  details            Json?
+  sha256Hash         String   @map("sha256_hash") @db.Char(64)
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId, entityType, entityId])
+  @@index([createdAt])
+  @@map("global_audit_logs")
+}
