@@ -1,0 +1,44 @@
+# platform/digitaltwin/digital-twin-config.yaml
+# Enterprise Digital Twin Configuration & Governance — Legis Connect
+# Padrão: Enterprise Digital Twin Synchronization Framework (Prompt 241 - Etapa 20)
+# Governança: Chief Digital Twin Officer + Decision Intelligence Director
+
+version: "1.0"
+effective_date: "2026-07-27"
+status: "APPROVED"
+
+synchronization:
+  pipeline: "Apache Kafka -> Iceberg Lakehouse -> Neo4j Digital Twin Graph"
+  sync_frequency_seconds: 15
+  consistency_model: "Eventual Consistency (< 30s latency)"
+  max_allowed_drift_pct: 1.5
+
+digital_twin_domains:
+  - name: "Business Digital Twin"
+    entities: ["SaaS Products", "Client Portfolio", "Marketplace Partner Networks"]
+    sync_interval_sec: 60
+  - name: "Technology Digital Twin"
+    entities: ["K8s Pods", "EKS Nodes", "Aurora DB Replicas", "Besu Ledger Nodes"]
+    sync_interval_sec: 15
+  - name: "Data Digital Twin"
+    entities: ["5 Data Mesh Domains", "Iceberg Tables", "OpenMetadata Lineage"]
+    sync_interval_sec: 300
+  - name: "AI Digital Twin"
+    entities: ["7 LangGraph Agents", "LiteLLM Router Stats", "RAG Vector Indexes"]
+    sync_interval_sec: 30
+  - name: "Security Digital Twin"
+    entities: ["IAM Tokens", "WAF Block Rules", "PQC Key Rotations"]
+    sync_interval_sec: 15
+  - name: "Financial Digital Twin"
+    entities: ["ARR/MRR Stats", "AWS Cloud Costs", "AI Token Usage Costs"]
+    sync_interval_sec: 300
+
+simulation_defaults:
+  monte_carlo_default_iterations: 10000
+  confidence_interval_target_pct: 95.0
+  isolation_mode: "Strict Sandbox (Zero Write-Access to Production DB)"
+
+explainability_constraints:
+  algorithm_support: ["SHAP", "LIME"]
+  top_feature_count: 3
+  mandatory_human_review: true
