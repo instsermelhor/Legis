@@ -1,0 +1,86 @@
+// platform/legalops/legal-operations-schema.prisma
+// Prisma Database Schema — Legal Operations Suite (Prompt 252 - Etapa 13)
+// Governança: Chief Legal Technology Officer + Document Management Architect
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model LegalCase {
+  id                String          @id @default(uuid())
+  tenantId          String
+  title             String
+  caseNumberCnj     String?         @unique
+  category          String
+  status            String          @default("OPEN") // OPEN | IN_PROGRESS | ON_HOLD | CLOSED
+  priority          String          @default("MEDIUM") // LOW | MEDIUM | HIGH | URGENT
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  deadlines         LegalDeadline[]
+  documents         LegalDocument[]
+  tasks             LegalTask[]
+
+  @@index([tenantId, status])
+  @@map("legal_cases")
+}
+
+model LegalDeadline {
+  id                String    @id @default(uuid())
+  tenantId          String
+  caseId            String
+  case              LegalCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  description       String
+  dueDate           DateTime
+  status            String    @default("PENDING") // PENDING | COMPLETED | EXPIRED
+  deadlineType      String    @default("PROCEDURAL_CNJ")
+  createdAt         DateTime  @default(now())
+
+  @@index([dueDate, status])
+  @@map("legal_deadlines")
+}
+
+model LegalTask {
+  id                String    @id @default(uuid())
+  caseId            String
+  case              LegalCase @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  title             String
+  assigneeUserId    String
+  status            String    @default("TODO") // TODO | IN_PROGRESS | DONE
+  estimatedHours    Float     @default(1.0)
+  actualHours       Float     @default(0.0)
+  createdAt         DateTime  @default(now())
+
+  @@map("legal_tasks")
+}
+
+model LegalDocument {
+  id                String            @id @default(uuid())
+  caseId            String
+  case              LegalCase         @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  title             String
+  docType           String            // PETITION | CONTRACT | COURT_DECISION
+  currentVersion    Int               @default(1)
+  s3Path            String
+  createdAt         DateTime          @default(now())
+  versions          DocumentVersion[]
+
+  @@map("legal_documents")
+}
+
+model DocumentVersion {
+  id                String        @id @default(uuid())
+  documentId        String
+  document          LegalDocument @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  versionNumber     Int
+  s3Path            String
+  changesSummary    String?
+  uploadedByUserId  String
+  createdAt         DateTime      @default(now())
+
+  @@map("document_versions")
+}
