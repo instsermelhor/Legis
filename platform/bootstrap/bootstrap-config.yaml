@@ -1,0 +1,52 @@
+# platform/bootstrap/bootstrap-config.yaml
+# Platform Bootstrap Configuration & Shared Libraries Registry — Legis Connect
+# Padrão: Repository Bootstrap Blueprint (Prompt 247 - Etapa 2 & 16)
+# Governança: Chief Software Architect + Platform Engineering Director
+
+version: "1.0"
+authorization_order_id: "AUTH-DEV-2026-001"
+effective_date: "2026-07-27"
+sprint_zero_certified: true
+
+workspace:
+  type: "Monorepo (Turborepo v2 + pnpm workspaces)"
+  layout:
+    apps: ["apps/web", "apps/mobile", "apps/api-gateway", "apps/services/*"]
+    packages: ["packages/ui", "packages/shared-core", "packages/contracts"]
+    infrastructure: ["infrastructure/opentofu", "infrastructure/kubernetes"]
+    tooling: ["tooling/cli"]
+
+shared_libraries:
+  - name: "@legis/core"
+    type: "NestJS Framework Core"
+    status: "PUBLISHED"
+  - name: "@legis/logging"
+    type: "Structured Logger (Winston/Zap + OTEL)"
+    status: "PUBLISHED"
+  - name: "@legis/auth"
+    type: "Keycloak OIDC Guards & DID Converters"
+    status: "PUBLISHED"
+  - name: "@legis/telemetry"
+    type: "OpenTelemetry Instrumentor"
+    status: "PUBLISHED"
+  - name: "@legis/exceptions"
+    type: "RFC 7807 Global Error Handlers"
+    status: "PUBLISHED"
+  - name: "@legis/messaging"
+    type: "Kafka Producer/Consumer Utilities"
+    status: "PUBLISHED"
+  - name: "@legis/ui"
+    type: "React Design System Tokens"
+    status: "PUBLISHED"
+
+infrastructure_bootstrap:
+  kubernetes_cluster: "AWS EKS sa-east-1 + us-east-1 DR"
+  namespaces: ["legis-core", "legis-ai", "legis-security", "legis-monitoring", "legis-data"]
+  database: "AWS Aurora PostgreSQL 16 Global Database"
+  kafka_operator: "Strimzi Kafka Operator 3 Brokers HA"
+  iam_engine: "Keycloak 25.0 HA Cluster"
+  observability_stack: "OpenTelemetry Collector + Prometheus + Grafana + Loki + Tempo"
+
+authorization_for_feature_development:
+  granted: true
+  authorizer: "Chief Software Architect & VP of Engineering"
