@@ -1,0 +1,68 @@
+// platform/services/services-schema.prisma
+// Prisma Database Schema — Legal Services Operations (Prompt 250 - Etapa 10)
+// Governança: Enterprise Data Architect + Legal Services Architect
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Appointment {
+  id                String           @id @default(uuid())
+  tenantId          String
+  lawyerId          String
+  clientId          String
+  scheduledTime     DateTime
+  durationMinutes   Int              @default(60)
+  status            String           @default("SCHEDULED") // SCHEDULED | CONFIRMED | COMPLETED | CANCELLED
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  contract          ServiceContract?
+  intake            DigitalIntake?
+
+  @@index([lawyerId, scheduledTime])
+  @@map("appointments")
+}
+
+model DigitalIntake {
+  id                String       @id @default(uuid())
+  appointmentId     String       @unique
+  appointment       Appointment  @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  legalCategory     String
+  description       String
+  urgencyLevel      String       @default("MEDIUM")
+  attachmentUrls    String[]
+  createdAt         DateTime     @default(now())
+
+  @@map("digital_intakes")
+}
+
+model ServiceContract {
+  id                String       @id @default(uuid())
+  appointmentId     String       @unique
+  appointment       Appointment  @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  contractTerms     String
+  signedByLawyer    Boolean      @default(false)
+  signedByClient    Boolean      @default(false)
+  besuLedgerHash    String?
+  createdAt         DateTime     @default(now())
+  signedAt          DateTime?
+
+  @@map("service_contracts")
+}
+
+model MatchingLog {
+  id                String   @id @default(uuid())
+  clientId          String
+  legalCategory     String
+  city              String
+  state             String
+  topLawyerMatches  String[]
+  createdAt         DateTime @default(now())
+
+  @@map("matching_logs")
+}
