@@ -1,0 +1,71 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// autonomous-schema.prisma — Sprint 15 Enterprise Autonomous Platform
+// Legis Connect | Autonomous Enterprise Master Blueprint
+// AI-First · Multi-Agent Systems · Digital Twin · Hyperautomation · ISO/IEC 42001
+// ═══════════════════════════════════════════════════════════════════════════
+
+model DigitalTwinSimulationRecord {
+  simulationId             String   @id @default(uuid()) @map("simulation_id")
+  scenarioName             String   @map("scenario_name")
+  parametersJson           Json     @map("parameters_json")
+  predictedLatencyMsP95    Int      @map("predicted_latency_ms_p95")
+  predictedCloudSpendUsd   Decimal  @map("predicted_cloud_spend_usd") @db.Decimal(10, 2)
+  predictedLlmTokenCostUsd Decimal  @map("predicted_llm_token_cost_usd") @db.Decimal(10, 2)
+  predictedEbitdaMarginPct Decimal  @map("predicted_ebitda_margin_pct") @db.Decimal(5, 2)
+  recommendations          String[]
+  simulatedAt              DateTime @default(now()) @map("simulated_at")
+
+  @@index([scenarioName, simulatedAt])
+  @@map("digital_twin_simulation_records")
+}
+
+model AutonomousActionRecord {
+  actionId               String    @id @default(uuid()) @map("action_id")
+  tenantId               String    @map("tenant_id")
+  originatingAgent       String    @map("originating_agent")                     // LEGAL | FINANCIAL | COMPLIANCE | SECURITY | SRE | etc.
+  autonomyLevel          String    @map("autonomy_level")                        // L0_MANUAL | L1_ASSISTED | L2_CONDITIONAL | L3_HIGH | L4_FULL
+  actionTitle            String    @map("action_title")
+  description            String    @db.Text
+  financialImpactBrl     Decimal?  @map("financial_impact_brl") @db.Decimal(12, 2)
+  requiresHumanApproval  Boolean   @default(false) @map("requires_human_approval")
+  approvalStatus         String    @default("NOT_REQUIRED")                      // NOT_REQUIRED | PENDING | APPROVED | REJECTED
+  approvedByUserId       String?   @map("approved_by_user_id")
+  executedAt             DateTime? @map("executed_at")
+  createdAt              DateTime  @default(now()) @map("created_at")
+
+  @@index([tenantId, originatingAgent, approvalStatus])
+  @@index([createdAt])
+  @@map("autonomous_action_records")
+}
+
+model MultiAgentTaskLog {
+  taskId             String    @id @default(uuid()) @map("task_id")
+  tenantId           String    @map("tenant_id")
+  assignedAgent      String    @map("assigned_agent")
+  taskDescription    String    @db.Text
+  inputPayload       Json?     @map("input_payload")
+  outputResult       Json?     @map("output_result")
+  status             String    @default("RUNNING")                           // RUNNING | COMPLETED | FAILED
+  executionTimeMs    Int?      @map("execution_time_ms")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  completedAt        DateTime? @map("completed_at")
+
+  @@index([assignedAgent, status])
+  @@map("multi_agent_task_logs")
+}
+
+model AiGovernanceAuditLog {
+  auditId            String   @id @default(uuid()) @map("audit_id")
+  tenantId           String   @map("tenant_id")
+  modelName          String   @map("model_name")
+  modelVersion       String   @map("model_version")
+  promptHash         String   @map("prompt_hash") @db.Char(64)
+  explanationText    String?  @map("explanation_text") @db.Text
+  biasCheckPassed    Boolean  @default(true) @map("bias_check_passed")
+  sha256Hash         String   @map("sha256_hash") @db.Char(64)
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId, modelName])
+  @@index([createdAt])
+  @@map("ai_governance_audit_logs")
+}
