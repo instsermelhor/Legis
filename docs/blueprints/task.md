@@ -1,0 +1,8 @@
+- [x] Criar `context/AppDataContext.tsx` — camada de dados compartilhada
+- [x] Modificar `index.tsx` — envolver com `AppDataProvider`
+- [x] Modificar `App.tsx` — consumir `AppDataContext`, passar `onNavigate` ao `AdminDashboard`
+- [x] Modificar `components/admin/AdminDashboard.tsx` — usar `useAppData()` para advogados, botão "Voltar ao Site"
+- [x] Modificar `components/admin/RegistrationsTab.tsx` — usar `AppDataContext` para clientes, estagiários, secretárias
+- [x] Modificar `components/admin/ServicesManagementTab.tsx` — usar `AppDataContext` para serviços/grupos
+- [x] Modificar `components/layout/Header.tsx` — link "Painel Admin" navegável (desktop + mobile)
+- [x] Executar `npm run build` — ✅ sucesso (0 erros TypeScript, 29.41s)
