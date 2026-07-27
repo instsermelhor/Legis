@@ -1,0 +1,109 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// reliability-schema.prisma — Sprint 13 Enterprise Reliability Platform
+// Legis Connect | Reliability Master Blueprint
+// OpenTelemetry · Prometheus · Grafana · SRE · AIOps · FinOps · GreenOps
+// ═══════════════════════════════════════════════════════════════════════════
+
+model ServiceSloRecord {
+  sloId                   String   @id @default(uuid()) @map("slo_id")
+  serviceName             String   @map("service_name")
+  metricName              String   @map("metric_name")
+  targetPct               Decimal  @map("target_pct") @db.Decimal(5, 3)
+  currentPct              Decimal  @map("current_pct") @db.Decimal(5, 3)
+  errorBudgetRemainingPct Decimal  @map("error_budget_remaining_pct") @db.Decimal(5, 2)
+  burnRate                Decimal  @map("burn_rate") @db.Decimal(5, 2)
+  isFrozen                Boolean  @default(false) @map("is_frozen")
+  evaluatedAt             DateTime @default(now()) @map("evaluated_at")
+
+  @@index([serviceName, evaluatedAt])
+  @@map("service_slo_records")
+}
+
+model IncidentRecord {
+  incidentId        String    @id @default(uuid()) @map("incident_id")
+  tenantId          String    @map("tenant_id")
+  severity          String                                                       // P1_CRITICAL | P2_HIGH | P3_MEDIUM | P4_LOW
+  title             String
+  affectedServices  String[]  @map("affected_services")
+  state             String    @default("CREATED")                          // CREATED | TRIAGED | CONTAINED | RESOLVED | CLOSED
+  acknowledgedBy    String?   @map("acknowledged_by")
+  rootCause         String?   @map("root_cause") @db.Text
+  mttrMinutes       Int?      @map("mttr_minutes")
+  postmortemUrl     String?   @map("postmortem_url")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  resolvedAt        DateTime? @map("resolved_at")
+
+  @@index([tenantId, severity, state])
+  @@index([createdAt])
+  @@map("incident_records")
+}
+
+model AnomalyLog {
+  anomalyId            String   @id @default(uuid()) @map("anomaly_id")
+  serviceName          String   @map("service_name")
+  metricName           String   @map("metric_name")
+  deviationScore       Decimal  @map("deviation_score") @db.Decimal(5, 2)
+  confidencePct        Decimal  @map("confidence_pct") @db.Decimal(5, 2)
+  rootCauseCandidates  Json     @map("root_cause_candidates")
+  autoHealed           Boolean  @default(false) @map("auto_healed")
+  detectedAt           DateTime @default(now()) @map("detected_at")
+
+  @@index([serviceName, detectedAt])
+  @@map("anomaly_logs")
+}
+
+model ChaosExperimentRecord {
+  experimentId      String    @id @default(uuid()) @map("experiment_id")
+  name              String
+  targetService     String    @map("target_service")
+  chaosType         String    @map("chaos_type")                                // POD_DELETE | NETWORK_LATENCY | DB_FAILOVER
+  status            String    @default("RUNNING")                              // RUNNING | PASSED | FAILED
+  resilienceScore   Decimal   @map("resilience_score") @db.Decimal(5, 2)
+  executedAt        DateTime  @default(now()) @map("executed_at")
+  completedAt       DateTime? @map("completed_at")
+
+  @@index([targetService, executedAt])
+  @@map("chaos_experiment_records")
+}
+
+model FinOpsCostSnapshot {
+  snapshotId            String   @id @default(uuid()) @map("snapshot_id")
+  tenantId              String   @map("tenant_id")
+  monthlyTotalUsd       Decimal  @map("monthly_total_usd") @db.Decimal(10, 2)
+  costByService         Json     @map("cost_by_service")
+  costByAiQueryUsd      Decimal  @map("cost_by_ai_query_usd") @db.Decimal(8, 4)
+  recommendedSavingsUsd Decimal  @map("recommended_savings_usd") @db.Decimal(10, 2)
+  evaluatedAt           DateTime @default(now()) @map("evaluated_at")
+
+  @@index([tenantId, evaluatedAt])
+  @@map("finops_cost_snapshots")
+}
+
+model GreenOpsMetricsSnapshot {
+  snapshotId                 String   @id @default(uuid()) @map("snapshot_id")
+  totalKwh                   Decimal  @map("total_kwh") @db.Decimal(10, 2)
+  totalCo2eKg                Decimal  @map("total_co2e_kg") @db.Decimal(10, 2)
+  pue                        Decimal  @map("pue") @db.Decimal(4, 2)
+  carbonIntensityIndex       Decimal  @map("carbon_intensity_index") @db.Decimal(8, 5)
+  greenComputePoliciesActive String[] @map("green_compute_policies_active")
+  evaluatedAt                DateTime @default(now()) @map("evaluated_at")
+
+  @@index([evaluatedAt])
+  @@map("greenops_metrics_snapshots")
+}
+
+model ReliabilityAuditLog {
+  auditId            String   @id @default(uuid()) @map("audit_id")
+  tenantId           String   @map("tenant_id")
+  eventType          String   @map("event_type")
+  actorId            String   @map("actor_id")
+  entityType         String   @map("entity_type")
+  entityId           String   @map("entity_id")
+  details            Json?
+  sha256Hash         String   @map("sha256_hash") @db.Char(64)
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId, entityType, entityId])
+  @@index([createdAt])
+  @@map("reliability_audit_logs")
+}
