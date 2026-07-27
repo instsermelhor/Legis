@@ -1,0 +1,69 @@
+// platform/ai/legal-ai-schema.prisma
+// Prisma Database Schema — Enterprise Legal AI Platform (Prompt 253 - Etapa 7)
+// Governança: Chief AI Officer + AI Platform Architect
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model PromptTemplate {
+  id                String       @id @default(uuid())
+  tenantId          String
+  name              String
+  version           String       @default("1.0.0")
+  systemPrompt      String
+  temperature       Float        @default(0.2)
+  maxTokens         Int          @default(1000)
+  approvedByCiso    Boolean      @default(false)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  executions        AiExecution[]
+
+  @@map("prompt_templates")
+}
+
+model RagDocumentChunk {
+  id                String       @id @default(uuid())
+  tenantId          String
+  documentId        String
+  chunkIndex        Int
+  chunkText         String
+  embeddingVector   String       // Representacao do vetor pgvector
+  createdAt         DateTime     @default(now())
+
+  @@index([tenantId, documentId])
+  @@map("rag_document_chunks")
+}
+
+model AiExecution {
+  id                String          @id @default(uuid())
+  tenantId          String
+  userId            String
+  promptTemplateId  String?
+  promptTemplate    PromptTemplate? @relation(fields: [promptTemplateId], references: [id], onDelete: SetNull)
+  userPrompt        String
+  generatedAnswer   String
+  modelUsed         String
+  tokensUsed        Int
+  confidenceScore   Float
+  createdAt         DateTime        @default(now())
+  citations         XaiCitation[]
+
+  @@map("ai_executions")
+}
+
+model XaiCitation {
+  id                String      @id @default(uuid())
+  aiExecutionId     String
+  aiExecution       AiExecution @relation(fields: [aiExecutionId], references: [id], onDelete: Cascade)
+  sourceName        String
+  relevanceScore    Float
+  textExcerpt       String
+
+  @@map("xai_citations")
+}
