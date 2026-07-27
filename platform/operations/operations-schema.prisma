@@ -1,0 +1,53 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// operations-schema.prisma — Prompt 264 Enterprise Operations Model
+// Legis Connect | ITIL 4 · Hypercare · PLM · Technology Radar
+// ═══════════════════════════════════════════════════════════════════════════
+
+model HypercareRecord {
+  hypercareId        String   @id @default(uuid()) @map("hypercare_id")
+  startDate          DateTime @map("start_date")
+  endDate            DateTime @map("end_date")
+  status             String   @default("ACTIVE")                                 // ACTIVE | EXIT_GATE_PENDING | CLOSED
+  openP1Count        Int      @default(0) @map("open_p1_count")
+  openP2Count        Int      @default(0) @map("open_p2_count")
+  globalSlaPct       Decimal  @map("global_sla_pct") @db.Decimal(5, 3)
+  exitGateEligible   Boolean  @default(false) @map("exit_gate_eligible")
+  evaluatedAt        DateTime @default(now()) @map("evaluated_at")
+
+  @@map("hypercare_records")
+}
+
+model TechnologyRadarItemRecord {
+  itemId             String   @id @default(uuid()) @map("item_id")
+  name               String   @unique
+  category           String                                                     // INFRASTRUCTURE | BACKEND | FRONTEND | AI_ML | SECURITY
+  ring               String                                                     // ADOPT | TRIAL | ASSESS | HOLD
+  description        String   @db.Text
+  updatedAt          DateTime @default(now()) @map("updated_at")
+
+  @@index([ring, category])
+  @@map("technology_radar_item_records")
+}
+
+model OperationalKpiSnapshot {
+  snapshotId         String   @id @default(uuid()) @map("snapshot_id")
+  availabilitySlaPct Decimal  @map("availability_sla_pct") @db.Decimal(5, 3)
+  mttrMinutes        Decimal  @map("mttr_minutes") @db.Decimal(5, 2)
+  npsScore           Int      @map("nps_score")
+  crashFreeSessionsPct Decimal @map("crash_free_sessions_pct") @db.Decimal(5, 2)
+  finopsVariancePct  Decimal  @map("finops_variance_pct") @db.Decimal(5, 2)
+  computedAt         DateTime @default(now()) @map("computed_at")
+
+  @@index([computedAt])
+  @@map("operational_kpi_snapshots")
+}
+
+model ProgramClosureRecord {
+  closureId          String   @id @default(uuid()) @map("closure_id")
+  termNumber         String   @unique @map("term_number")                      // LEGIS-PROGRAM-CLOSURE-2026-FINAL
+  totalPromptsCompleted Int   @default(264) @map("total_prompts_completed")
+  totalAdrsRecorded  Int      @default(50) @map("total_adrs_recorded")
+  issuedAt           DateTime @default(now()) @map("issued_at")
+
+  @@map("program_closure_records")
+}
