@@ -1,0 +1,91 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// mobile-schema.prisma — Sprint 12 Enterprise Mobile Platform
+// Legis Connect | Mobile Experience Master Blueprint
+// Native iOS · Native Android · PWA · OWASP MASVS L2 · Offline First
+// ═══════════════════════════════════════════════════════════════════════════
+
+model MobileDevice {
+  deviceId             String    @id @default(uuid()) @map("device_id")
+  tenantId             String    @map("tenant_id")
+  userId               String    @map("user_id")
+  platform             String                                                   // IOS | ANDROID | PWA
+  deviceModel          String    @map("device_model")
+  osVersion            String    @map("os_version")
+  appVersion           String    @map("app_version")
+  pushToken            String?   @map("push_token")
+  pushChannel          String?   @map("push_channel")                           // APNS | FCM | WEB_PUSH
+  isRootedOrJailbroken Boolean   @default(false) @map("is_rooted_or_jailbroken")
+  biometricsEnabled    Boolean   @default(false) @map("biometrics_enabled")
+  mdmEnrolled          Boolean   @default(false) @map("mdm_enrolled")
+  lastActiveAt         DateTime  @default(now()) @map("last_active_at")
+  registeredAt         DateTime  @default(now()) @map("registered_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  syncOperations       SyncOperationRecord[]
+  pushLogs             PushDeliveryLog[]
+
+  @@index([tenantId, userId])
+  @@index([platform, appVersion])
+  @@map("mobile_devices")
+}
+
+model SyncOperationRecord {
+  operationId          String    @id @map("operation_id")                      // UUID idempotency key from client
+  deviceId             String    @map("device_id")
+  tenantId             String    @map("tenant_id")
+  userId               String    @map("user_id")
+  entityType           String    @map("entity_type")                            // CASE | DOCUMENT | TIME_ENTRY | MESSAGE | NOTE
+  entityId             String    @map("entity_id")
+  operation            String                                                   // CREATE | UPDATE | DELETE
+  payloadJson          Json      @map("payload_json")
+  clientTimestamp      DateTime  @map("client_timestamp")
+  status               String    @default("PENDING")                            // PENDING | SYNCING | SYNCED | CONFLICT | FAILED | DLQ
+  resolutionStrategy   String?   @map("resolution_strategy")
+  conflictDetails      Json?     @map("conflict_details")
+  retryCount           Int       @default(0) @map("retry_count")
+  errorMessage         String?   @map("error_message")
+  syncedAt             DateTime? @map("synced_at")
+  createdAt            DateTime  @default(now()) @map("created_at")
+
+  device               MobileDevice @relation(fields: [deviceId], references: [deviceId])
+
+  @@index([deviceId, status])
+  @@index([tenantId, userId, createdAt])
+  @@map("sync_operation_records")
+}
+
+model PushDeliveryLog {
+  logId                String    @id @default(uuid()) @map("log_id")
+  deviceId             String    @map("device_id")
+  tenantId             String    @map("tenant_id")
+  userId               String    @map("user_id")
+  notificationId       String    @map("notification_id")
+  category             String                                                   // CASE_UPDATE | HEARING_REMINDER | NEW_MESSAGE | DOCUMENT_SIGNED | DEADLINE_ALERT | PAYMENT_RECEIVED | SYSTEM_ALERT
+  channel              String                                                   // APNS | FCM | WEB_PUSH
+  status               String    @default("DELIVERED")                          // DELIVERED | FAILED | OPENED | DISMISSED
+  actionTaken          String?   @map("action_taken")
+  deliveredAt          DateTime  @default(now()) @map("delivered_at")
+  openedAt             DateTime? @map("opened_at")
+
+  device               MobileDevice @relation(fields: [deviceId], references: [deviceId])
+
+  @@index([deviceId, category])
+  @@index([tenantId, userId, deliveredAt])
+  @@map("push_delivery_logs")
+}
+
+model MobileAuditLog {
+  auditId              String    @id @default(uuid()) @map("audit_id")
+  tenantId             String    @map("tenant_id")
+  deviceId             String    @map("device_id")
+  userId               String    @map("user_id")
+  eventType            String    @map("event_type")
+  details              Json?
+  ipAddress            String?   @map("ip_address")
+  sha256Hash           String    @map("sha256_hash") @db.Char(64)
+  createdAt            DateTime  @default(now()) @map("created_at")
+
+  @@index([tenantId, deviceId, eventType])
+  @@index([createdAt])
+  @@map("mobile_audit_logs")
+}
