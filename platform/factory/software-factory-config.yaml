@@ -1,0 +1,45 @@
+# platform/factory/software-factory-config.yaml
+# Software Factory Configuration & Quality Gate Rules — Legis Connect
+# Padrão: Software Factory Master Blueprint (Prompt 246 - Etapa 26)
+# Governança: VP of Engineering + Chief Quality Officer
+
+version: "1.0"
+effective_date: "2026-07-27"
+certification_status: "LEVEL_5_AI_AUGMENTED"
+
+coding_standards:
+  typescript:
+    strict_null_checks: true
+    no_explicit_any: true
+    max_cognitive_complexity_per_function: 15
+  nest_js:
+    architecture_pattern: "Clean Architecture (Domain/App/Infra)"
+    openapi_specs_mandatory: true
+  react:
+    use_server_components_by_default: true
+    styling_framework: "Tailwind CSS + Internal Design System"
+
+git_governance:
+  branch_strategy: "Trunk-Based Development"
+  feature_branch_max_age_days: 2
+  required_approvals_human_count: 2
+  merge_strategy: "Squash & Merge / Rebase & Merge"
+  main_branch_protection: true
+
+definition_of_ready_check:
+  require_gherkin_acceptance_criteria: true
+  require_security_champion_review: true
+  require_openapi_or_schema_spec: true
+
+definition_of_done_check:
+  min_code_coverage_pct: 85.0
+  min_maintainability_index: 70.0
+  max_critical_vulnerabilities: 0
+  max_high_vulnerabilities: 0
+  require_opentelemetry_instrumentation: true
+  require_staging_deployment_success: true
+
+ai_development_governance:
+  authorized_tools: ["GitHub Copilot Enterprise", "Claude 3.5 Code Review Bot"]
+  require_human_code_review: true
+  prohibit_ai_secrets_injection: true
