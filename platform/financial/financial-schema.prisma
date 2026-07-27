@@ -1,0 +1,339 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// financial-schema.prisma — Sprint 8 Enterprise Financial Platform
+// Legis Connect | Revenue Operations Master Blueprint
+// PCI DSS 4.0 · LGPD · Open Finance Brasil · Pix BCB
+// ═══════════════════════════════════════════════════════════════════════════
+// NOTE: Append these models to the root schema.prisma in production.
+//       They reference Tenant, User, and LawyerProfile from Sprint 1 & 2.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── Subscription Plans ────────────────────────────────────────────────────
+
+model SubscriptionPlan {
+  planId              String   @id @default(uuid()) @map("plan_id")
+  tenantId            String   @map("tenant_id")
+  name                String                                              // "Legis Enterprise Firm"
+  billingCycle        String   @map("billing_cycle")                     // MONTHLY | QUARTERLY | ANNUAL
+  priceBrl            Decimal  @map("price_brl") @db.Decimal(12, 2)
+  annualDiscountPct   Decimal  @default(0) @map("annual_discount_pct") @db.Decimal(5, 2)
+  trialDays           Int      @default(0) @map("trial_days")
+  maxUsersIncluded    Int      @map("max_users_included")
+  maxCasesPerMonth    Int      @map("max_cases_per_month")
+  aiCreditsPerMonth   Int      @default(0) @map("ai_credits_per_month")
+  featuresAllowed     String[] @map("features_allowed")
+  isActive            Boolean  @default(true) @map("is_active")
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  subscriptions       Subscription[]
+
+  @@index([tenantId, isActive])
+  @@map("subscription_plans")
+}
+
+// ─── Subscriptions ─────────────────────────────────────────────────────────
+
+model Subscription {
+  subscriptionId        String    @id @default(uuid()) @map("subscription_id")
+  tenantId              String    @map("tenant_id")
+  clientId              String    @map("client_id")
+  planId                String    @map("plan_id")
+  status                String    @default("TRIAL")                       // TRIAL | ACTIVE | PAST_DUE | UNPAID | CANCELLED | PAUSED
+  currentPeriodStart    DateTime  @map("current_period_start")
+  currentPeriodEnd      DateTime  @map("current_period_end")
+  trialStart            DateTime? @map("trial_start")
+  trialEnd              DateTime? @map("trial_end")
+  cancelledAt           DateTime? @map("cancelled_at")
+  cancelReason          String?   @map("cancel_reason")
+  stripeSubscriptionId  String?   @unique @map("stripe_subscription_id")  // External Stripe ID (no PAN stored)
+  latestInvoiceId       String?   @map("latest_invoice_id")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  plan                  SubscriptionPlan @relation(fields: [planId], references: [planId])
+
+  @@index([tenantId, clientId, status])
+  @@index([currentPeriodEnd])                                             // For renewal jobs
+  @@map("subscriptions")
+}
+
+// ─── Invoices ──────────────────────────────────────────────────────────────
+
+model Invoice {
+  invoiceId       String    @id @default(uuid()) @map("invoice_id")
+  invoiceNumber   String    @unique @map("invoice_number")               // INV-2026-000001
+  tenantId        String    @map("tenant_id")
+  clientId        String    @map("client_id")
+  lawyerId        String?   @map("lawyer_id")
+  subscriptionId  String?   @map("subscription_id")
+  status          String    @default("DRAFT")                            // DRAFT | ISSUED | PAID | OVERDUE | CANCELLED | REFUNDED
+  subtotalBrl     Decimal   @map("subtotal_brl") @db.Decimal(12, 2)
+  discountBrl     Decimal   @default(0) @map("discount_brl") @db.Decimal(12, 2)
+  taxBrl          Decimal   @default(0) @map("tax_brl") @db.Decimal(12, 2)
+  totalBrl        Decimal   @map("total_brl") @db.Decimal(12, 2)
+  currency        String    @default("BRL")
+  dueDate         DateTime  @map("due_date")
+  paidAt          DateTime? @map("paid_at")
+  nfeKey          String?   @map("nfe_key")                              // 44-digit NF-e access key
+  nfeXml          String?   @map("nfe_xml") @db.Text                    // Full NF-e XML for SPED
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+
+  chargeItems     ChargeItem[]
+  paymentAttempts PaymentAttempt[]
+
+  @@index([tenantId, clientId, status])
+  @@index([dueDate, status])                                             // For overdue detection job
+  @@index([lawyerId])
+  @@map("invoices")
+}
+
+// ─── Charge Items (Invoice Line Items) ─────────────────────────────────────
+
+model ChargeItem {
+  chargeItemId  String   @id @default(uuid()) @map("charge_item_id")
+  invoiceId     String   @map("invoice_id")
+  description   String                                                   // e.g. "Consulta Jurídica – Civil – 60min"
+  quantity      Int      @default(1)
+  unitPriceBrl  Decimal  @map("unit_price_brl") @db.Decimal(12, 2)
+  totalBrl      Decimal  @map("total_brl") @db.Decimal(12, 2)
+  serviceCode   String   @map("service_code")                           // ISS / NFe service code e.g. "01.07"
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  invoice       Invoice  @relation(fields: [invoiceId], references: [invoiceId])
+
+  @@map("charge_items")
+}
+
+// ─── Payment Attempts ──────────────────────────────────────────────────────
+
+model PaymentAttempt {
+  attemptId             String    @id @default(uuid()) @map("attempt_id")
+  invoiceId             String    @map("invoice_id")
+  gateway               String                                           // STRIPE | MERCADO_PAGO | BANCO_DO_BRASIL | CELCOIN
+  paymentMethod         String    @map("payment_method")                 // PIX | CREDIT_CARD | BOLETO | etc.
+  status                String    @default("PENDING")                    // PENDING | AUTHORIZED | CAPTURED | FAILED | CANCELLED | REFUNDED
+  gatewayTransactionId  String?   @unique @map("gateway_transaction_id") // Never stores PAN — only gateway token
+  amountBrl             Decimal   @map("amount_brl") @db.Decimal(12, 2)
+  refundedAmountBrl     Decimal?  @map("refunded_amount_brl") @db.Decimal(12, 2)
+  idempotencyKey        String    @unique @map("idempotency_key")        // Prevents duplicate charges on retry
+  failureReason         String?   @map("failure_reason")
+  failureCode           String?   @map("failure_code")
+  pixQrCode             String?   @map("pix_qr_code") @db.Text          // Base64 QR Code image
+  pixCopyPaste          String?   @map("pix_copy_paste")                // EMVCo Pix Copia e Cola string
+  pixE2eId              String?   @map("pix_e2e_id")                    // Pix end-to-end transaction ID (BCB)
+  attemptedAt           DateTime  @default(now()) @map("attempted_at")
+  capturedAt            DateTime? @map("captured_at")
+  refundedAt            DateTime? @map("refunded_at")
+
+  invoice               Invoice          @relation(fields: [invoiceId], references: [invoiceId])
+  splitDistributions    SplitDistribution[]
+
+  @@index([invoiceId, status])
+  @@index([gatewayTransactionId])
+  @@map("payment_attempts")
+}
+
+// ─── Split Rules ───────────────────────────────────────────────────────────
+
+model SplitRule {
+  splitRuleId       String   @id @default(uuid()) @map("split_rule_id")
+  tenantId          String   @map("tenant_id")
+  name              String
+  platformFeePct    Decimal  @map("platform_fee_pct") @db.Decimal(5, 2)    // e.g. 10.00
+  gatewayFeePct     Decimal  @map("gateway_fee_pct") @db.Decimal(5, 2)     // e.g. 2.50
+  taxProvisionPct   Decimal  @map("tax_provision_pct") @db.Decimal(5, 2)   // e.g. 1.00
+  referralFeePct    Decimal  @default(0) @map("referral_fee_pct") @db.Decimal(5, 2)
+  escrowHoldDays    Int      @default(3) @map("escrow_hold_days")           // Days before Escrow release
+  isDefault         Boolean  @default(false) @map("is_default")
+  isActive          Boolean  @default(true) @map("is_active")
+  createdAt         DateTime @default(now()) @map("created_at")
+
+  distributions     SplitDistribution[]
+
+  @@unique([tenantId, isDefault])
+  @@map("split_rules")
+}
+
+// ─── Split Distributions ───────────────────────────────────────────────────
+
+model SplitDistribution {
+  splitId               String    @id @default(uuid()) @map("split_id")
+  paymentAttemptId      String    @map("payment_attempt_id")
+  splitRuleId           String    @map("split_rule_id")
+  grossAmountBrl        Decimal   @map("gross_amount_brl") @db.Decimal(12, 2)
+  escrowReleaseTrigger  String    @map("escrow_release_trigger")               // CONSULTATION_COMPLETED | IMMEDIATE | SCHEDULED_DELAY
+  releasedAt            DateTime? @map("released_at")
+  calculatedAt          DateTime  @default(now()) @map("calculated_at")
+
+  paymentAttempt        PaymentAttempt    @relation(fields: [paymentAttemptId], references: [attemptId])
+  splitRule             SplitRule         @relation(fields: [splitRuleId], references: [splitRuleId])
+  participants          SplitParticipant[]
+
+  @@index([paymentAttemptId])
+  @@map("split_distributions")
+}
+
+// ─── Split Participants ─────────────────────────────────────────────────────
+
+model SplitParticipant {
+  participantId    String    @id @default(uuid()) @map("participant_id")
+  splitId          String    @map("split_id")
+  role             String                                                       // ATTORNEY | PLATFORM | TAX_PROVISION | REFERRAL_PARTNER
+  walletId         String?   @map("wallet_id")
+  amountBrl        Decimal   @map("amount_brl") @db.Decimal(12, 2)
+  percentagePct    Decimal   @map("percentage_pct") @db.Decimal(6, 4)
+  escrowHeld       Boolean   @default(false) @map("escrow_held")
+  settledAt        DateTime? @map("settled_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  split            SplitDistribution @relation(fields: [splitId], references: [splitId])
+
+  @@index([splitId, role])
+  @@index([walletId, escrowHeld])
+  @@map("split_participants")
+}
+
+// ─── Digital Wallets ───────────────────────────────────────────────────────
+
+model Wallet {
+  walletId              String   @id @default(uuid()) @map("wallet_id")
+  ownerUserId           String   @unique @map("owner_user_id")
+  ownerRole             String   @map("owner_role")                           // ATTORNEY | CLIENT | PLATFORM
+  tenantId              String   @map("tenant_id")
+  currency              String   @default("BRL")
+  availableBalanceBrl   Decimal  @default(0) @map("available_balance_brl") @db.Decimal(14, 2)
+  escrowBalanceBrl      Decimal  @default(0) @map("escrow_balance_brl") @db.Decimal(14, 2)
+  bankAccountVerified   Boolean  @default(false) @map("bank_account_verified")
+  pixKeyType            String?  @map("pix_key_type")                         // CPF | CNPJ | EMAIL | PHONE | EVP
+  pixKeyHash            String?  @map("pix_key_hash")                         // SHA-256 hashed Pix key (not stored in plain text)
+  kycStatus             String   @default("PENDING") @map("kyc_status")       // PENDING | APPROVED | REJECTED
+  dailyCashoutLimitBrl  Decimal  @default(100000) @map("daily_cashout_limit_brl") @db.Decimal(12, 2)
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  transactions          WalletTransaction[]
+  cashoutRequests       CashoutRequest[]
+
+  @@index([tenantId, ownerRole])
+  @@index([ownerUserId])
+  @@map("wallets")
+}
+
+// ─── Wallet Transactions (Double-Entry Ledger) ──────────────────────────────
+
+model WalletTransaction {
+  transactionId    String   @id @default(uuid()) @map("transaction_id")
+  walletId         String   @map("wallet_id")
+  type             String                                                       // CREDIT | DEBIT | ESCROW_HOLD | ESCROW_RELEASE | CASHOUT_PIX | REFUND_CREDIT | PLATFORM_FEE | TAX_PROVISION
+  amountBrl        Decimal  @map("amount_brl") @db.Decimal(12, 2)
+  balanceAfterBrl  Decimal  @map("balance_after_brl") @db.Decimal(14, 2)      // Running balance snapshot (double-entry)
+  referenceId      String?  @map("reference_id")                               // invoiceId | splitId | cashoutId
+  referenceType    String?  @map("reference_type")                             // Invoice | Split | Cashout
+  description      String
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  wallet           Wallet   @relation(fields: [walletId], references: [walletId])
+
+  @@index([walletId, createdAt])
+  @@index([referenceId])
+  @@map("wallet_transactions")
+}
+
+// ─── Cashout Requests (Pix Withdrawals) ────────────────────────────────────
+
+model CashoutRequest {
+  cashoutId            String    @id @default(uuid()) @map("cashout_id")
+  walletId             String    @map("wallet_id")
+  ownerUserId          String    @map("owner_user_id")
+  amountBrl            Decimal   @map("amount_brl") @db.Decimal(12, 2)
+  pixKeyType           String    @map("pix_key_type")
+  status               String    @default("PROCESSING")                        // PROCESSING | COMPLETED | FAILED | CANCELLED
+  gatewayRef           String?   @map("gateway_ref")                           // Celcoin / Stripe Payout ref
+  pixE2eId             String?   @map("pix_e2e_id")                            // BCB end-to-end ID
+  failureReason        String?   @map("failure_reason")
+  requestedAt          DateTime  @default(now()) @map("requested_at")
+  settledAt            DateTime? @map("settled_at")
+
+  wallet               Wallet    @relation(fields: [walletId], references: [walletId])
+
+  @@index([walletId, status])
+  @@index([requestedAt])
+  @@map("cashout_requests")
+}
+
+// ─── Reconciliation Records ─────────────────────────────────────────────────
+
+model ReconciliationRecord {
+  reconciliationId       String    @id @default(uuid()) @map("reconciliation_id")
+  date                   DateTime  @db.Date
+  gateway                String
+  expectedAmountBrl      Decimal   @map("expected_amount_brl") @db.Decimal(14, 2)
+  actualAmountBrl        Decimal   @map("actual_amount_brl") @db.Decimal(14, 2)
+  divergenceBrl          Decimal   @map("divergence_brl") @db.Decimal(14, 6)
+  divergenceAlertFired   Boolean   @default(false) @map("divergence_alert_fired")
+  status                 String    @default("PENDING_REVIEW")                  // MATCHED | DIVERGENCE_DETECTED | PENDING_REVIEW
+  paymentsChecked        Int       @default(0) @map("payments_checked")
+  closedAt               DateTime? @map("closed_at")
+  closedBy               String?   @map("closed_by")
+  createdAt              DateTime  @default(now()) @map("created_at")
+
+  @@unique([date, gateway])
+  @@index([status, date])
+  @@map("reconciliation_records")
+}
+
+// ─── Revenue KPI Summary (ClickHouse shadow for Postgres fallback) ──────────
+
+model RevenueKpiSnapshot {
+  snapshotId             String   @id @default(uuid()) @map("snapshot_id")
+  tenantId               String   @map("tenant_id")
+  snapshotDate           DateTime @db.Date @map("snapshot_date")
+  mrrBrl                 Decimal  @map("mrr_brl") @db.Decimal(14, 2)
+  arrBrl                 Decimal  @map("arr_brl") @db.Decimal(14, 2)
+  gmvBrl                 Decimal  @map("gmv_brl") @db.Decimal(14, 2)
+  takeRatePct            Decimal  @map("take_rate_pct") @db.Decimal(6, 4)
+  netRevenueBrl          Decimal  @map("net_revenue_brl") @db.Decimal(14, 2)
+  ltvBrl                 Decimal  @map("ltv_brl") @db.Decimal(12, 2)
+  cacBrl                 Decimal  @map("cac_brl") @db.Decimal(12, 2)
+  ltvCacRatio            Decimal  @map("ltv_cac_ratio") @db.Decimal(8, 4)
+  churnRatePct           Decimal  @map("churn_rate_pct") @db.Decimal(6, 4)
+  expansionMrrBrl        Decimal  @map("expansion_mrr_brl") @db.Decimal(12, 2)
+  contractionMrrBrl      Decimal  @map("contraction_mrr_brl") @db.Decimal(12, 2)
+  newMrrBrl              Decimal  @map("new_mrr_brl") @db.Decimal(12, 2)
+  reactivationMrrBrl     Decimal  @map("reactivation_mrr_brl") @db.Decimal(12, 2)
+  activeSubscriptions    Int      @map("active_subscriptions")
+  activeAttorneys        Int      @map("active_attorneys")
+  consultationsCompleted Int      @map("consultations_completed")
+  computedAt             DateTime @default(now()) @map("computed_at")
+
+  @@unique([tenantId, snapshotDate])
+  @@index([tenantId, snapshotDate])
+  @@map("revenue_kpi_snapshots")
+}
+
+// ─── Financial Audit Log (Append-Only, Immutable) ──────────────────────────
+
+model FinancialAuditLog {
+  auditId         String   @id @default(uuid()) @map("audit_id")
+  tenantId        String   @map("tenant_id")
+  eventType       String   @map("event_type")
+  actorId         String   @map("actor_id")
+  entityType      String   @map("entity_type")
+  entityId        String   @map("entity_id")
+  changesBefore   Json?    @map("changes_before")
+  changesAfter    Json?    @map("changes_after")
+  ipAddress       String?  @map("ip_address")
+  userAgent       String?  @map("user_agent") @db.VarChar(512)
+  sha256Hash      String   @map("sha256_hash") @db.Char(64)               // SHA-256 of audit record
+  besuTxHash      String?  @map("besu_tx_hash") @db.Char(66)             // Hyperledger Besu tx hash (optional)
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  // Append-only enforced via PostgreSQL RLS policy:
+  // REVOKE UPDATE, DELETE ON financial_audit_log FROM app_role;
+
+  @@index([tenantId, entityType, entityId])
+  @@index([tenantId, eventType])
+  @@index([createdAt])
+  @@map("financial_audit_log")
+}
