@@ -1,0 +1,74 @@
+// platform/marketplace/marketplace-schema.prisma
+// Prisma Database Schema — Marketplace Foundation (Prompt 249 - Etapa 9)
+// Governança: Enterprise Data Architect + Marketplace Architect
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model LawyerProfile {
+  id                String            @id @default(uuid())
+  tenantId          String
+  userId            String            @unique
+  oabNumber         String
+  oabState          String
+  biography         String?
+  hourlyRateBrl     Float             @default(0.0)
+  status            String            @default("PENDING_VERIFICATION")
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  specialties       LawyerSpecialty[]
+  reviews           Review[]
+
+  @@index([oabNumber, oabState])
+  @@map("lawyer_profiles")
+}
+
+model ClientProfile {
+  id                String   @id @default(uuid())
+  tenantId          String
+  userId            String   @unique
+  clientType        String   @default("INDIVIDUAL") // INDIVIDUAL | COMPANY
+  documentNumber    String   // CPF or CNPJ
+  companyName       String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("client_profiles")
+}
+
+model Specialty {
+  id                String            @id @default(uuid())
+  name              String            @unique // Ex: "Direito Tributário", "LGPD"
+  code              String            @unique
+  lawyers           LawyerSpecialty[]
+
+  @@map("specialties")
+}
+
+model LawyerSpecialty {
+  lawyerId          String
+  specialtyId       String
+  lawyer            LawyerProfile     @relation(fields: [lawyerId], references: [id], onDelete: Cascade)
+  specialty         Specialty         @relation(fields: [specialtyId], references: [id], onDelete: Cascade)
+
+  @@id([lawyerId, specialtyId])
+  @@map("lawyer_specialties")
+}
+
+model Review {
+  id                String        @id @default(uuid())
+  lawyerId          String
+  lawyer            LawyerProfile @relation(fields: [lawyerId], references: [id], onDelete: Cascade)
+  clientId          String
+  rating            Int           // 1 to 5
+  comment           String?
+  createdAt         DateTime      @default(now())
+
+  @@map("reviews")
+}
