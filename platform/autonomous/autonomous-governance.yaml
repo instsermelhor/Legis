@@ -1,0 +1,77 @@
+# platform/autonomous/autonomous-governance.yaml
+# Autonomous Governance Framework & Autonomy Levels — Legis Connect
+# Padrão: Autonomous AI Governance Model (Prompt 240 - Etapa 7)
+# Governança: Chief Autonomous Systems Officer + Chief AI Officer
+
+version: "1.0"
+effective_date: "2026-07-27"
+status: "APPROVED"
+
+autonomy_levels:
+  level_0:
+    name: "Level 0 — Manual (Human Only)"
+    description: "Decisões e ações executadas 100% por humanos. Nenhuma automação sem aprovação."
+    applied_domains:
+      - "Fusões, aquisições e joint ventures corporativas"
+      - "Petições e pareceres jurídicos de alto risco / tribunal superior"
+      - "Contratação, demissão e avaliação formal de pessoal"
+      - "Alterações na política de ética e governança de IA"
+    human_control: "Execução direta"
+    kill_switch_required: false
+
+  level_1:
+    name: "Level 1 — Observação (Read-Only AI)"
+    description: "IA monitora métricas, analisa telemetria e gera relatórios passivos."
+    applied_domains:
+      - "Monitoramento de métricas de infraestrutura (CPU, memória, tráfego)"
+      - "Leitura e correlação de logs de auditoria e segurança"
+      - "Cálculo de custos de nuvem e projeções financeiras"
+    human_control: "Leitura e decisão humana"
+    kill_switch_required: false
+
+  level_2:
+    name: "Level 2 — Recomendação (Human Approval)"
+    description: "IA sugere planos de ação, minutas ou otimizações. Humano deve aprovar para executar."
+    applied_domains:
+      - "Geração de minutas de peças processuais e contratos de rotina"
+      - "Pesquisas de jurisprudência e doutrina relevante"
+      - "Sugestão de reservas de instâncias AWS Savings Plans"
+      - "Recomendação de atualização de dependências (Renovate Bot PRs)"
+    human_control: "Aprovação prévia obrigatória"
+    kill_switch_required: true
+
+  level_3:
+    name: "Level 3 — Supervisionada (Async Human Override)"
+    description: "IA executa ações operacionais simples e notifica humanos com janela para veto (15 min)."
+    applied_domains:
+      - "Reabertura e triagem inicial de chamados de suporte CX"
+      - "Notificações automáticas de prazos processuais para advogados"
+      - "Troca de provedores secundários de LLM por aumento de latência"
+    human_control: "Veto assíncrono em até 15 minutos"
+    kill_switch_required: true
+
+  level_4:
+    name: "Level 4 — Automática (Self-Operating with Safety Net)"
+    description: "IA executa de forma 100% autônoma e gera relatórios diários de acompanhamento."
+    applied_domains:
+      - "Self-healing de contêineres K8s e auto-scaling (Karpenter)"
+      - "Bloqueio automatizado de endereços IP atacantes no WAF (Cloudflare/AWS)"
+      - "Ancoragem imutável de logs de auditoria na blockchain Hyperledger Besu"
+      - "Roteamento dinâmico de chamadas de LLM por custo e tempo de resposta"
+    human_control: "Relatório diário + Global Emergency Kill-Switch"
+    kill_switch_required: true
+
+safety_boundaries:
+  emergency_global_stop:
+    enabled: true
+    trigger_roles:
+      - "Chief Executive Architect"
+      - "Chief Information Security Officer"
+      - "Chief Autonomous Systems Officer"
+      - "SRE Director"
+    action: "Reverte imediatamente todas as automações para Nível 1 (Read-Only)"
+
+  auditability:
+    ledger_type: "Hyperledger Besu DLT (ADR-020)"
+    retention_period: "Indefinido (Imutável)"
+    xai_explanation_required: true
