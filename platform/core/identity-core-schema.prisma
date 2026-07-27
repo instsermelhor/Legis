@@ -1,0 +1,95 @@
+// platform/core/identity-core-schema.prisma
+// Prisma Database Schema — Identity & Multi-Tenant Core (Prompt 248 - Etapa 11)
+// Governança: Enterprise Data Architect + Identity Platform Architect
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Tenant {
+  id             String         @id @default(uuid())
+  name           String
+  domain         String         @unique
+  status         String         @default("ACTIVE")
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  users          User[]
+  organizations  Organization[]
+
+  @@map("tenants")
+}
+
+model Organization {
+  id             String         @id @default(uuid())
+  tenantId       String
+  tenant         Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name           String
+  code           String         @unique
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  branches       Branch[]
+
+  @@map("organizations")
+}
+
+model Branch {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  city           String
+  state          String
+  createdAt      DateTime     @default(now())
+
+  @@map("branches")
+}
+
+model User {
+  id             String        @id @default(uuid())
+  tenantId       String
+  tenant         Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  email          String        @unique
+  passwordHash   String
+  status         String        @default("PENDING_ACTIVATION")
+  mfaEnabled     Boolean       @default(false)
+  roles          String[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  sessions       UserSession[]
+  auditLogs      AuditLog[]
+
+  @@index([tenantId])
+  @@map("users")
+}
+
+model UserSession {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token        String   @unique
+  ipAddress    String
+  userAgent    String
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  @@map("user_sessions")
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  tenantId     String
+  action       String
+  resource     String
+  details      String
+  ipAddress    String
+  createdAt    DateTime @default(now())
+
+  @@map("audit_logs")
+}
