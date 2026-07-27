@@ -1,0 +1,128 @@
+# platform/quantum/technology-radar.yaml
+# Enterprise Technology Radar — Legis Connect
+# Padrao: Enterprise Technology Radar (Prompt 236 - Etapa 18)
+# Governanca: Tech Council revisa trimestralmente
+# Rings: ADOPT (producao hoje) | TRIAL (piloto) | ASSESS (monitorar) | HOLD (evitar)
+
+radar_version: "Q3-2026"
+radar_date: "2026-07-27"
+next_review: "2026-10-15"
+owner: "tech-council@legis.io"
+
+rings:
+  adopt:
+    description: "Tecnologias maduras e recomendadas para uso imediato em producao"
+    technologies:
+      - name: "CRYSTALS-Kyber 768 (FIPS 203)"
+        category: "Security / PQC"
+        rationale: "Padrao NIST 2024 para KEM pos-quantico. Adocao imediata em todos os novos sistemas."
+        since: "2026-07-27"
+
+      - name: "CRYSTALS-Dilithium 3 (FIPS 204)"
+        category: "Security / PQC"
+        rationale: "Padrao NIST 2024 para assinaturas digitais pos-quanticas."
+        since: "2026-07-27"
+
+      - name: "AWS Nitro Enclaves"
+        category: "Confidential Computing"
+        rationale: "TEE maduro, suportado comercialmente pela AWS, disponivel na region sa-east-1."
+        since: "2026-07-27"
+
+      - name: "Ray.io Distributed Training"
+        category: "AI Infrastructure / HPC"
+        rationale: "Framework padrao para treinamento distribuido de LLMs no cluster GPU."
+        since: "2026-05-01"
+
+      - name: "vLLM — High-Throughput LLM Inference"
+        category: "AI Infrastructure"
+        rationale: "PagedAttention KV-Cache reduz memoria GPU em 40%, aumenta throughput 3x."
+        since: "2026-06-01"
+
+      - name: "LangGraph Multi-Agent Orchestration"
+        category: "AI Agents"
+        rationale: "Framework consolidado para orquestracao de agentes de IA (Prompt 231)."
+        since: "2026-07-01"
+
+      - name: "Apache Kafka + Schema Registry"
+        category: "Event-Driven Architecture"
+        rationale: "Message bus maduro com garantias de entrega e schema evolution."
+        since: "2026-01-01"
+
+  trial:
+    description: "Tecnologias em piloto — experimentar em projetos controlados"
+    technologies:
+      - name: "Hybrid PQC TLS (X25519Kyber768)"
+        category: "Security / PQC"
+        rationale: "TLS hibrido para periodo de transicao — compativel com clientes classicos."
+        pilot_scope: "API Gateway interno e endpoints de autenticacao"
+
+      - name: "Federated Learning (Flower Framework)"
+        category: "AI / Privacy"
+        rationale: "Treinamento de modelos sem mover dados PII — critico para conformidade LGPD."
+        pilot_scope: "Modelo de classificacao de clausulas de risco"
+
+      - name: "Amazon Braket (Quantum Simulation)"
+        category: "Quantum Computing"
+        rationale: "Simulador classico de circuitos quanticos para desenvolvimento de algoritmos QML."
+        pilot_scope: "Innovation Lab — nenhum workload de producao"
+
+      - name: "NVIDIA Jetson Orin (Edge AI)"
+        category: "Edge Computing"
+        rationale: "Hardware maduro para inferencia de AI em dispositivos de campo."
+        pilot_scope: "2 escritorios parceiros para validacao de OCR offline"
+
+      - name: "Phi-3-mini (Small Language Model)"
+        category: "AI / Edge"
+        rationale: "SLM para inferencia on-device em mobile — sem envio de dados ao servidor."
+        pilot_scope: "App mobile — resumo de documentos offline"
+
+  assess:
+    description: "Tecnologias emergentes para monitoramento — sem investimento em producao"
+    technologies:
+      - name: "NISQ Quantum Hardware (IonQ / IBM Quantum)"
+        category: "Quantum Computing"
+        rationale: "Hardware quantico real para experimentos de QML. TRL 5/10 para enterprise."
+        expected_production_readiness: "2030-2032"
+
+      - name: "Quantum Machine Learning (Pennylane / Qiskit)"
+        category: "AI / Quantum"
+        rationale: "QML para otimizacao e classificacao juridica. Aguardar hardware maduro."
+        expected_production_readiness: "2028-2030"
+
+      - name: "Neuromorphic Computing (Intel Loihi 2)"
+        category: "Advanced Computing"
+        rationale: "Processamento ultra-eficiente de linguagem natural. TRL 4/10."
+        expected_production_readiness: "2032-2035"
+
+      - name: "WebGPU para AI Inference no Browser"
+        category: "Edge AI / Frontend"
+        rationale: "Inferencia de modelos diretamente no browser — sem servidor. Spec em finalizacao."
+        expected_production_readiness: "2027"
+
+      - name: "SPHINCS+ (FIPS 205) para assinaturas de longa duracao"
+        category: "Security / PQC"
+        rationale: "Hash-based signatures — mais conservador que Dilithium para dados de 30+ anos."
+        expected_production_readiness: "2027"
+
+  hold:
+    description: "Tecnologias a evitar em novos sistemas — listadas para clareza de governanca"
+    technologies:
+      - name: "RSA-2048 em novos sistemas"
+        category: "Security (Deprecated)"
+        reason: "Vulneravel a algoritmo de Shor em computadores quanticos. PROIBIDO em novos sistemas."
+
+      - name: "ECDSA P-256 em certificados de vida longa (> 5 anos)"
+        category: "Security (Deprecated)"
+        reason: "Vulneravel a Shor. Certificados de longa vida devem usar Dilithium-3."
+
+      - name: "SHA-1 em qualquer contexto"
+        category: "Security (Deprecated)"
+        reason: "Colisoes demonstradas. Completamente obsoleto."
+
+      - name: "Blockchain Proof-of-Work Publico"
+        category: "Blockchain"
+        reason: "Custo energetico insustentavel. Hyperledger Besu IBFT 2.0 e a alternativa correta."
+
+      - name: "Armazenamento de PII em Plaintext em banco de dados"
+        category: "Security (Baseline)"
+        reason: "Violacao de LGPD e politica de seguranca interna. Criptografia em repouso obrigatoria."
