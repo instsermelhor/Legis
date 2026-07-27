@@ -1,0 +1,75 @@
+# platform/cognitive/ai-board-config.yaml
+# Enterprise AI Executive Board Configuration — Legis Connect
+# Padrão: Executive AI Advisory Council (Prompt 242 - Etapa 6)
+# Governança: Chief Executive Advisor + Executive Governance Director
+
+version: "1.0"
+effective_date: "2026-07-27"
+status: "APPROVED"
+
+advisory_council_agents:
+  - id: "ADV-001"
+    name: "Chief Strategy Advisor"
+    domain: "Corporate Strategy & Expansion"
+    primary_data_source: "Digital Twin + Market Intelligence"
+    min_confidence_threshold_pct: 90.0
+
+  - id: "ADV-002"
+    name: "Technology & Architecture Advisor"
+    domain: "Stack Modernization & DevEx"
+    primary_data_source: "Technology Radar + SRE Metrics"
+    min_confidence_threshold_pct: 92.0
+
+  - id: "ADV-003"
+    name: "Cyber Security Advisor"
+    domain: "Zero Trust, SOC & PQC Threats"
+    primary_data_source: "Wazuh SIEM + Vault + Besu"
+    min_confidence_threshold_pct: 95.0
+
+  - id: "ADV-004"
+    name: "AI & Cognitive Operations Advisor"
+    domain: "Model Accuracy & Token Cost"
+    primary_data_source: "LiteLLM + MLflow + Eval Metrics"
+    min_confidence_threshold_pct: 90.0
+
+  - id: "ADV-005"
+    name: "Regulatory & Compliance Advisor"
+    domain: "LGPD, EU AI Act & OAB Rules"
+    primary_data_source: "GRC Platform + Besu Ledger"
+    min_confidence_threshold_pct: 95.0
+
+  - id: "ADV-006"
+    name: "Financial & FinOps Advisor"
+    domain: "ARR, NRR & Cloud Cost Optimization"
+    primary_data_source: "Billing API + OpenCost"
+    min_confidence_threshold_pct: 92.0
+
+  - id: "ADV-007"
+    name: "Marketplace & Ecosystem Advisor"
+    domain: "ISV Partners & Revenue Share"
+    primary_data_source: "API Gateway + Marketplace DB"
+    min_confidence_threshold_pct: 88.0
+
+  - id: "ADV-008"
+    name: "Autonomous Operations Advisor"
+    domain: "Self-Healing & SLO Metrics"
+    primary_data_source: "Prometheus + Karpenter Logs"
+    min_confidence_threshold_pct: 90.0
+
+  - id: "ADV-009"
+    name: "Corporate Legal Advisor"
+    domain: "Contract Risks & Escrow"
+    primary_data_source: "Legal Knowledge Graph + STJ DB"
+    min_confidence_threshold_pct: 92.0
+
+  - id: "ADV-010"
+    name: "Customer Experience Advisor"
+    domain: "NPS, Churn Risk & CSAT"
+    primary_data_source: "Customer 360 + CX Analytics"
+    min_confidence_threshold_pct: 88.0
+
+governance_rules:
+  human_approval_required: true
+  xai_explanation_mandatory: true
+  blockchain_audit_ledger: "Hyperledger Besu DLT (ADR-020)"
+  audit_retention: "Immutable (Forever)"
