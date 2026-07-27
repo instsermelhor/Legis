@@ -1,0 +1,552 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// governance-schema.prisma — Sprint 10 Enterprise GRC Platform
+// Legis Connect | Corporate Governance Master Blueprint
+// ISO 27001 · ISO 22301 · ISO 31000 · ISO 37301 · COBIT 2019 · COSO · NIST CSF 2.0 · LGPD
+// ═══════════════════════════════════════════════════════════════════════════
+// NOTE: Append these models to the root schema.prisma in production.
+//       They reference User and Tenant from Sprint 1.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── Risk Items (ISO 31000 Risk Register) ───────────────────────────────────
+
+model RiskItem {
+  riskId              String    @id @default(uuid()) @map("risk_id")
+  tenantId            String    @map("tenant_id")
+  title               String
+  description         String    @db.Text
+  category            String                                                   // STRATEGIC | OPERATIONAL | TECHNOLOGY | LEGAL | FINANCIAL | REPUTATIONAL | THIRD_PARTY
+  likelihood          Int                                                      // 1 (Remoto) → 5 (Certo)
+  impact              Int                                                      // 1 (Muito Baixo) → 5 (Muito Alto)
+  riskScore           Int       @map("risk_score")                             // likelihood × impact (max 25)
+  riskLevel           String    @map("risk_level")                             // LOW | MEDIUM | HIGH | CRITICAL
+  status              String    @default("IDENTIFIED")                         // IDENTIFIED | UNDER_ASSESSMENT | MITIGATED | ACCEPTED | TRANSFERRED | AVOIDED | CLOSED
+  ownerId             String    @map("owner_id")
+  mitigationPlan      String?   @map("mitigation_plan") @db.Text
+  residualLikelihood  Int?      @map("residual_likelihood")
+  residualImpact      Int?      @map("residual_impact")
+  residualScore       Int?      @map("residual_score")
+  escalatedAt         DateTime? @map("escalated_at")
+  escalatedTo         String?   @map("escalated_to")
+  reviewDueDate       DateTime  @map("review_due_date")
+  lastReviewedAt      DateTime? @map("last_reviewed_at")
+  lastReviewedBy      String?   @map("last_reviewed_by")
+  closedAt            DateTime? @map("closed_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  mitigationHistory   RiskMitigationLog[]
+
+  @@index([tenantId, riskLevel, status])
+  @@index([tenantId, category])
+  @@index([ownerId])
+  @@index([reviewDueDate])
+  @@map("risk_items")
+}
+
+// ─── Risk Mitigation Log ───────────────────────────────────────────────────
+
+model RiskMitigationLog {
+  logId               String   @id @default(uuid()) @map("log_id")
+  riskId              String   @map("risk_id")
+  action              String                                                   // MITIGATION_PLAN_ADDED | STATUS_CHANGED | REVIEW_COMPLETED | ESCALATED
+  description         String   @db.Text
+  performedByUserId   String   @map("performed_by_user_id")
+  previousStatus      String?  @map("previous_status")
+  newStatus           String?  @map("new_status")
+  performedAt         DateTime @default(now()) @map("performed_at")
+
+  risk                RiskItem @relation(fields: [riskId], references: [riskId])
+
+  @@index([riskId, performedAt])
+  @@map("risk_mitigation_logs")
+}
+
+// ─── Compliance Obligations ─────────────────────────────────────────────────
+
+model ComplianceObligation {
+  obligationId        String    @id @default(uuid()) @map("obligation_id")
+  tenantId            String    @map("tenant_id")
+  regulation          String                                                   // LGPD | ISO_27001 | PCI_DSS_4 | ISO_22301 | OAB | ISO_31000 | ISO_37301
+  requirementCode     String    @map("requirement_code")                       // e.g. "ISO27001-A.5.1" | "LGPD-Art.37"
+  requirementTitle    String    @map("requirement_title")
+  description         String    @db.Text
+  status              String    @default("UNDER_REVIEW")                       // COMPLIANT | PARTIALLY_COMPLIANT | NON_COMPLIANT | NOT_APPLICABLE | UNDER_REVIEW
+  ownerId             String    @map("owner_id")
+  evidenceIds         String[]  @map("evidence_ids")
+  lastAssessedAt      DateTime? @map("last_assessed_at")
+  lastAssessedBy      String?   @map("last_assessed_by")
+  nextAssessmentDue   DateTime  @map("next_assessment_due")
+  notes               String?   @db.Text
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  correctiveActions   CorrectiveAction[]
+
+  @@unique([tenantId, regulation, requirementCode])
+  @@index([tenantId, regulation, status])
+  @@index([nextAssessmentDue])
+  @@map("compliance_obligations")
+}
+
+// ─── Corrective Actions ─────────────────────────────────────────────────────
+
+model CorrectiveAction {
+  actionId            String    @id @default(uuid()) @map("action_id")
+  obligationId        String?   @map("obligation_id")
+  findingId           String?   @map("finding_id")
+  tenantId            String    @map("tenant_id")
+  description         String    @db.Text
+  ownerId             String    @map("owner_id")
+  dueDate             DateTime  @map("due_date")
+  completedAt         DateTime? @map("completed_at")
+  completionEvidence  String?   @map("completion_evidence") @db.Text
+  status              String    @default("OPEN")                               // OPEN | IN_PROGRESS | COMPLETED | OVERDUE
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  obligation          ComplianceObligation? @relation(fields: [obligationId], references: [obligationId])
+  finding             AuditFinding?         @relation(fields: [findingId], references: [findingId])
+
+  @@index([tenantId, status, dueDate])
+  @@index([ownerId, status])
+  @@map("corrective_actions")
+}
+
+// ─── LGPD Processing Activities (ROPA) ─────────────────────────────────────
+
+model ProcessingActivity {
+  activityId          String    @id @default(uuid()) @map("activity_id")
+  tenantId            String    @map("tenant_id")
+  name                String                                                   // e.g. "Gestão de Leads Jurídicos"
+  purpose             String    @db.Text
+  legalBasis          String    @map("legal_basis")                            // LGPD Art. 7 or 11 basis code
+  dataCategories      String[]  @map("data_categories")
+  dataSources         String[]  @map("data_sources")
+  dataRecipients      String[]  @map("data_recipients")
+  internationalTransfers Boolean @default(false) @map("international_transfers")
+  internationalCountries String[] @map("international_countries")
+  retentionPeriodDays Int       @map("retention_period_days")
+  securityMeasures    String[]  @map("security_measures")
+  dpiaRequired        Boolean   @default(false) @map("dpia_required")
+  dpiaCompletedAt     DateTime? @map("dpia_completed_at")
+  dpiaReference       String?   @map("dpia_reference")
+  domainService       String    @map("domain_service")                         // Which Sprint's microservice owns this activity
+  isActive            Boolean   @default(true) @map("is_active")
+  lastReviewedAt      DateTime? @map("last_reviewed_at")
+  nextReviewDue       DateTime? @map("next_review_due")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  @@index([tenantId, isActive])
+  @@index([tenantId, domainService])
+  @@map("processing_activities")
+}
+
+// ─── LGPD Data Subject Requests (DSAR) ─────────────────────────────────────
+
+model DsarRequest {
+  requestId           String    @id @default(uuid()) @map("request_id")
+  tenantId            String    @map("tenant_id")
+  dataSubjectId       String    @map("data_subject_id")
+  dataSubjectEmail    String    @map("data_subject_email")
+  requestType         String                                                   // ACCESS | RECTIFICATION | ERASURE | PORTABILITY | OBJECTION | RESTRICTION
+  status              String    @default("RECEIVED")                           // RECEIVED | IN_PROGRESS | COMPLETED | REJECTED
+  receivedAt          DateTime  @default(now()) @map("received_at")
+  slaDeadline         DateTime  @map("sla_deadline")                           // 15 business days — LGPD Art. 18
+  completedAt         DateTime? @map("completed_at")
+  rejectionReason     String?   @map("rejection_reason")
+  exportedDataUrl     String?   @map("exported_data_url")                      // Signed S3 URL (expires 24h)
+  handledByUserId     String?   @map("handled_by_user_id")
+  notes               String?   @db.Text
+  sha256Hash          String?   @map("sha256_hash") @db.Char(64)              // Hash of completed DSAR response
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  @@index([tenantId, status])
+  @@index([tenantId, dataSubjectId])
+  @@index([slaDeadline, status])
+  @@map("dsar_requests")
+}
+
+// ─── Internal Controls (COSO Framework) ────────────────────────────────────
+
+model InternalControl {
+  controlId           String    @id @default(uuid()) @map("control_id")
+  tenantId            String    @map("tenant_id")
+  title               String
+  description         String    @db.Text
+  type                String                                                   // PREVENTIVE | DETECTIVE | CORRECTIVE
+  frequency           String                                                   // CONTINUOUS | DAILY | WEEKLY | MONTHLY | QUARTERLY | ANNUAL
+  regulationRef       String    @map("regulation_ref")                         // e.g. "ISO27001-A.9.4.1" | "COSO-CC5.1" | "LGPD-Art.46"
+  category            String                                                   // ACCESS | DATA | FINANCIAL | OPERATIONAL | SECURITY | PRIVACY
+  ownerId             String    @map("owner_id")
+  automatedTestSpec   String?   @map("automated_test_spec") @db.Text          // Kafka event pattern or SQL query for CCM
+  lastTestResult      String?   @map("last_test_result")                       // PASS | FAIL | NOT_TESTED
+  lastTestedAt        DateTime? @map("last_tested_at")
+  lastTestedBy        String?   @map("last_tested_by")
+  failureCount        Int       @default(0) @map("failure_count")
+  requiresSoD         Boolean   @default(false) @map("requires_sod")          // Segregation of Duties required
+  approvalUserIds     String[]  @map("approval_user_ids")                     // 4-eyes approval list
+  isActive            Boolean   @default(true) @map("is_active")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  testResults         ControlTestResult[]
+
+  @@index([tenantId, type, isActive])
+  @@index([tenantId, regulationRef])
+  @@index([lastTestedAt])
+  @@map("internal_controls")
+}
+
+// ─── Control Test Results ───────────────────────────────────────────────────
+
+model ControlTestResult {
+  testId              String   @id @default(uuid()) @map("test_id")
+  controlId           String   @map("control_id")
+  tenantId            String   @map("tenant_id")
+  result              String                                                   // PASS | FAIL
+  testedByUserId      String   @map("tested_by_user_id")
+  testMethod          String   @map("test_method")                             // AUTOMATED | MANUAL | SAMPLING
+  evidenceRef         String?  @map("evidence_ref")
+  failureDetails      String?  @map("failure_details") @db.Text
+  testedAt            DateTime @default(now()) @map("tested_at")
+
+  control             InternalControl @relation(fields: [controlId], references: [controlId])
+
+  @@index([controlId, testedAt])
+  @@index([tenantId, result])
+  @@map("control_test_results")
+}
+
+// ─── Audit Engagements ──────────────────────────────────────────────────────
+
+model AuditEngagement {
+  auditId             String    @id @default(uuid()) @map("audit_id")
+  tenantId            String    @map("tenant_id")
+  title               String
+  type                String                                                   // INTERNAL | EXTERNAL | REGULATORY | SOC2 | ISO_CERTIFICATION
+  scope               String    @db.Text
+  phase               String    @default("PLANNING")                           // PLANNING | FIELDWORK | REPORTING | FOLLOW_UP | CLOSURE
+  leadAuditorId       String    @map("lead_auditor_id")
+  auditTeamIds        String[]  @map("audit_team_ids")
+  planningStartDate   DateTime  @map("planning_start_date")
+  fieldworkEndDate    DateTime? @map("fieldwork_end_date")
+  reportIssueDate     DateTime? @map("report_issue_date")
+  closureDate         DateTime? @map("closure_date")
+  executiveSummary    String?   @map("executive_summary") @db.Text
+  totalFindings       Int       @default(0) @map("total_findings")
+  criticalFindings    Int       @default(0) @map("critical_findings")
+  highFindings        Int       @default(0) @map("high_findings")
+  openActionPlans     Int       @default(0) @map("open_action_plans")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  findings            AuditFinding[]
+
+  @@index([tenantId, phase])
+  @@index([tenantId, type])
+  @@index([closureDate])
+  @@map("audit_engagements")
+}
+
+// ─── Audit Findings ─────────────────────────────────────────────────────────
+
+model AuditFinding {
+  findingId           String    @id @default(uuid()) @map("finding_id")
+  auditId             String    @map("audit_id")
+  tenantId            String    @map("tenant_id")
+  title               String
+  description         String    @db.Text
+  severity            String                                                   // CRITICAL | HIGH | MEDIUM | LOW | INFORMATIONAL
+  controlId           String?   @map("control_id")
+  recommendation      String    @db.Text
+  managementResponse  String?   @map("management_response") @db.Text
+  status              String    @default("OPEN")                               // OPEN | IN_PROGRESS | REMEDIATED | ACCEPTED_RISK | CLOSED
+  raisedAt            DateTime  @default(now()) @map("raised_at")
+  closedAt            DateTime? @map("closed_at")
+  sha256Hash          String?   @map("sha256_hash") @db.Char(64)             // Integrity hash of finding record
+
+  audit               AuditEngagement @relation(fields: [auditId], references: [auditId])
+  correctiveActions   CorrectiveAction[]
+
+  @@index([auditId, severity, status])
+  @@index([tenantId, severity, status])
+  @@map("audit_findings")
+}
+
+// ─── Audit Evidence ─────────────────────────────────────────────────────────
+
+model AuditEvidence {
+  evidenceId          String    @id @default(uuid()) @map("evidence_id")
+  auditId             String?   @map("audit_id")
+  obligationId        String?   @map("obligation_id")
+  tenantId            String    @map("tenant_id")
+  title               String
+  description         String?
+  type                String                                                   // DOCUMENT | SCREENSHOT | LOG | REPORT | INTERVIEW | OBSERVATION
+  fileKey             String?   @map("file_key")                              // S3 key (never stores content in DB)
+  fileHash            String?   @map("file_hash") @db.Char(64)               // SHA-256 of the file
+  fileHashAlgorithm   String    @default("SHA-256") @map("file_hash_algorithm")
+  pqcSignature        String?   @map("pqc_signature") @db.Text               // CRYSTALS-Dilithium-3 signature
+  besuTxHash          String?   @map("besu_tx_hash") @db.Char(66)           // Hyperledger Besu anchor
+  classification      String    @default("INTERNAL")                          // PUBLIC | INTERNAL | CONFIDENTIAL | STRICTLY_CONFIDENTIAL
+  retentionYears      Int       @default(5) @map("retention_years")
+  retainUntil         DateTime  @map("retain_until")
+  collectedByUserId   String    @map("collected_by_user_id")
+  collectedAt         DateTime  @default(now()) @map("collected_at")
+
+  custodyLog          EvidenceCustodyLog[]
+
+  @@index([tenantId, auditId])
+  @@index([tenantId, classification])
+  @@index([retainUntil])
+  @@map("audit_evidences")
+}
+
+// ─── Evidence Chain of Custody ──────────────────────────────────────────────
+
+model EvidenceCustodyLog {
+  custodyId           String   @id @default(uuid()) @map("custody_id")
+  evidenceId          String   @map("evidence_id")
+  action              String                                                   // COLLECTED | ACCESSED | COPIED | TRANSFERRED | DELETED_REQUEST
+  performedByUserId   String   @map("performed_by_user_id")
+  ipAddress           String?  @map("ip_address")
+  purpose             String?
+  performedAt         DateTime @default(now()) @map("performed_at")
+
+  evidence            AuditEvidence @relation(fields: [evidenceId], references: [evidenceId])
+
+  @@index([evidenceId, performedAt])
+  @@map("evidence_custody_log")
+}
+
+// ─── Business Impact Analysis (BIA) ─────────────────────────────────────────
+
+model BusinessImpactAnalysis {
+  biaId               String    @id @default(uuid()) @map("bia_id")
+  tenantId            String    @map("tenant_id")
+  processName         String    @map("process_name")
+  description         String    @db.Text
+  rtoHours            Int       @map("rto_hours")                             // Recovery Time Objective
+  rpoHours            Int       @map("rpo_hours")                             // Recovery Point Objective
+  mtoHours            Int       @map("mto_hours")                             // Maximum Tolerable Outage
+  criticality         String                                                   // CRITICAL | HIGH | MEDIUM | LOW
+  recoveryStrategy    String    @map("recovery_strategy") @db.Text
+  dependentSystems    String[]  @map("dependent_systems")
+  ownerId             String    @map("owner_id")
+  lastTestedAt        DateTime? @map("last_tested_at")
+  lastTestRtoActual   Int?      @map("last_test_rto_actual_hours")
+  lastTestResult      String?   @map("last_test_result")                       // PASS | FAIL
+  nextTestDue         DateTime  @map("next_test_due")
+  reviewedAt          DateTime? @map("reviewed_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  @@index([tenantId, criticality])
+  @@index([nextTestDue])
+  @@map("business_impact_analyses")
+}
+
+// ─── Security Incidents ─────────────────────────────────────────────────────
+
+model SecurityIncident {
+  incidentId                String    @id @default(uuid()) @map("incident_id")
+  tenantId                  String    @map("tenant_id")
+  title                     String
+  description               String    @db.Text
+  severity                  String                                             // P1_CRITICAL | P2_HIGH | P3_MEDIUM | P4_LOW
+  status                    String    @default("REPORTED")                     // REPORTED | TRIAGED | INVESTIGATING | CONTAINED | ERADICATED | RECOVERED | CLOSED
+  reportedByUserId          String    @map("reported_by_user_id")
+  assignedToUserId          String?   @map("assigned_to_user_id")
+  affectedSystems           String[]  @map("affected_systems")
+  personalDataInvolved      Boolean   @default(false) @map("personal_data_involved")
+  estimatedRecordsAffected  Int?      @map("estimated_records_affected")
+  anpdNotificationRequired  Boolean   @default(false) @map("anpd_notification_required")
+  anpdNotificationId        String?   @map("anpd_notification_id")
+  anpdNotifiedAt            DateTime? @map("anpd_notified_at")
+  containedAt               DateTime? @map("contained_at")
+  eradicatedAt              DateTime? @map("eradicated_at")
+  resolvedAt                DateTime? @map("resolved_at")
+  pirCompletedAt            DateTime? @map("pir_completed_at")                // Post-Incident Review
+  pirSummary                String?   @map("pir_summary") @db.Text
+  slaResponseTarget         DateTime  @map("sla_response_target")
+  lessonsLearned            String?   @map("lessons_learned") @db.Text
+  createdAt                 DateTime  @default(now()) @map("created_at")
+  updatedAt                 DateTime  @updatedAt @map("updated_at")
+
+  timeline                  IncidentTimelineEntry[]
+
+  @@index([tenantId, severity, status])
+  @@index([tenantId, personalDataInvolved])
+  @@index([slaResponseTarget])
+  @@map("security_incidents")
+}
+
+// ─── Incident Timeline Entries ──────────────────────────────────────────────
+
+model IncidentTimelineEntry {
+  entryId             String   @id @default(uuid()) @map("entry_id")
+  incidentId          String   @map("incident_id")
+  action              String   @db.Text
+  performedByUserId   String   @map("performed_by_user_id")
+  isAutomated         Boolean  @default(false) @map("is_automated")
+  timestamp           DateTime @default(now())
+
+  incident            SecurityIncident @relation(fields: [incidentId], references: [incidentId])
+
+  @@index([incidentId, timestamp])
+  @@map("incident_timeline_entries")
+}
+
+// ─── Policies ───────────────────────────────────────────────────────────────
+
+model Policy {
+  policyId            String    @id @default(uuid()) @map("policy_id")
+  tenantId            String    @map("tenant_id")
+  title               String
+  category            String                                                   // SECURITY | PRIVACY | CONDUCT | OPERATIONAL | FINANCIAL | LEGAL
+  status              String    @default("DRAFT")                              // DRAFT | REVIEW | APPROVAL | PUBLISHED | DISTRIBUTION | REVIEW_DUE | RETIRED
+  version             String    @default("1.0.0")                             // Semantic versioning
+  content             String    @db.Text                                      // Markdown content
+  ownerId             String    @map("owner_id")
+  approverIds         String[]  @map("approver_ids")
+  approvedByUserId    String?   @map("approved_by_user_id")
+  approvedAt          DateTime? @map("approved_at")
+  publishedAt         DateTime? @map("published_at")
+  retiredAt           DateTime? @map("retired_at")
+  reviewDueDate       DateTime  @map("review_due_date")
+  mandatoryAcceptance Boolean   @default(true) @map("mandatory_acceptance")
+  applicableRoles     String[]  @map("applicable_roles")                     // RBAC roles that must accept
+  tags                String[]
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  acceptances         PolicyAcceptance[]
+  previousVersionId   String?   @map("previous_version_id")                 // Link to prior version
+
+  @@index([tenantId, status])
+  @@index([tenantId, category])
+  @@index([reviewDueDate, status])
+  @@map("policies")
+}
+
+// ─── Policy Acceptances ─────────────────────────────────────────────────────
+
+model PolicyAcceptance {
+  acceptanceId        String   @id @default(uuid()) @map("acceptance_id")
+  policyId            String   @map("policy_id")
+  userId              String   @map("user_id")
+  tenantId            String   @map("tenant_id")
+  policyVersion       String   @map("policy_version")
+  acceptedAt          DateTime @default(now()) @map("accepted_at")
+  ipAddress           String   @map("ip_address")
+  userAgent           String   @map("user_agent") @db.VarChar(512)
+  sha256Hash          String   @map("sha256_hash") @db.Char(64)             // Integrity hash of acceptance record
+
+  // Append-only — REVOKE UPDATE, DELETE ON policy_acceptances FROM app_role
+  policy              Policy   @relation(fields: [policyId], references: [policyId])
+
+  @@unique([policyId, userId, policyVersion])
+  @@index([tenantId, userId])
+  @@index([policyId, acceptedAt])
+  @@map("policy_acceptances")
+}
+
+// ─── Third-Party Suppliers ──────────────────────────────────────────────────
+
+model ThirdPartySupplier {
+  supplierId              String    @id @default(uuid()) @map("supplier_id")
+  tenantId                String    @map("tenant_id")
+  name                    String
+  category                String                                               // CLOUD | PAYMENT | COMMUNICATION | LEGAL | HR | SECURITY | OTHER
+  tier                    Int                                                  // 1=CRITICAL, 2=HIGH, 3=MEDIUM/LOW
+  criticalityReason       String?   @map("criticality_reason")
+  accessesPersonalData    Boolean   @default(false) @map("accesses_personal_data")
+  accessesCriticalSystems Boolean   @default(false) @map("accesses_critical_systems")
+  contractExpiryDate      DateTime? @map("contract_expiry_date")
+  lastDueDiligenceAt      DateTime? @map("last_due_diligence_at")
+  nextDueDiligenceDate    DateTime  @map("next_due_diligence_date")
+  dueDiligenceStatus      String    @default("PENDING")                        // PENDING | IN_PROGRESS | APPROVED | FAILED | EXPIRED
+  bitSightScore           Int?      @map("bit_sight_score")                   // 0–900 security rating
+  iso27001Certified       Boolean   @default(false) @map("iso27001_certified")
+  soc2Type2Available      Boolean   @default(false) @map("soc2_type2_available")
+  questionnaireSent       Boolean   @default(false) @map("questionnaire_sent")
+  questionnaireCompletedAt DateTime? @map("questionnaire_completed_at")
+  contactEmail            String?   @map("contact_email")
+  contactName             String?   @map("contact_name")
+  notes                   String?   @db.Text
+  status                  String    @default("ACTIVE")                         // ACTIVE | SUSPENDED | TERMINATED
+  createdAt               DateTime  @default(now()) @map("created_at")
+  updatedAt               DateTime  @updatedAt @map("updated_at")
+
+  @@index([tenantId, tier, status])
+  @@index([tenantId, dueDiligenceStatus])
+  @@index([nextDueDiligenceDate])
+  @@map("third_party_suppliers")
+}
+
+// ─── Governance KPI Snapshots ────────────────────────────────────────────────
+
+model GovernanceKpiSnapshot {
+  snapshotId              String   @id @default(uuid()) @map("snapshot_id")
+  tenantId                String   @map("tenant_id")
+  snapshotDate            DateTime @db.Date @map("snapshot_date")
+  // Risk metrics
+  totalRisks              Int      @map("total_risks")
+  criticalRisks           Int      @map("critical_risks")
+  highRisks               Int      @map("high_risks")
+  avgRiskScore            Decimal  @map("avg_risk_score") @db.Decimal(5, 2)
+  criticalUnmitigated     Int      @map("critical_unmitigated")
+  // Compliance metrics
+  overallComplianceRatePct Decimal @map("overall_compliance_rate_pct") @db.Decimal(5, 2)
+  lgpdComplianceRatePct   Decimal  @map("lgpd_compliance_rate_pct") @db.Decimal(5, 2)
+  iso27001ComplianceRatePct Decimal @map("iso27001_compliance_rate_pct") @db.Decimal(5, 2)
+  openObligations         Int      @map("open_obligations")
+  // Audit metrics
+  activeAudits            Int      @map("active_audits")
+  openFindings            Int      @map("open_findings")
+  criticalOpenFindings    Int      @map("critical_open_findings")
+  overdueActions          Int      @map("overdue_actions")
+  // LGPD metrics
+  openDsarRequests        Int      @map("open_dsar_requests")
+  dsarSlaBreaches         Int      @map("dsar_sla_breaches")
+  // Incident metrics
+  openIncidents           Int      @map("open_incidents")
+  criticalIncidents       Int      @map("critical_incidents")
+  // Policy metrics
+  policiesAwaitingAcceptance Int   @map("policies_awaiting_acceptance")
+  overduePolicyReviews    Int      @map("overdue_policy_reviews")
+  computedAt              DateTime @default(now()) @map("computed_at")
+
+  @@unique([tenantId, snapshotDate])
+  @@index([tenantId, snapshotDate])
+  @@map("governance_kpi_snapshots")
+}
+
+// ─── Governance Audit Log (Append-Only, Immutable) ──────────────────────────
+
+model GovernanceAuditLog {
+  auditId             String   @id @default(uuid()) @map("audit_id")
+  tenantId            String   @map("tenant_id")
+  eventType           String   @map("event_type")
+  actorId             String   @map("actor_id")
+  entityType          String   @map("entity_type")
+  entityId            String   @map("entity_id")
+  changesBefore       Json?    @map("changes_before")
+  changesAfter        Json?    @map("changes_after")
+  ipAddress           String?  @map("ip_address")
+  userAgent           String?  @map("user_agent") @db.VarChar(512)
+  sha256Hash          String   @map("sha256_hash") @db.Char(64)             // SHA-256 of full audit record
+  pqcSignature        String?  @map("pqc_signature") @db.Text               // CRYSTALS-Dilithium-3 signature (HIGH/CRITICAL events)
+  besuTxHash          String?  @map("besu_tx_hash") @db.Char(66)           // Hyperledger Besu anchor (optional)
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  // PostgreSQL RLS append-only policy:
+  // REVOKE UPDATE, DELETE ON governance_audit_log FROM app_role;
+
+  @@index([tenantId, entityType, entityId])
+  @@index([tenantId, eventType])
+  @@index([createdAt])
+  @@map("governance_audit_log")
+}
