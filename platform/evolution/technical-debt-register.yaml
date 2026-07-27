@@ -1,0 +1,108 @@
+# platform/evolution/technical-debt-register.yaml
+# Technical Debt Register — Legis Connect
+# Padrao: Technical Debt Governance Framework (Prompt 239 - Etapa 6)
+# Governanca: Architecture Review Board (ARB) — Controle Mensal
+
+version: "1.0"
+last_updated: "2026-07-27"
+owner: "arb@legis.io"
+
+summary:
+  total_debt_items: 7
+  critical_items: 1
+  high_items: 2
+  medium_items: 3
+  low_items: 1
+  target_max_debt_ratio: 0.15 # Max 15% do backlog de engenharia
+
+debt_items:
+  - id: "TD-001"
+    category: "Security"
+    title: "Migracao PQC em Certificados de Longa Duração"
+    description: "Certificados de longa vida baseados em RSA/ECDSA vulneraveis a Shor no futuro."
+    impact: "CRITICO"
+    urgency: "MEDIA"
+    cost_to_fix: "ALTO"
+    priority_score: 9.0
+    status: "IN_PROGRESS"
+    owner: "ciso@legis.io"
+    target_resolution: "2027-Q1"
+    mitigation_plan: "Implementar PQC Hybrid TLS (X25519Kyber768) e migrar tokens para Dilithium-3 conforme ADR-022."
+
+  - id: "TD-002"
+    category: "Architecture"
+    title: "GAP-001: Integracao Meeting Intelligence → Blockchain Audit"
+    description: "Falta contrato de API formal para ancorar transcricoes de reunioes no Ledger Besu."
+    impact: "MEDIO"
+    urgency: "ALTA"
+    cost_to_fix: "BAIXO"
+    priority_score: 7.5
+    status: "SCHEDULED"
+    owner: "squad-platform@legis.io"
+    target_resolution: "2026-Q3"
+    mitigation_plan: "Implementar OpenAPI spec C1-API-001 e publicar no Gateway."
+
+  - id: "TD-003"
+    category: "Data"
+    title: "Data Mesh: AI Domain e Security Domain nao publicados"
+    description: "Dominios de IA e Seguranca ainda nao expoem Data Products formais no OpenMetadata."
+    impact: "MEDIO"
+    urgency: "ALTA"
+    cost_to_fix: "MEDIO"
+    priority_score: 6.8
+    status: "SCHEDULED"
+    owner: "squad-data@legis.io"
+    target_resolution: "2026-Q4"
+    mitigation_plan: "Criar schemas Iceberg e registrar Data Products ai-metrics-v1 e security-events-v1."
+
+  - id: "TD-004"
+    category: "Code Quality"
+    title: "Cobertura de Testes abaixo de 85% em 3 Microservicos"
+    description: "billing-service (78%), notifications-service (81%), marketplace-service (76%)."
+    impact: "MEDIO"
+    urgency: "MEDIA"
+    cost_to_fix: "BAIXO"
+    priority_score: 5.2
+    status: "OPEN"
+    owner: "squad-product@legis.io"
+    target_resolution: "2026-Q4"
+    mitigation_plan: "Adicionar testes unitarios e de integracao na cota dos 20% das sprints."
+
+  - id: "TD-005"
+    category: "Infrastructure"
+    title: "Imagens Docker Alpine 3.18 obsoletas"
+    description: "Atualizar base images para Alpine 3.20 para eliminar CVEs menores."
+    impact: "BAIXO"
+    urgency: "MEDIA"
+    cost_to_fix: "BAIXO"
+    priority_score: 4.0
+    status: "OPEN"
+    owner: "squad-platform@legis.io"
+    target_resolution: "2026-Q3"
+    mitigation_plan: "Renovate Bot PR automacao com validation em staging."
+
+  - id: "TD-006"
+    category: "Data"
+    title: "Data Lineage incompleto em 5 de 40 tabelas"
+    description: "Linha de rastreabilidade ausente em tabelas secundarias do banco de dados."
+    impact: "BAIXO"
+    urgency: "BAIXA"
+    cost_to_fix: "BAIXO"
+    priority_score: 3.1
+    status: "OPEN"
+    owner: "squad-data@legis.io"
+    target_resolution: "2026-Q4"
+    mitigation_plan: "Mapear linhagem via OpenMetadata collector."
+
+  - id: "TD-007"
+    category: "Governance"
+    title: "AI Governance Board sem formalizacao de EU AI Act Annex III"
+    description: "Falta documentacao de classificacao de alto risco para o modulo Legal Research Agent."
+    impact: "ALTO"
+    urgency: "MEDIA"
+    cost_to_fix: "MEDIO"
+    priority_score: 7.0
+    status: "SCHEDULED"
+    owner: "cdo@legis.io"
+    target_resolution: "2027-Q1"
+    mitigation_plan: "Elaborar politicas de conformidade EU AI Act com conselho juridico."

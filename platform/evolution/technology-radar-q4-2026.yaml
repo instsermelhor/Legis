@@ -1,0 +1,121 @@
+# platform/evolution/technology-radar-q4-2026.yaml
+# Enterprise Technology Radar — Legis Connect
+# Padrao: Enterprise Technology Radar (Prompt 239 - Etapa 4)
+# Governanca: Architecture Review Board (ARB) — Atualizacao Trimestral
+
+version: "2026.4"
+last_updated: "2026-07-27"
+owner: "arb@legis.io"
+
+rings:
+  adopt:
+    description: "Tecnologias maduras, validadas e recomendadas para producao em larga escala."
+    categories:
+      languages:
+        - name: "TypeScript 5.x"
+          domain: "Backend / Frontend"
+          notes: "Padrao absoluto para APIs NestJS e Next.js App Router"
+        - name: "Python 3.12"
+          domain: "AI / ML / Data"
+          notes: "Usado para agentes LangGraph, RAG e microservicos de IA"
+        - name: "Go 1.22"
+          domain: "SRE / Tooling / High Throughput"
+          notes: "Usado para proxies leves e microsservicos de alta concorrência"
+        - name: "Solidity 0.8.x"
+          domain: "Blockchain"
+          notes: "Smart contracts na Besu (OpenZeppelin base)"
+
+      frameworks:
+        - name: "NestJS 10"
+          domain: "Backend"
+          notes: "Framework modular para microservicos Node.js"
+        - name: "Next.js 14"
+          domain: "Frontend"
+          notes: "React Framework para Web App e PWA"
+        - name: "LangGraph 0.2"
+          domain: "AI Agents"
+          notes: "Orquestracao de agentes autonomos com estado"
+
+      databases:
+        - name: "Aurora PostgreSQL 16"
+          domain: "Relational DB"
+          notes: "Multi-Region Global Database"
+        - name: "Redis 7.2 Cluster"
+          domain: "Cache / Session"
+          notes: "High availability caching layer"
+        - name: "Elasticsearch 8.x"
+          domain: "Search / Vector DB"
+          notes: "RAG hybrid search (BM25 + pgvector)"
+
+      security:
+        - name: "CRYSTALS-Kyber-768"
+          domain: "PQC KEM"
+          notes: "FIPS 203 Post-Quantum Encryption"
+        - name: "CRYSTALS-Dilithium-3"
+          domain: "PQC Signature"
+          notes: "FIPS 204 Post-Quantum Signatures"
+
+      infrastructure:
+        - name: "AWS EKS 1.30"
+          domain: "Containers"
+          notes: "Kubernetes gerenciado na AWS"
+        - name: "ArgoCD 2.12"
+          domain: "GitOps"
+          notes: "Declarative continuous delivery"
+        - name: "Karpenter 0.37"
+          domain: "Autoscaling"
+          notes: "Just-in-time K8s node autoscaling"
+
+  trial:
+    description: "Tecnologias promissoras em teste de baixo risco ou projetos piloto."
+    categories:
+      ai:
+        - name: "Phi-3-mini (SLM)"
+          domain: "Edge AI"
+          notes: "Pequenos modelos para inferencia local em clientes"
+        - name: "Flower (Federated Learning)"
+          domain: "Privacy AI"
+          notes: "Treinamento distribuido preservando LGPD"
+      security:
+        - name: "Hybrid PQC TLS (X25519Kyber768)"
+          domain: "Network Security"
+          notes: "TLS 1.3 com troca de chaves hibrida"
+      infrastructure:
+        - name: "AWS Nitro Enclaves"
+          domain: "Confidential Computing"
+          notes: "Enclaves isolados para processamento de dados sigilosos"
+        - name: "Backstage IDP"
+          domain: "Developer Experience"
+          notes: "Portal interno do desenvolvedor"
+
+  assess:
+    description: "Tecnologias sob avaliacao para entender seu potencial valor."
+    categories:
+      ai:
+        - name: "Claude 4 / Gemini 2.0"
+          domain: "LLMs Next-Gen"
+          notes: "Monitorando para benchmarking automatizado"
+      quantum:
+        - name: "Amazon Braket NISQ"
+          domain: "Quantum Computing"
+          notes: "Algoritmos QAOA para otimizacao juridica"
+      data:
+        - name: "Apache Iceberg v3"
+          domain: "Data Lakehouse"
+          notes: "Novo table format para analytics"
+
+  hold:
+    description: "Tecnologias em descontinuacao ou que NAO devem ser adotadas em novos sistemas."
+    categories:
+      security:
+        - name: "RSA-2048 / ECDSA P-256"
+          domain: "Cryptography"
+          notes: "Migrando para PQC (ADR-022)"
+      runtimes:
+        - name: "Node.js 18 LTS"
+          domain: "Runtime"
+          notes: "Aproximando-se do EOL, atualizar para Node 20/22"
+      infrastructure:
+        - name: "Docker Compose em Prod"
+          domain: "Orchestration"
+          notes: "Usar EKS Kubernetes exclusivamente"
