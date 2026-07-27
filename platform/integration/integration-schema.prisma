@@ -1,0 +1,388 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// integration-schema.prisma — Sprint 11 Enterprise Integration Platform
+// Legis Connect | Enterprise Integration Master Blueprint
+// OAuth 2.1 · OpenAPI 3.1 · AsyncAPI 2.6 · mTLS · EIP · Circuit Breaker
+// ═══════════════════════════════════════════════════════════════════════════
+// NOTE: Append these models to the root schema.prisma in production.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── Registered Connectors ──────────────────────────────────────────────────
+
+model Connector {
+  connectorId          String    @id @default(uuid()) @map("connector_id")
+  tenantId             String    @map("tenant_id")
+  name                 String
+  type                 String                                                   // COURT | DIGITAL_SIGNATURE | FINANCIAL | COMMUNICATION | ERP | CRM | STORAGE | IDENTITY | AI_ML | CUSTOM
+  provider             String                                                   // e.g. "PJe_CNJ" | "ClickSign" | "SAP_S4HANA" | "DocuSign"
+  description          String?
+  status               String    @default("ACTIVE")                             // ACTIVE | DEGRADED | UNAVAILABLE | MAINTENANCE | DEPRECATED
+  circuitBreakerState  String    @default("CLOSED") @map("circuit_breaker_state") // CLOSED | HALF_OPEN | OPEN
+  circuitOpenedAt      DateTime? @map("circuit_opened_at")
+  circuitFailureCount  Int       @default(0) @map("circuit_failure_count")
+  baseUrl              String    @map("base_url")
+  authMethod           String    @map("auth_method")                            // API_KEY | OAUTH2_CLIENT_CREDENTIALS | MTLS | BASIC | NONE
+  rateLimitPerMin      Int?      @map("rate_limit_per_min")
+  cacheTtlSeconds      Int?      @map("cache_ttl_seconds")
+  timeoutMs            Int       @default(10000) @map("timeout_ms")
+  retryAttempts        Int       @default(3) @map("retry_attempts")
+  successCount         Int       @default(0) @map("success_count")
+  failureCount         Int       @default(0) @map("failure_count")
+  lastSuccessAt        DateTime? @map("last_success_at")
+  lastFailureAt        DateTime? @map("last_failure_at")
+  lastFailureReason    String?   @map("last_failure_reason")
+  configJson           Json?     @map("config_json")                            // Provider-specific config (no secrets)
+  tags                 String[]
+  isActive             Boolean   @default(true) @map("is_active")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  syncJobs             ConnectorSyncJob[]
+
+  @@index([tenantId, type, status])
+  @@index([tenantId, circuitBreakerState])
+  @@index([provider])
+  @@map("connectors")
+}
+
+// ─── Connector Sync Jobs ────────────────────────────────────────────────────
+
+model ConnectorSyncJob {
+  jobId               String    @id @default(uuid()) @map("job_id")
+  connectorId         String    @map("connector_id")
+  tenantId            String    @map("tenant_id")
+  status              String    @default("PENDING")                             // PENDING | RUNNING | COMPLETED | FAILED | RETRYING | DLQ
+  jobType             String    @map("job_type")                                // SYNC | FETCH | PUSH | TRANSFORM
+  inputPayload        Json?     @map("input_payload")
+  outputPayload       Json?     @map("output_payload")
+  errorMessage        String?   @map("error_message")
+  attempt             Int       @default(1)
+  nextRetryAt         DateTime? @map("next_retry_at")
+  startedAt           DateTime? @map("started_at")
+  completedAt         DateTime? @map("completed_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+
+  connector           Connector @relation(fields: [connectorId], references: [connectorId])
+
+  @@index([connectorId, status])
+  @@index([tenantId, status, createdAt])
+  @@map("connector_sync_jobs")
+}
+
+// ─── API Products ────────────────────────────────────────────────────────────
+
+model ApiProduct {
+  apiId               String    @id @default(uuid()) @map("api_id")
+  tenantId            String    @map("tenant_id")
+  name                String
+  description         String    @db.Text
+  version             String                                                    // Semantic: "1.0.0"
+  basePath            String    @map("base_path")                               // e.g. "/api/v1/marketplace"
+  visibility          String    @default("INTERNAL")                            // PUBLIC | PARTNER | INTERNAL
+  status              String    @default("DRAFT")                               // DRAFT | PUBLISHED | DEPRECATED | RETIRED
+  plans               String[]                                                  // FREE | STARTER | BUSINESS | ENTERPRISE
+  openApiSpecUrl      String?   @map("open_api_spec_url")
+  asyncApiSpecUrl     String?   @map("async_api_spec_url")
+  contactEmail        String    @map("contact_email")
+  ownerTeam           String?   @map("owner_team")
+  sunsetDate          DateTime? @map("sunset_date")                             // RFC 8594 sunset
+  publishedAt         DateTime? @map("published_at")
+  deprecatedAt        DateTime? @map("deprecated_at")
+  retiredAt           DateTime? @map("retired_at")
+  avgLatencyMs        Int       @default(0) @map("avg_latency_ms")
+  errorRatePct        Decimal   @default(0) @map("error_rate_pct") @db.Decimal(6, 4)
+  totalSubscriptions  Int       @default(0) @map("total_subscriptions")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  subscriptions       ApiSubscription[]
+  changelog           ApiChangelog[]
+
+  @@index([tenantId, status, visibility])
+  @@index([sunsetDate])
+  @@map("api_products")
+}
+
+// ─── API Subscriptions ──────────────────────────────────────────────────────
+
+model ApiSubscription {
+  subscriptionId      String    @id @default(uuid()) @map("subscription_id")
+  apiId               String    @map("api_id")
+  consumerId          String    @map("consumer_id")
+  consumerType        String    @map("consumer_type")                           // DEVELOPER | PARTNER | INTERNAL
+  plan                String                                                    // FREE | STARTER | BUSINESS | ENTERPRISE
+  status              String    @default("ACTIVE")                              // ACTIVE | SUSPENDED | CANCELLED
+  subscribedAt        DateTime  @default(now()) @map("subscribed_at")
+  cancelledAt         DateTime? @map("cancelled_at")
+
+  api                 ApiProduct @relation(fields: [apiId], references: [apiId])
+
+  @@index([apiId, status])
+  @@index([consumerId])
+  @@map("api_subscriptions")
+}
+
+// ─── API Changelog ──────────────────────────────────────────────────────────
+
+model ApiChangelog {
+  changelogId         String   @id @default(uuid()) @map("changelog_id")
+  apiId               String   @map("api_id")
+  version             String
+  changeType          String                                                    // MAJOR | MINOR | PATCH | DEPRECATION | SUNSET
+  description         String   @db.Text
+  breakingChange      Boolean  @default(false) @map("breaking_change")
+  publishedAt         DateTime @default(now()) @map("published_at")
+
+  api                 ApiProduct @relation(fields: [apiId], references: [apiId])
+
+  @@index([apiId, publishedAt])
+  @@map("api_changelogs")
+}
+
+// ─── API Keys ────────────────────────────────────────────────────────────────
+
+model ApiKey {
+  keyId               String    @id @default(uuid()) @map("key_id")
+  tenantId            String    @map("tenant_id")
+  consumerId          String    @map("consumer_id")
+  consumerType        String    @map("consumer_type")                           // DEVELOPER | PARTNER | INTERNAL
+  name                String
+  keyHash             String    @map("key_hash") @db.Char(64)                  // SHA-256 of the actual key — never stored plain
+  plan                String                                                    // FREE | STARTER | BUSINESS | ENTERPRISE
+  status              String    @default("ACTIVE")                              // ACTIVE | INACTIVE | ROTATED | REVOKED | EXPIRED
+  quotaDailyLimit     Int       @map("quota_daily_limit")
+  quotaMonthlyLimit   Int       @map("quota_monthly_limit")
+  currentDayReqs      Int       @default(0) @map("current_day_reqs")
+  currentMonthReqs    Int       @default(0) @map("current_month_reqs")
+  allowedIps          String[]  @map("allowed_ips")
+  lastUsedAt          DateTime? @map("last_used_at")
+  expiresAt           DateTime? @map("expires_at")
+  rotationDueDate     DateTime? @map("rotation_due_date")                      // 90-day rotation policy
+  rotatedFromKeyId    String?   @map("rotated_from_key_id")
+  revokedAt           DateTime? @map("revoked_at")
+  revocationReason    String?   @map("revocation_reason")
+  createdAt           DateTime  @default(now()) @map("created_at")
+
+  @@index([tenantId, consumerId, status])
+  @@index([rotationDueDate, status])
+  @@index([expiresAt, status])
+  @@map("api_keys")
+}
+
+// ─── Webhook Endpoints ──────────────────────────────────────────────────────
+
+model WebhookEndpoint {
+  webhookId           String    @id @default(uuid()) @map("webhook_id")
+  tenantId            String    @map("tenant_id")
+  consumerId          String    @map("consumer_id")
+  name                String
+  targetUrl           String    @map("target_url")
+  secretHash          String    @map("secret_hash") @db.Char(64)               // SHA-256 of HMAC signing secret
+  events              String[]                                                  // List of subscribed IntegrationEventTypes
+  status              String    @default("ACTIVE")                              // ACTIVE | PAUSED | FAILING | DISABLED
+  failureCount        Int       @default(0) @map("failure_count")
+  lastDeliveredAt     DateTime? @map("last_delivered_at")
+  lastFailedAt        DateTime? @map("last_failed_at")
+  disabledAt          DateTime? @map("disabled_at")
+  disableReason       String?   @map("disable_reason")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  deliveries          WebhookDelivery[]
+
+  @@index([tenantId, consumerId, status])
+  @@map("webhook_endpoints")
+}
+
+// ─── Webhook Deliveries ─────────────────────────────────────────────────────
+
+model WebhookDelivery {
+  deliveryId          String    @id @default(uuid()) @map("delivery_id")
+  webhookId           String    @map("webhook_id")
+  tenantId            String    @map("tenant_id")
+  eventType           String    @map("event_type")
+  payloadHash         String    @map("payload_hash") @db.Char(64)              // SHA-256 of payload (not stored full — privacy)
+  status              String    @default("PENDING")                             // PENDING | DELIVERED | FAILED | RETRYING | DLQ
+  httpStatus          Int?      @map("http_status")
+  attempt             Int       @default(1)
+  nextRetryAt         DateTime? @map("next_retry_at")
+  deliveredAt         DateTime? @map("delivered_at")
+  failedAt            DateTime? @map("failed_at")
+  dlqAt               DateTime? @map("dlq_at")
+  errorMessage        String?   @map("error_message")
+  createdAt           DateTime  @default(now()) @map("created_at")
+
+  webhook             WebhookEndpoint @relation(fields: [webhookId], references: [webhookId])
+
+  @@index([webhookId, status])
+  @@index([tenantId, eventType, status])
+  @@index([createdAt])
+  @@map("webhook_deliveries")
+}
+
+// ─── Court Process Cache ─────────────────────────────────────────────────────
+
+model CourtProcessCache {
+  cacheId             String    @id @default(uuid()) @map("cache_id")
+  tenantId            String    @map("tenant_id")
+  numeroProcesso      String    @map("numero_processo")                         // CNJ format
+  tribunal            String
+  courtSystem         String    @map("court_system")                            // PJE | ESAJ | PROJUDI | EPROC | SAJ5 | THEMIS | PROAD
+  processDataJson     Json      @map("process_data_json")                       // Canonical ProcessoJudicial schema
+  fetchedAt           DateTime  @map("fetched_at")
+  cachedUntil         DateTime  @map("cached_until")                            // TTL = 15 minutes from fetchedAt
+  hitCount            Int       @default(0) @map("hit_count")
+  requestedBy         String?   @map("requested_by")                            // userId or lawyerId that triggered the fetch
+
+  @@unique([tenantId, numeroProcesso])
+  @@index([tenantId, courtSystem])
+  @@index([cachedUntil])
+  @@map("court_process_cache")
+}
+
+// ─── Court Integration Requests ─────────────────────────────────────────────
+
+model CourtIntegrationRequest {
+  requestId           String    @id @default(uuid()) @map("request_id")
+  tenantId            String    @map("tenant_id")
+  requestedByUserId   String    @map("requested_by_user_id")
+  courtSystem         String    @map("court_system")
+  requestType         String    @map("request_type")                            // QUERY_PROCESS | QUERY_MOVEMENTS | QUERY_HEARINGS | DOWNLOAD_DOCUMENT
+  numeroProcesso      String?   @map("numero_processo")
+  status              String    @default("PENDING")                             // PENDING | SUCCESS | FAILED | CACHED
+  responseTimeMs      Int?      @map("response_time_ms")
+  httpStatus          Int?      @map("http_status")
+  errorMessage        String?   @map("error_message")
+  fromCache           Boolean   @default(false) @map("from_cache")
+  createdAt           DateTime  @default(now()) @map("created_at")
+
+  @@index([tenantId, courtSystem, status])
+  @@index([tenantId, requestedByUserId])
+  @@index([createdAt])
+  @@map("court_integration_requests")
+}
+
+// ─── Digital Signature Requests ─────────────────────────────────────────────
+
+model SignatureRequest {
+  requestId           String    @id @default(uuid()) @map("request_id")
+  tenantId            String    @map("tenant_id")
+  caseId              String?   @map("case_id")                                 // Sprint 5 reference
+  contractId          String?   @map("contract_id")                             // Sprint 3 reference
+  provider            String                                                    // DOCUSIGN | CLICKSIGN | D4SIGN | SOLUTI | SERPRO
+  level               String                                                    // SIMPLE | ADVANCED | QUALIFIED
+  status              String    @default("PENDING")                             // PENDING | PARTIALLY_SIGNED | COMPLETED | EXPIRED | CANCELLED
+  documentsJson       Json      @map("documents_json")                          // [{name, fileKey, sha256Hash}]
+  signersJson         Json      @map("signers_json")                            // [{name, email, role, signedAt?}]
+  providerRequestId   String?   @map("provider_request_id")                    // External reference in the signature provider
+  signedDocumentKey   String?   @map("signed_document_key")                    // S3 key of the signed PDF/A
+  evidenceVaultId     String?   @map("evidence_vault_id")                      // Sprint 4 Evidence Vault reference
+  expiresAt           DateTime  @map("expires_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  completedAt         DateTime? @map("completed_at")
+  cancelledAt         DateTime? @map("cancelled_at")
+  cancelReason        String?   @map("cancel_reason")
+
+  auditEvents         SignatureAuditEvent[]
+
+  @@index([tenantId, provider, status])
+  @@index([tenantId, caseId])
+  @@index([expiresAt, status])
+  @@map("signature_requests")
+}
+
+// ─── Signature Audit Events ─────────────────────────────────────────────────
+
+model SignatureAuditEvent {
+  eventId             String   @id @default(uuid()) @map("event_id")
+  requestId           String   @map("request_id")
+  eventType           String   @map("event_type")                               // CREATED | SIGNER_INVITED | SIGNED | DECLINED | EXPIRED | COMPLETED
+  signerEmail         String?  @map("signer_email")
+  signerIp            String?  @map("signer_ip")
+  geoLocation         String?  @map("geo_location")
+  deviceInfo          String?  @map("device_info")
+  timestamp           DateTime @default(now())
+
+  request             SignatureRequest @relation(fields: [requestId], references: [requestId])
+
+  @@index([requestId, timestamp])
+  @@map("signature_audit_events")
+}
+
+// ─── Partners ────────────────────────────────────────────────────────────────
+
+model Partner {
+  partnerId             String    @id @default(uuid()) @map("partner_id")
+  legalName             String    @map("legal_name")
+  cnpj                  String    @unique
+  tier                  String                                                  // BRONZE | SILVER | GOLD | PLATINUM
+  status                String    @default("APPLICATION")                       // APPLICATION | DUE_DILIGENCE | CERTIFICATION | ACTIVE | SUSPENDED | TERMINATED
+  contactEmail          String    @map("contact_email")
+  technicalContactEmail String    @map("technical_contact_email")
+  certificationLevel    String?   @map("certification_level")                   // BASIC | ADVANCED | ENTERPRISE
+  certifiedAt           DateTime? @map("certified_at")
+  contractExpiryDate    DateTime? @map("contract_expiry_date")
+  revenueSharePct       Int       @default(0) @map("revenue_share_pct")
+  monthlyReqLimit       Int       @map("monthly_req_limit")
+  currentMonthReqs      Int       @default(0) @map("current_month_reqs")
+  slaUptimePct          Decimal   @default(100) @map("sla_uptime_pct") @db.Decimal(6, 3)
+  bitSightScore         Int?      @map("bit_sight_score")
+  apiKeys               String[]  @map("api_keys")
+  webhookIds            String[]  @map("webhook_ids")
+  allowedIps            String[]  @map("allowed_ips")                          // IP allowlist for mTLS-exempt partners
+  notes                 String?   @db.Text
+  suspendedAt           DateTime? @map("suspended_at")
+  suspensionReason      String?   @map("suspension_reason")
+  terminatedAt          DateTime? @map("terminated_at")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  @@index([status, tier])
+  @@index([contractExpiryDate])
+  @@map("partners")
+}
+
+// ─── API Usage Metrics ──────────────────────────────────────────────────────
+
+model ApiUsageMetric {
+  metricId            String   @id @default(uuid()) @map("metric_id")
+  tenantId            String   @map("tenant_id")
+  apiId               String   @map("api_id")
+  consumerId          String   @map("consumer_id")
+  apiKeyId            String?  @map("api_key_id")
+  endpoint            String
+  method              String
+  statusCode          Int      @map("status_code")
+  latencyMs           Int      @map("latency_ms")
+  requestSizeBytes    Int?     @map("request_size_bytes")
+  responseSizeBytes   Int?     @map("response_size_bytes")
+  requestedAt         DateTime @map("requested_at")
+  date                DateTime @db.Date                                         // For daily aggregations
+
+  @@index([tenantId, apiId, date])
+  @@index([consumerId, date])
+  @@index([apiId, statusCode, date])
+  @@map("api_usage_metrics")
+}
+
+// ─── Integration Audit Log (Append-Only) ────────────────────────────────────
+
+model IntegrationAuditLog {
+  auditId             String   @id @default(uuid()) @map("audit_id")
+  tenantId            String   @map("tenant_id")
+  eventType           String   @map("event_type")
+  actorId             String   @map("actor_id")
+  entityType          String   @map("entity_type")
+  entityId            String   @map("entity_id")
+  changesBefore       Json?    @map("changes_before")
+  changesAfter        Json?    @map("changes_after")
+  ipAddress           String?  @map("ip_address")
+  sha256Hash          String   @map("sha256_hash") @db.Char(64)
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  // Append-only: REVOKE UPDATE, DELETE ON integration_audit_log FROM app_role;
+
+  @@index([tenantId, entityType, entityId])
+  @@index([tenantId, eventType])
+  @@index([createdAt])
+  @@map("integration_audit_log")
+}
