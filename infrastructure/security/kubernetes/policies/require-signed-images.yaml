@@ -1,0 +1,22 @@
+# Legis Connect — OPA Gatekeeper Constraint: Block Unsigned Container Images
+# Enforces Sigstore/Cosign image signature verification for all pod deployments
+# CIS Kubernetes Benchmark v1.9 Control 5.2 — Minimize the admission of containers
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequireSignedImages
+metadata:
+  name: legis-require-cosign-signed-images
+  labels:
+    legis.security/control: "KUBERNETES-IMAGE-SIGNING"
+    legis.security/framework: "CIS-K8S-5.2"
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - "legis-production"
+      - "legis-staging"
+  parameters:
+    trustedPublicKeys:
+      - "legis-cicd-cosign-pub-key-2026"

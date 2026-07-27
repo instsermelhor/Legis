@@ -1,0 +1,15 @@
+app:
+  title: Legis Connect Internal Developer Platform (IDP)
+  baseUrl: http://localhost:3000
+
+organization:
+  name: Legis Connect Platform Engineering
+
+backend:
+  baseUrl: http://localhost:7007
+  listen:
+    port: 7007
+
+catalog:
+  import:
+    entityFilename: catalog-info.yaml

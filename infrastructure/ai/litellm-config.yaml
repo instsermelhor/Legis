@@ -1,0 +1,19 @@
+model_list:
+  - model_name: legal-fast-model
+    litellm_params:
+      model: openrouter/anthropic/claude-3.5-haiku
+      api_key: os.environ/ANTHROPIC_API_KEY
+  - model_name: legal-complex-reasoning
+    litellm_params:
+      model: anthropic/claude-3-5-sonnet-20241022
+      api_key: os.environ/ANTHROPIC_API_KEY
+  - model_name: legal-fallback-model
+    litellm_params:
+      model: openai/gpt-4o
+      api_key: os.environ/OPENAI_API_KEY
+
+router_settings:
+  routing_strategy: latency-based-routing
+  redis_host: redis-cluster.legis-core.svc.cluster.local
+  enable_semantic_cache: true
+  num_retries: 3

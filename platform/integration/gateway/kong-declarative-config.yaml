@@ -1,0 +1,47 @@
+# platform/integration/gateway/kong-declarative-config.yaml
+# Configuração Declarativa do Kong Gateway para a Legis Connect
+
+_format_version: "3.0"
+_transform: true
+
+services:
+  - name: legal-case-service
+    url: http://legal-case-service.legis-production.svc.cluster.local:3000
+    routes:
+      - name: public-legal-cases-v1
+        paths:
+          - /api/v1/external/cases
+        strip_path: false
+        methods: [GET, POST]
+    plugins:
+      - name: key-auth
+        config:
+          key_in_header: true
+          header_name: X-Legis-API-Key
+      - name: rate-limiting
+        config:
+          minute: 100
+          hour: 2000
+          policy: redis
+          redis_host: redis-cluster.legis-production.svc.cluster.local
+      - name: cors
+        config:
+          origins: ["https://developer.legis-connect.com", "https://app.legis-connect.com"]
+          methods: [GET, POST, OPTIONS]
+          headers: [Authorization, Content-Type, X-Legis-API-Key]
+
+  - name: ai-copilot-service
+    url: http://ai-agent-service.legis-production.svc.cluster.local:3000
+    routes:
+      - name: external-ai-copilot-v1
+        paths:
+          - /api/v1/external/ai/analyze
+        strip_path: false
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify: [exp, nbf]
+      - name: rate-limiting
+        config:
+          minute: 20  # Rate limit mais restrito para uso de LLM por API externa
+          policy: redis

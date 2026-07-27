@@ -1,0 +1,62 @@
+# Legis Connect — Universal Deployment Template
+# Inclui: Resource Limits, Liveness/Readiness Probes, Security Context, Anti-Affinity
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "legis-microservice.fullname" . }}
+  namespace: {{ .Values.namespace | default "legis-production" }}
+  labels:
+    {{- include "legis-microservice.labels" . | nindent 4 }}
+    legis.security/data-classification: {{ .Values.dataClassification | default "INTERNAL" }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "legis-microservice.selectorLabels" . | nindent 6 }}
+  template:
+    spec:
+      # Security: Non-root, Read-only filesystem
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        fsGroup: 65534
+        seccompProfile:
+          type: RuntimeDefault
+      # Availability: Spread across AZs
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: DoNotSchedule
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+          # Vault Agent Injector will inject secrets as files
+          # Never use environment variables for secrets
+          resources:
+            requests:
+              cpu: {{ .Values.resources.requests.cpu | default "100m" }}
+              memory: {{ .Values.resources.requests.memory | default "256Mi" }}
+            limits:
+              cpu: {{ .Values.resources.limits.cpu | default "500m" }}
+              memory: {{ .Values.resources.limits.memory | default "512Mi" }}
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 3000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]

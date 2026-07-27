@@ -1,0 +1,65 @@
+{
+  "document": "Enterprise Internal Controls Matrix",
+  "version": "1.0",
+  "framework_alignment": ["COSO ERM", "ISO 27001:2022", "SOC 2 Type II", "LGPD"],
+  "last_updated": "2026-07-27",
+  "controls": [
+    {
+      "control_id": "CTRL-001",
+      "title": "MFA Obrigatório para Todos os Usuários",
+      "risk_mitigated": "Acesso não autorizado por roubo de credenciais",
+      "framework_ref": "ISO 27001 A.9.4.2, SOC 2 CC6.1",
+      "control_type": "PREVENTIVE",
+      "automation_level": "AUTOMATED",
+      "evidence_source": "Microsoft Sentinel Auth Logs",
+      "evidence_frequency": "CONTINUOUS",
+      "owner": "CISO",
+      "last_tested": "2026-07-01",
+      "test_result": "EFFECTIVE",
+      "status": "ACTIVE"
+    },
+    {
+      "control_id": "CTRL-002",
+      "title": "RBAC/ABAC Granular com Princípio do Menor Privilégio",
+      "risk_mitigated": "Escalada de privilégio, acesso indevido",
+      "framework_ref": "ISO 27001 A.9.2.3, SOC 2 CC6.3",
+      "control_type": "PREVENTIVE",
+      "automation_level": "AUTOMATED",
+      "evidence_source": "IAM Policy Audit Report (AWS IAM Access Analyzer)",
+      "evidence_frequency": "DAILY",
+      "owner": "IAM Engineer",
+      "last_tested": "2026-07-15",
+      "test_result": "EFFECTIVE",
+      "status": "ACTIVE"
+    },
+    {
+      "control_id": "CTRL-006",
+      "title": "Privacy Center — Atendimento de Direitos LGPD (Art. 18)",
+      "risk_mitigated": "Não-conformidade com LGPD, multa ANPD",
+      "framework_ref": "LGPD Art. 18, ISO 27701 7.3.6",
+      "control_type": "RESPONSIVE",
+      "automation_level": "SEMI_AUTOMATED",
+      "evidence_source": "Privacy Center Ticket System (SLA report)",
+      "evidence_frequency": "PER_REQUEST",
+      "sla": "72 horas para resposta ao titular",
+      "owner": "DPO",
+      "last_tested": "2026-07-01",
+      "test_result": "EFFECTIVE",
+      "status": "ACTIVE"
+    },
+    {
+      "control_id": "CTRL-007",
+      "title": "AI Disclaimer Obrigatório em Todas as Interfaces de IA",
+      "risk_mitigated": "Uso inadequado de IA por usuário, risco de responsabilidade legal",
+      "framework_ref": "LGPD Art. 20, EU AI Act Art. 13",
+      "control_type": "DETECTIVE",
+      "automation_level": "AUTOMATED",
+      "evidence_source": "UI Screenshot + Product Review Checklist",
+      "evidence_frequency": "PER_RELEASE",
+      "owner": "CPO",
+      "last_tested": "2026-07-10",
+      "test_result": "EFFECTIVE",
+      "status": "ACTIVE"
+    }
+  ]
+}

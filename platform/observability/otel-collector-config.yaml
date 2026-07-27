@@ -1,0 +1,59 @@
+# platform/observability/otel-collector-config.yaml
+# OpenTelemetry Collector Configuration — Legis Connect
+
+apiVersion: opentelemetry.io/v1alpha1
+kind: OpenTelemetryCollector
+metadata:
+  name: otel-collector
+  namespace: legis-observability
+spec:
+  config: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+      prometheus:
+        config:
+          scrape_configs:
+            - job_name: 'kubernetes-pods'
+              kubernetes_sd_configs:
+                - role: pod
+
+    processors:
+      memory_limiter:
+        check_interval: 1s
+        limit_percentage: 75
+        spike_limit_percentage: 15
+      batch:
+        send_batch_size: 8192
+        timeout: 1s
+      resourcedetection:
+        detectors: [env, gcp, ecs, ec2, k8snode]
+
+    exporters:
+      prometheusremotewrite:
+        endpoint: "http://mimir-gateway.legis-observability.svc:8080/api/v1/push"
+      loki:
+        endpoint: "http://loki-gateway.legis-observability.svc:3100/loki/api/v1/push"
+      otlp/tempo:
+        endpoint: "tempo-distributor.legis-observability.svc:4317"
+        tls:
+          insecure: true
+
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [otlp/tempo]
+        metrics:
+          receivers: [otlp, prometheus]
+          processors: [memory_limiter, batch]
+          exporters: [prometheusremotewrite]
+        logs:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [loki]

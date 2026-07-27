@@ -1,0 +1,24 @@
+# Legis Connect — Golden Path Dockerfile para Microserviços NestJS
+# Padrão: Multi-stage build, Non-root user, Distroless runtime (sem shell)
+# Conformidade: CIS Docker Benchmark v1.6 · SLSA Level 3
+
+# STAGE 1: Deps
+FROM node:20-alpine AS deps
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production && npm cache clean --force
+
+# STAGE 2: Build
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY . .
+RUN npm ci && npm run build
+
+# STAGE 3: Runtime Distroless (zero shell, zero package manager)
+FROM gcr.io/distroless/nodejs20-debian12 AS runtime
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+USER nonroot
+EXPOSE 3000
+CMD ["dist/main.js"]

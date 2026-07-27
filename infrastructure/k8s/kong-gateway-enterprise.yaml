@@ -1,0 +1,10 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: legis-rate-limiting
+  namespace: legis-core
+config:
+  minute: 1000
+  policy: redis
+  redis_host: redis-cluster.legis-core.svc.cluster.local
+plugin: rate-limiting

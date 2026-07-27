@@ -1,0 +1,13 @@
+apiVersion: v2
+name: legis-microservice
+description: "Legis Connect — Universal Helm Chart Template para Microserviços NestJS"
+type: application
+version: 1.0.0
+appVersion: "latest"
+keywords:
+  - legis
+  - nestjs
+  - microservice
+maintainers:
+  - name: "Platform Team"
+    email: "platform@legis-connect.com"

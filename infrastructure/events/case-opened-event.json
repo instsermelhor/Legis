@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CaseOpenedEvent",
+  "type": "object",
+  "properties": {
+    "eventId": { "type": "string", "format": "uuid" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "domain": { "type": "string", "enum": ["case-management"] },
+    "payload": {
+      "type": "object",
+      "properties": {
+        "caseId": { "type": "string" },
+        "cnjNumber": { "type": "string" },
+        "clientUcid": { "type": "string" },
+        "lawyerUcid": { "type": "string" },
+        "tenantId": { "type": "string" },
+        "courtJurisdiction": { "type": "string" }
+      },
+      "required": ["caseId", "cnjNumber", "clientUcid", "tenantId"]
+    }
+  },
+  "required": ["eventId", "timestamp", "domain", "payload"]
+}

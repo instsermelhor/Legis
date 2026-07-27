@@ -1,0 +1,70 @@
+# Legis Connect — LitmusChaos Experiment: Aurora PostgreSQL Failover
+# Valida que o sistema sobrevive ao failover de DB sem perda de dados
+# Agendamento: Última quinta-feira do mês, 23h (janela de manutenção)
+# Standards: Netflix Chaos Engineering Principles
+
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: legis-db-failover-monthly
+  namespace: legis-production
+  labels:
+    legis.quality/experiment-type: "chaos"
+    legis.quality/frequency: "monthly"
+    legis.quality/responsible: "sre-team"
+spec:
+  engineState: active
+  annotationCheck: "true"
+  appinfo:
+    appns: legis-production
+    applabel: "app=case-service"
+    appkind: deployment
+  chaosServiceAccount: litmus-admin
+  experiments:
+    - name: aws-rds-instance-reboot
+      spec:
+        components:
+          env:
+            - name: RDS_INSTANCE_IDENTIFIER
+              value: "legis-aurora-cluster-primary"
+            - name: REGION
+              value: "sa-east-1"
+            - name: TOTAL_CHAOS_DURATION
+              value: "60"
+            - name: RAMP_TIME
+              value: "10"
+        probe:
+          # Hipótese: API deve responder em < 30 segundos após failover
+          - name: "api-health-during-failover"
+            type: httpProbe
+            mode: Continuous
+            httpProbe/inputs:
+              url: "https://api.legis-connect.com/health/ready"
+              insecureSkipVerify: false
+              responseTimeout: 10000
+              method:
+                get:
+                  criteria: "=="
+                  responseCode: "200"
+            runProperties:
+              probeTimeout: 15
+              interval: 5
+              attempt: 20
+              initialDelay: 5
+          # Hipótese: Zero transações financeiras perdidas durante failover
+          - name: "financial-transactions-integrity"
+            type: cmdProbe
+            mode: EOT  # Roda após o experimento
+            cmdProbe/inputs:
+              command: |
+                python3 /opt/chaos/verify-transaction-integrity.py \
+                  --start-time "{{ .ChaosStart }}" \
+                  --end-time "{{ .ChaosEnd }}"
+              source: "inline"
+              comparator:
+                type: "string"
+                criteria: "contains"
+                value: "INTEGRITY_OK"
+            runProperties:
+              probeTimeout: 60
+              attempt: 1

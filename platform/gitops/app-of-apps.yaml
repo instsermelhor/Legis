@@ -1,0 +1,27 @@
+# Legis Connect — ArgoCD App of Apps (Root Application)
+# Este recurso é o ponto de entrada de todos os deployments GitOps da Legis Connect.
+# Qualquer novo serviço é adicionado aqui e automaticamente sincronizado ao cluster.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: legis-connect-app-of-apps
+  namespace: argocd
+  labels:
+    legis.platform/managed-by: "gitops"
+    legis.platform/tier: "production"
+spec:
+  project: legis-connect
+  source:
+    repoURL: "https://github.com/legis-connect/platform-gitops"
+    targetRevision: main
+    path: apps/production
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true      # Remove recursos não mais presentes no Git
+      selfHeal: true   # Restaura qualquer alteração manual (enforce GitOps)
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true

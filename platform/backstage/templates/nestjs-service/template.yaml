@@ -1,0 +1,15 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: nestjs-hexagonal-service
+  title: NestJS Hexagonal Microservice Template
+  description: Cria um novo microsserviço NestJS alinhado ao padrão DDD e Hexagonal da Legis Connect.
+spec:
+  owner: platform-engineering
+  type: service
+  steps:
+    - id: fetch-base
+      name: Fetching NestJS Base Architecture
+      action: fetch:template
+      input:
+        url: ./skeleton

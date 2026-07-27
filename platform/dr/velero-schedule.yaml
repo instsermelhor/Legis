@@ -1,0 +1,22 @@
+# platform/dr/velero-schedule.yaml
+# Velero Scheduled Backup para o Cluster EKS da Legis Connect
+
+apiVersion: velero.io/v1
+kind: Schedule
+metadata:
+  name: legis-k8s-daily-backup
+  namespace: velero
+spec:
+  schedule: "0 2 * * *"  # Todos os dias às 02:00 AM UTC
+  template:
+    includedNamespaces:
+      - legis-production
+      - legis-security
+      - legis-observability
+    excludedResources:
+      - events
+      - events.k8s.io
+    storageLocation: s3-backups-dr-useast1  # Grava diretamente no bucket secundário us-east-1
+    volumeSnapshotLocations:
+      - ebs-snapshot-location
+    ttl: 720h0m0s  # Retenção de 30 dias

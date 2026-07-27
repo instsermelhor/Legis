@@ -1,0 +1,49 @@
+# Legis Connect — AWS WAF v2 Rule Group
+# Protects: Kong API Gateway, CloudFront CDN, ALB
+# Standards: OWASP Top 10 2021 · PCI DSS 4.0 Req 6.4
+
+Resources:
+  LegisWAFWebACL:
+    Type: AWS::WAFv2::WebACL
+    Properties:
+      Name: legis-connect-enterprise-waf
+      Scope: REGIONAL
+      DefaultAction:
+        Allow: {}
+      Rules:
+        - Name: AWSManagedRulesCommonRuleSet
+          Priority: 10
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesCommonRuleSet
+          OverrideAction:
+            None: {}
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName: legis-common-rules
+            SampledRequestsEnabled: true
+        - Name: AWSManagedRulesKnownBadInputsRuleSet
+          Priority: 20
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesKnownBadInputsRuleSet
+          OverrideAction:
+            None: {}
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName: legis-bad-inputs
+            SampledRequestsEnabled: true
+        - Name: LegisRateLimit
+          Priority: 1
+          Statement:
+            RateBasedStatement:
+              Limit: 2000
+              AggregateKeyType: IP
+          Action:
+            Block: {}
+          VisibilityConfig:
+            CloudWatchMetricsEnabled: true
+            MetricName: legis-rate-limit-blocks
+            SampledRequestsEnabled: true

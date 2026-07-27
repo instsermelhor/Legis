@@ -1,0 +1,72 @@
+{
+  "document": "Enterprise Risk Register",
+  "version": "1.0",
+  "methodology": "FAIR (Factor Analysis of Information Risk)",
+  "last_review": "2026-07-27",
+  "next_review": "2026-10-27",
+  "review_cycle": "QUARTERLY",
+  "risks": [
+    {
+      "risk_id": "RISK-001",
+      "category": "JURIDICO",
+      "title": "Vazamento de Segredo Profissional Advocatício",
+      "description": "Acesso não autorizado a documentos de processos por IA, terceiros ou atacantes.",
+      "impact": "CATASTROPHIC",
+      "probability": "LOW",
+      "inherent_risk_score": 8.5,
+      "controls": [
+        "Criptografia AES-256 KMS at-rest e TLS 1.3 in-transit",
+        "RBAC + ABAC por tenant (zero cross-tenant access)",
+        "AI Output Filtering (Guardrails AI)",
+        "PII Scrubber antes de cada LLM call",
+        "Audit log imutável (S3 WORM)"
+      ],
+      "residual_risk_score": 2.8,
+      "risk_owner": "CISO",
+      "risk_acceptor": "CCO",
+      "mitigation_status": "IMPLEMENTED",
+      "review_frequency": "MONTHLY"
+    },
+    {
+      "risk_id": "RISK-002",
+      "category": "AI",
+      "title": "Erro de IA em Análise Jurídica com Impacto ao Usuário",
+      "description": "Agente de IA fornece análise incorreta que induz advogado a erro estratégico.",
+      "impact": "HIGH",
+      "probability": "MEDIUM",
+      "inherent_risk_score": 7.2,
+      "controls": [
+        "Disclaimer obrigatório em todas as saídas de IA",
+        "Citação de fonte obrigatória (lei ou acórdão)",
+        "Botão 'Revisar com Humano' disponível",
+        "Guardrails AI para detecção de alucinações",
+        "DPIA concluído e aprovado"
+      ],
+      "residual_risk_score": 2.5,
+      "risk_owner": "AI Governance Officer",
+      "risk_acceptor": "CEO",
+      "mitigation_status": "ACCEPTED_WITH_CONTROLS",
+      "review_frequency": "MONTHLY"
+    },
+    {
+      "risk_id": "RISK-003",
+      "category": "REGULATORIO",
+      "title": "Não-conformidade com LGPD — Notificação Tardia à ANPD",
+      "description": "Incidente de segurança com dados pessoais não notificado à ANPD dentro de 72 horas.",
+      "impact": "HIGH",
+      "probability": "LOW",
+      "inherent_risk_score": 6.0,
+      "controls": [
+        "SOAR Playbook PB-000: notifica DPO automaticamente em incidentes P0/P1",
+        "Procedimento de notificação ANPD documentado (PROC-005)",
+        "Treinamento DPO e CCO semi-anual",
+        "Template de notificação pré-aprovado pelo jurídico"
+      ],
+      "residual_risk_score": 1.8,
+      "risk_owner": "DPO",
+      "risk_acceptor": "CCO",
+      "mitigation_status": "IMPLEMENTED",
+      "review_frequency": "QUARTERLY"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "UserRegisteredEvent",
+  "type": "object",
+  "properties": {
+    "eventId": { "type": "string", "format": "uuid" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "ucid": { "type": "string" },
+    "email": { "type": "string", "format": "email" },
+    "userType": { "type": "string", "enum": ["CLIENT", "LAWYER", "ENTERPRISE_ADMIN"] },
+    "tenantId": { "type": "string", "format": "uuid" }
+  },
+  "required": ["eventId", "timestamp", "ucid", "email", "userType", "tenantId"]
+}

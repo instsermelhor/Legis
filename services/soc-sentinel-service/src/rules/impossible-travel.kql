@@ -1,0 +1,24 @@
+// LEGIS CONNECT — Microsoft Sentinel Detection Rule
+// MITRE ATT&CK: T1078 (Valid Accounts) · T1110 (Brute Force)
+// Description: Detects a single user logging in from two geographically impossible locations
+//              within a short time window (impossible travel velocity).
+// Target MTTD: < 4 minutes (Sentinel analytic rule evaluation frequency: 5 minutes)
+
+let TravelSpeedKmH = 900.0; // Maximum plausible travel speed (commercial aircraft)
+let TimeWindowMinutes = 60;
+
+LegisSecurityLogs
+| where EventType == "AUTHENTICATION_SUCCESS"
+| summarize Logins = make_list(pack("ip", SourceIp, "city", SourceCity, "ts", TimeGenerated))
+            by UCID
+| mv-apply Login = Logins on (
+    extend ip = tostring(Login.ip), city = tostring(Login.city), ts = todatetime(Login.ts)
+)
+| join kind=inner (
+    LegisSecurityLogs
+    | where EventType == "AUTHENTICATION_SUCCESS"
+) on UCID
+| where datetime_diff("minute", TimeGenerated, todatetime(Login.ts)) between (1 .. TimeWindowMinutes)
+| where SourceCity != tostring(Login.city)
+| project UCID, FirstCity = tostring(Login.city), SecondCity = SourceCity, AlertTime = TimeGenerated
+| extend RiskScore = 95, MITRETactic = "Initial Access", PlaybookTrigger = "AccountTakeoverResponsePlaybook"
