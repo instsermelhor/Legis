@@ -1,0 +1,407 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// crm-schema.prisma — Sprint 9 Enterprise CRM Platform
+// Legis Connect | Customer Experience Master Blueprint
+// LGPD · ISO 27001 · CDP · Omnichannel · Marketing Automation
+// ═══════════════════════════════════════════════════════════════════════════
+// NOTE: Append these models to the root schema.prisma in production.
+//       They reference User and Tenant from Sprint 1.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ─── Leads ─────────────────────────────────────────────────────────────────
+
+model Lead {
+  leadId              String    @id @default(uuid()) @map("lead_id")
+  tenantId            String    @map("tenant_id")
+  source              String                                                    // ORGANIC_SEARCH | PAID_ADS | REFERRAL | WHATSAPP | MARKETPLACE | WEBINAR | PARTNER | DIRECT
+  status              String    @default("NEW")                                 // NEW | CONTACTED | QUALIFIED | PROPOSAL | NEGOTIATING | WON | LOST | DISQUALIFIED | REACTIVATED
+  // Scoring
+  totalScore          Int       @default(0) @map("total_score")
+  behavioralScore     Int       @default(0) @map("behavioral_score")
+  firmographicScore   Int       @default(0) @map("firmographic_score")
+  engagementScore     Int       @default(0) @map("engagement_score")
+  classification      String    @default("COLD")                               // COLD | WARM | HOT | VERY_HOT
+  scoreCalculatedAt   DateTime? @map("score_calculated_at")
+  // Contact
+  firstName           String    @map("first_name")
+  lastName            String    @map("last_name")
+  email               String
+  phone               String?
+  cpfHash             String?   @map("cpf_hash") @db.Char(64)                 // SHA-256 hashed — LGPD compliant
+  cnpj                String?
+  companyName         String?   @map("company_name")
+  legalSpecialty      String?   @map("legal_specialty")                        // e.g. "Direito Trabalhista"
+  oabNumber           String?   @map("oab_number")
+  oabStatus           String?   @map("oab_status")                             // ACTIVE | SUSPENDED | CANCELLED
+  oabSection          String?   @map("oab_section")                            // State section (SP, RJ, etc.)
+  companySize         String?   @map("company_size")                           // SOLO | MICRO | SMALL | MEDIUM | LARGE
+  uf                  String?
+  // Assignment
+  assignedUserId      String?   @map("assigned_user_id")
+  assignedAt          DateTime? @map("assigned_at")
+  // Conversion
+  convertedCustomerId String?   @map("converted_customer_id")
+  convertedAt         DateTime? @map("converted_at")
+  // Disqualification
+  disqualifiedReason  String?   @map("disqualified_reason")
+  // UTM Attribution
+  utmSource           String?   @map("utm_source")
+  utmMedium           String?   @map("utm_medium")
+  utmCampaign         String?   @map("utm_campaign")
+  utmContent          String?   @map("utm_content")
+  utmTerm             String?   @map("utm_term")
+  // Enrichment
+  enrichmentData      Json?     @map("enrichment_data")                        // Raw Receita Federal / OAB data
+  enrichedAt          DateTime? @map("enriched_at")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  opportunities       Opportunity[]
+  activities          LeadActivity[]
+
+  @@index([tenantId, status, classification])
+  @@index([tenantId, assignedUserId])
+  @@index([email, tenantId])
+  @@index([totalScore])
+  @@map("leads")
+}
+
+// ─── Lead Activities ────────────────────────────────────────────────────────
+
+model LeadActivity {
+  activityId         String   @id @default(uuid()) @map("activity_id")
+  leadId             String   @map("lead_id")
+  tenantId           String   @map("tenant_id")
+  type               String                                                     // PAGE_VIEW | EMAIL_OPEN | EMAIL_CLICK | FORM_SUBMIT | CALL | MEETING | DOWNLOAD
+  description        String
+  metadata           Json?
+  performedByUserId  String?  @map("performed_by_user_id")
+  scoreDelta         Int      @default(0) @map("score_delta")                  // Score points added by this activity
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  lead               Lead     @relation(fields: [leadId], references: [leadId])
+
+  @@index([leadId, createdAt])
+  @@map("lead_activities")
+}
+
+// ─── Opportunities ──────────────────────────────────────────────────────────
+
+model Opportunity {
+  opportunityId        String    @id @default(uuid()) @map("opportunity_id")
+  leadId               String    @map("lead_id")
+  tenantId             String    @map("tenant_id")
+  title                String
+  stage                String    @default("PROSPECTING")                        // PROSPECTING | FIRST_CONTACT | PROPOSAL | NEGOTIATION | CONTRACT | WON | LOST
+  winProbabilityPct    Int       @default(10) @map("win_probability_pct")
+  estimatedRevenueBrl  Decimal   @map("estimated_revenue_brl") @db.Decimal(12, 2)
+  expectedClosingDate  DateTime  @map("expected_closing_date")
+  assignedUserId       String    @map("assigned_user_id")
+  lostReason           String?   @map("lost_reason")
+  wonAt                DateTime? @map("won_at")
+  lostAt               DateTime? @map("lost_at")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  lead                 Lead          @relation(fields: [leadId], references: [leadId])
+  dealActivities       DealActivity[]
+
+  @@index([tenantId, stage, assignedUserId])
+  @@index([expectedClosingDate])
+  @@index([leadId])
+  @@map("opportunities")
+}
+
+// ─── Deal Activities ────────────────────────────────────────────────────────
+
+model DealActivity {
+  activityId         String   @id @default(uuid()) @map("activity_id")
+  opportunityId      String   @map("opportunity_id")
+  type               String                                                     // CALL | EMAIL | MEETING | PROPOSAL_SENT | CONTRACT_SENT | NOTE
+  description        String
+  performedByUserId  String   @map("performed_by_user_id")
+  scheduledAt        DateTime? @map("scheduled_at")
+  performedAt        DateTime @default(now()) @map("performed_at")
+
+  opportunity        Opportunity @relation(fields: [opportunityId], references: [opportunityId])
+
+  @@index([opportunityId, performedAt])
+  @@map("deal_activities")
+}
+
+// ─── Customer Health Scores ─────────────────────────────────────────────────
+
+model CustomerHealthScore {
+  healthScoreId       String   @id @default(uuid()) @map("health_score_id")
+  customerId          String   @map("customer_id")
+  tenantId            String   @map("tenant_id")
+  totalScore          Int      @map("total_score")
+  adoptionScore       Int      @map("adoption_score")
+  engagementScore     Int      @map("engagement_score")
+  financialScore      Int      @map("financial_score")
+  resultsScore        Int      @map("results_score")
+  relationshipScore   Int      @map("relationship_score")
+  classification      String                                                   // HEALTHY | NEUTRAL | AT_RISK | CRITICAL
+  previousScore       Int?     @map("previous_score")
+  csmAlertFired       Boolean  @default(false) @map("csm_alert_fired")
+  calculatedAt        DateTime @default(now()) @map("calculated_at")
+
+  @@index([customerId, calculatedAt])
+  @@index([tenantId, classification])
+  @@index([tenantId, totalScore])                                             // For at-risk customer reports
+  @@map("customer_health_scores")
+}
+
+// ─── NPS Surveys ────────────────────────────────────────────────────────────
+
+model NpsSurvey {
+  surveyId         String    @id @default(uuid()) @map("survey_id")
+  tenantId         String    @map("tenant_id")
+  userId           String    @map("user_id")
+  score            Int                                                          // 0–10
+  category         String                                                       // PROMOTER | PASSIVE | DETRACTOR
+  verbatim         String?                                                      // Open-ended feedback text
+  trigger          String                                                       // D30 | D90 | POST_CONSULTATION | RENEWAL
+  sentAt           DateTime  @map("sent_at")
+  respondedAt      DateTime? @map("responded_at")
+  sentimentLabel   String?   @map("sentiment_label")                           // POSITIVE | NEUTRAL | NEGATIVE (AI-classified)
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  @@index([tenantId, category])
+  @@index([userId, respondedAt])
+  @@index([tenantId, respondedAt])
+  @@map("nps_surveys")
+}
+
+// ─── Campaign Journeys ──────────────────────────────────────────────────────
+
+model CampaignJourney {
+  journeyId         String    @id @default(uuid()) @map("journey_id")
+  tenantId          String    @map("tenant_id")
+  name              String
+  type              String                                                       // WELCOME_JOURNEY | NURTURE_CAMPAIGN | RE_ENGAGEMENT | UPSELL_CAMPAIGN | CHURN_PREVENTION | REFERRAL_PROGRAM | NPS_SURVEY | TRANSACTIONAL
+  status            String    @default("DRAFT")                                 // DRAFT | SCHEDULED | RUNNING | PAUSED | COMPLETED | CANCELLED
+  triggerEvent      String?   @map("trigger_event")                             // Kafka event type that triggers this journey
+  targetSegmentId   String?   @map("target_segment_id")
+  targetCount       Int       @default(0) @map("target_count")
+  sentCount         Int       @default(0) @map("sent_count")
+  openCount         Int       @default(0) @map("open_count")
+  clickCount        Int       @default(0) @map("click_count")
+  conversionCount   Int       @default(0) @map("conversion_count")
+  scheduledAt       DateTime? @map("scheduled_at")
+  startedAt         DateTime? @map("started_at")
+  completedAt       DateTime? @map("completed_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  steps             JourneyStep[]
+  dispatches        MessageDispatch[]
+
+  @@index([tenantId, status])
+  @@index([tenantId, type])
+  @@map("campaign_journeys")
+}
+
+// ─── Journey Steps ──────────────────────────────────────────────────────────
+
+model JourneyStep {
+  stepId              String  @id @default(uuid()) @map("step_id")
+  journeyId           String  @map("journey_id")
+  order               Int
+  type                String                                                     // SEND_MESSAGE | WAIT_DELAY | CONDITIONAL_BRANCH | UPDATE_PROFILE | ASSIGN_TAG
+  channel             String?                                                    // EMAIL | SMS | WHATSAPP | PUSH_MOBILE | PUSH_WEB | IN_APP_CHAT
+  templateId          String? @map("template_id")
+  delayHours          Int?    @map("delay_hours")
+  conditionField      String? @map("condition_field")
+  conditionValue      String? @map("condition_value")
+  nextStepIfTrue      String? @map("next_step_if_true")
+  nextStepIfFalse     String? @map("next_step_if_false")
+  isActive            Boolean @default(true) @map("is_active")
+
+  journey             CampaignJourney @relation(fields: [journeyId], references: [journeyId])
+
+  @@index([journeyId, order])
+  @@map("journey_steps")
+}
+
+// ─── Message Dispatches ─────────────────────────────────────────────────────
+
+model MessageDispatch {
+  dispatchId         String    @id @default(uuid()) @map("dispatch_id")
+  journeyId          String?   @map("journey_id")
+  tenantId           String    @map("tenant_id")
+  userId             String    @map("user_id")
+  channel            String                                                     // EMAIL | SMS | WHATSAPP | PUSH_MOBILE | PUSH_WEB | IN_APP_CHAT
+  templateId         String    @map("template_id")
+  status             String    @default("SENT")                                 // SENT | FAILED | SUPPRESSED | BOUNCED | DELIVERED | OPENED | CLICKED
+  suppressReason     String?   @map("suppress_reason")                          // OPT_OUT | FREQUENCY_CAP | INVALID_DESTINATION
+  providerRef        String?   @map("provider_ref")                             // Provider message ID (SES, Twilio, etc.)
+  openedAt           DateTime? @map("opened_at")
+  clickedAt          DateTime? @map("clicked_at")
+  bouncedAt          DateTime? @map("bounced_at")
+  dispatchedAt       DateTime  @default(now()) @map("dispatched_at")
+
+  journey            CampaignJourney? @relation(fields: [journeyId], references: [journeyId])
+
+  @@index([tenantId, userId, channel])
+  @@index([journeyId, status])
+  @@index([dispatchedAt])
+  @@map("message_dispatches")
+}
+
+// ─── Communication Consents (LGPD) ─────────────────────────────────────────
+
+model CommunicationConsent {
+  consentId         String    @id @default(uuid()) @map("consent_id")
+  userId            String    @map("user_id")
+  tenantId          String    @map("tenant_id")
+  channel           String                                                       // EMAIL | SMS | WHATSAPP | PUSH_MOBILE | PUSH_WEB | IN_APP_CHAT
+  purpose           String                                                       // MARKETING | TRANSACTIONAL | SERVICE_UPDATES | NPS
+  consented         Boolean   @default(false)
+  consentedAt       DateTime? @map("consented_at")
+  consentIp         String?   @map("consent_ip")
+  consentUserAgent  String?   @map("consent_user_agent") @db.VarChar(512)
+  revokedAt         DateTime? @map("revoked_at")
+  revokedReason     String?   @map("revoked_reason")
+  legalBasis        String    @default("CONSENT") @map("legal_basis")           // CONSENT | LEGITIMATE_INTEREST | CONTRACT
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  // LGPD: One record per (userId, channel, purpose) — upsert on change
+  @@unique([userId, tenantId, channel, purpose])
+  @@index([userId, tenantId])
+  @@index([tenantId, channel, consented])
+  @@map("communication_consents")
+}
+
+// ─── Unified Customer Profiles (CDP) ───────────────────────────────────────
+
+model UnifiedCustomerProfile {
+  profileId             String    @id @default(uuid()) @map("profile_id")
+  userId                String    @unique @map("user_id")
+  tenantId              String    @map("tenant_id")
+  // Identity
+  email                 String
+  phone                 String?
+  cpfHash               String?   @map("cpf_hash") @db.Char(64)                // SHA-256 hashed
+  cnpj                  String?
+  fullName              String    @map("full_name")
+  // Firmographic
+  userType              String    @map("user_type")                             // ATTORNEY | CLIENT | FIRM_ADMIN | PARTNER
+  legalSpecialty        String?   @map("legal_specialty")
+  oabNumber             String?   @map("oab_number")
+  companyName           String?   @map("company_name")
+  companySize           String?   @map("company_size")
+  uf                    String?
+  // Behavioural
+  totalSessions         Int       @default(0) @map("total_sessions")
+  lastLoginAt           DateTime? @map("last_login_at")
+  featuresUsed          String[]  @map("features_used")
+  // Financial (sync from Sprint 8)
+  activePlanId          String?   @map("active_plan_id")
+  mrrBrl                Decimal   @default(0) @map("mrr_brl") @db.Decimal(12, 2)
+  lifetimeValueBrl      Decimal   @default(0) @map("lifetime_value_brl") @db.Decimal(12, 2)
+  paymentStatus         String    @default("GOOD_STANDING") @map("payment_status")
+  // Relationship
+  healthScore           Int?      @map("health_score")
+  healthClassification  String?   @map("health_classification")
+  npsScore              Int?      @map("nps_score")
+  npsRespondedAt        DateTime? @map("nps_responded_at")
+  openSupportTickets    Int       @default(0) @map("open_support_tickets")
+  lastCsInteractionAt   DateTime? @map("last_cs_interaction_at")
+  // Marketing
+  campaignsReceived     Int       @default(0) @map("campaigns_received")
+  lastCampaignAt        DateTime? @map("last_campaign_at")
+  optInChannels         String[]  @map("opt_in_channels")
+  tags                  String[]  @map("tags")
+  // Legal (sync from Sprint 5)
+  activeCases           Int       @default(0) @map("active_cases")
+  completedConsultations Int      @default(0) @map("completed_consultations")
+  // Metadata
+  isAnonymised          Boolean   @default(false) @map("is_anonymised")        // LGPD right to erasure
+  anonymisedAt          DateTime? @map("anonymised_at")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+
+  @@index([tenantId, userType])
+  @@index([tenantId, healthClassification])
+  @@index([tenantId, paymentStatus])
+  @@index([tenantId, tags])
+  @@map("unified_customer_profiles")
+}
+
+// ─── Customer Segments ──────────────────────────────────────────────────────
+
+model CustomerSegment {
+  segmentId         String   @id @default(uuid()) @map("segment_id")
+  tenantId          String   @map("tenant_id")
+  name              String
+  description       String?
+  criteria          Json                                                         // Filter rules: { "healthClassification": "AT_RISK", "mrrBrl": { "gte": 1000 } }
+  memberCount       Int      @default(0) @map("member_count")
+  lastComputedAt    DateTime? @map("last_computed_at")
+  isActive          Boolean  @default(true) @map("is_active")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  @@index([tenantId, isActive])
+  @@map("customer_segments")
+}
+
+// ─── Revenue KPI Snapshots (CRM Perspective) ───────────────────────────────
+
+model GrowthKpiSnapshot {
+  snapshotId                 String   @id @default(uuid()) @map("snapshot_id")
+  tenantId                   String   @map("tenant_id")
+  snapshotDate               DateTime @db.Date @map("snapshot_date")
+  // Acquisition
+  newLeads                   Int      @map("new_leads")
+  leadConversionRatePct      Decimal  @map("lead_conversion_rate_pct") @db.Decimal(6, 4)
+  opportunitiesWon           Int      @map("opportunities_won")
+  avgSalesCycleDays          Decimal  @map("avg_sales_cycle_days") @db.Decimal(6, 2)
+  cacBrl                     Decimal  @map("cac_brl") @db.Decimal(12, 2)
+  // Retention
+  churnRatePct               Decimal  @map("churn_rate_pct") @db.Decimal(6, 4)
+  netRevenueRetentionPct     Decimal  @map("net_revenue_retention_pct") @db.Decimal(6, 2)
+  avgHealthScore             Decimal  @map("avg_health_score") @db.Decimal(5, 2)
+  customersAtRisk            Int      @map("customers_at_risk")
+  // Expansion
+  expansionMrrBrl            Decimal  @map("expansion_mrr_brl") @db.Decimal(12, 2)
+  upsellConversionRatePct    Decimal  @map("upsell_conversion_rate_pct") @db.Decimal(6, 4)
+  // NPS
+  npsScore                   Int      @map("nps_score")
+  npsPromoters               Int      @map("nps_promoters")
+  npsDetractors              Int      @map("nps_detractors")
+  npsPassives                Int      @map("nps_passives")
+  // LTV
+  avgLtvBrl                  Decimal  @map("avg_ltv_brl") @db.Decimal(12, 2)
+  ltvCacRatio                Decimal  @map("ltv_cac_ratio") @db.Decimal(8, 4)
+  computedAt                 DateTime @default(now()) @map("computed_at")
+
+  @@unique([tenantId, snapshotDate])
+  @@index([tenantId, snapshotDate])
+  @@map("growth_kpi_snapshots")
+}
+
+// ─── CRM Audit Log (Append-Only, LGPD Compliant) ───────────────────────────
+
+model CrmAuditLog {
+  auditId         String   @id @default(uuid()) @map("audit_id")
+  tenantId        String   @map("tenant_id")
+  eventType       String   @map("event_type")
+  actorId         String   @map("actor_id")
+  entityType      String   @map("entity_type")
+  entityId        String   @map("entity_id")
+  changesBefore   Json?    @map("changes_before")
+  changesAfter    Json?    @map("changes_after")
+  ipAddress       String?  @map("ip_address")
+  userAgent       String?  @map("user_agent") @db.VarChar(512)
+  sha256Hash      String   @map("sha256_hash") @db.Char(64)               // SHA-256 of this record
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  // Append-only: REVOKE UPDATE, DELETE ON crm_audit_log FROM app_role;
+
+  @@index([tenantId, entityType, entityId])
+  @@index([tenantId, eventType])
+  @@index([createdAt])
+  @@map("crm_audit_log")
+}
