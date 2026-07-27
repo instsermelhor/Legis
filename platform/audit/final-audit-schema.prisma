@@ -1,0 +1,63 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// final-audit-schema.prisma — Prompt 263 Enterprise Final Validation
+// Legis Connect | Production Go-Live & Excellence Certification
+// OWASP ASVS/MASVS · ISO 27001 · ISO 22301 · ISO 42001 · SOC 2 · NIST CSF
+// ═══════════════════════════════════════════════════════════════════════════
+
+model FinalQualityGateRecord {
+  recordId          String   @id @default(uuid()) @map("record_id")
+  gateName          String   @map("gate_name")
+  passed            Boolean  @default(true)
+  scorePct          Decimal  @map("score_pct") @db.Decimal(5, 2)
+  detailsJson       Json     @map("details_json")
+  evaluatedAt       DateTime @default(now()) @map("evaluated_at")
+
+  @@index([gateName, passed])
+  @@map("final_quality_gate_records")
+}
+
+model VulnerabilityAuditFinding {
+  findingId         String    @id @default(uuid()) @map("finding_id")
+  category          String                                                       // WEB | MOBILE | API | KUBERNETES | IAM | DATABASE
+  severity          String                                                       // CRITICAL | HIGH | MEDIUM | LOW
+  title             String
+  description       String    @db.Text
+  mitigationStatus  String    @default("MITIGATED")                       // MITIGATED | OPEN | ACCEPTED
+  mitigatedAt       DateTime? @map("mitigated_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+
+  @@index([category, severity])
+  @@map("vulnerability_audit_findings")
+}
+
+model FinalExcellenceCertification {
+  certId                String   @id @default(uuid()) @map("cert_id")
+  certificateNumber     String   @unique @map("certificate_number")            // LEGIS-PROD-GO-LIVE-2026-FINAL
+  globalExcellenceIndex Decimal  @map("global_excellence_index") @db.Decimal(5, 2)
+  architectureScore     Decimal  @map("architecture_score") @db.Decimal(5, 2)
+  securityScore         Decimal  @map("security_score") @db.Decimal(5, 2)
+  reliabilityScore      Decimal  @map("reliability_score") @db.Decimal(5, 2)
+  performanceScore      Decimal  @map("performance_score") @db.Decimal(5, 2)
+  aiGovernanceScore     Decimal  @map("ai_governance_score") @db.Decimal(5, 2)
+  complianceScore       Decimal  @map("compliance_score") @db.Decimal(5, 2)
+  authorizationCode     String   @map("authorization_code")                    // AUTH-GO-LIVE-2026-FINAL
+  issuedAt              DateTime @default(now()) @map("issued_at")
+
+  @@map("final_excellence_certifications")
+}
+
+model ProductionAuditLog {
+  auditId            String   @id @default(uuid()) @map("audit_id")
+  tenantId           String   @map("tenant_id")
+  eventType          String   @map("event_type")
+  actorId            String   @map("actor_id")
+  entityType         String   @map("entity_type")
+  entityId           String   @map("entity_id")
+  details            Json?
+  sha256Hash         String   @map("sha256_hash") @db.Char(64)
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId, entityType, entityId])
+  @@index([createdAt])
+  @@map("production_audit_logs")
+}
