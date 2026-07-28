@@ -1,0 +1,51 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// canon-schema.prisma — Prompt 267 Legis Connect Enterprise Reference Architecture
+// Legis Connect | LCERA v1.0 Canon & Universal Engineering Standards
+// TOGAF 10 · DDD · Clean Architecture · Architecture-as-Code · ISO 42001
+// ═══════════════════════════════════════════════════════════════════════════
+
+model CanonicalPrincipleRecord {
+  principleId        String   @id @default(uuid()) @map("principle_id")
+  principleNumber    Int      @unique @map("principle_number")
+  name               String   @unique
+  statement          String   @db.Text
+  enforced           Boolean  @default(true)
+  evaluatedAt        DateTime @default(now()) @map("evaluated_at")
+
+  @@map("canonical_principle_records")
+}
+
+model EngineeringStandardRecord {
+  standardId         String   @id @default(uuid()) @map("standard_id")
+  category           String                                                     // CODING | ARCHITECTURE | SECURITY | DEVOPS | TESTING
+  technology         String                                                     // TYPESCRIPT | NESTJS | REACT | FLUTTER | OPENTOFU | KUBERNETES
+  title              String
+  ruleSpecification  String   @db.Text
+  updatedAt          DateTime @default(now()) @map("updated_at")
+
+  @@index([category, technology])
+  @@map("engineering_standard_records")
+}
+
+model LceraTaxonomyRecord {
+  taxonomyId           String   @id @default(uuid()) @map("taxonomy_id")
+  version              String   @unique @default("LCERA v1.0")
+  boundedContextsCount Int      @default(15) @map("bounded_contexts_count")
+  apisCount            Int      @default(65) @map("apis_count")
+  kafkaEventsCount     Int      @default(180) @map("kafka_events_count")
+  adrsCount            Int      @default(53) @map("adrs_count")
+  maturityLevel        String   @default("Level 5 (AI-Native Autonomous Enterprise)") @map("maturity_level")
+  certifiedAt          DateTime @default(now()) @map("certified_at")
+
+  @@map("lcera_taxonomy_records")
+}
+
+model OfficialLceraCertification {
+  certId                String   @id @default(uuid()) @map("cert_id")
+  certificateNumber     String   @unique @map("certificate_number")            // LEGIS-LCERA-OFFICIAL-CERT-2026
+  classification        String   @default("OFFICIAL_ENTERPRISE_REFERENCE_PLATFORM")
+  authorizationCode     String   @map("authorization_code")                    // AUTH-LCERA-2026-FINAL
+  issuedAt              DateTime @default(now()) @map("issued_at")
+
+  @@map("official_lcera_certifications")
+}
