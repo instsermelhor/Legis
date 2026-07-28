@@ -1,0 +1,58 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// platform-factory-schema.prisma — Prompt 268 Enterprise Platform Factory
+// Legis Connect | Platform-as-a-Product & AI Platform Generator
+// SPLE · White-Label · Multi-Tenant Factory · OpenTofu · Crossplane
+// ═══════════════════════════════════════════════════════════════════════════
+
+model DomainTemplateRecord {
+  templateId             String   @id @default(uuid()) @map("template_id")
+  templateName           String   @unique @map("template_name")
+  sector                 String                                                     // LEGAL | ACCOUNTING | HEALTHCARE | GOVERNMENT | EDUCATION
+  preConfiguredModules   String[] @map("pre_configured_modules")
+  avgProvisioningSeconds Int      @default(90) @map("avg_provisioning_seconds")
+  isActive               Boolean  @default(true) @map("is_active")
+  createdAt              DateTime @default(now()) @map("created_at")
+
+  @@map("domain_template_records")
+}
+
+model WhiteLabelProfileRecord {
+  profileId         String   @id @default(uuid()) @map("profile_id")
+  tenantId          String   @unique @map("tenant_id")
+  brandName         String   @map("brand_name")
+  primaryColor      String   @map("primary_color")
+  secondaryColor    String   @map("secondary_color")
+  logoUrl           String   @map("logo_url")
+  customDomain      String   @unique @map("custom_domain")
+  enabledModules    String[] @map("enabled_modules")
+  configJson        Json     @map("config_json")
+  updatedAt         DateTime @default(now()) @map("updated_at")
+
+  @@map("white_label_profile_records")
+}
+
+model GeneratedPlatformRecord {
+  platformId             String   @id @default(uuid()) @map("platform_id")
+  platformName           String   @map("platform_name")
+  sector                 String                                                     // LEGAL | ACCOUNTING | HEALTHCARE | GOVERNMENT | EDUCATION
+  provisionedInSeconds   Int      @map("provisioned_in_seconds")
+  openTofuManifestPath   String   @map("opentofu_manifest_path")
+  helmChartPath          String   @map("helm_chart_path")
+  prismaExtensionPath    String   @map("prisma_extension_path")
+  customDomain           String   @map("custom_domain")
+  generatedAt            DateTime @default(now()) @map("generated_at")
+
+  @@index([sector, generatedAt])
+  @@map("generated_platform_records")
+}
+
+model WorldClassFactoryCertification {
+  certId                String   @id @default(uuid()) @map("cert_id")
+  certificateNumber     String   @unique @map("certificate_number")            // LEGIS-PLATFORM-FACTORY-CERT-2026
+  classification        String   @default("WORLD_CLASS_PLATFORM_FACTORY")
+  codeReuseRatioPct     Decimal  @map("code_reuse_ratio_pct") @db.Decimal(5, 2)
+  authorizationCode     String   @map("authorization_code")                    // AUTH-FACTORY-2026-FINAL
+  issuedAt              DateTime @default(now()) @map("issued_at")
+
+  @@map("world_class_factory_certifications")
+}
