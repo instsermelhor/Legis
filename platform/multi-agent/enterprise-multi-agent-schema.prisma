@@ -1,0 +1,78 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// enterprise-multi-agent-schema.prisma — Prompt 302 Human-Centered Intelligent Enterprise Platform
+// Legis Connect | Enterprise Autonomous Intelligence Ecosystem (EAIE)
+// Agent Registry · XAI Traces · AI Audit Log · Multi-Agent Certification
+// ═══════════════════════════════════════════════════════════════════════════
+
+model AgentRegistryEntry {
+  agentId                      String   @id @map("agent_id")              // AGT-01 → AGT-10
+  name                         String
+  specialization               String   @db.Text
+  autonomyLevel                Int      @map("autonomy_level")            // 0 | 1 | 2 | 3 (MAX forbidden)
+  baseModel                    String   @map("base_model")
+  status                       String   @default("ACTIVE")               // ACTIVE | SUSPENDED | RETIRED | IN_LAB
+  owaspAuditPassed             Boolean  @default(false) @map("owasp_audit_passed")
+  atlasThreadModelDocumented   Boolean  @default(false) @map("atlas_thread_model_documented")
+  certifiedBy                  String?  @map("certified_by")
+  certifiedAt                  DateTime? @map("certified_at")
+  lastReviewedAt               DateTime @default(now()) @map("last_reviewed_at")
+
+  xaiTraces   XaiTraceRecord[]
+  auditLogs   AgentAuditLogEntry[]
+
+  @@index([status, autonomyLevel])
+  @@map("agent_registry_entries")
+}
+
+model XaiTraceRecord {
+  traceId                  String   @id @default(uuid()) @map("trace_id")
+  agentId                  String   @map("agent_id")
+  confidenceScore          Decimal  @map("confidence_score") @db.Decimal(5, 2)  // 0.00 – 100.00
+  sourceCitations          Json     @map("source_citations")                     // string[]
+  chainOfReasoningSummary  String   @db.Text @map("chain_of_reasoning_summary")
+  uncertaintyFlags         Json     @map("uncertainty_flags")                    // string[]
+  alternativeOptions       Json     @map("alternative_options")                  // string[] (≥2 if confidence < 90)
+  generatedAt              DateTime @default(now()) @map("generated_at")
+
+  agentEntry  AgentRegistryEntry @relation(fields: [agentId], references: [agentId])
+  auditLog    AgentAuditLogEntry?
+
+  @@index([agentId, confidenceScore])
+  @@map("xai_trace_records")
+}
+
+model AgentAuditLogEntry {
+  auditId                String   @id @default(uuid()) @map("audit_id")
+  agentId                String   @map("agent_id")
+  promptHash             String   @map("prompt_hash")            // SHA-256 — immutable
+  outputHash             String   @map("output_hash")            // SHA-256 — immutable
+  xaiTraceId             String   @unique @map("xai_trace_id")
+  requestedBy            String   @map("requested_by")           // SPIFFE SVID
+  humanReviewCompleted   Boolean  @default(false) @map("human_review_completed")
+  humanReviewedBy        String?  @map("human_reviewed_by")
+  humanReviewedAt        DateTime? @map("human_reviewed_at")
+  recordedAt             DateTime @default(now()) @map("recorded_at")
+
+  agentEntry  AgentRegistryEntry @relation(fields: [agentId], references: [agentId])
+  xaiTrace    XaiTraceRecord     @relation(fields: [xaiTraceId], references: [traceId])
+
+  @@index([agentId, recordedAt])
+  @@index([humanReviewCompleted])
+  @@map("agent_audit_log_entries")
+}
+
+model MultiAgentCertification {
+  certId                     String   @id @default(uuid()) @map("cert_id")
+  certificateNumber          String   @unique @map("certificate_number")  // LEGIS-MULTIAGENT-CERT-302-2026
+  classification             String   @default("HUMAN_CENTERED_INTELLIGENT_ENTERPRISE_PLATFORM")
+  totalAgentsCertified       Int      @default(10) @map("total_agents_certified")
+  aiMaturityIndexPct         Decimal  @map("ai_maturity_index_pct") @db.Decimal(5, 2)  // 99.2
+  humanOversightCompliancePct Decimal @default(100.0) @map("human_oversight_compliance_pct") @db.Decimal(5, 2)
+  multiAgentMaturityLevel    Int      @default(4) @map("multi_agent_maturity_level")   // 4 = Orquestrado
+  owaspLlmAuditPassed        Boolean  @default(true) @map("owasp_llm_audit_passed")
+  atlasThreadModelPresent    Boolean  @default(true) @map("atlas_thread_model_present")
+  authorizationCode          String   @map("authorization_code")          // AUTH-MULTIAGENT-302-2026-FINAL
+  issuedAt                   DateTime @default(now()) @map("issued_at")
+
+  @@map("multi_agent_certifications")
+}
