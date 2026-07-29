@@ -1,0 +1,50 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// executive-validation-schema.prisma — Prompt 271 Executive Validation
+// Legis Connect | Board-Ready & IPO-Grade Governance
+// COBIT 2019 · ITIL 4 · ISO 27001 · SOC 2 · ISO 42001 · M&A Due Diligence
+// ═══════════════════════════════════════════════════════════════════════════
+
+model DueDiligenceAuditRecord {
+  auditId            String   @id @default(uuid()) @map("audit_id")
+  category           String                                                     // CODE_QUALITY | SECURITY | LICENSING | SCALABILITY | COMPLIANCE
+  auditItem          String   @map("audit_item")
+  passed             Boolean  @default(true)
+  scorePct           Decimal  @map("score_pct") @db.Decimal(5, 2)
+  evaluatedAt        DateTime @default(now()) @map("evaluated_at")
+
+  @@index([category, passed])
+  @@map("due_diligence_audit_records")
+}
+
+model BoardReviewRecord {
+  reviewId           String   @id @default(uuid()) @map("review_id")
+  boardMemberTitle   String   @map("board_member_title")                       // CHAIRMAN | CEO | CTO | CISO | CCO | CRO
+  verdict            String   @default("APPROVED_UNANIMOUSLY")
+  strategicComments  String   @db.Text @map("strategic_comments")
+  reviewedAt         DateTime @default(now()) @map("reviewed_at")
+
+  @@map("board_review_records")
+}
+
+model StrategicRoadmapItem {
+  itemId             String   @id @default(uuid()) @map("item_id")
+  targetYear         Int      @map("target_year")                             // 2026 | 2027 | 2028 | 2029 | 2030 | 2031
+  milestoneTitle     String   @map("milestone_title")
+  description        String   @db.Text
+  status             String   @default("PLANNED")                             // COMPLETED | IN_PROGRESS | PLANNED
+  updatedAt          DateTime @default(now()) @map("updated_at")
+
+  @@index([targetYear, status])
+  @@map("strategic_roadmap_items")
+}
+
+model GlobalExecutiveExcellenceCertification {
+  certId                String   @id @default(uuid()) @map("cert_id")
+  certificateNumber     String   @unique @map("certificate_number")            // LEGIS-GLOBAL-EXCELLENCE-CERT-2026
+  classification        String   @default("BOARD_READY_GLOBAL_ENTERPRISE_PLATFORM")
+  overallMaturityScore Decimal  @map("overall_maturity_score") @db.Decimal(5, 2)
+  authorizationCode     String   @map("authorization_code")                    // AUTH-EXECUTIVE-2026-FINAL
+  issuedAt              DateTime @default(now()) @map("issued_at")
+
+  @@map("global_executive_excellence_certifications")
+}
