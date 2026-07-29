@@ -1,0 +1,70 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// enterprise-governance-corp-schema.prisma — Prompt 309 Adaptive Governance Enterprise
+// Legis Connect | Enterprise Autonomous Governance Intelligence Framework (EAGIF)
+// Governance Domains · Policy Bundles (OPA Rego) · Policy Impact Simulations · Governance Cert
+// ═══════════════════════════════════════════════════════════════════════════
+
+model GovernanceDomainRecord {
+  domainId            String   @id @map("domain_id")                       // GD-01 → GD-06
+  name                String
+  category            String
+  opaPolicyCoveragePct Decimal  @map("opa_policy_coverage_pct") @db.Decimal(5, 2)
+  complianceRatePct   Decimal  @map("compliance_rate_pct") @db.Decimal(5, 2)
+  status              String   @default("COMPLIANT")                       // COMPLIANT | AUDITING | WARNING
+  lastAuditedAt       DateTime @default(now()) @map("last_audited_at")
+
+  policyBundles       PolicyBundleRecord[]
+
+  @@index([status, opaPolicyCoveragePct])
+  @@map("governance_domain_records")
+}
+
+model PolicyBundleRecord {
+  policyId            String   @id @default(uuid()) @map("policy_id")
+  domainId            String   @map("domain_id")
+  classification      String   @default("CORPORATE_POLICY") @map("classification") // CONSTITUTIONAL | CORPORATE_POLICY | TECHNICAL_STANDARD | OPERATIONAL_POP
+  name                String
+  regoCodeHash        String   @map("rego_code_hash")                     // Hash of compiled OPA Rego code in Git / TER
+  version             String
+  status              String   @default("DRAFT")                          // DRAFT | SIMULATING | APPROVED | DEPLOYED | RETIRED
+  approvedByHuman1    String?  @map("approved_by_human1")                 // Dual-human approval gate
+  approvedByHuman2    String?  @map("approved_by_human2")
+  deployedAt          DateTime? @map("deployed_at")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  domain              GovernanceDomainRecord @relation(fields: [domainId], references: [domainId])
+  impactSimulations   PolicyImpactSimulationRecord[]
+
+  @@index([domainId, status])
+  @@map("policy_bundle_records")
+}
+
+model PolicyImpactSimulationRecord {
+  simulationId        String   @id @default(uuid()) @map("simulation_id")
+  policyId            String   @map("policy_id")
+  impactScore         Int      @map("impact_score")                       // 0 - 100 (Twin simulation)
+  conflictDetected    Boolean  @default(false) @map("conflict_detected")
+  affectedServicesCount Int    @map("affected_services_count")
+  simulatedAt         DateTime @default(now()) @map("simulated_at")
+
+  policy              PolicyBundleRecord @relation(fields: [policyId], references: [policyId])
+
+  @@index([policyId, conflictDetected])
+  @@map("policy_impact_simulation_records")
+}
+
+model AutonomousGovernanceEnterpriseCertification {
+  certId                       String   @id @default(uuid()) @map("cert_id")
+  certificateNumber            String   @unique @map("certificate_number")          // LEGIS-AUTONOMOUS-GOVERNANCE-CERT-309-2026
+  classification               String   @default("ADAPTIVE_GOVERNANCE_DRIVEN_ENTERPRISE_PLATFORM")
+  totalDomainsCertified        Int      @default(6) @map("total_domains_certified")
+  governanceMaturityIndexPct   Decimal  @map("governance_maturity_index_pct") @db.Decimal(5, 2) // 99.3
+  opaPolicyCoverageAvgPct      Decimal  @map("opa_policy_coverage_avg_pct") @db.Decimal(5, 2)
+  regulatoryComplianceRatePct  Decimal  @default(100.0) @map("regulatory_compliance_rate_pct") @db.Decimal(5, 2)
+  humanApprovalGateAdherence   Boolean  @default(true) @map("human_approval_gate_adherence")
+  governanceMaturityLevel      Int      @default(4) @map("governance_maturity_level")       // 4 = Adaptive
+  authorizationCode            String   @map("authorization_code")                  // AUTH-GOVERNANCE-309-2026-FINAL
+  issuedAt                     DateTime @default(now()) @map("issued_at")
+
+  @@map("autonomous_governance_enterprise_certifications")
+}

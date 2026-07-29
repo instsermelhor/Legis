@@ -1,8 +1,8 @@
 /**
  * @file index.ts
- * @description Master Platform Engine Export & Unification — Prompts 001–308
- *              Legis Connect | Evidence-Driven Decision Enterprise Platform
- *              Permanent Technological Evolution Cycle — Phase 8
+ * @description Master Platform Engine Export & Unification — Prompts 001–309
+ *              Legis Connect | Adaptive Governance-Driven Enterprise Platform
+ *              Permanent Technological Evolution Cycle — Phase 9
  */
 
 // ─── Foundation Engines (Prompts 286–293) ───────────────────────────────────
@@ -51,3 +51,6 @@ export * from './knowledge/enterprise-knowledge-cognitive-engine';
 
 // ─── Evidence-Driven Enterprise Decision Intelligence Engine (Prompt 308 — Ph.8) 
 export * from './decision/enterprise-decision-intelligence-engine';
+
+// ─── Adaptive Governance Enterprise Intelligence Engine (Prompt 309 — Ph.9) ─
+export * from './governance-corp/enterprise-governance-corp-engine';
