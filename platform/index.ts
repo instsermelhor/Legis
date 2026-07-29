@@ -1,8 +1,8 @@
 /**
  * @file index.ts
- * @description Master Platform Engine Export & Unification — Prompts 001–303
- *              Legis Connect | Living Intelligent Enterprise Platform
- *              Permanent Technological Evolution Cycle — Phase 3
+ * @description Master Platform Engine Export & Unification — Prompts 001–304
+ *              Legis Connect | Trusted Autonomous Enterprise Platform
+ *              Permanent Technological Evolution Cycle — Phase 4
  */
 
 // ─── Foundation Engines (Prompts 286–293) ───────────────────────────────────
@@ -36,3 +36,6 @@ export * from './multi-agent/enterprise-multi-agent-engine';
 
 // ─── Living Enterprise Digital Twin Engine (Prompt 303 — Permanent Ev. Ph.3) ─
 export * from './digital-twin-corp/enterprise-digital-twin-corp-engine';
+
+// ─── Trusted Enterprise Autonomous Assurance Engine (Prompt 304 — Ph.4) ─────
+export * from './assurance/enterprise-assurance-trust-engine';
