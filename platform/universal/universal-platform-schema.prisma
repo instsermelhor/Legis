@@ -1,0 +1,49 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// universal-platform-schema.prisma — Prompt 276 Universal Enterprise Reference Model
+// Legis Connect | UERM v1.0 & Cross-Domain AI Operating System
+// W3C · OpenID · OpenAPI 3.1 · AsyncAPI 2.6 · OpenTelemetry · DPI Readiness
+// ═══════════════════════════════════════════════════════════════════════════
+
+model UermLayerRecord {
+  layerId              String   @id @default(uuid()) @map("layer_id")
+  layerCode            String   @unique @map("layer_code")                    // LAYER_1_KERNEL to LAYER_6_DOMAIN_APP
+  name                 String
+  reusabilityPct       Decimal  @map("reusability_pct") @db.Decimal(5, 2)
+  componentsCount      Int      @map("components_count")
+  updatedAt            DateTime @default(now()) @map("updated_at")
+
+  @@map("uerm_layer_records")
+}
+
+model UniversalCapabilityItem {
+  capabilityId         String   @id @default(uuid()) @map("capability_id")
+  name                 String   @unique
+  category             String                                                     // IDENTITY | WORKFLOW | VAULT | AI | AUDIT | FIN | CRM
+  isCrossDomainReady   Boolean  @default(true) @map("is_cross_domain_ready")
+  description          String   @db.Text
+  createdAt            DateTime @default(now()) @map("created_at")
+
+  @@map("universal_capability_items")
+}
+
+model PlatformCompositionRecord {
+  compositionId        String   @id @default(uuid()) @map("composition_id")
+  targetDomain         String   @map("target_domain")                         // HEALTHCARE | GOVERNMENT | FINANCE | EDUCATION
+  kernelVersion        String   @map("kernel_version")
+  aiOsStatus           String   @map("ai_os_status")
+  composedInSeconds    Int      @map("composed_in_seconds")
+  composedAt           DateTime @default(now()) @map("composed_at")
+
+  @@map("platform_composition_records")
+}
+
+model UniversalEnterpriseReferenceCertification {
+  certId                String   @id @default(uuid()) @map("cert_id")
+  certificateNumber     String   @unique @map("certificate_number")            // LEGIS-UNIVERSAL-REFERENCE-CERT-2026
+  classification        String   @default("UNIVERSAL_ENTERPRISE_REFERENCE_PLATFORM")
+  crossDomainReusePct   Decimal  @map("cross_domain_reuse_pct") @db.Decimal(5, 2)
+  authorizationCode     String   @map("authorization_code")                    // AUTH-UNIVERSAL-2026-FINAL
+  issuedAt              DateTime @default(now()) @map("issued_at")
+
+  @@map("universal_enterprise_reference_certifications")
+}
