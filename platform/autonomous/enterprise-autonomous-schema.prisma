@@ -1,0 +1,59 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// enterprise-autonomous-schema.prisma — Prompt 289 Governed Autonomous Enterprise Platform
+// Legis Connect | Enterprise Autonomous Governance Framework (EAGF)
+// SPIFFE Identity · Self-Healing OODA Loop · Human Oversight · OPA Policy Automation
+// ═══════════════════════════════════════════════════════════════════════════
+
+model SpiffeAgentRecord {
+  agentId          String   @id @map("agent_id")                                 // AGENT-01 to AGENT-10
+  agentName        String   @map("agent_name")
+  spiffeId         String   @unique @map("spiffe_id")                            // spiffe://legis/agent/*
+  autonomyLevel    String   @map("autonomy_level")                               // AL0_MANUAL | AL1_ASSISTED | AL2_SEMI_AUTONOMOUS | AL3_MONITORED | AL4_FULL_AUTONOMOUS
+  certValid        Boolean  @default(true) @map("cert_valid")
+  activeExecutions Int      @default(0) @map("active_executions")
+  registeredAt     DateTime @default(now()) @map("registered_at")
+
+  @@index([autonomyLevel, certValid])
+  @@map("spiffe_agent_records")
+}
+
+model SelfHealingEventRecord {
+  eventId           String   @id @default(uuid()) @map("event_id")
+  anomalyDetected   String   @map("anomaly_detected")
+  affectedComponent String   @map("affected_component")
+  diagnosis         String   @db.Text
+  remediationAction String   @db.Text @map("remediation_action")
+  timeToRemediateMs Int      @map("time_to_remediate_ms")
+  success           Boolean
+  executedAt        DateTime @default(now()) @map("executed_at")
+
+  @@index([affectedComponent, success])
+  @@map("self_healing_event_records")
+}
+
+model HumanEscalationRecord {
+  requestId        String    @id @default(uuid()) @map("request_id")
+  agentId          String    @map("agent_id")
+  actionProposed   String    @db.Text @map("action_proposed")
+  riskLevel        String    @map("risk_level")                                  // LOW | MEDIUM | HIGH | CRITICAL
+  status           String    @default("PENDING")                                 // PENDING | APPROVED | REJECTED | KILL_SWITCH_ENGAGED
+  decidedBy        String?   @map("decided_by")                                  // Operator / Director User ID
+  createdAt        DateTime  @default(now()) @map("created_at")
+  decidedAt        DateTime? @map("decided_at")
+
+  @@index([riskLevel, status])
+  @@map("human_escalation_records")
+}
+
+model GovernedAutonomousEnterpriseCertification {
+  certId                     String   @id @default(uuid()) @map("cert_id")
+  certificateNumber          String   @unique @map("certificate_number")          // LEGIS-AUTONOMOUS-ENTERPRISE-CERT-289-2026
+  classification             String   @default("GOVERNED_AUTONOMOUS_ENTERPRISE_PLATFORM")
+  autonomyMaturityIndexPct   Decimal  @map("autonomy_maturity_index_pct") @db.Decimal(5, 2)
+  selfHealingSuccessRatePct  Decimal  @map("self_healing_success_rate_pct") @db.Decimal(5, 2)
+  spiffeIdentityCoveragePct  Decimal  @default(100.0) @map("spiffe_identity_coverage_pct") @db.Decimal(5, 2)
+  authorizationCode          String   @map("authorization_code")                  // AUTH-AUTONOMOUS-ENTERPRISE-289-2026-FINAL
+  issuedAt                   DateTime @default(now()) @map("issued_at")
+
+  @@map("governed_autonomous_enterprise_certifications")
+}
