@@ -1,8 +1,8 @@
 /**
  * @file index.ts
- * @description Master Platform Engine Export & Unification — Prompts 001–307
- *              Legis Connect | Cognitive Knowledge-Driven Enterprise Platform
- *              Permanent Technological Evolution Cycle — Phase 7
+ * @description Master Platform Engine Export & Unification — Prompts 001–308
+ *              Legis Connect | Evidence-Driven Decision Enterprise Platform
+ *              Permanent Technological Evolution Cycle — Phase 8
  */
 
 // ─── Foundation Engines (Prompts 286–293) ───────────────────────────────────
@@ -48,3 +48,6 @@ export * from './foresight/enterprise-foresight-future-engine';
 
 // ─── Cognitive Enterprise Knowledge Intelligence Engine (Prompt 307 — Ph.7) ──
 export * from './knowledge/enterprise-knowledge-cognitive-engine';
+
+// ─── Evidence-Driven Enterprise Decision Intelligence Engine (Prompt 308 — Ph.8) 
+export * from './decision/enterprise-decision-intelligence-engine';
