@@ -1,0 +1,54 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// sovereign-platform-schema.prisma — Prompt 280 Sovereign Enterprise Platform (FINAL)
+// Legis Connect | Digital Sovereignty & Global Trust Architecture
+// OpenTofu · OIDC · FIDO2 · SPIFFE · W3C VCs · PQC · ISO 42001 · Zero Lock-In
+// GRAND FINALE — Prompts 001–280 Complete
+// ═══════════════════════════════════════════════════════════════════════════
+
+model SovereigntyDimensionAuditRecord {
+  auditId              String   @id @default(uuid()) @map("audit_id")
+  dimension            String                                                     // TECH_NEUTRALITY | DATA_RESIDENCY | AI_GOVERNANCE | IDENTITY | OPEN_STANDARDS | AI_INDEPENDENCE
+  scorePct             Decimal  @map("score_pct") @db.Decimal(5, 2)
+  sovereigntyStatus    String   @map("sovereignty_status")                       // SOVEREIGN | PARTIAL | DEPENDENT
+  auditedAt            DateTime @default(now()) @map("audited_at")
+
+  @@index([sovereigntyStatus, auditedAt])
+  @@map("sovereignty_dimension_audit_records")
+}
+
+model VendorLockInAuditRecord {
+  recordId                    String   @id @default(uuid()) @map("record_id")
+  totalDependenciesCount      Int      @map("total_dependencies_count")
+  proprietaryDependenciesCount Int     @default(0) @map("proprietary_dependencies_count")
+  openToufPortabilityPct      Decimal  @map("open_touf_portability_pct") @db.Decimal(5, 2)
+  openStandardsCoveragePct    Decimal  @map("open_standards_coverage_pct") @db.Decimal(5, 2)
+  overallLockInScore          Decimal  @default(0.0) @map("overall_lock_in_score") @db.Decimal(5, 2)
+  auditedAt                   DateTime @default(now()) @map("audited_at")
+
+  @@map("vendor_lock_in_audit_records")
+}
+
+model GlobalTrustChainRecord {
+  tierRecordId         String   @id @default(uuid()) @map("tier_record_id")
+  tierLevel            Int      @map("tier_level")                                // 1=FIDO2 2=OIDC 3=SPIFFE 4=PQC 5=W3C_VCs
+  tierName             String   @map("tier_name")
+  standard             String
+  isActive             Boolean  @default(true) @map("is_active")
+  createdAt            DateTime @default(now()) @map("created_at")
+
+  @@map("global_trust_chain_records")
+}
+
+model SovereignEnterpriseCertification {
+  certId                    String   @id @default(uuid()) @map("cert_id")
+  certificateNumber         String   @unique @map("certificate_number")           // LEGIS-SOVEREIGN-ENTERPRISE-CERT-2026
+  classification            String   @default("SOVEREIGN_ENTERPRISE_PLATFORM")
+  overallSovereigntyIndexPct Decimal  @map("overall_sovereignty_index_pct") @db.Decimal(5, 2)
+  vendorLockInScore         Decimal  @default(0.0) @map("vendor_lock_in_score") @db.Decimal(5, 2)
+  totalBlueprintsCount      Int      @default(280) @map("total_blueprints_count")
+  totalAdrsCount            Int      @default(66) @map("total_adrs_count")
+  authorizationCode         String   @map("authorization_code")                   // AUTH-SOVEREIGN-2026-FINAL-PROGRAM-280
+  issuedAt                  DateTime @default(now()) @map("issued_at")
+
+  @@map("sovereign_enterprise_certifications")
+}
