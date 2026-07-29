@@ -1,0 +1,66 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// enterprise-future-evolution-schema.prisma — Prompt 301 Future-Ready Intelligent Enterprise
+// Legis Connect | Enterprise Future Evolution Framework (EFEF)
+// Tech Radar Entries · Architecture Compatibility Checks · Innovation Lifecycle · Future-Ready Cert
+// ═══════════════════════════════════════════════════════════════════════════
+
+model TechRadarEntry {
+  techId               String   @id @map("tech_id")                       // trd-001 → trd-012
+  name                 String
+  category             String                                              // AI | Security | Identity | Infra | Runtime | Privacy | Distributed | Simulation | Computing
+  trlMin               Int      @map("trl_min")
+  trlMax               Int      @map("trl_max")
+  radarRing            String   @map("radar_ring")                        // OBSERVE | EXPERIMENT | ADOPT | CONSOLIDATE | DISCONTINUE
+  adoptionHorizon      String   @map("adoption_horizon")                  // Imediato | 2026-2027 | 2027-2030 | 2035-2050
+  riskLevel            String   @map("risk_level")                        // VERY_LOW | LOW | MEDIUM | HIGH | VERY_HIGH
+  architecturalImpact  String   @db.Text @map("architectural_impact")
+  lastReviewedAt       DateTime @default(now()) @map("last_reviewed_at")
+
+  aceChecks            AceCheckRecord[]
+
+  @@index([radarRing, riskLevel])
+  @@map("tech_radar_entries")
+}
+
+model AceCheckRecord {
+  checkId      String   @id @default(uuid()) @map("check_id")
+  techId       String   @map("tech_id")
+  checkName    String   @map("check_name")                                // Semantic Versioning | Prisma Dry-Run | ZeroTrust | Regulatory | SRE SLO
+  status       String   @default("GREEN")                                 // GREEN | YELLOW | RED
+  details      String   @db.Text
+  executedAt   DateTime @default(now()) @map("executed_at")
+
+  techEntry    TechRadarEntry @relation(fields: [techId], references: [techId])
+
+  @@index([techId, status])
+  @@map("ace_check_records")
+}
+
+model InnovationCycleRecord {
+  cycleId      String   @id @default(uuid()) @map("cycle_id")
+  techName     String   @map("tech_name")
+  currentRing  String   @map("current_ring")                              // OBSERVE | EXPERIMENT | ADOPT | CONSOLIDATE | DISCONTINUE
+  nextRing     String?  @map("next_ring")
+  aceApproved  Boolean  @default(false) @map("ace_approved")
+  promotedBy   String?  @map("promoted_by")
+  promotedAt   DateTime @default(now()) @map("promoted_at")
+
+  @@index([currentRing, promotedAt])
+  @@map("innovation_cycle_records")
+}
+
+model FutureReadyCertification {
+  certId                     String   @id @default(uuid()) @map("cert_id")
+  certificateNumber          String   @unique @map("certificate_number")  // LEGIS-FUTURE-READY-CERT-301-2026
+  classification             String   @default("FUTURE_READY_INTELLIGENT_ENTERPRISE")
+  totalTechMonitored         Int      @default(12) @map("total_tech_monitored")
+  techReadyToAdopt           Int      @default(4) @map("tech_ready_to_adopt")
+  techInExperiment           Int      @default(5) @map("tech_in_experiment")
+  techUnderObservation       Int      @default(3) @map("tech_under_observation")
+  architectureBasePreserved  Boolean  @default(true) @map("architecture_base_preserved")
+  aceGateMandatory           Boolean  @default(true) @map("ace_gate_mandatory")
+  authorizationCode          String   @map("authorization_code")          // AUTH-FUTURE-301-2026-FINAL
+  issuedAt                   DateTime @default(now()) @map("issued_at")
+
+  @@map("future_ready_certifications")
+}

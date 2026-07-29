@@ -1,8 +1,8 @@
 /**
  * @file index.ts
- * @description Master Platform Engine Export & Unification — Prompts 001–300 (FINAL — LCERA COMPLETE)
- *              Legis Connect | Self-Evolving Governed Enterprise Platform
- *              Classification: ETERNAL MATURITY LEVEL 5
+ * @description Master Platform Engine Export & Unification — Prompts 001–301
+ *              Legis Connect | Future-Ready Intelligent Enterprise Platform
+ *              Permanent Technological Evolution Cycle — Phase 1
  */
 
 // ─── Foundation Engines (Prompts 286–293) ───────────────────────────────────
@@ -25,5 +25,8 @@ export * from './ecosystem/enterprise-ecosystem-engine';
 export * from './regulatory/enterprise-regulatory-engine';
 export * from './strategic-intelligence/enterprise-strategic-intelligence-engine';
 
-// ─── Eternal Enterprise Engine (Prompt 300 — FINAL) ─────────────────────────
+// ─── Eternal Enterprise Engine (Prompt 300 — LCERA FINAL) ───────────────────
 export * from './eternal-enterprise/enterprise-eternal-engine';
+
+// ─── Future Evolution Engine (Prompt 301 — Permanent Evolution Cycle) ────────
+export * from './future-evolution/enterprise-future-evolution-engine';
