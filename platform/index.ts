@@ -1,7 +1,7 @@
 /**
  * @file index.ts
- * @description Master Platform Engine Export & Unification — Prompts 001–298
- *              Legis Connect | Regulation-Aware Intelligent Enterprise Platform
+ * @description Master Platform Engine Export & Unification — Prompts 001–299
+ *              Legis Connect | Strategically Intelligent Enterprise Platform
  */
 
 export * from './universal/universal-reference-engine';
@@ -17,3 +17,4 @@ export * from './launch/enterprise-launch-engine';
 export * from './excellence/enterprise-excellence-engine';
 export * from './ecosystem/enterprise-ecosystem-engine';
 export * from './regulatory/enterprise-regulatory-engine';
+export * from './strategic-intelligence/enterprise-strategic-intelligence-engine';
