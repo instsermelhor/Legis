@@ -1,0 +1,73 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// meta-architecture-schema.prisma — Prompt 283 Holistically Integrated Enterprise Platform
+// Legis Connect | Enterprise Meta-Architecture (L6) — Self-Governed Evolution Engine
+// 6-Layer Abstraction · Harmony Engine · Dependency Graph · Unified Policy Fabric
+// ═══════════════════════════════════════════════════════════════════════════
+
+model LayerHealthRecord {
+  healthId          String   @id @default(uuid()) @map("health_id")
+  abstractionLevel  String   @map("abstraction_level")    // L1_INFRASTRUCTURE | L2_CAPABILITY | L3_SOVEREIGN | L4_STRATEGIC | L5_CONSTITUTIONAL | L6_META_ARCHITECTURE
+  label             String
+  healthScorePct    Decimal  @map("health_score_pct") @db.Decimal(5, 2)
+  criticalIssues    Int      @default(0) @map("critical_issues")
+  measuredAt        DateTime @default(now()) @map("measured_at")
+
+  @@index([abstractionLevel, measuredAt])
+  @@map("layer_health_records")
+}
+
+model HarmonyScanRecord {
+  scanId                   String   @id @default(uuid()) @map("scan_id")
+  criticalConflicts        Int      @default(0) @map("critical_conflicts")
+  redundancyOpportunities  Int      @default(0) @map("redundancy_opportunities")
+  inconsistencies          Int      @default(0) @map("inconsistencies")
+  overlapCandidates        Int      @default(0) @map("overlap_candidates")
+  harmonyScorePct          Decimal  @map("harmony_score_pct") @db.Decimal(5, 2)
+  promptsScanned           Int      @default(283) @map("prompts_scanned")
+  scannedAt                DateTime @default(now()) @map("scanned_at")
+
+  @@map("harmony_scan_records")
+}
+
+model EvolutionChangeRequestRecord {
+  changeId                   String   @id @map("change_id")
+  title                      String
+  targetLayer                String   @map("target_layer")       // L1_INFRASTRUCTURE | ... | L6_META_ARCHITECTURE
+  riskLevel                  String   @map("risk_level")          // LOW | MEDIUM | HIGH | CRITICAL
+  constitutionallyValid      Boolean  @map("constitutionally_valid")
+  councilReviewRequired      Boolean  @map("council_review_required")
+  deploymentStrategy         String   @map("deployment_strategy") // DIRECT | CANARY | BLUE_GREEN
+  estimatedImpactAnalysisMs  Int      @map("estimated_impact_analysis_ms")
+  approvedAt                 DateTime? @map("approved_at")
+  deployedAt                 DateTime? @map("deployed_at")
+  createdAt                  DateTime @default(now()) @map("created_at")
+
+  @@index([riskLevel, createdAt])
+  @@map("evolution_change_request_records")
+}
+
+model InstitutionalDependencyEdge {
+  edgeId         String   @id @default(uuid()) @map("edge_id")
+  sourceComponent String  @map("source_component")
+  targetComponent String  @map("target_component")
+  dependencyType  String  @map("dependency_type")                // LAYER_HIERARCHY | POLICY | DATA | EVENT | IDENTITY
+  riskIfBroken    String  @map("risk_if_broken")                 // LOW | MEDIUM | HIGH | CRITICAL
+  registeredAt    DateTime @default(now()) @map("registered_at")
+
+  @@index([sourceComponent, targetComponent])
+  @@map("institutional_dependency_edges")
+}
+
+model HolisticallyIntegratedEnterpriseCertification {
+  certId                  String   @id @default(uuid()) @map("cert_id")
+  certificateNumber       String   @unique @map("certificate_number")   // LEGIS-HOLISTICALLY-INTEGRATED-ENTERPRISE-CERT-2026
+  classification          String   @default("HOLISTICALLY_INTEGRATED_ENTERPRISE_PLATFORM")
+  metaArchitectureLevel   String   @default("L6") @map("meta_architecture_level")
+  institutionalHealthPct  Decimal  @map("institutional_health_pct") @db.Decimal(5, 2)
+  harmonyScorePct         Decimal  @map("harmony_score_pct") @db.Decimal(5, 2)
+  policyFabricIntegrityPct Decimal @default(100.0) @map("policy_fabric_integrity_pct") @db.Decimal(5, 2)
+  authorizationCode       String   @map("authorization_code")           // AUTH-META-ARCH-L6-2026-FINAL
+  issuedAt                DateTime @default(now()) @map("issued_at")
+
+  @@map("holistically_integrated_enterprise_certifications")
+}
