@@ -1,0 +1,51 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// agentic-platform-schema.prisma — Prompt 279 Human-Governed Autonomous Platform
+// Legis Connect | Multi-Agent Systems & Policy-as-Code (OPA)
+// SPIFFE/mTLS 1.3 · Autonomy Levels (L0-L4) · Human-in-the-Loop · CloudEvents
+// ═══════════════════════════════════════════════════════════════════════════
+
+model AgentRegistryRecord {
+  agentId               String   @id @map("agent_id")                          // AGENT-01 to AGENT-10
+  name                  String   @unique
+  domainSpecialization  String   @map("domain_specialization")
+  autonomyLevel         String   @map("autonomy_level")                         // L0_MANUAL to L4_AUTONOMOUS
+  spiffeId              String   @unique @map("spiffe_id")
+  isPolicyCompliant     Boolean  @default(true) @map("is_policy_compliant")
+  registeredAt          DateTime @default(now()) @map("registered_at")
+
+  @@map("agent_registry_records")
+}
+
+model MultiAgentTaskExecutionLog {
+  taskId                 String   @id @default(uuid()) @map("task_id")
+  initiatingAgentId      String   @map("initiating_agent_id")
+  collaboratingAgentsCount Int    @map("collaborating_agents_count")
+  opaPolicyVerified      Boolean  @default(true) @map("opa_policy_verified")
+  humanSignOffRequired   Boolean  @default(false) @map("human_sign_off_required")
+  humanSignOffApproved   Boolean  @default(true) @map("human_sign_off_approved")
+  executedAt             DateTime @default(now()) @map("executed_at")
+
+  @@map("multi_agent_task_execution_logs")
+}
+
+model OpaPolicyRuleRecord {
+  ruleId                 String   @id @default(uuid()) @map("rule_id")
+  ruleName               String   @unique @map("rule_name")
+  agentRoleTarget        String   @map("agent_role_target")
+  policyCodeRego         String   @db.Text @map("policy_code_rego")
+  isActive               Boolean  @default(true) @map("is_active")
+  createdAt              DateTime @default(now()) @map("created_at")
+
+  @@map("opa_policy_rule_records")
+}
+
+model HumanGovernedAutonomousEnterpriseCertification {
+  certId                String   @id @default(uuid()) @map("cert_id")
+  certificateNumber     String   @unique @map("certificate_number")            // LEGIS-HUMAN-GOVERNED-AUTONOMOUS-CERT-2026
+  classification        String   @default("HUMAN_GOVERNED_AUTONOMOUS_ENTERPRISE_PLATFORM")
+  multiAgentAccuracyPct Decimal  @map("multi_agent_accuracy_pct") @db.Decimal(5, 2)
+  authorizationCode     String   @map("authorization_code")                    // AUTH-AGENTIC-2026-FINAL
+  issuedAt              DateTime @default(now()) @map("issued_at")
+
+  @@map("human_governed_autonomous_enterprise_certifications")
+}
