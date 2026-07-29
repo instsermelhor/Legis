@@ -1,0 +1,70 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// constitutional-os-schema.prisma — Prompt 282 Constitutional Enterprise Platform
+// Legis Connect | Enterprise Constitutional Operating System (CEOS)
+// Enterprise Constitution · Constitutional Policy Engine · Integrity Engine
+// ═══════════════════════════════════════════════════════════════════════════
+
+model ConstitutionalDecisionRecord {
+  decisionId                  String   @id @default(uuid()) @map("decision_id")
+  decisionTitle               String   @map("decision_title")
+  missionAligned              Boolean  @map("mission_aligned")
+  principleCompliant          Boolean  @map("principle_compliant")
+  institutionalRiskLevel      String   @map("institutional_risk_level")     // LOW | MEDIUM | HIGH | CRITICAL
+  privacyImpactClear          Boolean  @map("privacy_impact_clear")
+  councilApprovalRequired     Boolean  @map("council_approval_required")
+  constitutionalScorePct      Decimal  @map("constitutional_score_pct") @db.Decimal(5, 2)
+  evaluatedAt                 DateTime @default(now()) @map("evaluated_at")
+
+  @@index([institutionalRiskLevel, evaluatedAt])
+  @@map("constitutional_decision_records")
+}
+
+model ConstitutionalPolicyVersion {
+  policyVersionId  String   @id @default(uuid()) @map("policy_version_id")
+  policyId         String   @map("policy_id")
+  policyName       String   @map("policy_name")
+  semver           String
+  opaModule        String   @map("opa_module")
+  approvedByJson   String   @db.Text @map("approved_by_json")
+  immutableHash    String   @unique @map("immutable_hash")
+  publishedAt      DateTime @default(now()) @map("published_at")
+
+  @@index([policyName, semver])
+  @@map("constitutional_policy_versions")
+}
+
+model IntegrityViolationRecord {
+  violationId        String    @id @default(uuid()) @map("violation_id")
+  severity           String                                                 // INFO | WARNING | CRITICAL
+  description        String    @db.Text
+  affectedPrinciple  String    @map("affected_principle")
+  detectedAt         DateTime  @default(now()) @map("detected_at")
+  resolvedAt         DateTime? @map("resolved_at")
+
+  @@index([severity, resolvedAt])
+  @@map("integrity_violation_records")
+}
+
+model ConstitutionalKnowledgeEntry {
+  entryId            String   @id @default(uuid()) @map("entry_id")
+  entryType          String   @map("entry_type")                            // CONSTITUTIONAL_REVIEW | COUNCIL_OPINION | PRECEDENT | AUDIT
+  title              String
+  contentSummary     String   @db.Text @map("content_summary")
+  immutableHash      String   @unique @map("immutable_hash")
+  recordedAt         DateTime @default(now()) @map("recorded_at")
+
+  @@map("constitutional_knowledge_entries")
+}
+
+model ConstitutionalEnterpriseCertification {
+  certId                     String   @id @default(uuid()) @map("cert_id")
+  certificateNumber          String   @unique @map("certificate_number")    // LEGIS-CONSTITUTIONAL-ENTERPRISE-CERT-2026
+  classification             String   @default("CONSTITUTIONAL_ENTERPRISE_PLATFORM")
+  constitutionalAdherencePct Decimal  @map("constitutional_adherence_pct") @db.Decimal(5, 2)
+  integrityScorePct          Decimal  @map("integrity_score_pct") @db.Decimal(5, 2)
+  aiGovCompliancePct         Decimal  @default(100.0) @map("ai_gov_compliance_pct") @db.Decimal(5, 2)
+  authorizationCode          String   @map("authorization_code")            // AUTH-CONSTITUTIONAL-2026-FINAL
+  issuedAt                   DateTime @default(now()) @map("issued_at")
+
+  @@map("constitutional_enterprise_certifications")
+}
