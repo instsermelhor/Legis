@@ -1,0 +1,80 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// enterprise-foresight-future-schema.prisma — Prompt 306 Future-Aware Intelligent Enterprise
+// Legis Connect | Enterprise Strategic Foresight Framework (ESFF)
+// Foresight Domains · Horizon Signals · Scenarios · Strategic Assumptions · Future-Ready Cert
+// ═══════════════════════════════════════════════════════════════════════════
+
+model ForesightDomainRecord {
+  domainId                    String   @id @map("domain_id")                       // FS-01 → FS-06
+  name                        String
+  category                    String
+  horizonScanningCoveragePct Decimal  @map("horizon_scanning_coverage_pct") @db.Decimal(5, 2)
+  signalVelocityScore        Int      @map("signal_velocity_score")
+  status                      String   @default("MONITORING")                      // MONITORING | ALERT | STABLE
+  lastScannedAt               DateTime @default(now()) @map("last_scanned_at")
+
+  signals                     HorizonSignalRecord[]
+  assumptions                 StrategicAssumptionRecord[]
+
+  @@index([status, horizonScanningCoveragePct])
+  @@map("foresight_domain_records")
+}
+
+model HorizonSignalRecord {
+  signalId                    String   @id @default(uuid()) @map("signal_id")
+  domainId                    String   @map("domain_id")
+  category                    String   @map("category")                             // REGULATORY | TECHNOLOGICAL | LEGAL | CYBERSECURITY | MARKET | GEOPOLITICAL | ECONOMIC | SOCIAL
+  title                       String
+  sourceUrl                   String?  @map("source_url")
+  confidenceScorePct          Decimal  @map("confidence_score_pct") @db.Decimal(5, 2)
+  maturityStage               String   @default("WEAK_SIGNAL") @map("maturity_stage") // NOISE | WEAK_SIGNAL | EMERGING_TREND | ESTABLISHED_PATTERN
+  detectedAt                  DateTime @default(now()) @map("detected_at")
+
+  domain                      ForesightDomainRecord @relation(fields: [domainId], references: [domainId])
+
+  @@index([domainId, category])
+  @@map("horizon_signal_records")
+}
+
+model FutureScenarioRecord {
+  scenarioId                  String   @id @default(uuid()) @map("scenario_id")
+  archetype                   String   @map("archetype")                            // OPTIMISTIC_HYPERAUTOMATION | CONSERVATIVE_RESTRICTIVE | DISRUPTIVE_QUANTUM_AGI | CRISIS_GEOPOLITICAL | REGULATORY_DYNAMIC
+  name                        String
+  horizonYear                 Int      @map("horizon_year")                         // 2026 – 2035
+  probabilityScorePct         Decimal  @map("probability_score_pct") @db.Decimal(5, 2)
+  strategicImpactScore        Int      @map("strategic_impact_score")              // 0 – 100
+  mitigationStrategySummary   String   @db.Text @map("mitigation_strategy_summary")
+  createdAt                   DateTime @default(now()) @map("created_at")
+
+  @@index([archetype, horizonYear])
+  @@map("future_scenario_records")
+}
+
+model StrategicAssumptionRecord {
+  assumptionId                String   @id @default(uuid()) @map("assumption_id")
+  domainId                    String   @map("domain_id")
+  statement                   String   @db.Text
+  validityScorePct            Decimal  @map("validity_score_pct") @db.Decimal(5, 2)
+  requiresRecalibration       Boolean  @default(false) @map("requires_recalibration")
+  lastAuditedAt               DateTime @default(now()) @map("last_audited_at")
+
+  domain                      ForesightDomainRecord @relation(fields: [domainId], references: [domainId])
+
+  @@index([domainId, requiresRecalibration])
+  @@map("strategic_assumption_records")
+}
+
+model FutureReadyEnterpriseCertification {
+  certId                      String   @id @default(uuid()) @map("cert_id")
+  certificateNumber           String   @unique @map("certificate_number")          // LEGIS-FUTURE-READY-ENTERPRISE-CERT-306-2026
+  classification              String   @default("FUTURE_AWARE_INTELLIGENT_ENTERPRISE_PLATFORM")
+  totalDomainsCertified       Int      @default(6) @map("total_domains_certified")
+  futureReadinessIndexPct     Decimal  @map("future_readiness_index_pct") @db.Decimal(5, 2) // 99.1
+  horizonScanningCoverageAvgPct Decimal @map("horizon_scanning_coverage_avg_pct") @db.Decimal(5, 2)
+  strategicAssumptionValidityAvgPct Decimal @map("strategic_assumption_validity_avg_pct") @db.Decimal(5, 2)
+  strategicForesightMaturityLevel Int  @default(4) @map("strategic_foresight_maturity_level") // 4 = Future-Aware
+  authorizationCode           String   @map("authorization_code")                  // AUTH-FORESIGHT-306-2026-FINAL
+  issuedAt                    DateTime @default(now()) @map("issued_at")
+
+  @@map("future_ready_enterprise_certifications")
+}
