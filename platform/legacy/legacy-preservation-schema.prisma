@@ -1,0 +1,76 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// legacy-preservation-schema.prisma — Prompt 284 Legacy Enterprise Platform
+// Legis Connect | Enterprise Legacy Preservation & Institutional Memory Architecture
+// 5-Tier Taxonomy · W3C PROV-O · OpenTimestamps · Knowledge Vault · Successor Readiness
+// ═══════════════════════════════════════════════════════════════════════════
+
+model DigitalAssetRecord {
+  assetId                      String   @id @default(uuid()) @map("asset_id")
+  assetName                    String   @map("asset_name")
+  category                     String                                             // CONSTITUTION | ADR | CERTIFICATION | SCHEMA | API_CONTRACT | LOG | etc.
+  preservationTier             String   @map("preservation_tier")                 // PERMANENT | LONG_TERM_100Y | MEDIUM_TERM_25Y | OPERATIONAL_7Y | TRANSIENT_3Y
+  sha256Hash                   String   @unique @map("sha256_hash")
+  openTimestampsAnchorRequired Boolean  @map("open_timestamps_anchor_required")
+  openTimestampsProof          String?  @map("open_timestamps_proof")             // OTS proof bytes (base64)
+  createdAt                    DateTime @default(now()) @map("created_at")
+  lastVerifiedAt               DateTime? @map("last_verified_at")
+
+  provenanceRecords ProvenanceRecord[]
+
+  @@index([preservationTier, category])
+  @@map("digital_asset_records")
+}
+
+model ProvenanceRecord {
+  provenanceId   String   @id @default(uuid()) @map("provenance_id")
+  assetId        String   @map("asset_id")
+  authorsJson    String   @db.Text @map("authors_json")
+  prompt         String                                                           // e.g. "Prompt 284"
+  contextSummary String   @db.Text @map("context_summary")
+  dependenciesJson String @db.Text @map("dependencies_json")
+  jsonLdProv     String   @db.Text @map("json_ld_prov")                          // W3C PROV-O JSON-LD
+  recordedAt     DateTime @default(now()) @map("recorded_at")
+
+  asset DigitalAssetRecord @relation(fields: [assetId], references: [assetId])
+
+  @@map("provenance_records")
+}
+
+model SuccessorReadinessRecord {
+  readinessId                    String   @id @default(uuid()) @map("readiness_id")
+  role                           String
+  documentationComplete          Boolean  @map("documentation_complete")
+  onboardingGuideAvailable       Boolean  @map("onboarding_guide_available")
+  historicalDecisionsAccessible  Boolean  @map("historical_decisions_accessible")
+  readinessScorePct              Decimal  @map("readiness_score_pct") @db.Decimal(5, 2)
+  assessedAt                     DateTime @default(now()) @map("assessed_at")
+
+  @@map("successor_readiness_records")
+}
+
+model InstitutionalKnowledgeVaultEntry {
+  vaultEntryId    String   @id @default(uuid()) @map("vault_entry_id")
+  entryName       String   @map("entry_name")
+  entryType       String   @map("entry_type")                                     // CONSTITUTION | ADR | CERTIFICATION | AGENT_MANIFEST | API_CONTRACT
+  preservationTier String  @map("preservation_tier")
+  sha256Hash      String   @unique @map("sha256_hash")
+  accessRoles     String   @map("access_roles")                                   // Comma-separated roles
+  vaultedAt       DateTime @default(now()) @map("vaulted_at")
+
+  @@map("institutional_knowledge_vault_entries")
+}
+
+model LegacyEnterpriseCertification {
+  certId                   String   @id @default(uuid()) @map("cert_id")
+  certificateNumber        String   @unique @map("certificate_number")            // LEGIS-LEGACY-ENTERPRISE-CERT-2026
+  classification           String   @default("LEGACY_ENTERPRISE_PLATFORM")
+  legacyIntegrityScorePct  Decimal  @map("legacy_integrity_score_pct") @db.Decimal(5, 2)
+  preservationCompletenessPct Decimal @default(100.0) @map("preservation_completeness_pct") @db.Decimal(5, 2)
+  knowledgeMapCoveragePct  Decimal  @map("knowledge_map_coverage_pct") @db.Decimal(5, 2)
+  successorReadinessPct    Decimal  @map("successor_readiness_pct") @db.Decimal(5, 2)
+  totalAssetsPreserved     Int      @map("total_assets_preserved")
+  authorizationCode        String   @map("authorization_code")                    // AUTH-LEGACY-ENTERPRISE-2026-FINAL
+  issuedAt                 DateTime @default(now()) @map("issued_at")
+
+  @@map("legacy_enterprise_certifications")
+}
