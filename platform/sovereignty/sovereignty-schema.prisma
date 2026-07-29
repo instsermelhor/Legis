@@ -1,0 +1,50 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// sovereignty-schema.prisma — Prompt 270 Digital Sovereignty & Interoperability
+// Legis Connect | Global Digital Trust & Open Standards Governance
+// W3C · OpenID · OAuth 2.1 · OpenTelemetry · OPA · GDPR · LGPD · CCPA
+// ═══════════════════════════════════════════════════════════════════════════
+
+model DataResidencyRuleRecord {
+  ruleId               String   @id @default(uuid()) @map("rule_id")
+  tenantId             String   @map("tenant_id")
+  citizenJurisdiction  String   @map("citizen_jurisdiction")                   // LGPD_BRAZIL | GDPR_EU | CCPA_USA
+  assignedRegion       String   @map("assigned_region")                        // SA_EAST_1 | EU_WEST_1 | US_EAST_1
+  opaPolicyVerified    Boolean  @default(true) @map("opa_policy_verified")
+  createdAt            DateTime @default(now()) @map("created_at")
+
+  @@index([tenantId, citizenJurisdiction])
+  @@map("data_residency_rule_records")
+}
+
+model OpenStandardCatalogItem {
+  itemId               String   @id @default(uuid()) @map("item_id")
+  standardName         String   @unique @map("standard_name")
+  governingBody        String   @map("governing_body")                         // W3C | OpenID | CNCF | OASIS | IETF
+  adoptionLevel        String   @default("MANDATORY") @map("adoption_level")   // MANDATORY | RECOMMENDED
+  isCompliant          Boolean  @default(true) @map("is_compliant")
+  updatedAt            DateTime @default(now()) @map("updated_at")
+
+  @@map("open_standard_catalog_items")
+}
+
+model FederatedIdentityProvider {
+  providerId           String   @id @default(uuid()) @map("provider_id")
+  name                 String   @unique
+  protocol             String   @map("protocol")                               // OIDC | SAML2 | SCIM2 | FIDO2_PASSKEYS
+  issuerUrl            String   @map("issuer_url")
+  isEnabled            Boolean  @default(true) @map("is_enabled")
+  createdAt            DateTime @default(now()) @map("created_at")
+
+  @@map("federated_identity_providers")
+}
+
+model GlobalDigitalTrustCertification {
+  certId                String   @id @default(uuid()) @map("cert_id")
+  certificateNumber     String   @unique @map("certificate_number")            // LEGIS-GLOBAL-TRUST-CERT-2026
+  classification        String   @default("GLOBALLY_INTEROPERABLE_SOVEREIGN_PLATFORM")
+  vendorLockInScore     Decimal  @map("vendor_lock_in_score") @db.Decimal(3, 2)
+  authorizationCode     String   @map("authorization_code")                    // AUTH-SOVEREIGNTY-2026-FINAL
+  issuedAt              DateTime @default(now()) @map("issued_at")
+
+  @@map("global_digital_trust_certifications")
+}
