@@ -1,0 +1,56 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// enterprise-digital-twin-schema.prisma — Prompt 288 Digital Twin Enterprise Platform
+// Legis Connect | Enterprise Digital Twin Framework (EDTF)
+// MBSE Graph Topology · Predictive Simulation Engine · Scenario Evidence · What-If Engine
+// ═══════════════════════════════════════════════════════════════════════════
+
+model DigitalTwinNodeRecord {
+  nodeId       String   @id @default(uuid()) @map("node_id")
+  name         String
+  nodeType     String   @map("node_type")                                    // BOUNDED_CONTEXT | API_ENDPOINT | KAFKA_TOPIC | AI_AGENT | K8S_POD | DB_TABLE | POLICY_REGO
+  fidelityLevel String  @map("fidelity_level")                               // L1_TOPOLOGY | L2_WORKFLOW | L3_AI_BEHAVIOR | L4_FINOPS | L5_SYSTEMIC
+  properties   String   @db.Text                                             // JSON properties
+  lastSyncedAt DateTime @default(now()) @map("last_synced_at")
+
+  @@index([nodeType, fidelityLevel])
+  @@map("digital_twin_node_records")
+}
+
+model SimulationScenarioRecord {
+  scenarioId               String   @id @default(uuid()) @map("scenario_id")
+  scenarioName             String   @map("scenario_name")
+  confidenceScorePct       Decimal  @map("confidence_score_pct") @db.Decimal(5, 2)
+  executionTimeMs          Int      @map("execution_time_ms")
+  predictedLatencyChangeMs Int      @map("predicted_latency_change_ms")
+  predictedCostImpactPct   Decimal  @map("predicted_cost_impact_pct") @db.Decimal(5, 2)
+  recommendedAlternative   String   @db.Text @map("recommended_alternative")
+  simulatedAt              DateTime @default(now()) @map("simulated_at")
+
+  @@index([scenarioName, simulatedAt])
+  @@map("simulation_scenario_records")
+}
+
+model SystemicImpactEvaluationRecord {
+  evaluationId     String   @id @default(uuid()) @map("evaluation_id")
+  targetComponent  String   @map("target_component")
+  impactType       String   @map("impact_type")                             // DIRECT | INDIRECT | CUMULATIVE | SYSTEMIC
+  affectedNodesCount Int    @map("affected_nodes_count")
+  riskScore        Decimal  @map("risk_score") @db.Decimal(4, 2)
+  evaluatedAt      DateTime @default(now()) @map("evaluated_at")
+
+  @@map("systemic_impact_evaluation_records")
+}
+
+model DigitalTwinEnterpriseCertification {
+  certId                     String   @id @default(uuid()) @map("cert_id")
+  certificateNumber          String   @unique @map("certificate_number")    // LEGIS-DIGITAL-TWIN-ENTERPRISE-CERT-288-2026
+  classification             String   @default("DIGITAL_TWIN_ENTERPRISE_PLATFORM")
+  enterprisePredictiveIndexPct Decimal @map("enterprise_predictive_index_pct") @db.Decimal(5, 2)
+  modelFidelityScorePct      Decimal  @map("model_fidelity_score_pct") @db.Decimal(5, 2)
+  predictiveAccuracyPct      Decimal  @map("predictive_accuracy_pct") @db.Decimal(5, 2)
+  totalGraphNodesCount       Int      @map("total_graph_nodes_count")
+  authorizationCode          String   @map("authorization_code")            // AUTH-DIGITAL-TWIN-288-2026-FINAL
+  issuedAt                   DateTime @default(now()) @map("issued_at")
+
+  @@map("digital_twin_enterprise_certifications")
+}
