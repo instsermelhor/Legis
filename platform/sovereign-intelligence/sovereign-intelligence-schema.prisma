@@ -1,0 +1,61 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// sovereign-intelligence-schema.prisma — Prompt 290 Sovereign Intelligent Enterprise Platform
+// Legis Connect | Enterprise Sovereign Intelligence Framework (ESIF)
+// Institutional AI Constitution · Knowledge Brain · Intelligence Graph · MAIA
+// ═══════════════════════════════════════════════════════════════════════════
+
+model KnowledgeChunkRecord {
+  chunkId           String   @id @default(uuid()) @map("chunk_id")
+  sourceDocument    String   @map("source_document")                         // ADR name, Blueprint name, etc.
+  chunkIndex        Int      @map("chunk_index")
+  contentText       String   @db.Text @map("content_text")
+  embeddingModel    String   @default("gemini-text-embedding-004") @map("embedding_model")
+  embeddingDimension Int     @default(3072) @map("embedding_dimension")
+  contentHash       String   @unique @map("content_hash")                    // SHA-256 for immutability
+  indexedAt         DateTime @default(now()) @map("indexed_at")
+
+  @@index([sourceDocument, chunkIndex])
+  @@map("knowledge_chunk_records")
+}
+
+model KnowledgeRetrievalAuditRecord {
+  queryId                  String   @id @default(uuid()) @map("query_id")
+  queryText                String   @db.Text @map("query_text")
+  topKChunks               Int      @map("top_k_chunks")
+  reasoningAccuracyPct     Decimal  @map("reasoning_accuracy_pct") @db.Decimal(5, 2)
+  contextFaithfulnessPct   Decimal  @map("context_faithfulness_pct") @db.Decimal(5, 2)
+  explainabilityTraceId    String   @unique @map("explainability_trace_id")
+  constitutionallyCompliant Boolean @default(true) @map("constitutionally_compliant")
+  retrievedAt              DateTime @default(now()) @map("retrieved_at")
+
+  @@index([constitutionallyCompliant, retrievedAt])
+  @@map("knowledge_retrieval_audit_records")
+}
+
+model AiModelGovernanceRecord {
+  modelId         String   @id @default(uuid()) @map("model_id")
+  modelName       String   @map("model_name")
+  version         String
+  provider        String                                                     // GOOGLE | ANTHROPIC | OPENAI | LOCAL
+  sovereignStatus String   @map("sovereign_status")                          // SOVEREIGN | HYBRID | EXTERNAL
+  performancePct  Decimal  @map("performance_pct") @db.Decimal(5, 2)
+  lastAuditedAt   DateTime @map("last_audited_at")
+  registeredAt    DateTime @default(now()) @map("registered_at")
+
+  @@index([sovereignStatus, modelName])
+  @@map("ai_model_governance_records")
+}
+
+model SovereignIntelligentEnterpriseCertification {
+  certId                       String   @id @default(uuid()) @map("cert_id")
+  certificateNumber            String   @unique @map("certificate_number")    // LEGIS-SOVEREIGN-INTELLIGENT-ENTERPRISE-CERT-290-2026
+  classification               String   @default("SOVEREIGN_INTELLIGENT_ENTERPRISE_PLATFORM")
+  sovereignIntelligenceIndexPct Decimal @map("sovereign_intelligence_index_pct") @db.Decimal(5, 2)
+  knowledgeBrainChunksCount    Int      @map("knowledge_brain_chunks_count")
+  intelligenceGraphNodesCount  Int      @map("intelligence_graph_nodes_count")
+  modelGovernanceCoveragePct   Decimal  @default(100.0) @map("model_governance_coverage_pct") @db.Decimal(5, 2)
+  authorizationCode            String   @map("authorization_code")            // AUTH-SOVEREIGN-INTELLIGENCE-290-2026-FINAL
+  issuedAt                     DateTime @default(now()) @map("issued_at")
+
+  @@map("sovereign_intelligent_enterprise_certifications")
+}
