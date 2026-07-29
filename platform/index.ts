@@ -1,7 +1,7 @@
 /**
  * @file index.ts
- * @description Master Platform Engine Export & Unification — Prompts 001–294
- *              Legis Connect | Independently Validated Enterprise Platform
+ * @description Master Platform Engine Export & Unification — Prompts 001–295
+ *              Legis Connect | Production-Ready Enterprise Platform
  */
 
 export * from './universal/universal-reference-engine';
@@ -13,3 +13,4 @@ export * from './meta-governance/enterprise-meta-governance-engine';
 export * from './civilization/enterprise-civilization-engine';
 export * from './singularity/enterprise-singularity-engine';
 export * from './validation/enterprise-validation-engine';
+export * from './launch/enterprise-launch-engine';
