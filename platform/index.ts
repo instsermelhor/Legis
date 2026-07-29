@@ -1,8 +1,8 @@
 /**
  * @file index.ts
- * @description Master Platform Engine Export & Unification — Prompts 001–302
- *              Legis Connect | Human-Centered Intelligent Enterprise Platform
- *              Permanent Technological Evolution Cycle — Phase 2
+ * @description Master Platform Engine Export & Unification — Prompts 001–303
+ *              Legis Connect | Living Intelligent Enterprise Platform
+ *              Permanent Technological Evolution Cycle — Phase 3
  */
 
 // ─── Foundation Engines (Prompts 286–293) ───────────────────────────────────
@@ -33,3 +33,6 @@ export * from './future-evolution/enterprise-future-evolution-engine';
 
 // ─── Multi-Agent Intelligence Engine (Prompt 302 — Permanent Evolution Ph.2) ─
 export * from './multi-agent/enterprise-multi-agent-engine';
+
+// ─── Living Enterprise Digital Twin Engine (Prompt 303 — Permanent Ev. Ph.3) ─
+export * from './digital-twin-corp/enterprise-digital-twin-corp-engine';
