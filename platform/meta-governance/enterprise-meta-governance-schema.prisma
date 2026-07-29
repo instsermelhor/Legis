@@ -1,0 +1,56 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// enterprise-meta-governance-schema.prisma — Prompt 291 Constitutionally Governed Intelligent Enterprise Platform
+// Legis Connect | Enterprise Meta-Governance Framework (EMGF)
+// Constitutional Evolution Council · Meta-Risk · Accountability · Governance Knowledge Graph
+// ═══════════════════════════════════════════════════════════════════════════
+
+model ConstitutionalAmendmentRecord {
+  amendmentId        String   @id @default(uuid()) @map("amendment_id")
+  title              String
+  proposedArticle    String   @db.Text @map("proposed_article")
+  quorumReached      Boolean  @map("quorum_reached")
+  approvalPercentage Decimal  @map("approval_percentage") @db.Decimal(5, 2)
+  status             String   @default("PROPOSED")                        // PROPOSED | RATIFIED | REJECTED
+  ratifiedAdrId      String?  @map("ratified_adr_id")
+  votedAt            DateTime @default(now()) @map("voted_at")
+
+  @@index([status, votedAt])
+  @@map("constitutional_amendment_records")
+}
+
+model MetaGovernanceAuditRecord {
+  auditId            String   @id @default(uuid()) @map("audit_id")
+  metaGovernanceLevel String  @map("meta_governance_level")               // MGL_1_RUNTIME_OPA | MGL_2_ADR_TRACEABILITY | MGL_3_HUMAN_OVERSIGHT_AUDIT | MGL_4_KNOWLEDGE_SOVEREIGNTY | MGL_5_CIVILIZATIONAL_IMPACT
+  targetComponent    String   @map("target_component")
+  passed             Boolean
+  evidenceHash       String   @unique @map("evidence_hash")               // OpenTimestamps Hash
+  auditedAt          DateTime @default(now()) @map("audited_at")
+
+  @@index([metaGovernanceLevel, passed])
+  @@map("meta_governance_audit_records")
+}
+
+model MetaRiskAssessmentRecord {
+  riskId            String   @id @default(uuid()) @map("risk_id")
+  riskCategory      String   @map("risk_category")                       // CONSTITUTIONAL | ETHICAL | GOVERNANCE_DRIFT | AI_ALIGNMENT | SUCCESSION
+  description       String   @db.Text
+  riskScore         Decimal  @map("risk_score") @db.Decimal(4, 2)
+  mitigationPlan    String   @db.Text @map("mitigation_plan")
+  evaluatedAt       DateTime @default(now()) @map("evaluated_at")
+
+  @@index([riskCategory, riskScore])
+  @@map("meta_risk_assessment_records")
+}
+
+model ConstitutionallyGovernedEnterpriseCertification {
+  certId                     String   @id @default(uuid()) @map("cert_id")
+  certificateNumber          String   @unique @map("certificate_number")  // LEGIS-CONSTITUTIONALLY-GOVERNED-ENTERPRISE-CERT-291-2026
+  classification             String   @default("CONSTITUTIONALLY_GOVERNED_INTELLIGENT_ENTERPRISE_PLATFORM")
+  institutionalTrustIndexPct Decimal  @map("institutional_trust_index_pct") @db.Decimal(5, 2)
+  constitutionalCompliancePct Decimal @default(100.0) @map("constitutional_compliance_pct") @db.Decimal(5, 2)
+  totalRatifiedAdrsCount     Int      @default(77) @map("total_ratified_adrs_count")
+  authorizationCode          String   @map("authorization_code")          // AUTH-META-GOVERNANCE-291-2026-FINAL
+  issuedAt                   DateTime @default(now()) @map("issued_at")
+
+  @@map("constitutionally_governed_enterprise_certifications")
+}
