@@ -1,0 +1,68 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// enterprise-knowledge-cognitive-schema.prisma — Prompt 307 Cognitive Enterprise
+// Legis Connect | Enterprise Knowledge Intelligence Framework (EKIF)
+// Knowledge Domains · Semantic Graph Nodes · Reasoning Inferences · Cognitive Certification
+// ═══════════════════════════════════════════════════════════════════════════
+
+model KnowledgeDomainRecord {
+  domainId            String   @id @map("domain_id")                       // KD-01 → KD-06
+  name                String
+  category            String
+  assetCount          Int      @default(0) @map("asset_count")
+  qualityScorePct     Decimal  @map("quality_score_pct") @db.Decimal(5, 2) // 95.0–100.0
+  reuseRatePct        Decimal  @map("reuse_rate_pct") @db.Decimal(5, 2)
+  status              String   @default("ACTIVE")                          // ACTIVE | UNDER_REVIEW | ARCHIVED
+  lastCuratedAt       DateTime @default(now()) @map("last_curated_at")
+
+  graphNodes          KnowledgeGraphNodeRecord[]
+
+  @@index([status, qualityScorePct])
+  @@map("knowledge_domain_records")
+}
+
+model KnowledgeGraphNodeRecord {
+  nodeId              String   @id @default(uuid()) @map("node_id")
+  domainId            String   @map("domain_id")
+  label               String   @map("label")                               // FACT | HUMAN_INTERPRETATION | AUTOMATED_INFERENCE | HYPOTHESIS
+  title               String
+  uri                 String   @unique @map("uri")                         // Persistent URI (FAIR)
+  provenance          String   @map("provenance")                          // Source & author/engine
+  proofTree           String?  @db.Text @map("proof_tree")                 // Logic proof for AUTOMATED_INFERENCE
+  verifiedByHuman     Boolean  @default(true) @map("verified_by_human")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  domain              KnowledgeDomainRecord @relation(fields: [domainId], references: [domainId])
+  inferences          ReasoningInferenceRecord[]
+
+  @@index([domainId, label])
+  @@map("knowledge_graph_node_records")
+}
+
+model ReasoningInferenceRecord {
+  inferenceId         String   @id @default(uuid()) @map("inference_id")
+  targetNodeId        String   @map("target_node_id")
+  deductionSummary    String   @db.Text @map("deduction_summary")
+  confidenceScorePct  Decimal  @map("confidence_score_pct") @db.Decimal(5, 2)
+  proofTreeSummary    String   @db.Text @map("proof_tree_summary")
+  generatedAt         DateTime @default(now()) @map("generated_at")
+
+  targetNode          KnowledgeGraphNodeRecord @relation(fields: [targetNodeId], references: [nodeId])
+
+  @@index([targetNodeId, confidenceScorePct])
+  @@map("reasoning_inference_records")
+}
+
+model CognitiveEnterpriseCertification {
+  certId                       String   @id @default(uuid()) @map("cert_id")
+  certificateNumber            String   @unique @map("certificate_number")          // LEGIS-COGNITIVE-ENTERPRISE-CERT-307-2026
+  classification               String   @default("COGNITIVE_KNOWLEDGE_DRIVEN_ENTERPRISE_PLATFORM")
+  totalDomainsCertified        Int      @default(6) @map("total_domains_certified")
+  knowledgeMaturityIndexPct    Decimal  @map("knowledge_maturity_index_pct") @db.Decimal(5, 2) // 99.2
+  fairComplianceRatePct        Decimal  @default(100.0) @map("fair_compliance_rate_pct") @db.Decimal(5, 2)
+  ekgTraversalLatencyMs        Int      @default(145) @map("ekg_traversal_latency_ms")
+  cognitiveMaturityLevel       Int      @default(4) @map("cognitive_maturity_level")        // 4 = Cognitive
+  authorizationCode            String   @map("authorization_code")                  // AUTH-KNOWLEDGE-307-2026-FINAL
+  issuedAt                     DateTime @default(now()) @map("issued_at")
+
+  @@map("cognitive_enterprise_certifications")
+}

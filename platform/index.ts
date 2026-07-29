@@ -1,8 +1,8 @@
 /**
  * @file index.ts
- * @description Master Platform Engine Export & Unification — Prompts 001–306
- *              Legis Connect | Future-Aware Intelligent Enterprise Platform
- *              Permanent Technological Evolution Cycle — Phase 6
+ * @description Master Platform Engine Export & Unification — Prompts 001–307
+ *              Legis Connect | Cognitive Knowledge-Driven Enterprise Platform
+ *              Permanent Technological Evolution Cycle — Phase 7
  */
 
 // ─── Foundation Engines (Prompts 286–293) ───────────────────────────────────
@@ -45,3 +45,6 @@ export * from './resilience/enterprise-resilience-antifragile-engine';
 
 // ─── Future-Aware Enterprise Strategic Foresight Engine (Prompt 306 — Ph.6) ──
 export * from './foresight/enterprise-foresight-future-engine';
+
+// ─── Cognitive Enterprise Knowledge Intelligence Engine (Prompt 307 — Ph.7) ──
+export * from './knowledge/enterprise-knowledge-cognitive-engine';
