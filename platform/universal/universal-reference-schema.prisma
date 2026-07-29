@@ -1,0 +1,59 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// universal-reference-schema.prisma — Prompt 286 Universal Enterprise Reference Platform
+// Legis Connect | Enterprise Universal Reference Architecture (EURA)
+// 3-Zone Architecture · Replication Engine · Blueprint Generator · Capability Catalog
+// ═══════════════════════════════════════════════════════════════════════════
+
+model ModularCapabilityCatalogRecord {
+  moduleId         String   @id @default(uuid()) @map("module_id")
+  moduleName       String   @unique @map("module_name")
+  zone             String                                                         // ZONE_1_CORE | ZONE_2_DOMAIN | ZONE_3_EXTENSION
+  criticality      String                                                         // CRITICAL | HIGH | MEDIUM | LOW
+  supportedDomains String   @map("supported_domains")                             // Comma-separated or JSON
+  version          String   @default("1.0.0")
+  registeredAt     DateTime @default(now()) @map("registered_at")
+
+  @@index([zone, criticality])
+  @@map("modular_capability_catalog_records")
+}
+
+model DerivedPlatformInstanceRecord {
+  instanceId              String   @id @default(uuid()) @map("instance_id")
+  instanceName            String   @map("instance_name")
+  targetDomain            String   @map("target_domain")                         // LEGAL | HEALTH | EDUCATION | GOVERNMENT | FINANCE | INDUSTRY | NGO
+  deploymentProfile       String   @map("deployment_profile")                     // STARTER | STANDARD | ENTERPRISE | MISSION_CRITICAL
+  provisioningTimeSeconds Int      @map("provisioning_time_seconds")
+  constitutionalOSActive  Boolean  @default(true) @map("constitutional_os_active")
+  status                  String   @default("SUCCESS")                            // SUCCESS | FAILED
+  deployedAt              DateTime @default(now()) @map("deployed_at")
+
+  @@index([targetDomain, status])
+  @@map("derived_platform_instance_records")
+}
+
+model GeneratedBlueprintRecord {
+  blueprintId              String   @id @default(uuid()) @map("blueprint_id")
+  targetDomain             String   @map("target_domain")
+  deploymentProfile        String   @map("deployment_profile")
+  selectedModulesJson      String   @db.Text @map("selected_modules_json")
+  zone3ExtensionCount      Int      @map("zone3_extension_count")
+  configurationCoveragePct Decimal  @map("configuration_coverage_pct") @db.Decimal(5, 2)
+  mermaidDiagram           String   @db.Text @map("mermaid_diagram")
+  generatedAt              DateTime @default(now()) @map("generated_at")
+
+  @@map("generated_blueprint_records")
+}
+
+model UniversalEnterpriseCertification {
+  certId                    String   @id @default(uuid()) @map("cert_id")
+  certificateNumber         String   @unique @map("certificate_number")           // LEGIS-UNIVERSAL-ENTERPRISE-CERT-286-2026
+  classification            String   @default("UNIVERSAL_ENTERPRISE_REFERENCE_PLATFORM")
+  moduleReuseRatePct        Decimal  @map("module_reuse_rate_pct") @db.Decimal(5, 2)
+  configurationCoveragePct  Decimal  @map("configuration_coverage_pct") @db.Decimal(5, 2)
+  timeToNewInstanceHours    Decimal  @map("time_to_new_instance_hours") @db.Decimal(4, 2)
+  crossDomainPortabilityPct Decimal  @default(100.0) @map("cross_domain_portability_pct") @db.Decimal(5, 2)
+  authorizationCode         String   @map("authorization_code")                   // AUTH-UNIVERSAL-ENTERPRISE-286-2026-FINAL
+  issuedAt                  DateTime @default(now()) @map("issued_at")
+
+  @@map("universal_enterprise_certifications")
+}
