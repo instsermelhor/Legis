@@ -1,0 +1,50 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// living-operations-schema.prisma — Prompt 272 Living Enterprise Operations
+// Legis Connect | Global Production Readiness & Operations
+// SRE · ITIL 4 · OpenTelemetry · 30-Day Hypercare · Zero Downtime Cutover
+// ═══════════════════════════════════════════════════════════════════════════
+
+model CutoverStepRecord {
+  stepId              String   @id @default(uuid()) @map("step_id")
+  stepNumber          Int      @map("step_number")
+  description         String
+  passed              Boolean  @default(true)
+  durationSeconds     Int      @map("duration_seconds")
+  executedAt          DateTime @default(now()) @map("executed_at")
+
+  @@map("cutover_step_records")
+}
+
+model HypercareIncidentLog {
+  incidentId          String   @id @default(uuid()) @map("incident_id")
+  severity            String   @map("severity")                                // P1_CRITICAL | P2_HIGH | P3_MEDIUM | P4_LOW
+  title               String
+  resolutionDetails   String   @db.Text @map("resolution_details")
+  responseTimeMinutes Decimal  @map("response_time_minutes") @db.Decimal(5, 2)
+  resolvedAt          DateTime @default(now()) @map("resolved_at")
+
+  @@index([severity, resolvedAt])
+  @@map("hypercare_incident_logs")
+}
+
+model SreSloMetricRecord {
+  metricId            String   @id @default(uuid()) @map("metric_id")
+  serviceDomain       String   @map("service_domain")
+  targetSloPct        Decimal  @map("target_slo_pct") @db.Decimal(5, 3)
+  measuredSloPct      Decimal  @map("measured_slo_pct") @db.Decimal(5, 3)
+  errorBudgetPct      Decimal  @map("error_budget_pct") @db.Decimal(5, 2)
+  recordedAt          DateTime @default(now()) @map("recorded_at")
+
+  @@map("sre_slo_metric_records")
+}
+
+model GlobalProductionCertification {
+  certId                String   @id @default(uuid()) @map("cert_id")
+  certificateNumber     String   @unique @map("certificate_number")            // LEGIS-GLOBAL-PRODUCTION-CERT-2026
+  classification        String   @default("LIVING_ENTERPRISE_PLATFORM")
+  measuredAvailability  Decimal  @map("measured_availability") @db.Decimal(5, 3)
+  authorizationCode     String   @map("authorization_code")                    // AUTH-PRODUCTION-2026-FINAL
+  issuedAt              DateTime @default(now()) @map("issued_at")
+
+  @@map("global_production_certifications")
+}
