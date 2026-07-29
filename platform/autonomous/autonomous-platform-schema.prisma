@@ -1,0 +1,52 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// autonomous-platform-schema.prisma — Prompt 269 Autonomous Enterprise Platform
+// Legis Connect | Level 5 Autonomous Enterprise & Digital Twin
+// AIOps · Digital Twin · ISO 42001 · Human-in-the-Loop · LLMOps
+// ═══════════════════════════════════════════════════════════════════════════
+
+model IntelligenceFabricEvent {
+  eventId            String   @id @default(uuid()) @map("event_id")
+  sourceDomain       String   @map("source_domain")
+  eventType          String   @map("event_type")                                 // METRIC | LOG | TRACE | SECURITY_ALERT | AI_DECISION
+  payload            Json
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  @@index([sourceDomain, eventType])
+  @@map("intelligence_fabric_events")
+}
+
+model DigitalTwinSimulationRecord {
+  simulationId       String   @id @default(uuid()) @map("simulation_id")
+  changeName         String   @map("change_name")
+  targetDomain       String   @map("target_domain")
+  safeToApply        Boolean  @default(true) @map("safe_to_apply")
+  impactScorePct     Decimal  @map("impact_score_pct") @db.Decimal(5, 2)
+  executedAt         DateTime @default(now()) @map("executed_at")
+
+  @@map("digital_twin_simulation_records")
+}
+
+model AutonomousDecisionLog {
+  decisionId             String   @id @default(uuid()) @map("decision_id")
+  actionName             String   @map("action_name")
+  autonomyLevel          String   @map("autonomy_level")                        // L0_OBSERVED | L1_RECOMMEND | L2_ASSISTED | L3_CONTROLLED | L4_AUTONOMOUS
+  simulatedInDigitalTwin Boolean  @default(true) @map("simulated_in_digital_twin")
+  requiresHumanApproval  Boolean  @default(false) @map("requires_human_approval")
+  executedAutomatically  Boolean  @default(true) @map("executed_automatically")
+  explanationText        String   @db.Text @map("explanation_text")
+  timestamp              DateTime @default(now())
+
+  @@index([autonomyLevel, executedAutomatically])
+  @@map("autonomous_decision_logs")
+}
+
+model Level5AutonomousCertification {
+  certId                String   @id @default(uuid()) @map("cert_id")
+  certificateNumber     String   @unique @map("certificate_number")            // LEGIS-AUTONOMOUS-ENTERPRISE-CERT-2026
+  classification        String   @default("LEVEL_5_AUTONOMOUS_ENTERPRISE")
+  autonomousHealingRate Decimal  @map("autonomous_healing_rate") @db.Decimal(5, 2)
+  authorizationCode     String   @map("authorization_code")                    // AUTH-AUTONOMOUS-2026-FINAL
+  issuedAt              DateTime @default(now()) @map("issued_at")
+
+  @@map("level5_autonomous_certifications")
+}
