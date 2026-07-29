@@ -1,0 +1,71 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// enterprise-resilience-antifragile-schema.prisma — Prompt 305 Anti-Fragile Intelligent Enterprise
+// Legis Connect | Enterprise Autonomous Resilience Framework (EARF)
+// Resilience Domains · Incident Evolution Logs · Chaos Drills · Anti-Fragile Certification
+// ═══════════════════════════════════════════════════════════════════════════
+
+model ResilienceDomainRecord {
+  domainId            String   @id @map("domain_id")                       // RF-01 → RF-06
+  name                String
+  category            String
+  mttrMinutes         Decimal  @map("mttr_minutes") @db.Decimal(5, 2)
+  healthScorePct      Decimal  @map("health_score_pct") @db.Decimal(5, 2)  // 95.0–100.0
+  chaosPassRatePct    Decimal  @map("chaos_pass_rate_pct") @db.Decimal(5, 2)
+  status              String   @default("OPTIMAL")                         // OPTIMAL | DEGRADED | RECOVERING
+  lastDrillAt         DateTime @default(now()) @map("last_drill_at")
+
+  incidents           IncidentEvolutionRecord[]
+  chaosDrills         ChaosDrillRecord[]
+
+  @@index([status, healthScorePct])
+  @@map("resilience_domain_records")
+}
+
+model IncidentEvolutionRecord {
+  incidentId          String   @id @default(uuid()) @map("incident_id")
+  domainId            String   @map("domain_id")
+  severity            String   @default("P3_MEDIUM")                       // P1_CRITICAL | P2_HIGH | P3_MEDIUM | P4_LOW
+  title               String
+  rootCauseSummary    String   @db.Text @map("root_cause_summary")
+  recoveryStage       String   @default("EVOLVE") @map("recovery_stage")   // DETECT | CONTAIN | STABILIZE | RECOVER | EVOLVE
+  evolutionActionTaken String  @db.Text @map("evolution_action_taken")     // Proof of OPA/AVP/code update
+  resolvedAt          DateTime? @map("resolved_at")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  domain              ResilienceDomainRecord @relation(fields: [domainId], references: [domainId])
+
+  @@index([domainId, severity])
+  @@map("incident_evolution_records")
+}
+
+model ChaosDrillRecord {
+  drillId             String   @id @default(uuid()) @map("drill_id")
+  domainId            String   @map("domain_id")
+  experimentName      String   @map("experiment_name")
+  hypothesis          String   @db.Text
+  targetComponent     String   @map("target_component")
+  passed              Boolean  @default(true)
+  recoveryTimeSeconds Int      @map("recovery_time_seconds")
+  executedAt          DateTime @default(now()) @map("executed_at")
+
+  domain              ResilienceDomainRecord @relation(fields: [domainId], references: [domainId])
+
+  @@index([domainId, passed])
+  @@map("chaos_drill_records")
+}
+
+model AntiFragileEnterpriseCertification {
+  certId                       String   @id @default(uuid()) @map("cert_id")
+  certificateNumber            String   @unique @map("certificate_number")  // LEGIS-ANTIFRAGILE-ENTERPRISE-CERT-305-2026
+  classification               String   @default("ANTI_FRAGILE_INTELLIGENT_ENTERPRISE_PLATFORM")
+  totalDomainsCertified        Int      @default(6) @map("total_domains_certified")
+  antiFragilityMaturityIndexPct Decimal @map("anti_fragility_maturity_index_pct") @db.Decimal(5, 2) // 99.2
+  mttrP1AvgMinutes             Decimal  @map("mttr_p1_avg_minutes") @db.Decimal(5, 2)
+  incidentToEvolutionRatePct   Decimal  @default(100.0) @map("incident_to_evolution_rate_pct") @db.Decimal(5, 2)
+  chaosPassRateAvgPct          Decimal  @map("chaos_pass_rate_avg_pct") @db.Decimal(5, 2)
+  antiFragilityMaturityLevel   Int      @default(4) @map("anti_fragility_maturity_level")   // 4 = Antifrágil
+  authorizationCode            String   @map("authorization_code")          // AUTH-ANTIFRAGILE-305-2026-FINAL
+  issuedAt                     DateTime @default(now()) @map("issued_at")
+
+  @@map("anti_fragile_enterprise_certifications")
+}
