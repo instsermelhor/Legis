@@ -1,7 +1,7 @@
 /**
  * @file index.ts
- * @description Master Platform Engine Export & Unification — Prompts 001–296
- *              Legis Connect | Outcome-Driven Intelligent Enterprise Platform
+ * @description Master Platform Engine Export & Unification — Prompts 001–297
+ *              Legis Connect | Intelligent Digital Legal Ecosystem Platform
  */
 
 export * from './universal/universal-reference-engine';
@@ -15,3 +15,4 @@ export * from './singularity/enterprise-singularity-engine';
 export * from './validation/enterprise-validation-engine';
 export * from './launch/enterprise-launch-engine';
 export * from './excellence/enterprise-excellence-engine';
+export * from './ecosystem/enterprise-ecosystem-engine';

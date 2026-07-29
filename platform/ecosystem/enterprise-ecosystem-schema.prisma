@@ -1,0 +1,54 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// enterprise-ecosystem-schema.prisma — Prompt 297 Intelligent Digital Legal Ecosystem Platform
+// Legis Connect | Enterprise Ecosystem Governance Framework (EEGF)
+// Strategic Partnerships · Federated Nodes · W3C DIDs & VCs · Multi-Org Knowledge Graph
+// ═══════════════════════════════════════════════════════════════════════════
+
+model FederatedNodeRecord {
+  nodeId           String   @id @map("node_id")                         // NODE-01, NODE-02, NODE-03
+  organizationName String   @map("organization_name")
+  tier             String   @default("TIER_2_PARTNER")                  // TIER_1_MEMBER | TIER_2_PARTNER | TIER_3_ACADEMIC | TIER_4_PUBLIC_GOVT | TIER_5_CORE_GOVERNING
+  w3cDid           String   @unique @map("w3c_did")
+  status           String   @default("ACTIVE")                          // ACTIVE | SUSPENDED | PENDING_VERIFICATION
+  connectedAt      DateTime @default(now()) @map("connected_at")
+
+  @@index([tier, status])
+  @@map("federated_node_records")
+}
+
+model VerifiableCredentialRecord {
+  vcId           String   @id @default(uuid()) @map("vc_id")
+  issuerDid      String   @map("issuer_did")
+  subjectDid     String   @map("subject_did")
+  credentialType String   @map("credential_type")
+  isValid        Boolean  @default(true) @map("is_valid")
+  issuedAt       DateTime @default(now()) @map("issued_at")
+
+  @@index([subjectDid, credentialType])
+  @@map("verifiable_credential_records")
+}
+
+model EcosystemMetricRecord {
+  metricId            String   @id @default(uuid()) @map("metric_id")
+  ecosystemMaturityPct Decimal  @map("ecosystem_maturity_pct") @db.Decimal(5, 2)
+  interOrgLatencyMs   Int      @map("inter_org_latency_ms")
+  activeDidsCount     Int      @map("active_dids_count")
+  issuedVcsCount      Int      @map("issued_vcs_count")
+  recordedAt          DateTime @default(now()) @map("recorded_at")
+
+  @@map("ecosystem_metric_records")
+}
+
+model IntelligentDigitalEcosystemCertification {
+  certId                     String   @id @default(uuid()) @map("cert_id")
+  certificateNumber          String   @unique @map("certificate_number") // LEGIS-INTELLIGENT-DIGITAL-ECOSYSTEM-CERT-297-2026
+  classification             String   @default("INTELLIGENT_DIGITAL_LEGAL_ECOSYSTEM_PLATFORM")
+  ecosystemMaturityIndexPct  Decimal  @map("ecosystem_maturity_index_pct") @db.Decimal(5, 2)
+  activeFederatedNodesCount  Int      @default(4) @map("active_federated_nodes_count")
+  totalMasterBlueprintsCount Int      @default(297) @map("total_master_blueprints_count")
+  totalRatifiedAdrsCount     Int      @default(83) @map("total_ratified_adrs_count")
+  authorizationCode          String   @map("authorization_code")         // AUTH-ECOSYSTEM-297-2026-FINAL
+  issuedAt                   DateTime @default(now()) @map("issued_at")
+
+  @@map("intelligent_digital_ecosystem_certifications")
+}
