@@ -1,0 +1,51 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// strategic-nexus-schema.prisma — Prompt 281 Mission-Critical Enterprise Platform
+// Legis Connect | Enterprise Strategic Intelligence Nexus
+// OKR Governance · Value Stream · Priority Engine · Mission Assurance
+// ═══════════════════════════════════════════════════════════════════════════
+
+model OkrAlignmentRecord {
+  okrId                    String   @id @default(uuid()) @map("okr_id")
+  okrTitle                 String   @unique @map("okr_title")
+  linkedBoundedContextsJson String  @db.Text @map("linked_bounded_contexts_json")
+  linkedAiAgentsJson       String   @db.Text @map("linked_ai_agents_json")
+  achievementRatePct       Decimal  @map("achievement_rate_pct") @db.Decimal(5, 2)
+  reviewedAt               DateTime @default(now()) @map("reviewed_at")
+
+  @@map("okr_alignment_records")
+}
+
+model ValueStreamHealthRecord {
+  streamId          String   @id @default(uuid()) @map("stream_id")
+  streamName        String   @unique @map("stream_name")
+  efficiencyPct     Decimal  @map("efficiency_pct") @db.Decimal(5, 2)
+  topBottleneck     String?  @map("top_bottleneck")
+  measuredAt        DateTime @default(now()) @map("measured_at")
+
+  @@map("value_stream_health_records")
+}
+
+model PrioritizedInitiativeRecord {
+  initiativeId             String   @id @default(uuid()) @map("initiative_id")
+  title                    String
+  strategicImpactWeight    Decimal  @map("strategic_impact_weight") @db.Decimal(4, 2)
+  regulatoryUrgencyWeight  Decimal  @map("regulatory_urgency_weight") @db.Decimal(4, 2)
+  riskReductionWeight      Decimal  @map("risk_reduction_weight") @db.Decimal(4, 2)
+  roiWeight                Decimal  @map("roi_weight") @db.Decimal(4, 2)
+  totalPriorityScore       Decimal  @map("total_priority_score") @db.Decimal(5, 3)
+  createdAt                DateTime @default(now()) @map("created_at")
+
+  @@map("prioritized_initiative_records")
+}
+
+model MissionCriticalEnterpriseCertification {
+  certId                   String   @id @default(uuid()) @map("cert_id")
+  certificateNumber        String   @unique @map("certificate_number")           // LEGIS-MISSION-CRITICAL-ENTERPRISE-CERT-2026
+  classification           String   @default("MISSION_CRITICAL_ENTERPRISE_PLATFORM")
+  okrAchievementRatePct    Decimal  @map("okr_achievement_rate_pct") @db.Decimal(5, 2)
+  missionAlignmentScorePct Decimal  @map("mission_alignment_score_pct") @db.Decimal(5, 2)
+  authorizationCode        String   @map("authorization_code")                   // AUTH-MISSION-CRITICAL-2026-FINAL
+  issuedAt                 DateTime @default(now()) @map("issued_at")
+
+  @@map("mission_critical_enterprise_certifications")
+}
