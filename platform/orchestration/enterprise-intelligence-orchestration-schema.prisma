@@ -1,0 +1,64 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// enterprise-intelligence-orchestration-schema.prisma — Prompt 310 Autonomous Intelligent Enterprise
+// Legis Connect | Enterprise Autonomous Intelligence Orchestration Framework (EAIOF)
+// Orchestrated Engines (25) · Meta Events · Enterprise Context · Autonomous Intelligent Cert
+// ═══════════════════════════════════════════════════════════════════════════
+
+model OrchestratedEngineRecord {
+  engineId                    String   @id @map("engine_id")                       // ENG-01 → ENG-25
+  promptOrigin                String   @map("prompt_origin")                       // e.g. "Prompt 301", "Prompt 310"
+  name                        String
+  phase                       String   @default("EVOLVE")                          // FOUNDATION | OPERATIONS | INTELLIGENCE | ETERNAL | EVOLUTION_CYCLE
+  interoperabilityScorePct   Decimal  @map("interoperability_score_pct") @db.Decimal(5, 2)
+  latencyMs                   Int      @map("latency_ms")
+  status                      String   @default("OPTIMAL")                         // OPTIMAL | SYNCHRONIZING | DEGRADED
+  lastSyncedAt                DateTime @default(now()) @map("last_synced_at")
+
+  outboundEvents              MetaEventRecord[] @relation("source_engine")
+  inboundEvents               MetaEventRecord[] @relation("target_engine")
+
+  @@index([status, phase])
+  @@map("orchestrated_engine_records")
+}
+
+model MetaEventRecord {
+  eventId                     String   @id @default(uuid()) @map("event_id")
+  sourceEngineId              String   @map("source_engine_id")
+  targetEngineId              String   @map("target_engine_id")
+  eventType                   String   @map("event_type")                           // CloudEvents standard type
+  payloadHash                 String   @map("payload_hash")
+  telemetryTraceId            String   @map("telemetry_trace_id")                  // OpenTelemetry Trace ID
+  timestamp                   DateTime @default(now()) @map("timestamp")
+
+  sourceEngine                OrchestratedEngineRecord @relation("source_engine", fields: [sourceEngineId], references: [engineId])
+  targetEngine                OrchestratedEngineRecord @relation("target_engine", fields: [targetEngineId], references: [engineId])
+
+  @@index([sourceEngineId, targetEngineId])
+  @@map("meta_event_records")
+}
+
+model EnterpriseContextRecord {
+  contextId                   String   @id @default(uuid()) @map("context_id")
+  operationalState            Json     @map("operational_state")                    // SRE metrics, Latencies
+  legalState                  Json     @map("legal_state")                          // LIAE laws, processes
+  organizationalState         Json     @map("organizational_state")                 // OPA policies, teams
+  strategicState              Json     @map("strategic_state")                      // FSIP scenarios, priorities
+  updatedAt                   DateTime @default(now()) @map("updated_at")
+
+  @@map("enterprise_context_records")
+}
+
+model AutonomousIntelligentEnterpriseCertification {
+  certId                       String   @id @default(uuid()) @map("cert_id")
+  certificateNumber            String   @unique @map("certificate_number")          // LEGIS-AUTONOMOUS-INTELLIGENT-CERT-310-2026
+  classification               String   @default("AUTONOMOUS_INTELLIGENT_ENTERPRISE_PLATFORM")
+  totalEnginesOrchestrated     Int      @default(25) @map("total_engines_orchestrated")
+  enterpriseIntelligenceMaturityIndexPct Decimal @map("enterprise_intelligence_maturity_index_pct") @db.Decimal(5, 2) // 99.4
+  systemicInteroperabilityRatePct Decimal @default(100.0) @map("systemic_interoperability_rate_pct") @db.Decimal(5, 2)
+  metaOrchestrationLatencyMs   Int      @default(8) @map("meta_orchestration_latency_ms")
+  architecturalMaturityLevel   Int      @default(5) @map("architectural_maturity_level")    // 5 = Maximum Autonomous
+  authorizationCode            String   @map("authorization_code")                  // AUTH-ORCHESTRATION-310-2026-FINAL
+  issuedAt                     DateTime @default(now()) @map("issued_at")
+
+  @@map("autonomous_intelligent_enterprise_certifications")
+}

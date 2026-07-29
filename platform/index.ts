@@ -1,8 +1,8 @@
 /**
  * @file index.ts
- * @description Master Platform Engine Export & Unification — Prompts 001–309
- *              Legis Connect | Adaptive Governance-Driven Enterprise Platform
- *              Permanent Technological Evolution Cycle — Phase 9
+ * @description Master Platform Engine Export & Unification — Prompts 001–310
+ *              Legis Connect | Autonomous Intelligent Enterprise Platform
+ *              Permanent Technological Evolution Cycle — Phase 10 (FINAL META-ORCHESTRATION LAYER)
  */
 
 // ─── Foundation Engines (Prompts 286–293) ───────────────────────────────────
@@ -54,3 +54,6 @@ export * from './decision/enterprise-decision-intelligence-engine';
 
 // ─── Adaptive Governance Enterprise Intelligence Engine (Prompt 309 — Ph.9) ─
 export * from './governance-corp/enterprise-governance-corp-engine';
+
+// ─── Autonomous Intelligent Enterprise Meta-Orchestration Engine (Prompt 310 — Ph.10) 
+export * from './orchestration/enterprise-intelligence-orchestration-engine';
