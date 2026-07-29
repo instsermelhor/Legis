@@ -1,0 +1,50 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// legacy-schema.prisma — Prompt 274 Enterprise Legacy & Institutional Knowledge
+// Legis Connect | Perpetual Enterprise Platform
+// OAIS (ISO 14721) · Knowledge Vault · Digital Heritage · Succession Readiness
+// ═══════════════════════════════════════════════════════════════════════════
+
+model KnowledgeVaultArtifactRecord {
+  artifactId          String   @id @default(uuid()) @map("artifact_id")
+  artifactType        String   @map("artifact_type")                          // BLUEPRINT | ADR | PRISMA_SCHEMA | AI_VECTOR_DB
+  title               String
+  pathOrUri           String   @map("path_or_uri")
+  isImmutable         Boolean  @default(true) @map("is_immutable")
+  replicationCount    Int      @default(3) @map("replication_count")
+  archivedAt          DateTime @default(now()) @map("archived_at")
+
+  @@index([artifactType, isImmutable])
+  @@map("knowledge_vault_artifact_records")
+}
+
+model SuccessionReadinessAudit {
+  auditId                 String   @id @default(uuid()) @map("audit_id")
+  busFactorScore          String   @map("bus_factor_score")
+  documentationCoveragePct Decimal  @map("documentation_coverage_pct") @db.Decimal(5, 2)
+  zeroPersonLockInVerified Boolean @default(true) @map("zero_person_lock_in_verified")
+  auditedAt               DateTime @default(now()) @map("audited_at")
+
+  @@map("succession_readiness_audits")
+}
+
+model DigitalHeritageFormatRecord {
+  formatId            String   @id @default(uuid()) @map("format_id")
+  formatName          String   @unique @map("format_name")                    // MARKDOWN_UTF8 | JSON_LD | OPENAPI_3_1 | ASYNCAPI_2_6 | PDF_A_2B
+  standardBody        String   @map("standard_body")                          // ISO | W3C | IETF | OASIS
+  isLongTermCompliant Boolean  @default(true) @map("is_long_term_compliant")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  @@map("digital_heritage_format_records")
+}
+
+model PerpetualEnterpriseCertification {
+  certId                String   @id @default(uuid()) @map("cert_id")
+  certificateNumber     String   @unique @map("certificate_number")            // LEGIS-PERPETUAL-ENTERPRISE-CERT-2026
+  classification        String   @default("PERPETUAL_ENTERPRISE_PLATFORM")
+  totalBlueprintsCount  Int      @default(274) @map("total_blueprints_count")
+  totalAdrsCount        Int      @default(60) @map("total_adrs_count")
+  authorizationCode     String   @map("authorization_code")                    // AUTH-PERPETUITY-2026-FINAL
+  issuedAt              DateTime @default(now()) @map("issued_at")
+
+  @@map("perpetual_enterprise_certifications")
+}
