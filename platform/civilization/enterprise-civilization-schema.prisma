@@ -1,0 +1,54 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// enterprise-civilization-schema.prisma — Prompt 292 Civilizational Enterprise Platform
+// Legis Connect | Enterprise Civilization Framework (ECF)
+// Institutional Legacy · Transgenerational Knowledge · Foresight Engine · Heritage Graph
+// ═══════════════════════════════════════════════════════════════════════════
+
+model LegacyPackageRecord {
+  packageId           String   @id @default(uuid()) @map("package_id")
+  totalArtifactsCount Int      @map("total_artifacts_count")                // 292 Blueprints
+  totalAdrsCount      Int      @map("total_adrs_count")                     // 78 ADRs
+  sha256Digest        String   @unique @map("sha256_digest")
+  otsProofActive      Boolean  @default(true) @map("ots_proof_active")
+  preservedAt         DateTime @default(now()) @map("preserved_at")
+
+  @@map("legacy_package_records")
+}
+
+model ForesightSimulationRecord {
+  simulationId       String   @id @default(uuid()) @map("simulation_id")
+  horizonYears       Int      @map("horizon_years")                        // 10, 25, or 50
+  scenarioTitle      String   @map("scenario_title")
+  resilienceScorePct Decimal  @map("resilience_score_pct") @db.Decimal(5, 2)
+  adaptationStrategy String   @db.Text @map("adaptation_strategy")
+  simulatedAt        DateTime @default(now()) @map("simulated_at")
+
+  @@index([horizonYears, simulatedAt])
+  @@map("foresight_simulation_records")
+}
+
+model HeritageAssetRecord {
+  assetId         String   @id @default(uuid()) @map("asset_id")
+  assetName       String   @map("asset_name")
+  assetType       String   @map("asset_type")                             // BLUEPRINT | ADR | CONSTITUTION | KNOWLEDGE_BRAIN | SCHEMA
+  format          String   @default("OPEN_STANDARD")                      // MARKDOWN | JSON_LD | PRISMA | TS
+  sha256Hash      String   @unique @map("sha256_hash")
+  registeredAt    DateTime @default(now()) @map("registered_at")
+
+  @@index([assetType, format])
+  @@map("heritage_asset_records")
+}
+
+model CivilizationalEnterpriseCertification {
+  certId                        String   @id @default(uuid()) @map("cert_id")
+  certificateNumber             String   @unique @map("certificate_number") // LEGIS-CIVILIZATIONAL-ENTERPRISE-CERT-292-2026
+  classification                String   @default("CIVILIZATIONAL_ENTERPRISE_PLATFORM")
+  civilizationalSustainabilityPct Decimal @map("civilizational_sustainability_pct") @db.Decimal(5, 2)
+  transgenerationalRetentionPct Decimal  @default(100.0) @map("transgenerational_retention_pct") @db.Decimal(5, 2)
+  totalMasterBlueprintsCount    Int      @default(292) @map("total_master_blueprints_count")
+  totalRatifiedAdrsCount        Int      @default(78) @map("total_ratified_adrs_count")
+  authorizationCode             String   @map("authorization_code")         // AUTH-CIVILIZATION-292-2026-FINAL
+  issuedAt                      DateTime @default(now()) @map("issued_at")
+
+  @@map("civilizational_enterprise_certifications")
+}
