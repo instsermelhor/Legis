@@ -1,0 +1,54 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// enterprise-regulatory-schema.prisma — Prompt 298 Regulation-Aware Intelligent Enterprise Platform
+// Legis Connect | Enterprise Regulatory Intelligence Framework (ERIF)
+// Regulatory Norms · Policy-as-Code Bundles · Legal Impact Assessment · Evidence Repository
+// ═══════════════════════════════════════════════════════════════════════════
+
+model RegulatoryNormRecord {
+  normId                 String   @id @map("norm_id")                         // NORM-CNJ-332, NORM-ANPD-LGPD
+  normTitle              String   @map("norm_title")
+  regulatoryBody         String   @map("regulatory_body")                     // CNJ | ANPD | BACEN | EU_AI_ACT | INTERNAL_GOVERNANCE
+  impactSeverity         String   @default("HIGH")                            // LOW | MEDIUM | HIGH | CRITICAL
+  affectedComponentsCount Int     @map("affected_components_count")
+  adaptationDeadlineDays Int      @map("adaptation_deadline_days")
+  detectedAt             DateTime @default(now()) @map("detected_at")
+
+  @@index([regulatoryBody, impactSeverity])
+  @@map("regulatory_norm_records")
+}
+
+model PolicyBundleRecord {
+  bundleId        String   @id @map("bundle_id")                       // pol-opa-lgpd-01, pol-opa-ai-02
+  policyName      String   @map("policy_name")
+  regoRulesCount  Int      @map("rego_rules_count")
+  enforcementMode String   @default("STRICT_BLOCKING")                 // STRICT_BLOCKING | AUDIT_LOGGING
+  compiledAt      DateTime @default(now()) @map("compiled_at")
+
+  @@map("policy_bundle_records")
+}
+
+model RegulatoryImpactAssessmentRecord {
+  assessmentId       String   @id @default(uuid()) @map("assessment_id")
+  normId             String   @map("norm_id")
+  impactDescription  String   @db.Text @map("impact_description")
+  digitalTwinStatus  String   @default("SIMULATED_PASS")                  // SIMULATED_PASS | REQUIRES_REMEDIATION
+  adaptationPlan     String   @db.Text @map("adaptation_plan")
+  assessedAt         DateTime @default(now()) @map("assessed_at")
+
+  @@index([normId, digitalTwinStatus])
+  @@map("regulatory_impact_assessment_records")
+}
+
+model RegulatoryExcellenceCertification {
+  certId                     String   @id @default(uuid()) @map("cert_id")
+  certificateNumber          String   @unique @map("certificate_number") // LEGIS-REGULATORY-EXCELLENCE-CERT-298-2026
+  classification             String   @default("REGULATION_AWARE_INTELLIGENT_ENTERPRISE_PLATFORM")
+  regulatoryMaturityIndexPct Decimal  @map("regulatory_maturity_index_pct") @db.Decimal(5, 2)
+  policyAsCodeCoveragePct    Decimal  @default(100.0) @map("policy_as_code_coverage_pct") @db.Decimal(5, 2)
+  totalMasterBlueprintsCount Int      @default(298) @map("total_master_blueprints_count")
+  totalRatifiedAdrsCount     Int      @default(84) @map("total_ratified_adrs_count")
+  authorizationCode          String   @map("authorization_code")         // AUTH-REGULATORY-298-2026-FINAL
+  issuedAt                   DateTime @default(now()) @map("issued_at")
+
+  @@map("regulatory_excellence_certifications")
+}
