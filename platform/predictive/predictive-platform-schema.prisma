@@ -1,0 +1,49 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// predictive-platform-schema.prisma — Prompt 278 Predictive Enterprise Platform
+// Legis Connect | Predictive Enterprise & Digital Twin Ecosystem
+// MBSE · SysML · LitmusChaos · What-If Analysis · Predictive Intelligence
+// ═══════════════════════════════════════════════════════════════════════════
+
+model DigitalTwinModelRecord {
+  modelId              String   @id @default(uuid()) @map("model_id")
+  domainName           String   @unique @map("domain_name")
+  sysMlSpecVersion     String   @default("SysML v2.0") @map("sys_ml_spec_version")
+  mirrorSyncLatencyMs  Int      @default(350) @map("mirror_sync_latency_ms")
+  isRealTimeActive     Boolean  @default(true) @map("is_real_time_active")
+  updatedAt            DateTime @default(now()) @map("updated_at")
+
+  @@map("digital_twin_model_records")
+}
+
+model WhatIfScenarioSimulationLog {
+  scenarioId           String   @id @default(uuid()) @map("scenario_id")
+  scenarioQuestion     String   @map("scenario_question")
+  simulatedImpactPct   Decimal  @map("simulated_impact_pct") @db.Decimal(5, 2)
+  isSafeForProduction  Boolean  @default(true) @map("is_safe_for_production")
+  recommendedAction    String   @db.Text @map("recommended_action")
+  simulationSeconds    Decimal  @map("simulation_seconds") @db.Decimal(5, 2)
+  executedAt           DateTime @default(now()) @map("executed_at")
+
+  @@map("what_if_scenario_simulation_logs")
+}
+
+model PredictiveMetricRecord {
+  metricId                  String   @id @default(uuid()) @map("metric_id")
+  predictionAccuracyRatePct Decimal  @map("prediction_accuracy_rate_pct") @db.Decimal(5, 2)
+  incidentAvoidanceRatePct  Decimal  @map("incident_avoidance_rate_pct") @db.Decimal(5, 2)
+  modelConfidenceScorePct   Decimal  @map("model_confidence_score_pct") @db.Decimal(5, 2)
+  recordedAt                DateTime @default(now()) @map("recorded_at")
+
+  @@map("predictive_metric_records")
+}
+
+model PredictiveEnterpriseCertification {
+  certId                String   @id @default(uuid()) @map("cert_id")
+  certificateNumber     String   @unique @map("certificate_number")            // LEGIS-PREDICTIVE-ENTERPRISE-CERT-2026
+  classification        String   @default("PREDICTIVE_ENTERPRISE_PLATFORM")
+  predictiveAccuracyPct Decimal  @map("predictive_accuracy_pct") @db.Decimal(5, 2)
+  authorizationCode     String   @map("authorization_code")                    // AUTH-PREDICTIVE-2026-FINAL
+  issuedAt              DateTime @default(now()) @map("issued_at")
+
+  @@map("predictive_enterprise_certifications")
+}
