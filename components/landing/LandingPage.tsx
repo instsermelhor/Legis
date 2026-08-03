@@ -166,8 +166,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
         <div className="orbital absolute top-20 right-[8%]  w-64  h-64  delay-200" style={{ animationDuration: '10s' }} />
         <div className="orbital absolute bottom-20 left-[6%] w-48  h-48  delay-500" style={{ animationDuration: '14s' }} />
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
 
             {/* Left: headline + CTAs */}
             <div className="space-y-8">
@@ -222,6 +222,20 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
                   Atendimento 24h
                 </span>
               </div>
+
+              {/* OAB Compliance quick-access button */}
+              {onShowEtica && (
+                <div className="animate-fade-in delay-700">
+                  <button
+                    onClick={onShowEtica}
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-gold/40 bg-gold/10 hover:bg-gold/20 text-gold text-xs font-bold uppercase tracking-widest transition-all duration-300 hover:scale-105 hover:border-gold/70 shadow-lg shadow-gold/5"
+                  >
+                    <span>⚖️</span>
+                    <span>Conformidade OAB · Provimento 205/2021</span>
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Right: search form card */}
@@ -253,9 +267,53 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
+          CONFORMIDADE BANNER — always visible right below the hero
+      ═══════════════════════════════════════════════════════════════════ */}
+      <section className="relative z-20 bg-gradient-to-r from-[#0D0B1E] via-[#1a1035] to-[#0D0B1E] border-y border-gold/25 py-0">
+        {/* Animated shimmer line */}
+        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent animate-pulse" />
+        <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-5">
+
+            {/* Left: compliance chips */}
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs font-bold uppercase tracking-widest">
+                ⚖️ Plataforma 100% Regulamentada
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
+                ✔ Provimento CFOAB 205/2021
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-400/30 text-violet-300 text-xs font-semibold">
+                🔐 Lei nº 8.906/1994 · LGPD
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/30 text-blue-300 text-xs font-semibold">
+                🛡 Inscrição OAB Verificada
+              </span>
+            </div>
+
+            {/* Right: CTA to open ethics modal */}
+            {onShowEtica && (
+              <button
+                onClick={onShowEtica}
+                className="whitespace-nowrap inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gold/15 hover:bg-gold/25 border border-gold/40 hover:border-gold/70 text-gold font-bold text-sm transition-all duration-300 hover:scale-105 shadow-lg shadow-gold/10 group"
+              >
+                <span className="text-base">📜</span>
+                <span>Ver Código de Ética OAB Completo</span>
+                <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════
           STATS SECTION
       ═══════════════════════════════════════════════════════════════════ */}
-      <section ref={statsRef} className="py-20 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #0F0D1A 0%, #13102A 100%)' }}>
+      <section ref={statsRef} className="py-12 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #0F0D1A 0%, #13102A 100%)' }}>
         <div className="absolute inset-0 dot-grid opacity-20 pointer-events-none" />
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
@@ -270,14 +328,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
       {/* ═══════════════════════════════════════════════════════════════════
           FEATURES SECTION
       ═══════════════════════════════════════════════════════════════════ */}
-      <section className="py-24" style={{ background: 'linear-gradient(180deg, #13102A 0%, #0F0D1A 100%)' }}>
+      <section className="py-14" style={{ background: 'linear-gradient(180deg, #13102A 0%, #0F0D1A 100%)' }}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section title */}
-          <div className="text-center max-w-2xl mx-auto mb-16 reveal-section">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/15 border border-primary/25 text-accent text-sm font-semibold mb-6">
+          <div className="text-center max-w-2xl mx-auto mb-10 reveal-section">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/15 border border-primary/25 text-accent text-sm font-semibold mb-4">
               ✦ Tecnologia de ponta
             </div>
-            <h2 className="font-montserrat text-4xl md:text-5xl font-bold text-white mb-4">
+            <h2 className="font-montserrat text-4xl md:text-5xl font-bold text-white mb-3">
               Tudo que você precisa,<br/>
               <span className="text-gradient-purple">em um só lugar.</span>
             </h2>
@@ -305,16 +363,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
       {/* ═══════════════════════════════════════════════════════════════════
           HOW IT WORKS
       ═══════════════════════════════════════════════════════════════════ */}
-      <section id="como-funciona" className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #0F0D1A 0%, #1A0A2E 100%)' }}>
+      <section id="como-funciona" className="py-14 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #0F0D1A 0%, #1A0A2E 100%)' }}>
         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
         <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-16 reveal-section">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/15 border border-primary/25 text-accent text-sm font-semibold mb-6">
+          <div className="text-center max-w-2xl mx-auto mb-10 reveal-section">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/15 border border-primary/25 text-accent text-sm font-semibold mb-4">
               ✦ Simples e eficiente
             </div>
-            <h2 className="font-montserrat text-4xl md:text-5xl font-bold text-white mb-4">
+            <h2 className="font-montserrat text-4xl md:text-5xl font-bold text-white mb-3">
               Como Funciona
             </h2>
             <p className="text-gray-400 text-lg">Encontre o advogado ideal em 3 passos.</p>
@@ -343,10 +401,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
       {/* ═══════════════════════════════════════════════════════════════════
           WHO IS IT FOR
       ═══════════════════════════════════════════════════════════════════ */}
-      <section className="py-24" style={{ background: 'linear-gradient(180deg, #1A0A2E 0%, #0F0D1A 100%)' }}>
+      <section className="py-14" style={{ background: 'linear-gradient(180deg, #1A0A2E 0%, #0F0D1A 100%)' }}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-16 reveal-section">
-            <h2 className="font-montserrat text-4xl md:text-5xl font-bold text-white mb-4">
+          <div className="text-center max-w-2xl mx-auto mb-10 reveal-section">
+            <h2 className="font-montserrat text-4xl md:text-5xl font-bold text-white mb-3">
               Para quem é a<br/>
               <span className="text-gradient-purple">LEGIS CONNECT?</span>
             </h2>
@@ -378,14 +436,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
       {/* ═══════════════════════════════════════════════════════════════════
           CONFORMIDADE JURÍDICA & ÉTICA REGULATÓRIA OAB (PROVIMENTO 205/2021)
       ═══════════════════════════════════════════════════════════════════ */}
-      <section className="py-20 relative overflow-hidden bg-gradient-to-b from-[#0B0914] via-[#120D26] to-[#0F0D1A] border-y border-gold/20">
+      <section className="py-12 relative overflow-hidden bg-gradient-to-b from-[#0B0914] via-[#120D26] to-[#0F0D1A] border-y border-gold/20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(212,175,55,0.08),transparent_50%)] pointer-events-none" />
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-4xl mx-auto text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs sm:text-sm font-bold uppercase tracking-widest mb-4">
+          <div className="max-w-4xl mx-auto text-center mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs sm:text-sm font-bold uppercase tracking-widest mb-3">
               ⚖️ Segurança, Ética & Conformidade Regulatória
             </div>
-            <h2 className="font-montserrat text-3xl sm:text-4xl font-extrabold text-white mb-4">
+            <h2 className="font-montserrat text-3xl sm:text-4xl font-extrabold text-white mb-3">
               Conformidade Total com as Normas da <span className="text-gradient-purple">Ordem dos Advogados do Brasil</span>
             </h2>
             <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
@@ -393,7 +451,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="card-dark p-6 border border-gold/20 hover:border-gold/50 transition-all rounded-2xl bg-white/[0.02]">
               <div className="w-12 h-12 rounded-xl bg-gold/15 flex items-center justify-center text-2xl mb-4 text-gold font-bold">
                 📜
@@ -450,14 +508,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
       {/* ═══════════════════════════════════════════════════════════════════
           TESTIMONIALS
       ═══════════════════════════════════════════════════════════════════ */}
-      <section className="py-24 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #0F0D1A 0%, #13102A 100%)' }}>
+      <section className="py-14 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #0F0D1A 0%, #13102A 100%)' }}>
         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-16 reveal-section">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/15 border border-primary/25 text-accent text-sm font-semibold mb-6">
+          <div className="text-center max-w-2xl mx-auto mb-10 reveal-section">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/15 border border-primary/25 text-accent text-sm font-semibold mb-4">
               ✦ Quem usa, recomenda
             </div>
-            <h2 className="font-montserrat text-4xl md:text-5xl font-bold text-white mb-4">
+            <h2 className="font-montserrat text-4xl md:text-5xl font-bold text-white mb-3">
               O que dizem sobre<br/>
               <span className="text-gradient-purple">a plataforma</span>
             </h2>
@@ -495,7 +553,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
       {/* ═══════════════════════════════════════════════════════════════════
           CTA FINAL
       ═══════════════════════════════════════════════════════════════════ */}
-      <section className="py-28 relative overflow-hidden">
+      <section className="py-16 relative overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 bg-cta-gradient" />
         <div className="absolute inset-0 dot-grid opacity-20" />
@@ -504,13 +562,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative text-center">
           <div className="reveal-section max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-sm font-semibold mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-sm font-semibold mb-6">
               ⚡ Comece gratuitamente hoje
             </div>
-            <h2 className="font-montserrat text-5xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
+            <h2 className="font-montserrat text-5xl md:text-6xl font-extrabold text-white mb-4 leading-tight">
               O Direito do futuro<br/>começa agora.
             </h2>
-            <p className="text-xl text-white/75 mb-10 leading-relaxed">
+            <p className="text-xl text-white/75 mb-8 leading-relaxed">
               Junte-se a mais de 1.200 advogados e 8.500 clientes que já transformaram sua relação com o universo jurídico.
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
@@ -530,7 +588,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
               </button>
             </div>
             {/* Social proof */}
-            <div className="mt-12 flex items-center justify-center gap-6 text-white/50 text-sm flex-wrap">
+            <div className="mt-8 flex items-center justify-center gap-6 text-white/50 text-sm flex-wrap">
               <span><Icon name="✓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Sem cartão de crédito</span>
               <span className="hidden sm:inline w-1 h-1 rounded-full bg-white/30" />
               <span><Icon name="✓" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Configuração em 2 minutos</span>
