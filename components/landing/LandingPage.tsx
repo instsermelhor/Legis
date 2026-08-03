@@ -7,6 +7,7 @@ import { CaseStore } from '../../utils/sessionStore';
 interface LandingPageProps {
   onSearch: (results: Lawyer[], mapsData: MapsSearchResult | null) => void;
   onNavigate: (view: View) => void;
+  onShowEtica?: () => void;
 }
 
 // ── Animated counter hook ─────────────────────────────────────────────────
@@ -138,7 +139,7 @@ const audiences = [
   { icon: '📋', title: 'Secret./Assist. Jurídico', desc: 'Profissionalize sua atuação e conecte-se a escritórios que valorizam a expertise em secretariado e assistência jurídica.', cta: 'Sou Assist. Jurídico', view: 'forSecretariado' as const },
 ];
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, onShowEtica }) => {
   const { ref: statsRef, visible: statsVisible } = useVisible();
 
   const handleCaseRedirect = (description: string, city: string) => {
@@ -370,6 +371,78 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate }
                 </span>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════════════
+          CONFORMIDADE JURÍDICA & ÉTICA REGULATÓRIA OAB (PROVIMENTO 205/2021)
+      ═══════════════════════════════════════════════════════════════════ */}
+      <section className="py-20 relative overflow-hidden bg-gradient-to-b from-[#0B0914] via-[#120D26] to-[#0F0D1A] border-y border-gold/20">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(212,175,55,0.08),transparent_50%)] pointer-events-none" />
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-4xl mx-auto text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs sm:text-sm font-bold uppercase tracking-widest mb-4">
+              ⚖️ Segurança, Ética & Conformidade Regulatória
+            </div>
+            <h2 className="font-montserrat text-3xl sm:text-4xl font-extrabold text-white mb-4">
+              Conformidade Total com as Normas da <span className="text-gradient-purple">Ordem dos Advogados do Brasil</span>
+            </h2>
+            <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
+              A <strong>LEGIS CONNECT</strong> opera em estrita conformidade com o <strong>Provimento CFOAB nº 205/2021</strong>, com o <strong>Estatuto da Advocacia (Lei nº 8.906/1994)</strong> e com o <strong>Código de Ética e Disciplina da OAB</strong>.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div className="card-dark p-6 border border-gold/20 hover:border-gold/50 transition-all rounded-2xl bg-white/[0.02]">
+              <div className="w-12 h-12 rounded-xl bg-gold/15 flex items-center justify-center text-2xl mb-4 text-gold font-bold">
+                📜
+              </div>
+              <h3 className="font-montserrat text-lg font-bold text-white mb-2">Provimento 205/2021 CFOAB</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Marketing e publicidade jurídica exclusivamente informativos, moderados e sem qualquer feição de mercantilização ou captação indevida de clientela (Art. 28 a 34).
+              </p>
+            </div>
+
+            <div className="card-dark p-6 border border-gold/20 hover:border-gold/50 transition-all rounded-2xl bg-white/[0.02]">
+              <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center text-2xl mb-4 text-accent font-bold">
+                🛡️
+              </div>
+              <h3 className="font-montserrat text-lg font-bold text-white mb-2">Inscrição OAB Verificada</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Todos os profissionais cadastrados passam por verificação ativa do registro OAB junto às secionais estaduais antes de figurarem na busca pública.
+              </p>
+            </div>
+
+            <div className="card-dark p-6 border border-gold/20 hover:border-gold/50 transition-all rounded-2xl bg-white/[0.02]">
+              <div className="w-12 h-12 rounded-xl bg-violet-500/20 flex items-center justify-center text-2xl mb-4 text-violet-300 font-bold">
+                🔐
+              </div>
+              <h3 className="font-montserrat text-lg font-bold text-white mb-2">Sigilo Profissional & LGPD</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Inviolabilidade do sigilo profissional (Art. 25 do Código de Ética) assegurada por criptografia AES-GCM 256-bit e estrito cumprimento da LGPD.
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 md:p-8 text-center flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="text-left">
+              <h4 className="font-montserrat text-xl font-bold text-white mb-1">
+                Transparência e Ética Profissional Garantidas
+              </h4>
+              <p className="text-gray-400 text-sm">
+                Acesse na íntegra os preceitos éticos e regulamentares adotados rigorosamente por nossa plataforma.
+              </p>
+            </div>
+
+            {onShowEtica && (
+              <button
+                onClick={onShowEtica}
+                className="whitespace-nowrap px-6 py-3 bg-gold/20 hover:bg-gold/30 text-gold border border-gold/40 hover:border-gold font-montserrat font-bold text-sm rounded-xl transition-all duration-300 flex items-center gap-2 shadow-lg shadow-gold/5 hover:scale-105"
+              >
+                <span>📜</span> Consultar Código de Ética OAB Completo
+              </button>
+            )}
           </div>
         </div>
       </section>

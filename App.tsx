@@ -648,7 +648,7 @@ const App: React.FC = () => {
       case 'profile': {
         // Find the most up-to-date lawyer data to pass to the profile
         const currentLawyerData = selectedLawyer ? allLawyers.find(l => l.id === selectedLawyer.id) || selectedLawyer : null;
-        return currentLawyerData ? <LawyerProfile lawyer={currentLawyerData} onBack={handleBackToSearch} onNavigate={handleNavigate} /> : <LandingPage onNavigate={handleNavigate} onSearch={handleSearch} />;
+        return currentLawyerData ? <LawyerProfile lawyer={currentLawyerData} onBack={handleBackToSearch} onNavigate={handleNavigate} /> : <LandingPage onNavigate={handleNavigate} onSearch={handleSearch} onShowEtica={() => setIsEticaModalOpen(true)} />;
       }
       case 'dashboard':
         if (user && user.role === 'client' && !isClientProfileComplete(user)) {
@@ -695,7 +695,7 @@ const App: React.FC = () => {
         return <ServicesPublicPage onNavigate={handleNavigate} />;
       case 'landing':
       default:
-        return <LandingPage onNavigate={handleNavigate} onSearch={handleSearch} />;
+        return <LandingPage onNavigate={handleNavigate} onSearch={handleSearch} onShowEtica={() => setIsEticaModalOpen(true)} />;
     }
   };
 
