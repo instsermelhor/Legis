@@ -153,7 +153,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
       {/* ═══════════════════════════════════════════════════════════════════
           HERO SECTION
       ═══════════════════════════════════════════════════════════════════ */}
-      <section className="relative min-h-[90vh] flex items-center bg-animated-gradient overflow-hidden">
+      <section className="relative flex items-center bg-animated-gradient overflow-hidden">
         {/* Dot grid background */}
         <div className="absolute inset-0 dot-grid opacity-40 pointer-events-none" />
 
@@ -166,11 +166,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
         <div className="orbital absolute top-20 right-[8%]  w-64  h-64  delay-200" style={{ animationDuration: '10s' }} />
         <div className="orbital absolute bottom-20 left-[6%] w-48  h-48  delay-500" style={{ animationDuration: '14s' }} />
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-8 sm:py-12 lg:py-14">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
 
             {/* Left: headline + CTAs */}
-            <div className="space-y-8">
+            <div className="space-y-5 sm:space-y-6">
               {/* Badge */}
               <div className="animate-fade-in inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/15 border border-primary/25 text-accent text-sm font-semibold tracking-wide">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
@@ -258,12 +258,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
             </div>
           </div>
         </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-white/40 text-xs animate-float">
-          <span>Role para explorar</span>
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/></svg>
-        </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
@@ -313,10 +307,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
       {/* ═══════════════════════════════════════════════════════════════════
           STATS SECTION
       ═══════════════════════════════════════════════════════════════════ */}
-      <section ref={statsRef} className="py-12 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #0F0D1A 0%, #13102A 100%)' }}>
+      <section ref={statsRef} className="py-8 sm:py-10 lg:py-12 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #0F0D1A 0%, #13102A 100%)' }}>
         <div className="absolute inset-0 dot-grid opacity-20 pointer-events-none" />
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 md:gap-10">
             <StatCard value={1200} label="Advogados Verificados" icon={<Icon name="scale" className="w-10 h-10 text-accent" />} started={statsVisible} />
             <StatCard value={8500} label="Casos Conectados" icon={<Icon name="folder" className="w-10 h-10 text-accent" />} started={statsVisible} />
             <StatCard value={27} label="Estados Atendidos" icon={<Icon name="globe" className="w-10 h-10 text-accent" />} started={statsVisible} suffix="+" />
@@ -328,18 +322,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
       {/* ═══════════════════════════════════════════════════════════════════
           FEATURES SECTION
       ═══════════════════════════════════════════════════════════════════ */}
-      <section className="py-14" style={{ background: 'linear-gradient(180deg, #13102A 0%, #0F0D1A 100%)' }}>
+      <section className="py-8 sm:py-12 lg:py-14" style={{ background: 'linear-gradient(180deg, #13102A 0%, #0F0D1A 100%)' }}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section title */}
-          <div className="text-center max-w-2xl mx-auto mb-10 reveal-section">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/15 border border-primary/25 text-accent text-sm font-semibold mb-4">
+          <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10 reveal-section">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/15 border border-primary/25 text-accent text-sm font-semibold mb-3">
               ✦ Tecnologia de ponta
             </div>
-            <h2 className="font-montserrat text-4xl md:text-5xl font-bold text-white mb-3">
+            <h2 className="font-montserrat text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3">
               Tudo que você precisa,<br/>
               <span className="text-gradient-purple">em um só lugar.</span>
             </h2>
-            <p className="text-gray-400 text-lg">
+            <p className="text-gray-400 text-base sm:text-lg">
               Desenvolvida por especialistas em direito e tecnologia, a LEGIS CONNECT redefine padrões de excelência no setor jurídico.
             </p>
           </div>
@@ -363,19 +357,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
       {/* ═══════════════════════════════════════════════════════════════════
           HOW IT WORKS
       ═══════════════════════════════════════════════════════════════════ */}
-      <section id="como-funciona" className="py-14 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #0F0D1A 0%, #1A0A2E 100%)' }}>
+      <section id="como-funciona" className="py-8 sm:py-12 lg:py-14 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #0F0D1A 0%, #1A0A2E 100%)' }}>
         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
         <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-10 reveal-section">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/15 border border-primary/25 text-accent text-sm font-semibold mb-4">
+          <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10 reveal-section">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/15 border border-primary/25 text-accent text-sm font-semibold mb-3">
               ✦ Simples e eficiente
             </div>
-            <h2 className="font-montserrat text-4xl md:text-5xl font-bold text-white mb-3">
+            <h2 className="font-montserrat text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3">
               Como Funciona
             </h2>
-            <p className="text-gray-400 text-lg">Encontre o advogado ideal em 3 passos.</p>
+            <p className="text-gray-400 text-base sm:text-lg">Encontre o advogado ideal em 3 passos.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
@@ -401,14 +395,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
       {/* ═══════════════════════════════════════════════════════════════════
           WHO IS IT FOR
       ═══════════════════════════════════════════════════════════════════ */}
-      <section className="py-14" style={{ background: 'linear-gradient(180deg, #1A0A2E 0%, #0F0D1A 100%)' }}>
+      <section className="py-8 sm:py-12 lg:py-14" style={{ background: 'linear-gradient(180deg, #1A0A2E 0%, #0F0D1A 100%)' }}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-10 reveal-section">
-            <h2 className="font-montserrat text-4xl md:text-5xl font-bold text-white mb-3">
+          <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10 reveal-section">
+            <h2 className="font-montserrat text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3">
               Para quem é a<br/>
               <span className="text-gradient-purple">LEGIS CONNECT?</span>
             </h2>
-            <p className="text-gray-400 text-lg">
+            <p className="text-gray-400 text-base sm:text-lg">
               Uma plataforma desenhada para todos os agentes do ecossistema jurídico.
             </p>
           </div>
@@ -436,10 +430,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
       {/* ═══════════════════════════════════════════════════════════════════
           CONFORMIDADE JURÍDICA & ÉTICA REGULATÓRIA OAB (PROVIMENTO 205/2021)
       ═══════════════════════════════════════════════════════════════════ */}
-      <section className="py-12 relative overflow-hidden bg-gradient-to-b from-[#0B0914] via-[#120D26] to-[#0F0D1A] border-y border-gold/20">
+      <section className="py-8 sm:py-12 relative overflow-hidden bg-gradient-to-b from-[#0B0914] via-[#120D26] to-[#0F0D1A] border-y border-gold/20">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(212,175,55,0.08),transparent_50%)] pointer-events-none" />
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-4xl mx-auto text-center mb-8">
+          <div className="max-w-4xl mx-auto text-center mb-6 sm:mb-8">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs sm:text-sm font-bold uppercase tracking-widest mb-3">
               ⚖️ Segurança, Ética & Conformidade Regulatória
             </div>
@@ -451,7 +445,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 sm:mb-8">
             <div className="card-dark p-6 border border-gold/20 hover:border-gold/50 transition-all rounded-2xl bg-white/[0.02]">
               <div className="w-12 h-12 rounded-xl bg-gold/15 flex items-center justify-center text-2xl mb-4 text-gold font-bold">
                 📜
@@ -508,14 +502,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
       {/* ═══════════════════════════════════════════════════════════════════
           TESTIMONIALS
       ═══════════════════════════════════════════════════════════════════ */}
-      <section className="py-14 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #0F0D1A 0%, #13102A 100%)' }}>
+      <section className="py-8 sm:py-12 lg:py-14 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #0F0D1A 0%, #13102A 100%)' }}>
         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent/20 to-transparent" />
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-10 reveal-section">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/15 border border-primary/25 text-accent text-sm font-semibold mb-4">
+          <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-10 reveal-section">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/15 border border-primary/25 text-accent text-sm font-semibold mb-3">
               ✦ Quem usa, recomenda
             </div>
-            <h2 className="font-montserrat text-4xl md:text-5xl font-bold text-white mb-3">
+            <h2 className="font-montserrat text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3">
               O que dizem sobre<br/>
               <span className="text-gradient-purple">a plataforma</span>
             </h2>
@@ -553,7 +547,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
       {/* ═══════════════════════════════════════════════════════════════════
           CTA FINAL
       ═══════════════════════════════════════════════════════════════════ */}
-      <section className="py-16 relative overflow-hidden">
+      <section className="py-10 sm:py-14 lg:py-16 relative overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 bg-cta-gradient" />
         <div className="absolute inset-0 dot-grid opacity-20" />
@@ -562,13 +556,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative text-center">
           <div className="reveal-section max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-sm font-semibold mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-sm font-semibold mb-4 sm:mb-6">
               ⚡ Comece gratuitamente hoje
             </div>
-            <h2 className="font-montserrat text-5xl md:text-6xl font-extrabold text-white mb-4 leading-tight">
+            <h2 className="font-montserrat text-4xl sm:text-5xl md:text-6xl font-extrabold text-white mb-4 leading-tight">
               O Direito do futuro<br/>começa agora.
             </h2>
-            <p className="text-xl text-white/75 mb-8 leading-relaxed">
+            <p className="text-lg sm:text-xl text-white/75 mb-6 sm:mb-8 leading-relaxed">
               Junte-se a mais de 1.200 advogados e 8.500 clientes que já transformaram sua relação com o universo jurídico.
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
