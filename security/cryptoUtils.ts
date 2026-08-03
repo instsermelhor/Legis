@@ -55,9 +55,10 @@ export async function encryptData(plaintext: string): Promise<string> {
     const ivB64 = btoa(String.fromCharCode(...iv));
     const ctB64 = btoa(String.fromCharCode(...new Uint8Array(ciphertext)));
     return `${ivB64}.${ctB64}`;
-  } catch {
-    // Fallback: ofuscação básica se Web Crypto não disponível (ex: HTTP sem TLS)
-    return `$plain$${btoa(unescape(encodeURIComponent(plaintext)))}`;
+  } catch (err) {
+    // ⚠️ VULN-014 FIX: Fail explicitly instead of silent insecure btoa fallback
+    console.error('[SECURITY CRITICAL] Web Crypto API encrypt error:', err);
+    throw new Error('Falha de criptografia: Web Crypto API indisponível ou contexto inseguro (requer HTTPS).');
   }
 }
 
@@ -67,9 +68,9 @@ export async function encryptData(plaintext: string): Promise<string> {
  */
 export async function decryptData(encrypted: string): Promise<string> {
   try {
-    // Fallback plaintext
+    // Reject legacy insecure fallback formats
     if (encrypted.startsWith('$plain$')) {
-      return decodeURIComponent(escape(atob(encrypted.slice(7))));
+      throw new Error('Formato de dados legado e inseguro ($plain$). Recriptografia necessária.');
     }
 
     const [ivB64, ctB64] = encrypted.split('.');
@@ -86,7 +87,8 @@ export async function decryptData(encrypted: string): Promise<string> {
     );
 
     return new TextDecoder().decode(decrypted);
-  } catch {
+  } catch (err) {
+    console.error('[SECURITY ERROR] Decrypt failed:', err);
     return '[ERRO: Dados corrompidos ou chave inválida]';
   }
 }
@@ -102,9 +104,9 @@ export async function hashSensitiveData(data: string): Promise<string> {
     const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return '$sha256$' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  } catch {
-    // Fallback btoa hash
-    return '$btoa$' + btoa(unescape(encodeURIComponent(`legis_v1:${data}`))).slice(0, 44);
+  } catch (err) {
+    console.error('[SECURITY ERROR] SHA-256 digest failed:', err);
+    throw new Error('Falha no cálculo de hash criptográfico.');
   }
 }
 

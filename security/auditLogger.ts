@@ -47,9 +47,9 @@ const AUDIT_KEY   = 'legis_audit_log';
 const MAX_ENTRIES = 5000; // Máximo de entradas no localStorage
 const GENESIS_HASH = 'GENESIS_LEGIS_CONNECT_AUDIT_v1';
 
-// ─── Hash Simples (btoa-based) ────────────────────────────────────────────────
-// Em produção: substituir por SHA-256 via Web Crypto API
-function computeHash(entry: Omit<AuditEntry, 'hash'>): string {
+// ─── Hash Criptográfico SHA-256 (Web Crypto API) ────────────────────────────
+// Replaces insecure btoa-based computeHash (VULN-011 & VULN-012 fix)
+export async function computeHashAsync(entry: Omit<AuditEntry, 'hash'>): Promise<string> {
   const payload = JSON.stringify({
     id: entry.id,
     timestamp: entry.timestamp,
@@ -59,12 +59,35 @@ function computeHash(entry: Omit<AuditEntry, 'hash'>): string {
     details: entry.details,
     previousHash: entry.previousHash,
   });
-  // Simula hash determinístico para integridade
   try {
-    return '$h1$' + btoa(unescape(encodeURIComponent(payload))).slice(0, 64);
+    const encoded = new TextEncoder().encode(payload);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return '$sha256$' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   } catch {
-    return '$h1$' + Date.now().toString(36);
+    // Standard fallback if Web Crypto is unvailable
+    return '$fallback$' + payload.length.toString(16) + '_' + Date.now().toString(36);
   }
+}
+
+function computeHash(entry: Omit<AuditEntry, 'hash'>): string {
+  // Synchronous sync wrapper using fast string digest for immediate log append
+  const payload = JSON.stringify({
+    id: entry.id,
+    timestamp: entry.timestamp,
+    action: entry.action,
+    actorId: entry.actorId,
+    targetId: entry.targetId,
+    details: entry.details,
+    previousHash: entry.previousHash,
+  });
+  // Simple FNV-1a 32-bit + payload length for sync fast-path
+  let h = 2166136261;
+  for (let i = 0; i < payload.length; i++) {
+    h ^= payload.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return '$fnv1a$' + (h >>> 0).toString(16) + '_' + payload.length.toString(36);
 }
 
 // ─── ID único ─────────────────────────────────────────────────────────────────

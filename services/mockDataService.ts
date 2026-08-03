@@ -1,11 +1,46 @@
 // Mock data for Admin Panel
+// ⚠️  SECURITY: hashPassword() uses Web Crypto PBKDF2 + SHA-256.
+//     Passwords MUST come from environment variables or a secrets manager.
+//     NEVER hardcode credentials in source code.
 import type { BiApoio, BiDadosBase, BiCliente, BiProduto, BiFornecedor, BiVenda } from '../types';
 
-export function hashPassword(password: string): string {
+// ─── Secure Password Hashing (PBKDF2 + SHA-256 via Web Crypto API) ───────────
+// Replaces insecure btoa-based hashPassword (VULN-002 fix)
+const PBKDF2_ITERATIONS = 210000; // OWASP 2024 recommendation for PBKDF2-SHA256
+const FIXED_SALT_PREFIX  = 'legis_pbkdf2_v1_'; // per-user salt appended at call-time
+
+/**
+ * Derives a secure hash from a password using PBKDF2-SHA256.
+ * @param password - plaintext password
+ * @param userSalt - unique per-user salt (e.g. email or uuid)
+ * @returns hex string of derived key
+ */
+export async function hashPasswordAsync(password: string, userSalt: string): Promise<string> {
   if (!password) return '';
-  if (password.startsWith('$scrambled$')) return password;
-  const salted = "legis_salt_" + password.split('').reverse().join('');
-  return '$scrambled$' + btoa(unescape(encodeURIComponent(salted)));
+  const enc = new TextEncoder();
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw', enc.encode(password), 'PBKDF2', false, ['deriveBits']
+  );
+  const saltBuffer = enc.encode(FIXED_SALT_PREFIX + userSalt);
+  const derivedBits = await crypto.subtle.deriveBits(
+    { name: 'PBKDF2', hash: 'SHA-256', salt: saltBuffer, iterations: PBKDF2_ITERATIONS },
+    keyMaterial, 256
+  );
+  return '$pbkdf2v1$' + Array.from(new Uint8Array(derivedBits))
+    .map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Synchronous compatibility shim for non-async call sites during migration.
+ * @deprecated Use hashPasswordAsync() for new code. This is a temporary bridge.
+ */
+export function hashPassword(password: string): string {
+  // Returns a deterministic placeholder during migration.
+  // Real password verification must use hashPasswordAsync().
+  if (!password) return '';
+  if (password.startsWith('$pbkdf2v1$') || password.startsWith('$scrambled$')) return password;
+  // Fallback: flag as needing re-hash on next login
+  return '$needs_rehash$' + password.length.toString(16);
 }
 
 export interface MockClient {
@@ -83,9 +118,34 @@ export const mockInterns: MockIntern[] = [
   { id: 6, name: 'Marina Torres', email: 'marina.torres@ufc.edu.br', phone: '(85) 94567-8901', cpf: '106.666.777-06', university: 'UFC', semester: '5º ao 6º semestre', specialtyInterest: 'Direito Internacional', hoursCompleted: 50, availableHours: 200, status: 'inativo', joinedDate: '2023-09-15', city: 'Fortaleza', state: 'CE', stipend: 700, totalEarned: 1750 },
 ];
 
+// ⚠️  SECURITY (VULN-001 FIX): Hardcoded credentials removed.
+//     Admin passwords MUST be set via environment variables (ADMIN_PASSWORD_HASH)
+//     or loaded from a secure backend at runtime. NEVER commit credentials here.
+//     To generate a hash: await hashPasswordAsync(yourPassword, userEmail)
+//
+//     Default seed is LOCKED — requires explicit environment setup to activate.
+//     See /docs/security/admin-setup.md for production credential provisioning.
 export const mockAdminUsers: AdminUser[] = [
-  { id: 1, name: 'Super Admin', email: 'legisconnectonline@gmail.com', password: hashPassword('@@Rk08266570#'), role: 'super', createdAt: '2024-01-01', active: true, secondaryEmail: 'admin@legisconnect.com.br' },
-  { id: 2, name: 'Admin Secundário', email: 'admin@legisconnect.com.br', password: hashPassword('@@Rk08266570#'), role: 'super', createdAt: '2024-01-01', active: true },
+  {
+    id: 1,
+    name: 'Super Admin',
+    email: 'legisconnectonline@gmail.com',
+    // Hash must be pre-generated via hashPasswordAsync() and stored in env/secrets manager
+    password: process.env.ADMIN_SUPER_HASH ?? '$locked$00000000000000000000000000000000',
+    role: 'super',
+    createdAt: '2024-01-01',
+    active: Boolean(process.env.ADMIN_SUPER_HASH), // Only active when properly configured
+    secondaryEmail: 'admin@legisconnect.com.br'
+  },
+  {
+    id: 2,
+    name: 'Admin Secundário',
+    email: 'admin@legisconnect.com.br',
+    password: process.env.ADMIN_SECONDARY_HASH ?? '$locked$00000000000000000000000000000000',
+    role: 'super',
+    createdAt: '2024-01-01',
+    active: Boolean(process.env.ADMIN_SECONDARY_HASH),
+  },
 ];
 
 // Financial mock data

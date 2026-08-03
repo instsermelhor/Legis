@@ -12,8 +12,16 @@ export default defineConfig(({ mode }) => {
       },
       plugins: [react()],
       define: {
-        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+        // ⚠️ SECURITY (VULN-004 FIX): GEMINI_API_KEY REMOVED from frontend bundle.
+        // The frontend MUST call the proxy at /api/gemini — see server/gemini-proxy.js
+        // API_KEY is intentionally undefined in the client bundle.
+        'process.env.API_KEY': JSON.stringify('USE_PROXY'), // Signal to geminiService.ts
+        'process.env.GEMINI_API_KEY': JSON.stringify('USE_PROXY'),
+        'process.env.GEMINI_PROXY_URL': JSON.stringify(
+          env.NODE_ENV === 'development'
+            ? 'http://localhost:3001/api/gemini'
+            : '/api/gemini'
+        ),
         'process.env.ONLINE_URL': JSON.stringify('https://www.legisconnect.com.br'),
         'process.env.LOCAL_URL': JSON.stringify(`http://localhost:3000/${currentDir}`),
         'process.env.APP_DIR_NAME': JSON.stringify(currentDir),

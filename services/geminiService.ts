@@ -3,10 +3,28 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { AREAS_OF_LAW } from '../constants';
 import type { CaseAnalysis, ChatMessage, MapsSearchResult, GroundingChunk } from '../types';
 
-// Use a getter or safe initialization for GoogleGenAI to avoid module crash when API_KEY is missing.
+// ─── Proxy helper (VULN-004 fix: API Key remains on server) ───────────────────
+const PROXY_URL = process.env.GEMINI_PROXY_URL || '/api/gemini';
+const IS_PROXY_MODE = process.env.API_KEY === 'USE_PROXY' || process.env.GEMINI_API_KEY === 'USE_PROXY';
+
+async function callGeminiProxy(payload: { model?: string; contents: unknown; generationConfig?: unknown }) {
+  const response = await fetch(PROXY_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!response.ok) {
+    throw new Error(`Gemini Proxy error: ${response.status}`);
+  }
+  return response.json();
+}
+
 const getAI = () => {
+  if (IS_PROXY_MODE) return null; // Proxy mode active
   try {
-    return new GoogleGenAI({ apiKey: process.env.API_KEY || 'dummy_key' });
+    const key = process.env.API_KEY || process.env.GEMINI_API_KEY;
+    if (!key || key === 'USE_PROXY') return null;
+    return new GoogleGenAI({ apiKey: key });
   } catch {
     return null;
   }
