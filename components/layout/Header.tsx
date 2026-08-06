@@ -11,6 +11,7 @@ import { SmartContractSignModal } from '../common/SmartContractSignModal';
 import { DeploymentStatusModal } from '../admin/DeploymentStatusModal';
 import { DiligenceMarketplaceModal } from '../lawyer/DiligenceMarketplaceModal';
 import { ProcessTrackingModal } from '../lawyer/ProcessTrackingModal';
+import { AiLegalDocumentGeneratorModal } from '../lawyer/AiLegalDocumentGeneratorModal';
 
 interface HeaderProps {
   currentView: View;
@@ -73,6 +74,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
   const [isMonitorOpen, setIsMonitorOpen] = useState(false);
   const [isDiligenceOpen, setIsDiligenceOpen] = useState(false);
   const [isProcessTrackingOpen, setIsProcessTrackingOpen] = useState(false);
+  const [isAiDocGenOpen, setIsAiDocGenOpen] = useState(false);
   const [unreadCount] = useState(2);
 
   // Cmd+K / Ctrl+K global shortcut
@@ -305,6 +307,16 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
               <span>Prazos & DJEN</span>
             </button>
 
+            {/* AI Legal Document Generator button */}
+            <button
+              onClick={() => setIsAiDocGenOpen(true)}
+              className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-sm hover:opacity-90 transition-all"
+              title="Gerador Automático de Peças Processuais com IA & Precedentes STF/STJ"
+            >
+              <span>✍️</span>
+              <span>Gerador Peças IA</span>
+            </button>
+
             {/* Deploy Monitor button (admin only) */}
             {user?.role === 'admin' && (
               <button
@@ -491,6 +503,10 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
     <ProcessTrackingModal
       isOpen={isProcessTrackingOpen}
       onClose={() => setIsProcessTrackingOpen(false)}
+    />
+    <AiLegalDocumentGeneratorModal
+      isOpen={isAiDocGenOpen}
+      onClose={() => setIsAiDocGenOpen(false)}
     />
   </>
   );
