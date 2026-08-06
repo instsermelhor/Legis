@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Icon } from './IconComponents';
 
 export interface NotificationItem {
   id: string;
@@ -99,7 +98,7 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
         {/* Header */}
         <div className="p-4 border-b border-gray-200 dark:border-[#2A2545] flex items-center justify-between bg-gray-50/50 dark:bg-[#141126]/50">
           <div className="flex items-center gap-2">
-            <Icon name="🔔" className="w-5 h-5 text-amber-500" />
+            <span className="text-lg">🔔</span>
             <h3 className="font-bold text-gray-900 dark:text-white text-base">Notificações</h3>
             {unreadCount > 0 && (
               <span className="bg-rose-500 text-white text-xs font-bold px-2 py-0.5 rounded-full animate-pulse">
