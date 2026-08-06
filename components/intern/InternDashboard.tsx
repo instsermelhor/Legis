@@ -18,6 +18,8 @@ import { InternCases } from './sections/InternCases';
 import { InternStudies } from './sections/InternStudies';
 import { InternMentorship } from './sections/InternMentorship';
 import { InternApis } from './sections/InternApis';
+import { OabSimulatorModal } from './OabSimulatorModal';
+import { MentorshipSchedulerModal } from './MentorshipSchedulerModal';
 
 
 interface InternDashboardProps {
@@ -434,6 +436,8 @@ const SemesterGradeCard: React.FC<SemesterGradeCardProps> = ({
 export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEmail, onUpdateIntern, onUpdateEmail, onLogout }) => {
     const [activeTab, setActiveTab] = useState<'overview' | 'perfil' | 'studies' | 'hours' | 'casos' | 'apis' | 'iaTools' | 'efficiency_services'>('overview');
     const [showLawyerPopup, setShowLawyerPopup] = useState(false);
+    const [isOabSimulatorOpen, setIsOabSimulatorOpen] = useState(false);
+    const [isMentorshipModalOpen, setIsMentorshipModalOpen] = useState(false);
 
     const mockInternData = mockInterns.find(i => i.name === intern.name);
     const supervisorLawyerId = intern.supervisorLawyerId !== undefined ? intern.supervisorLawyerId : mockInternData?.supervisorLawyerId;
@@ -612,6 +616,19 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                         {tabBtn('apis', '🔌 APIs')}
                         {tabBtn('iaTools', '⚡ IA Jurídica')}
                         {tabBtn('efficiency_services', '💼 Serviços de Eficiência')}
+
+                        <button
+                            onClick={() => setIsOabSimulatorOpen(true)}
+                            className="py-1.5 px-3 rounded-lg bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold text-xs hover:opacity-90 transition-all shadow-sm self-center"
+                        >
+                            ⚖️ Simulador OAB
+                        </button>
+                        <button
+                            onClick={() => setIsMentorshipModalOpen(true)}
+                            className="py-1.5 px-3 rounded-lg bg-gradient-to-r from-blue-500 to-primary text-white font-bold text-xs hover:opacity-90 transition-all shadow-sm self-center"
+                        >
+                            👨‍⚖️ Agendar Mentoria
+                        </button>
 
                         {onLogout && (
                             <button onClick={onLogout}
@@ -1084,6 +1101,14 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                     onConfirm={doc => { handleCourseDocAdd(uploadModalSemester, doc); }}
                 />
             )}
+            <OabSimulatorModal
+                isOpen={isOabSimulatorOpen}
+                onClose={() => setIsOabSimulatorOpen(false)}
+            />
+            <MentorshipSchedulerModal
+                isOpen={isMentorshipModalOpen}
+                onClose={() => setIsMentorshipModalOpen(false)}
+            />
         </div>
     );
 };
