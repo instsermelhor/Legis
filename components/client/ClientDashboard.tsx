@@ -176,7 +176,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
       const saved = localStorage.getItem('legis_user');
       const current = saved ? JSON.parse(saved) : {};
       localStorage.setItem('legis_user', JSON.stringify({ ...current, ...updates }));
-    } catch {}
+    } catch { /* ignore localStorage errors */ }
   };
 
   const handleUpdateEmail = (newEmail: string) => {
@@ -184,7 +184,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
       const saved = localStorage.getItem('legis_user');
       const current = saved ? JSON.parse(saved) : {};
       localStorage.setItem('legis_user', JSON.stringify({ ...current, email: newEmail }));
-    } catch {}
+    } catch { /* ignore localStorage errors */ }
   };
 
   // ── Chat ──
