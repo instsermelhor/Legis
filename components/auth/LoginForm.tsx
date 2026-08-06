@@ -2,6 +2,7 @@ import { Icon } from '@/components/common/IconComponents';
 import React, { useState } from 'react';
 import { mockLawyers } from '../../services/mockLawyerService';
 import { hashPassword } from '../../services/mockDataService';
+import { AuthService } from '../../services/authService';
 
 export interface Credentials {
     email: string;
@@ -215,17 +216,31 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
         setIsLoading(true);
-        setTimeout(() => {
+
+        try {
+            // Checa autenticação de Admin/Staff via AuthService com lockout
+            if (userType === 'admin' || email.toLowerCase().includes('admin') || email.toLowerCase().includes('legisconnect.com.br') || email.toLowerCase() === 'instsermelhor.adm@gmail.com') {
+                const authResult = await AuthService.authenticateStaffAsync(email, password);
+                if (!authResult.success) {
+                    setError(authResult.error || 'Credenciais inválidas. Verifique os dados digitados.');
+                    setIsLoading(false);
+                    return;
+                }
+            }
+
             const success = onLogin({ email, password });
             if (!success) {
                 setError('E-mail ou senha inválidos. Verifique suas credenciais.');
             }
+        } catch {
+            setError('Ocorreu um erro ao processar a autenticação.');
+        } finally {
             setIsLoading(false);
-        }, 500);
+        }
     };
 
     const role = userType ? roleConfig[userType] : null;
