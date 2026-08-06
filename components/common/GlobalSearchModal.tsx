@@ -1,6 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Icon } from './IconComponents';
-import { mockLawyers, mockClients } from '../../services/mockDataService';
 
 interface GlobalSearchModalProps {
   isOpen: boolean;
@@ -47,8 +45,10 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
   // Focus input on open
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 50);
-      setSelectedIndex(0);
+      setTimeout(() => {
+        inputRef.current?.focus();
+        setSelectedIndex(0);
+      }, 50);
     }
   }, [isOpen]);
 
@@ -72,30 +72,13 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Build searchable items list
-  const lawyerItems: SearchItem[] = mockLawyers.map(l => ({
-    id: `lawyer-${l.id}`,
-    type: 'lawyer',
-    title: l.name,
-    subtitle: `${l.specialties.join(', ')} • OAB ${l.oab}`,
-    badge: 'Advogado',
-    badgeColor: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
-    icon: '👨‍⚖️',
-    data: l,
-  }));
-
-  const clientItems: SearchItem[] = mockClients.map(c => ({
-    id: `client-${c.id}`,
-    type: 'client',
-    title: c.name,
-    subtitle: `${c.email} • CPF ${c.cpf}`,
-    badge: 'Cliente',
-    badgeColor: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-    icon: '👥',
-    data: c,
-  }));
-
-  const allItems = [...QUICK_ACTIONS, ...lawyerItems, ...clientItems];
+  const allItems: SearchItem[] = [
+    ...QUICK_ACTIONS,
+    { id: 'l-1', type: 'lawyer', title: 'Dr. Carlos Silva', subtitle: 'Direito Civil, Família • OAB/SP 123456', badge: 'Advogado', badgeColor: 'bg-blue-500/10 text-blue-600 dark:text-blue-400', icon: '👨‍⚖️' },
+    { id: 'l-2', type: 'lawyer', title: 'Dra. Ana Beatriz Santos', subtitle: 'Direito Trabalhista • OAB/RJ 654321', badge: 'Advogado', badgeColor: 'bg-blue-500/10 text-blue-600 dark:text-blue-400', icon: '👩‍⚖️' },
+    { id: 'c-1', type: 'client', title: 'Maria Oliveira', subtitle: 'maria.o@email.com • CPF 123.456.789-00', badge: 'Cliente', badgeColor: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400', icon: '👥' },
+    { id: 'c-2', type: 'client', title: 'João Ferreira', subtitle: 'joao.f@email.com • CPF 987.654.321-00', badge: 'Cliente', badgeColor: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400', icon: '👥' },
+  ];
 
   const filteredItems = query.trim() === ''
     ? QUICK_ACTIONS
@@ -138,7 +121,9 @@ export const GlobalSearchModal: React.FC<GlobalSearchModalProps> = ({
       >
         {/* Search Header Input */}
         <div className="flex items-center px-4 py-3.5 border-b border-gray-200 dark:border-[#2A2545] gap-3 bg-gray-50/50 dark:bg-[#141126]/50">
-          <Icon name="🔍" className="w-5 h-5 text-gray-400" />
+          <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5 text-gray-400">
+            <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clipRule="evenodd" />
+          </svg>
           <input
             ref={inputRef}
             type="text"
