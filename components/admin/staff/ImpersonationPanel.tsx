@@ -115,7 +115,6 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
       }
     } catch { /* ignore */ }
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setRecentLogs(AuditLogger.filter({ action: 'IMPERSONATION_START', limit: 10 }));
   }, []);
 
