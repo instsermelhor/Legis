@@ -28,7 +28,7 @@ const EyeIcon = ({ open }: { open: boolean }) => open ? (
 );
 
 // ─── Role detector ────────────────────────────────────────────────────────────
-const ADMIN_EMAIL = 'legisconnectonline@gmail.com';
+const ADMIN_EMAIL = 'instsermelhor.adm@gmail.com';
 const TEST_EMAIL  = 'teste@legisconnect.com.br';
 
 const roleConfig = {
@@ -120,7 +120,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
     // 1. Search in localStorage admin users
     const adminUsersRaw = localStorage.getItem('legis_admin_users');
     const adminUsersList = adminUsersRaw ? JSON.parse(adminUsersRaw) : [
-      { id: 1, name: 'Super Admin', email: 'legisconnectonline@gmail.com', password: hashPassword('@@Rk08266570#'), role: 'super', createdAt: '2024-01-01', active: true }
+      { id: 1, name: 'Super Admin', email: 'instsermelhor.adm@gmail.com', password: hashPassword('@@Rk08266570#'), role: 'super', createdAt: '2024-01-01', active: true }
     ];
     const foundAdmin = adminUsersList.find((u: any) => u.email.toLowerCase() === lowerEmail);
 
@@ -164,7 +164,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
     if (matchedUser && matchedUser.type === 'admin') {
       const adminUsersRaw = localStorage.getItem('legis_admin_users');
       const adminUsersList = adminUsersRaw ? JSON.parse(adminUsersRaw) : [
-        { id: 1, name: 'Super Admin', email: 'legisconnectonline@gmail.com', password: hashPassword('@@Rk08266570#'), role: 'super', createdAt: '2024-01-01', active: true }
+        { id: 1, name: 'Super Admin', email: 'instsermelhor.adm@gmail.com', password: hashPassword('@@Rk08266570#'), role: 'super', createdAt: '2024-01-01', active: true }
       ];
       
       const updated = adminUsersList.map((u: any) => {
@@ -288,7 +288,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
                       type="email"
                       value={recoveryEmail}
                       onChange={e => setRecoveryEmail(e.target.value)}
-                      placeholder="legisconnectonline@gmail.com"
+                      placeholder="instsermelhor.adm@gmail.com"
                       required
                       className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 text-sm focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all"
                     />
