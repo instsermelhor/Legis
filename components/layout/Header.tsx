@@ -15,6 +15,7 @@ import { AiLegalDocumentGeneratorModal } from '../lawyer/AiLegalDocumentGenerato
 import { ClientPortalModal } from '../client/ClientPortalModal';
 import { OfficeFinancialModal } from '../lawyer/OfficeFinancialModal';
 import { JurisprudenceTesesModal } from '../common/JurisprudenceTesesModal';
+import { OcrDeadlineParserModal } from '../lawyer/OcrDeadlineParserModal';
 import { UnifiedToolsMenu } from './UnifiedToolsMenu';
 
 interface HeaderProps {
@@ -82,6 +83,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
   const [isClientPortalOpen, setIsClientPortalOpen] = useState(false);
   const [isOfficeFinancialOpen, setIsOfficeFinancialOpen] = useState(false);
   const [isJurisprudenceOpen, setIsJurisprudenceOpen] = useState(false);
+  const [isOcrDeadlineOpen, setIsOcrDeadlineOpen] = useState(false);
   const [unreadCount] = useState(2);
 
   // Cmd+K / Ctrl+K global shortcut
@@ -259,6 +261,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
                 if (key === 'clientPortal') setIsClientPortalOpen(true);
                 if (key === 'officeFinancial') setIsOfficeFinancialOpen(true);
                 if (key === 'jurisprudence') setIsJurisprudenceOpen(true);
+                if (key === 'ocrDeadline') setIsOcrDeadlineOpen(true);
                 if (key === 'monitor') setIsMonitorOpen(true);
               }}
             />
@@ -467,6 +470,10 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
     <JurisprudenceTesesModal
       isOpen={isJurisprudenceOpen}
       onClose={() => setIsJurisprudenceOpen(false)}
+    />
+    <OcrDeadlineParserModal
+      isOpen={isOcrDeadlineOpen}
+      onClose={() => setIsOcrDeadlineOpen(false)}
     />
   </>
   );
