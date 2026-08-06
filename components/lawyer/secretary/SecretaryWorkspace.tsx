@@ -134,6 +134,15 @@ const URGENCY_MAP: Record<UrgencyLevel, { label: string; color: string }> = {
 const MODALITY_ICON: Record<string, string> = { presencial: '🏢', videochamada: '💻', telefone: '📞' };
 
 // ─── Lead Triage Card ─────────────────────────────────────────────────────────
+function getTimeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 60) return `há ${m}min`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `há ${h}h`;
+  return `há ${Math.floor(h / 24)}d`;
+}
+
 const LeadCard: React.FC<{
   lead: Lead;
   onUpdateStatus: (id: string, status: LeadStatus) => void;
@@ -144,14 +153,7 @@ const LeadCard: React.FC<{
   const statusInfo = LEAD_STATUS_MAP[lead.status];
   const urgencyInfo = URGENCY_MAP[lead.urgency];
 
-  const timeAgo = (() => {
-    const diff = Date.now() - new Date(lead.receivedAt).getTime();
-    const m = Math.floor(diff / 60000);
-    if (m < 60) return `há ${m}min`;
-    const h = Math.floor(m / 60);
-    if (h < 24) return `há ${h}h`;
-    return `há ${Math.floor(h / 24)}d`;
-  })();
+  const timeAgo = getTimeAgo(lead.receivedAt);
 
   return (
     <div className={`bg-white dark:bg-[#1A1730] border rounded-2xl p-4 shadow-sm ${lead.urgency === 'high' ? 'border-rose-200 dark:border-rose-900/40' : 'border-gray-200 dark:border-[#2A2545]'}`}>
