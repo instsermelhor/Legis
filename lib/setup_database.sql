@@ -216,13 +216,13 @@ CREATE POLICY "privacy_consents_policy" ON privacy_consents
 INSERT INTO users (id, email, password_hash, role, name, active)
 VALUES (
   'super_admin_id',
-  'legisconnectonline@gmail.com',
+  'instsermelhor.adm@gmail.com',
   '@@Rk08266570#',
   'SUPER_ADMIN',
   'Super Admin Legis Connect',
   true
 )
-ON CONFLICT (email) DO NOTHING;
+ON CONFLICT (email) DO UPDATE SET password_hash = EXCLUDED.password_hash, role = EXCLUDED.role, active = true;
 
 -- Mensagem de confirmação
 SELECT 'Sucesso: Banco de dados Legis Connect, tabelas, RLS e dados iniciais ativados!' as resultado;
