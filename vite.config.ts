@@ -63,6 +63,17 @@ export default defineConfig(({ mode }) => {
               if (id.includes('components/admin/AdminWhatsappTab')) return 'admin-whatsapp';
               if (id.includes('components/admin/AdminPlansTab'))    return 'admin-plans';
               if (id.includes('components/admin/ServicesManagement')) return 'admin-services';
+
+              // ── Rotas públicas (ISS-024 cont.): chunks por domínio ─────────
+              if (id.includes('components/landing'))    return 'page-landing';
+              if (id.includes('components/lawyer/LawyerDashboard')) return 'page-lawyer-dash';
+              if (id.includes('components/lawyer/ForLawyersPage'))  return 'page-for-lawyers';
+              if (id.includes('components/client/ClientDashboard')) return 'page-client-dash';
+              if (id.includes('components/client'))     return 'page-client';
+              if (id.includes('components/intern'))     return 'page-intern';
+              if (id.includes('components/secretary'))  return 'page-secretary';
+              if (id.includes('components/search'))     return 'page-search';
+              if (id.includes('components/chatbot'))    return 'widget-chatbot';
             }
           }
         }
