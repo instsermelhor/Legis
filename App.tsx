@@ -109,7 +109,7 @@ const App: React.FC = () => {
       const superUser = {
         id: 1,
         name: 'Super Admin',
-        email: 'legisconnectonline@gmail.com',
+        email: 'instsermelhor.adm@gmail.com',
         password: hashedPass,
         role: 'super',
         createdAt: '2024-01-01',
@@ -122,7 +122,7 @@ const App: React.FC = () => {
         if (Array.isArray(list)) {
           let foundSuper = false;
           const updatedList = list.map((u: any) => {
-            if (u.email?.toLowerCase() === 'legisconnectonline@gmail.com') {
+            if (u.email?.toLowerCase() === 'instsermelhor.adm@gmail.com') {
               foundSuper = true;
               return { ...u, password: hashedPass, role: 'super', active: true };
             }
@@ -234,7 +234,7 @@ const App: React.FC = () => {
     // Admin login using localStorage list
     const savedAdminUsersRaw = localStorage.getItem('legis_admin_users');
     const adminUsersList = savedAdminUsersRaw ? JSON.parse(savedAdminUsersRaw) : [
-      { id: 1, name: 'Super Admin', email: 'legisconnectonline@gmail.com', password: hashPassword('@@Rk08266570#'), role: 'super', createdAt: '2024-01-01', active: true },
+      { id: 1, name: 'Super Admin', email: 'instsermelhor.adm@gmail.com', password: hashPassword('@@Rk08266570#'), role: 'super', createdAt: '2024-01-01', active: true },
       { id: 2, name: 'Admin Secundário', email: 'admin@legisconnect.com.br', password: hashPassword('@@Rk08266570#'), role: 'super', createdAt: '2024-01-01', active: true }
     ];
 
