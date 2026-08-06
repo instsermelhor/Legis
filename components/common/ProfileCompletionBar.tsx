@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Icon } from './IconComponents';
 
 interface ProfileChecklistItem {
   id: string;
