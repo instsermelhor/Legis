@@ -10,6 +10,21 @@ import {
   formatStatusBadge,
 } from '../../lib/diligenceMarketplaceEngine';
 
+// External helper functions (outside component to satisfy react-hooks/purity)
+function generateId(prefix: string): string {
+  return `${prefix}_${Math.random().toString(36).slice(2, 9)}`;
+}
+
+function getFutureDateIso(daysAhead: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() + daysAhead);
+  return d.toISOString();
+}
+
+function getCurrentIso(): string {
+  return new Date().toISOString();
+}
+
 interface DiligenceMarketplaceModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -53,16 +68,15 @@ export const DiligenceMarketplaceModal: React.FC<DiligenceMarketplaceModalProps>
     e.preventDefault();
     if (!title || !comarca || !tribunalVara) return;
 
-    const now = Date.now();
     const newTask: DiligenceTask = {
-      id: `dil_${now}`,
+      id: generateId('dil'),
       title,
       type,
       description,
       comarca,
       tribunalVara,
       processNumber,
-      deadline: new Date(now + 86400000 * deadlineDays).toISOString(),
+      deadline: getFutureDateIso(deadlineDays),
       escrowValueBrl: split.escrowValue,
       platformFeeBrl: split.platformFee,
       netCorrespondentBrl: split.netCorrespondent,
@@ -70,7 +84,7 @@ export const DiligenceMarketplaceModal: React.FC<DiligenceMarketplaceModalProps>
       requesterId: 'user_current',
       requesterName: 'Dr. Advogado Logado',
       requesterOab: 'OAB/SP 450.120',
-      createdAt: new Date(now).toISOString(),
+      createdAt: getCurrentIso(),
     };
 
     setTasks(prev => [newTask, ...prev]);
@@ -99,7 +113,7 @@ export const DiligenceMarketplaceModal: React.FC<DiligenceMarketplaceModalProps>
               longitude: -46.633308,
               accuracyMeters: 3.5,
               addressName: 'Fórum João Mendes Jr. - Centro, São Paulo SP',
-              timestamp: new Date().toISOString(),
+              timestamp: getCurrentIso(),
             },
           };
         }
@@ -115,7 +129,7 @@ export const DiligenceMarketplaceModal: React.FC<DiligenceMarketplaceModalProps>
           return {
             ...t,
             status: 'delivered',
-            deliveredAt: new Date().toISOString(),
+            deliveredAt: getCurrentIso(),
             deliveryNotes: 'Relatório de audiência e ata assinada pelo magistrado anexados com sucesso.',
             deliveredDocsUrls: ['https://legisconnect.com.br/docs/ata_audiencia_presencial.pdf'],
           };
@@ -126,8 +140,8 @@ export const DiligenceMarketplaceModal: React.FC<DiligenceMarketplaceModalProps>
   };
 
   const handleApproveAndReleaseEscrow = (taskId: string) => {
-    const txId = `tx_escrow_${Date.now()}`;
-    const approvedDate = new Date().toISOString();
+    const txId = generateId('tx_escrow');
+    const approvedDate = getCurrentIso();
     setTasks(prev =>
       prev.map(t => {
         if (t.id === taskId) {
