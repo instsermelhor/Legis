@@ -1,5 +1,6 @@
 import { Icon } from '@/components/common/IconComponents';
 import React, { useState, useRef, useMemo } from 'react';
+import { useDebounce } from '../../hooks/useDebounce';
 import type { Lawyer } from '../../types';
 import { useAppData } from '../../context/AppDataContext';
 import type { MockClient, MockIntern, MockSecretary } from '../../services/mockDataService';
@@ -956,12 +957,14 @@ export const RegistrationsTab: React.FC<{ lawyers: Lawyer[]; onLawyerUpdate: (l:
 
   const [recordType, setRecordType] = useState<RecordType>('lawyers');
   const [search, setSearch] = useState('');
+  // ISS-027: debounce para evitar re-filtros em cada keystroke
+  const debouncedSearch = useDebounce(search, 250);
   const [editing, setEditing] = useState<{ type: RecordType; id: number } | null>(null);
 
-  const filteredLawyers = useMemo(() => lawyers.filter(l => l.name.toLowerCase().includes(search.toLowerCase())), [lawyers, search]);
-  const filteredClients = useMemo(() => clients.filter(c => c.name.toLowerCase().includes(search.toLowerCase())), [clients, search]);
-  const filteredInterns = useMemo(() => interns.filter(i => i.name.toLowerCase().includes(search.toLowerCase())), [interns, search]);
-  const filteredSecretaries = useMemo(() => secretaries.filter(s => s.name.toLowerCase().includes(search.toLowerCase())), [secretaries, search]);
+  const filteredLawyers    = useMemo(() => lawyers.filter(l    => l.name.toLowerCase().includes(debouncedSearch.toLowerCase())), [lawyers, debouncedSearch]);
+  const filteredClients    = useMemo(() => clients.filter(c    => c.name.toLowerCase().includes(debouncedSearch.toLowerCase())), [clients, debouncedSearch]);
+  const filteredInterns    = useMemo(() => interns.filter(i    => i.name.toLowerCase().includes(debouncedSearch.toLowerCase())), [interns, debouncedSearch]);
+  const filteredSecretaries = useMemo(() => secretaries.filter(s => s.name.toLowerCase().includes(debouncedSearch.toLowerCase())), [secretaries, debouncedSearch]);
 
   if (editing) {
     if (editing.type === 'lawyers') {
