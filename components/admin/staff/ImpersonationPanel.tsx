@@ -1,5 +1,5 @@
 import { Icon } from '@/components/common/IconComponents';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { validateImpersonation } from '../../../security/scopeValidator';
 import { logImpersonationStart, AuditLogger } from '../../../security/auditLogger';
 import type { ImpersonationSession } from '../../../types';
@@ -126,7 +126,7 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
     }, 5000);
 
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [activeSession]);
+  }, [activeSession, handleEndSession]);
 
   const filteredTargets = targets.filter(t => {
     const matchSearch = !search ||
@@ -180,7 +180,7 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
     setRecentLogs(AuditLogger.filter({ action: 'IMPERSONATION_START', limit: 10 }));
   };
 
-  const handleEndSession = () => {
+  const handleEndSession = useCallback(() => {
     if (activeSession) {
       AuditLogger.log({
         action: 'IMPERSONATION_END',
@@ -195,7 +195,7 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
     setActiveSession(null);
     setSuccess('Modo Espelho encerrado com sucesso.');
     setRecentLogs(AuditLogger.filter({ action: 'IMPERSONATION_START', limit: 10 }));
-  };
+  }, [activeSession, actorId]);
 
   return (
     <div className="space-y-6">
