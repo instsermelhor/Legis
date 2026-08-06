@@ -14,6 +14,8 @@ import { SecretaryDocuments } from './sections/SecretaryDocuments';
 import { SecretaryApis } from './sections/SecretaryApis';
 import { SecretaryAi } from './sections/SecretaryAi';
 import { SecretaryEfficiency } from './sections/SecretaryEfficiency';
+import { TaskManagementModal } from './TaskManagementModal';
+import { WaitingRoomModal } from './WaitingRoomModal';
 
 
 interface SecretariadoDashboardProps {
@@ -364,6 +366,8 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('overview');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [isTaskManagerOpen, setIsTaskManagerOpen] = useState(false);
+  const [isWaitingRoomOpen, setIsWaitingRoomOpen] = useState(false);
 
   const allowedTools = React.useMemo(() => {
     const saved = localStorage.getItem(`legis_perms_secretary_${secretary.id}`);
@@ -515,6 +519,19 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
             {tabBtn('apis', '🔌 APIs')}
             {tabBtn('iaTools', '⚡ IA Jurídica')}
             {tabBtn('efficiency_services', '💼 Serviços de Eficiência')}
+
+            <button
+              onClick={() => setIsTaskManagerOpen(true)}
+              className="py-1.5 px-3 rounded-lg bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-xs hover:opacity-90 transition-all shadow-sm self-center"
+            >
+              📋 Gestão de Tarefas
+            </button>
+            <button
+              onClick={() => setIsWaitingRoomOpen(true)}
+              className="py-1.5 px-3 rounded-lg bg-gradient-to-r from-blue-500 to-primary text-white font-bold text-xs hover:opacity-90 transition-all shadow-sm self-center"
+            >
+              🛋️ Sala de Espera Virtual
+            </button>
 
             {onLogout && (
               <button onClick={onLogout}
@@ -734,6 +751,14 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
           }}
         />
       )}
+      <TaskManagementModal
+        isOpen={isTaskManagerOpen}
+        onClose={() => setIsTaskManagerOpen(false)}
+      />
+      <WaitingRoomModal
+        isOpen={isWaitingRoomOpen}
+        onClose={() => setIsWaitingRoomOpen(false)}
+      />
     </div>
   );
 };
