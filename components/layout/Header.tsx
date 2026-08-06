@@ -10,6 +10,7 @@ import { BiAnalyticsModal } from '../admin/BiAnalyticsModal';
 import { SmartContractSignModal } from '../common/SmartContractSignModal';
 import { DeploymentStatusModal } from '../admin/DeploymentStatusModal';
 import { DiligenceMarketplaceModal } from '../lawyer/DiligenceMarketplaceModal';
+import { ProcessTrackingModal } from '../lawyer/ProcessTrackingModal';
 
 interface HeaderProps {
   currentView: View;
@@ -71,6 +72,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
   const [isSmartContractOpen, setIsSmartContractOpen] = useState(false);
   const [isMonitorOpen, setIsMonitorOpen] = useState(false);
   const [isDiligenceOpen, setIsDiligenceOpen] = useState(false);
+  const [isProcessTrackingOpen, setIsProcessTrackingOpen] = useState(false);
   const [unreadCount] = useState(2);
 
   // Cmd+K / Ctrl+K global shortcut
@@ -293,6 +295,16 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
               <span>Diligências</span>
             </button>
 
+            {/* Process Tracking & DJEN button */}
+            <button
+              onClick={() => setIsProcessTrackingOpen(true)}
+              className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold bg-gradient-to-r from-purple-700 to-indigo-900 text-white shadow-sm hover:opacity-90 transition-all"
+              title="Monitoramento DJEN / DataJud & Calculadora de Prazos CPC"
+            >
+              <span>⚖️</span>
+              <span>Prazos & DJEN</span>
+            </button>
+
             {/* Deploy Monitor button (admin only) */}
             {user?.role === 'admin' && (
               <button
@@ -475,6 +487,10 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
     <DiligenceMarketplaceModal
       isOpen={isDiligenceOpen}
       onClose={() => setIsDiligenceOpen(false)}
+    />
+    <ProcessTrackingModal
+      isOpen={isProcessTrackingOpen}
+      onClose={() => setIsProcessTrackingOpen(false)}
     />
   </>
   );
