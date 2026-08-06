@@ -6,6 +6,8 @@ import { NotificationDrawer } from '../common/NotificationDrawer';
 import { SubscriptionPlansModal } from '../common/SubscriptionPlansModal';
 import { PredictiveLegalAiModal } from '../common/PredictiveLegalAiModal';
 import { WhatsAppNotificationModal } from '../common/WhatsAppNotificationModal';
+import { BiAnalyticsModal } from '../admin/BiAnalyticsModal';
+import { SmartContractSignModal } from '../common/SmartContractSignModal';
 
 interface HeaderProps {
   currentView: View;
@@ -63,6 +65,8 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
   const [isPlansOpen, setIsPlansOpen] = useState(false);
   const [isPredictiveAiOpen, setIsPredictiveAiOpen] = useState(false);
   const [isWhatsappOpen, setIsWhatsappOpen] = useState(false);
+  const [isBiOpen, setIsBiOpen] = useState(false);
+  const [isSmartContractOpen, setIsSmartContractOpen] = useState(false);
   const [unreadCount] = useState(2);
 
   // Cmd+K / Ctrl+K global shortcut
@@ -255,6 +259,26 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
               <span>WhatsApp</span>
             </button>
 
+            {/* BI Analytics button */}
+            <button
+              onClick={() => setIsBiOpen(true)}
+              className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold bg-amber-500 text-white shadow-sm hover:bg-amber-600 transition-all"
+              title="BI Analytics & Auditoria OAB/LGPD"
+            >
+              <span>📊</span>
+              <span>BI Analytics</span>
+            </button>
+
+            {/* Smart Contracts button */}
+            <button
+              onClick={() => setIsSmartContractOpen(true)}
+              className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold bg-gradient-to-r from-slate-700 to-slate-900 text-white shadow-sm hover:opacity-90 transition-all"
+              title="Smart Contracts & Assinatura Digital SHA-256"
+            >
+              <span>📜</span>
+              <span>Smart Contracts</span>
+            </button>
+
             {/* Notification bell (logged-in only) */}
             {user && (
               <button
@@ -409,6 +433,14 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
     <WhatsAppNotificationModal
       isOpen={isWhatsappOpen}
       onClose={() => setIsWhatsappOpen(false)}
+    />
+    <BiAnalyticsModal
+      isOpen={isBiOpen}
+      onClose={() => setIsBiOpen(false)}
+    />
+    <SmartContractSignModal
+      isOpen={isSmartContractOpen}
+      onClose={() => setIsSmartContractOpen(false)}
     />
   </>
   );
