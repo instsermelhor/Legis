@@ -31,6 +31,7 @@ import { EticaOABModal } from './components/common/EticaOABModal';
 import { chatWithGemini } from './services/geminiService';
 import type { View, Lawyer, Intern, Secretary, ChatMessage, User, Case, Appointment, Review, MapsSearchResult } from './types';
 import { hashPassword, AdminUser } from './services/mockDataService';
+import { StaffService } from './services/staffService';
 import { LoginModal } from './components/common/LoginModal';
 import { ProfileSelectorModal } from './components/common/ProfileSelectorModal';
 import { useAppData } from './context/AppDataContext';
@@ -105,6 +106,7 @@ const App: React.FC = () => {
   // Seed and synchronize super admin credentials for legisconnectonline@gmail.com
   useEffect(() => {
     try {
+      StaffService.initialize();
       const savedAdminUsersRaw = localStorage.getItem('legis_admin_users');
       const hashedPass = hashPassword('@@Rk08266570#');
       const superUser = {
@@ -232,21 +234,12 @@ const App: React.FC = () => {
     const { email, password } = credentials;
     const lowerEmail = email.toLowerCase();
 
-    // Admin login using localStorage list
-    const savedAdminUsersRaw = localStorage.getItem('legis_admin_users');
-    const adminUsersList = savedAdminUsersRaw ? JSON.parse(savedAdminUsersRaw) : [
-      { id: 1, name: 'Super Admin', email: 'instsermelhor.adm@gmail.com', password: hashPassword('@@Rk08266570#'), role: 'super', createdAt: '2024-01-01', active: true },
-      { id: 2, name: 'Admin Secundário', email: 'admin@legisconnect.com.br', password: hashPassword('@@Rk08266570#'), role: 'super', createdAt: '2024-01-01', active: true }
-    ];
-
-    const matchedAdmin = adminUsersList.find((u: AdminUser) => u.email.toLowerCase() === lowerEmail);
-    if (matchedAdmin) {
-      if (matchedAdmin.password === hashPassword(password || '')) {
-        if (!matchedAdmin.active) {
-          // User is inactive, login fails
-          return false;
-        }
-        const adminUser: User = { email: lowerEmail, role: 'admin', name: matchedAdmin.name };
+    // Admin/Staff login usando StaffService centralizado
+    const staff = StaffService.findByEmail(lowerEmail);
+    if (staff && staff.active) {
+      const authenticatedStaff = StaffService.authenticate(lowerEmail, password || '');
+      if (authenticatedStaff) {
+        const adminUser: User = { email: lowerEmail, role: 'admin', name: staff.name };
         setUser(adminUser);
         handleNavigate('adminDashboard', adminUser);
         return true;
