@@ -115,6 +115,23 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
   }, []);
 
   // Auto-expiração da sessão
+  const handleEndSession = useCallback(() => {
+    if (activeSession) {
+      AuditLogger.log({
+        action: 'IMPERSONATION_END',
+        actorId,
+        actorRole: 'super_admin',
+        targetId: activeSession.targetUserId,
+        details: `Modo Espelho encerrado para ${activeSession.targetUserEmail}. Duração: ${Math.round((Date.now() - new Date(activeSession.startedAt).getTime()) / 60000)}min`,
+        severity: 'WARNING',
+      });
+    }
+    sessionStorage.removeItem(IMPERSONATION_KEY);
+    setActiveSession(null);
+    setSuccess('Modo Espelho encerrado com sucesso.');
+    setRecentLogs(AuditLogger.filter({ action: 'IMPERSONATION_START', limit: 10 }));
+  }, [activeSession, actorId]);
+
   useEffect(() => {
     if (!activeSession) { if (timerRef.current) clearInterval(timerRef.current); return; }
 
@@ -180,22 +197,6 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
     setRecentLogs(AuditLogger.filter({ action: 'IMPERSONATION_START', limit: 10 }));
   };
 
-  const handleEndSession = useCallback(() => {
-    if (activeSession) {
-      AuditLogger.log({
-        action: 'IMPERSONATION_END',
-        actorId,
-        actorRole: 'super_admin',
-        targetId: activeSession.targetUserId,
-        details: `Modo Espelho encerrado para ${activeSession.targetUserEmail}. Duração: ${Math.round((Date.now() - new Date(activeSession.startedAt).getTime()) / 60000)}min`,
-        severity: 'WARNING',
-      });
-    }
-    sessionStorage.removeItem(IMPERSONATION_KEY);
-    setActiveSession(null);
-    setSuccess('Modo Espelho encerrado com sucesso.');
-    setRecentLogs(AuditLogger.filter({ action: 'IMPERSONATION_START', limit: 10 }));
-  }, [activeSession, actorId]);
 
   return (
     <div className="space-y-6">
