@@ -14,6 +14,8 @@ import { ProcessTrackingModal } from '../lawyer/ProcessTrackingModal';
 import { AiLegalDocumentGeneratorModal } from '../lawyer/AiLegalDocumentGeneratorModal';
 import { ClientPortalModal } from '../client/ClientPortalModal';
 import { OfficeFinancialModal } from '../lawyer/OfficeFinancialModal';
+import { JurisprudenceTesesModal } from '../common/JurisprudenceTesesModal';
+import { UnifiedToolsMenu } from './UnifiedToolsMenu';
 
 interface HeaderProps {
   currentView: View;
@@ -79,6 +81,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
   const [isAiDocGenOpen, setIsAiDocGenOpen] = useState(false);
   const [isClientPortalOpen, setIsClientPortalOpen] = useState(false);
   const [isOfficeFinancialOpen, setIsOfficeFinancialOpen] = useState(false);
+  const [isJurisprudenceOpen, setIsJurisprudenceOpen] = useState(false);
   const [unreadCount] = useState(2);
 
   // Cmd+K / Ctrl+K global shortcut
@@ -240,6 +243,25 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
               <span>Buscar</span>
               <kbd className="ml-1 text-[9px] font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-white/10 border border-gray-300 dark:border-white/20">⌘K</kbd>
             </button>
+
+            {/* Unified Tools Menu */}
+            <UnifiedToolsMenu
+              isAdmin={user?.role === 'admin'}
+              onOpenModal={(key) => {
+                if (key === 'plans') setIsPlansOpen(true);
+                if (key === 'predictiveAi') setIsPredictiveAiOpen(true);
+                if (key === 'whatsapp') setIsWhatsappOpen(true);
+                if (key === 'biAnalytics') setIsBiOpen(true);
+                if (key === 'smartContract') setIsSmartContractOpen(true);
+                if (key === 'diligenceMarketplace') setIsDiligenceOpen(true);
+                if (key === 'processTracking') setIsProcessTrackingOpen(true);
+                if (key === 'aiDocGen') setIsAiDocGenOpen(true);
+                if (key === 'clientPortal') setIsClientPortalOpen(true);
+                if (key === 'officeFinancial') setIsOfficeFinancialOpen(true);
+                if (key === 'jurisprudence') setIsJurisprudenceOpen(true);
+                if (key === 'monitor') setIsMonitorOpen(true);
+              }}
+            />
 
 
 
@@ -441,6 +463,10 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
     <OfficeFinancialModal
       isOpen={isOfficeFinancialOpen}
       onClose={() => setIsOfficeFinancialOpen(false)}
+    />
+    <JurisprudenceTesesModal
+      isOpen={isJurisprudenceOpen}
+      onClose={() => setIsJurisprudenceOpen(false)}
     />
   </>
   );
