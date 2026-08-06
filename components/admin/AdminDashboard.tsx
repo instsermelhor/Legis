@@ -1,22 +1,34 @@
-import { Icon } from '@/components/common/IconComponents';
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import type { Lawyer } from '../../types';
 import { useAppData } from '../../context/AppDataContext';
 
-// ── Tabs
-import { OverviewTab }          from './overview/OverviewTab';
-import { RegistrationsTab }     from './RegistrationsTab';
-import { FinanceTab }           from './FinanceTab';
-import { SettingsTab }          from './SettingsTab';
-import { ServicesManagementTab } from './ServicesManagementTab';
-import { AdminCommandsTab }     from './AdminCommandsTab';
-import { OperationsTab }        from './operations/OperationsTab';
-import { StaffManagementTab }   from './staff/StaffManagementTab';
-import { ImpersonationPanel }   from './staff/ImpersonationPanel';
-import { ProvisioningDashboard } from './provisioning/ProvisioningDashboard';
-import { AdminPlansTab }        from './AdminPlansTab';
-import { AdminAiConfigTab }     from './AdminAiConfigTab';
-import { AdminWhatsappTab }     from './AdminWhatsappTab';
+// ── Tabs (ISS-024: Lazy loaded para code splitting)
+const OverviewTab         = lazy(() => import('./overview/OverviewTab').then(m => ({ default: m.OverviewTab })));
+const RegistrationsTab    = lazy(() => import('./RegistrationsTab').then(m => ({ default: m.RegistrationsTab })));
+const FinanceTab          = lazy(() => import('./FinanceTab').then(m => ({ default: m.FinanceTab })));
+const SettingsTab         = lazy(() => import('./SettingsTab').then(m => ({ default: m.SettingsTab })));
+const ServicesManagementTab = lazy(() => import('./ServicesManagementTab').then(m => ({ default: m.ServicesManagementTab })));
+const AdminCommandsTab    = lazy(() => import('./AdminCommandsTab').then(m => ({ default: m.AdminCommandsTab })));
+const OperationsTab       = lazy(() => import('./operations/OperationsTab').then(m => ({ default: m.OperationsTab })));
+const StaffManagementTab  = lazy(() => import('./staff/StaffManagementTab').then(m => ({ default: m.StaffManagementTab })));
+const ImpersonationPanel  = lazy(() => import('./staff/ImpersonationPanel').then(m => ({ default: m.ImpersonationPanel })));
+const ProvisioningDashboard = lazy(() => import('./provisioning/ProvisioningDashboard').then(m => ({ default: m.ProvisioningDashboard })));
+const AdminPlansTab       = lazy(() => import('./AdminPlansTab').then(m => ({ default: m.AdminPlansTab })));
+const AdminAiConfigTab    = lazy(() => import('./AdminAiConfigTab').then(m => ({ default: m.AdminAiConfigTab })));
+const AdminWhatsappTab    = lazy(() => import('./AdminWhatsappTab').then(m => ({ default: m.AdminWhatsappTab })));
+
+// ── Skeleton de loading para Suspense
+const TabSkeleton: React.FC = () => (
+  <div className="animate-pulse space-y-4 p-6">
+    <div className="h-8 bg-white/5 rounded-xl w-1/3" />
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {[...Array(3)].map((_, i) => (
+        <div key={i} className="h-28 bg-white/5 rounded-2xl" />
+      ))}
+    </div>
+    <div className="h-64 bg-white/5 rounded-2xl" />
+  </div>
+);
 
 // ── Icons
 import {
@@ -220,21 +232,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLo
           </div>
         </aside>
 
-        {/* ── Main Content ── */}
+        {/* ── Main Content (ISS-024: tabs carregadas sob demanda via Suspense) ── */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">
-          {activeTab === 'overview'        && <OverviewTab lawyers={lawyers} onNavigateToFinance={navigateToFinance} />}
-          {activeTab === 'admin_commands'  && <AdminCommandsTab />}
-          {activeTab === 'registrations'   && <RegistrationsTab lawyers={lawyers} onLawyerUpdate={updateLawyer} />}
-          {activeTab === 'finance'         && <FinanceTab lawyers={lawyers} initialFilter={financeFilter} />}
-          {activeTab === 'services'        && <ServicesManagementTab />}
-          {activeTab === 'operations'      && <OperationsTab />}
-          {activeTab === 'settings'        && <SettingsTab />}
-          {activeTab === 'staff'           && <StaffManagementTab actorId="super_admin" />}
-          {activeTab === 'impersonation'   && <ImpersonationPanel actorId="super_admin" actorEmail="instsermelhor.adm@gmail.com" />}
-          {activeTab === 'provisioning'    && <ProvisioningDashboard />}
-          {activeTab === 'plans'           && <AdminPlansTab />}
-          {activeTab === 'ai_config'        && <AdminAiConfigTab />}
-          {activeTab === 'whatsapp_config'  && <AdminWhatsappTab />}
+          <Suspense fallback={<TabSkeleton />}>
+            {activeTab === 'overview'        && <OverviewTab lawyers={lawyers} onNavigateToFinance={navigateToFinance} />}
+            {activeTab === 'admin_commands'  && <AdminCommandsTab />}
+            {activeTab === 'registrations'   && <RegistrationsTab lawyers={lawyers} onLawyerUpdate={updateLawyer} />}
+            {activeTab === 'finance'         && <FinanceTab lawyers={lawyers} initialFilter={financeFilter} />}
+            {activeTab === 'services'        && <ServicesManagementTab />}
+            {activeTab === 'operations'      && <OperationsTab />}
+            {activeTab === 'settings'        && <SettingsTab />}
+            {activeTab === 'staff'           && <StaffManagementTab actorId="super_admin" />}
+            {activeTab === 'impersonation'   && <ImpersonationPanel actorId="super_admin" actorEmail="instsermelhor.adm@gmail.com" />}
+            {activeTab === 'provisioning'    && <ProvisioningDashboard />}
+            {activeTab === 'plans'           && <AdminPlansTab />}
+            {activeTab === 'ai_config'        && <AdminAiConfigTab />}
+            {activeTab === 'whatsapp_config'  && <AdminWhatsappTab />}
+          </Suspense>
         </main>
       </div>
     </div>
