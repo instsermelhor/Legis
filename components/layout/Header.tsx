@@ -3,6 +3,7 @@ import type { View, User } from '../../types';
 import { useAppConfig } from '../../context/AppContext';
 import { GlobalSearchModal } from '../common/GlobalSearchModal';
 import { NotificationDrawer } from '../common/NotificationDrawer';
+import { SubscriptionPlansModal } from '../common/SubscriptionPlansModal';
 
 interface HeaderProps {
   currentView: View;
@@ -57,6 +58,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
   });
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isPlansOpen, setIsPlansOpen] = useState(false);
   const [unreadCount] = useState(2);
 
   // Cmd+K / Ctrl+K global shortcut
@@ -219,6 +221,16 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
               <kbd className="ml-1 text-[9px] font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-white/10 border border-gray-300 dark:border-white/20">⌘K</kbd>
             </button>
 
+            {/* Plans & Upgrade button */}
+            <button
+              onClick={() => setIsPlansOpen(true)}
+              className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold bg-gradient-to-r from-amber-500 to-primary text-white shadow-sm hover:opacity-90 transition-all"
+              title="Ver Planos & Upgrade"
+            >
+              <span>💎</span>
+              <span>Planos</span>
+            </button>
+
             {/* Notification bell (logged-in only) */}
             {user && (
               <button
@@ -361,6 +373,10 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
     <NotificationDrawer
       isOpen={isNotifOpen}
       onClose={() => setIsNotifOpen(false)}
+    />
+    <SubscriptionPlansModal
+      isOpen={isPlansOpen}
+      onClose={() => setIsPlansOpen(false)}
     />
   </>
   );
