@@ -60,7 +60,7 @@ export class OrchestratedEngineRegistryService {
       { engineId: 'ENG-12', promptOrigin: 'Prompt 297', name: 'Ecosystem Enterprise Engine',    phase: 'OPERATIONS',      interoperabilityScorePct: 100.0, latencyMs: 15, status: 'OPTIMAL', lastSyncedAt: now },
       { engineId: 'ENG-13', promptOrigin: 'Prompt 298', name: 'Regulatory Intelligence Engine', phase: 'INTELLIGENCE',     interoperabilityScorePct: 100.0, latencyMs: 19, status: 'OPTIMAL', lastSyncedAt: now },
       { engineId: 'ENG-14', promptOrigin: 'Prompt 299', name: 'Strategic Intelligence Engine',  phase: 'INTELLIGENCE',     interoperabilityScorePct: 100.0, latencyMs: 17, status: 'OPTIMAL', lastSyncedAt: now },
-      { engineId: 'ENG-15', promptOrigin: 'Prompt 300', name: 'Eternal Enterprise Engine',      phase: 'ETERNAL',          interoperabilityScorePct: 100.0, latencyMs: 05, status: 'OPTIMAL', lastSyncedAt: now },
+      { engineId: 'ENG-15', promptOrigin: 'Prompt 300', name: 'Eternal Enterprise Engine',      phase: 'ETERNAL',          interoperabilityScorePct: 100.0, latencyMs: 5, status: 'OPTIMAL', lastSyncedAt: now },
       { engineId: 'ENG-16', promptOrigin: 'Prompt 301', name: 'Future Evolution Engine',        phase: 'EVOLUTION_CYCLE',  interoperabilityScorePct: 100.0, latencyMs: 14, status: 'OPTIMAL', lastSyncedAt: now },
       { engineId: 'ENG-17', promptOrigin: 'Prompt 302', name: 'Multi-Agent Intelligence Eng.',  phase: 'EVOLUTION_CYCLE',  interoperabilityScorePct: 100.0, latencyMs: 28, status: 'OPTIMAL', lastSyncedAt: now },
       { engineId: 'ENG-18', promptOrigin: 'Prompt 303', name: 'Digital Twin Corp Engine',       phase: 'EVOLUTION_CYCLE',  interoperabilityScorePct: 100.0, latencyMs: 32, status: 'OPTIMAL', lastSyncedAt: now },
@@ -70,7 +70,7 @@ export class OrchestratedEngineRegistryService {
       { engineId: 'ENG-22', promptOrigin: 'Prompt 307', name: 'Cognitive Knowledge Engine',     phase: 'EVOLUTION_CYCLE',  interoperabilityScorePct: 100.0, latencyMs: 21, status: 'OPTIMAL', lastSyncedAt: now },
       { engineId: 'ENG-23', promptOrigin: 'Prompt 308', name: 'Decision Intelligence Engine',   phase: 'EVOLUTION_CYCLE',  interoperabilityScorePct: 100.0, latencyMs: 25, status: 'OPTIMAL', lastSyncedAt: now },
       { engineId: 'ENG-24', promptOrigin: 'Prompt 309', name: 'Adaptive Governance Corp Eng.', phase: 'EVOLUTION_CYCLE',  interoperabilityScorePct: 100.0, latencyMs: 16, status: 'OPTIMAL', lastSyncedAt: now },
-      { engineId: 'ENG-25', promptOrigin: 'Prompt 310', name: 'Meta-Orchestration Engine (UCOS)',phase: 'EVOLUTION_CYCLE',  interoperabilityScorePct: 100.0, latencyMs: 08, status: 'OPTIMAL', lastSyncedAt: now },
+      { engineId: 'ENG-25', promptOrigin: 'Prompt 310', name: 'Meta-Orchestration Engine (UCOS)',phase: 'EVOLUTION_CYCLE',  interoperabilityScorePct: 100.0, latencyMs: 8, status: 'OPTIMAL', lastSyncedAt: now },
     ];
   }
 }
