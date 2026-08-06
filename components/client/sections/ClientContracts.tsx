@@ -1,6 +1,4 @@
 import { Icon } from '@/components/common/IconComponents';
-'use client';
-
 import React, { useState } from 'react';
 import type { User } from '../../../types';
 
