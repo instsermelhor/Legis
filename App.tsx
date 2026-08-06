@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { onAuthStateChange, signOut as supabaseSignOut, isSupabaseConfigured } from './lib/auth';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
+import { MobileBottomNav } from './components/layout/MobileBottomNav';
 import { LandingPage } from './components/landing/LandingPage';
 import { LawyerSearch } from './components/search/LawyerSearch';
 import { LawyerProfile } from './components/lawyer/LawyerProfile';
@@ -759,6 +760,7 @@ const App: React.FC = () => {
         {renderView()}
       </main>
       <Footer onNavigate={handleNavigate} onShowTerms={() => setIsTermsModalOpen(true)} onShowPrivacy={() => setIsPrivacyModalOpen(true)} onShowEtica={() => setIsEticaModalOpen(true)} />
+      <MobileBottomNav currentView={currentView} onNavigate={handleNavigate} user={user} />
       {user?.role !== 'admin' && <ChatbotFab onClick={() => setIsChatbotOpen(true)} />}
       <ChatbotModal
         isOpen={isChatbotOpen}
