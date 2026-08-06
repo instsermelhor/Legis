@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import type { View, User } from '../../types';
 import { useAppConfig } from '../../context/AppContext';
+import { GlobalSearchModal } from '../common/GlobalSearchModal';
+import { NotificationDrawer } from '../common/NotificationDrawer';
 
 interface HeaderProps {
   currentView: View;
@@ -53,6 +55,21 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem('legis_dark_mode') === 'true';
   });
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [unreadCount] = useState(2);
+
+  // Cmd+K / Ctrl+K global shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Apply / remove dark class on <html>
   useEffect(() => {
@@ -100,6 +117,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
   const shadowClass = scrolled ? 'shadow-dark-card' : '';
 
   return (
+    <>
     <header className={`sticky top-0 z-50 transition-all duration-300 ${headerBase} ${shadowClass}`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-[68px]">
@@ -183,6 +201,44 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
             >
               {darkMode ? <SunIcon /> : <MoonIcon />}
             </button>
+
+            {/* Search button (Cmd+K) */}
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              title="Busca Global (⌘K)"
+              className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border ${
+                isLandingOrPublic
+                  ? 'text-white/70 border-white/15 hover:bg-white/10 hover:text-white'
+                  : 'text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/8'
+              }`}
+            >
+              <svg viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
+                <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clipRule="evenodd" />
+              </svg>
+              <span>Buscar</span>
+              <kbd className="ml-1 text-[9px] font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-white/10 border border-gray-300 dark:border-white/20">⌘K</kbd>
+            </button>
+
+            {/* Notification bell (logged-in only) */}
+            {user && (
+              <button
+                onClick={() => setIsNotifOpen(true)}
+                className={`relative p-2 rounded-lg transition-all duration-200 ${
+                  isLandingOrPublic
+                    ? 'text-white/70 hover:text-white hover:bg-white/10'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/8'
+                }`}
+                title="Notificações"
+                aria-label="Abrir notificações"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="w-5 h-5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                {unreadCount > 0 && (
+                  <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-surface-card animate-pulse" />
+                )}
+              </button>
+            )}
 
             {user ? (
               <>
@@ -296,5 +352,16 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
         </div>
       )}
     </header>
+
+    {/* ── Global overlays ───────────────────────────────────────────────────── */}
+    <GlobalSearchModal
+      isOpen={isSearchOpen}
+      onClose={() => setIsSearchOpen(false)}
+    />
+    <NotificationDrawer
+      isOpen={isNotifOpen}
+      onClose={() => setIsNotifOpen(false)}
+    />
+  </>
   );
 };
