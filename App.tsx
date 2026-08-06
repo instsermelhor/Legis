@@ -31,6 +31,7 @@ const CompleteProfilePage  = lazy(() => import('./components/client/CompleteProf
 // ── Fluxos de auth (lazy loaded) ──────────────────────────────────────────
 const LoginForm            = lazy(() => import('./components/auth/LoginForm').then(m => ({ default: m.LoginForm })));
 const SignupPage           = lazy(() => import('./components/auth/SignupPage').then(m => ({ default: m.SignupPage })));
+const AdminLoginPage       = lazy(() => import('./components/admin/AdminLoginPage').then(m => ({ default: m.AdminLoginPage })));
 
 // ── Modais globais (lazy loaded) ───────────────────────────────────────────
 const TermsOfServiceModal  = lazy(() => import('./components/common/TermsOfServiceModal').then(m => ({ default: m.TermsOfServiceModal })));
@@ -75,6 +76,14 @@ const App: React.FC = () => {
   const { lawyers: allLawyers, addLawyer, updateLawyer } = useAppData();
 
   const [currentView, setCurrentView] = useState<View>(() => {
+    // Detecta acesso via subdomínio admin (?adminLogin=1) — redireciona para login admin
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('adminLogin') === '1') {
+      // Remove o param da URL sem reload (history API)
+      const cleanUrl = window.location.pathname;
+      window.history.replaceState({}, '', cleanUrl);
+      return 'adminLogin';
+    }
     const savedView = localStorage.getItem('legis_currentView') as View | null;
     const savedUser = localStorage.getItem('legis_user');
     const parsedUser = savedUser ? (() => { try { return JSON.parse(savedUser); } catch { return null; } })() : null;
@@ -719,6 +728,13 @@ const App: React.FC = () => {
         return user?.data ? <LawyerDashboard lawyer={user.data as import('./types').Lawyer} onLogout={handleLogout} /> : <ForLawyersPage onLogin={handleLawyerPageLogin} onSignup={handleLawyerSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
       case 'adminDashboard':
         return <AdminDashboard onNavigate={handleNavigate} onLogout={handleLogout} />;
+      case 'adminLogin':
+        return (
+          <AdminLoginPage
+            onLogin={handleLogin}
+            onBackToSite={() => setCurrentView('landing')}
+          />
+        );
       case 'login':
         return <LoginForm onLogin={handleLogin} />;
       case 'signup':
