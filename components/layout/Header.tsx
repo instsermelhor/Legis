@@ -4,6 +4,7 @@ import { useAppConfig } from '../../context/AppContext';
 import { GlobalSearchModal } from '../common/GlobalSearchModal';
 import { NotificationDrawer } from '../common/NotificationDrawer';
 import { SubscriptionPlansModal } from '../common/SubscriptionPlansModal';
+import { PredictiveLegalAiModal } from '../common/PredictiveLegalAiModal';
 
 interface HeaderProps {
   currentView: View;
@@ -59,6 +60,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isPlansOpen, setIsPlansOpen] = useState(false);
+  const [isPredictiveAiOpen, setIsPredictiveAiOpen] = useState(false);
   const [unreadCount] = useState(2);
 
   // Cmd+K / Ctrl+K global shortcut
@@ -231,6 +233,16 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
               <span>Planos</span>
             </button>
 
+            {/* Predictive AI button */}
+            <button
+              onClick={() => setIsPredictiveAiOpen(true)}
+              className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-sm hover:opacity-90 transition-all"
+              title="Análise Preditiva & RAG STF/STJ"
+            >
+              <span>🤖</span>
+              <span>IA Preditiva</span>
+            </button>
+
             {/* Notification bell (logged-in only) */}
             {user && (
               <button
@@ -377,6 +389,10 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
     <SubscriptionPlansModal
       isOpen={isPlansOpen}
       onClose={() => setIsPlansOpen(false)}
+    />
+    <PredictiveLegalAiModal
+      isOpen={isPredictiveAiOpen}
+      onClose={() => setIsPredictiveAiOpen(false)}
     />
   </>
   );
