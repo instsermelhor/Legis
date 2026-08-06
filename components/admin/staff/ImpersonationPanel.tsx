@@ -39,6 +39,10 @@ function getAllTargets(): ImpersonationTarget[] {
 }
 
 // ─── Banner de Aviso Ativo (exibido durante sessão de espelho) ─────────────────
+function getRemainingMinutes(expiresAt: string): number {
+  return Math.floor(Math.max(0, new Date(expiresAt).getTime() - Date.now()) / 60000);
+}
+
 export const ImpersonationBanner: React.FC<{ onEnd: () => void }> = ({ onEnd }) => {
   const session = (() => {
     try {
@@ -49,8 +53,7 @@ export const ImpersonationBanner: React.FC<{ onEnd: () => void }> = ({ onEnd }) 
 
   if (!session) return null;
 
-  const remaining = Math.max(0, new Date(session.expiresAt).getTime() - Date.now());
-  const minutes = Math.floor(remaining / 60000);
+  const minutes = getRemainingMinutes(session.expiresAt);
 
   return (
     <div className="fixed top-0 left-0 right-0 z-[9999] bg-amber-500 text-white px-4 py-2 flex items-center justify-between shadow-lg">
@@ -104,6 +107,7 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
       if (raw) {
         const s: ImpersonationSession = JSON.parse(raw);
         if (new Date(s.expiresAt).getTime() > Date.now()) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect
           setActiveSession(s);
         } else {
           sessionStorage.removeItem(IMPERSONATION_KEY);
@@ -111,6 +115,7 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
       }
     } catch { /* ignore */ }
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setRecentLogs(AuditLogger.filter({ action: 'IMPERSONATION_START', limit: 10 }));
   }, []);
 
