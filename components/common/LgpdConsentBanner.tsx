@@ -3,17 +3,11 @@
  * Banner de Consentimento de Cookies e Privacidade (Art. 8 LGPD - ISS-034)
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { LgpdConsentService } from '../../services/lgpdConsentService';
 
 export const LgpdConsentBanner: React.FC<{ onOpenPrivacy?: () => void }> = ({ onOpenPrivacy }) => {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    if (!LgpdConsentService.hasAcceptedCookies()) {
-      setIsVisible(true);
-    }
-  }, []);
+  const [isVisible, setIsVisible] = useState(() => !LgpdConsentService.hasAcceptedCookies());
 
   const handleAcceptAll = () => {
     LgpdConsentService.acceptAllCookies();
