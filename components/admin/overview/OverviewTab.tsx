@@ -15,7 +15,7 @@ import { SpecialtyPieChart } from '../SpecialtyPieChart';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 type KpiModal = { type: 'lawyers' | 'clients' | 'interns' | 'secretaries' | 'services' } | null;
-const BRAZIL_STATES = ['Todos', 'AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+import { BRAZIL_STATES } from '../../../constants/brazil';
 
 // ─── Secretary mini-icon ──────────────────────────────────────────────────────
 const IconSecretariat = () => (
