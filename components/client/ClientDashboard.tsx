@@ -232,7 +232,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
   );
 
   // ── Sidebar ──
-  const Sidebar = () => (
+  const renderSidebar = () => (
     <aside className="flex flex-col h-full bg-white dark:bg-[#1A1730] border-r border-gray-200 dark:border-[#2A2545] w-64 shrink-0">
       {/* Logo area */}
       <div className="px-5 py-6 border-b border-gray-100 dark:border-[#2A2545]">
@@ -286,7 +286,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
 
       {/* ── Desktop Sidebar ── */}
       <div className="hidden lg:flex">
-        <Sidebar />
+        {renderSidebar()}
       </div>
 
       {/* ── Mobile Sidebar Overlay ── */}
@@ -294,7 +294,7 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-black/60" onClick={() => setSidebarOpen(false)} />
           <div className="absolute left-0 top-0 h-full w-64 z-50">
-            <Sidebar />
+            {renderSidebar()}
           </div>
         </div>
       )}
