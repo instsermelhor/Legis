@@ -264,3 +264,120 @@ export function subscribeToTable(
 
   return () => { supabase.removeChannel(channel); };
 }
+
+// ─── CMS (Conteúdo Institucional SSOT) ────────────────────────────────────────
+
+export const dbCms = {
+  async get() {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('cms_content').select('*').single();
+      if (error && error.code !== 'PGRST116') throw error;
+      return data;
+    }
+    return localGet('legis_cms_content', null);
+  },
+
+  async save(content: Record<string, unknown>, actorId: string) {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase
+        .from('cms_content')
+        .upsert({ id: 'main', content, updated_by: actorId, updated_at: new Date().toISOString() })
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    }
+    localSet('legis_cms_content', { ...content, _updatedBy: actorId, _updatedAt: new Date().toISOString() });
+    return content;
+  },
+};
+
+// ─── MODERATION (Fila e Auditoria de UGC) ────────────────────────────────────
+
+export const dbModeration = {
+  async getQueue() {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('moderation_queue').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    }
+    return localGet<unknown[]>('legis_moderation_queue', []);
+  },
+
+  async submit(item: Record<string, unknown>) {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('moderation_queue').insert(item).select().single();
+      if (error) throw error;
+      return data;
+    }
+    const queue = localGet<unknown[]>('legis_moderation_queue', []);
+    localSet('legis_moderation_queue', [item, ...queue]);
+    return item;
+  },
+
+  async updateStatus(id: string, status: string, actorId: string, notes?: string) {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase
+        .from('moderation_queue')
+        .update({ status, reviewed_by: actorId, reviewed_at: new Date().toISOString(), review_notes: notes })
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return data;
+    }
+    const queue = localGet<Record<string, unknown>[]>('legis_moderation_queue', []);
+    const updated = queue.map(i => i.id === id ? { ...i, status, reviewedBy: actorId, reviewedAt: new Date().toISOString(), reviewNotes: notes } : i);
+    localSet('legis_moderation_queue', updated);
+    return updated.find(i => i.id === id);
+  },
+};
+
+// ─── AI USAGE LOGS ───────────────────────────────────────────────────────────
+
+export const dbAiLogs = {
+  async log(entry: Record<string, unknown>) {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('ai_usage_logs').insert(entry).select().single();
+      if (error) throw error;
+      return data;
+    }
+    const logs = localGet<unknown[]>('legis_ai_usage_logs', []);
+    localSet('legis_ai_usage_logs', [entry, ...logs]);
+    return entry;
+  },
+
+  async getByUser(userId: string) {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('ai_usage_logs').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    }
+    return localGet<Record<string, unknown>[]>('legis_ai_usage_logs', []).filter(l => l.userId === userId);
+  },
+};
+
+// ─── LGPD RIGHTS REQUESTS ───────────────────────────────────────────────────
+
+export const dbLgpdRequests = {
+  async getByUser(userId: string) {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('lgpd_requests').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    }
+    return localGet<Record<string, unknown>[]>('legis_lgpd_requests', []).filter(r => r.userId === userId);
+  },
+
+  async create(request: Record<string, unknown>) {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('lgpd_requests').insert(request).select().single();
+      if (error) throw error;
+      return data;
+    }
+    const reqs = localGet<unknown[]>('legis_lgpd_requests', []);
+    localSet('legis_lgpd_requests', [request, ...reqs]);
+    return request;
+  },
+};
+
