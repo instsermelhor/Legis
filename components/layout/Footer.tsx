@@ -72,7 +72,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onShowTerms, onShowP
                 rel="noopener noreferrer"
                 onClick={(e) => {
                   e.preventDefault();
-                  window.open('https://www.admin.legisconnect.com.br', '_blank');
+                  window.open('https://www.legisconnect.com.br?adminLogin=1', '_blank');
                 }}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-300 hover:text-white bg-white/5 border border-white/10 hover:border-amber-500/40 hover:bg-amber-500/10 transition-all duration-200 shadow-sm"
                 title="Acesso Restrito ao Painel Administrativo (www.admin.legisconnect.com.br)"
