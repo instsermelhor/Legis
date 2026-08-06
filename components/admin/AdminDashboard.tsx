@@ -14,6 +14,9 @@ import { OperationsTab }        from './operations/OperationsTab';
 import { StaffManagementTab }   from './staff/StaffManagementTab';
 import { ImpersonationPanel }   from './staff/ImpersonationPanel';
 import { ProvisioningDashboard } from './provisioning/ProvisioningDashboard';
+import { AdminPlansTab }        from './AdminPlansTab';
+import { AdminAiConfigTab }     from './AdminAiConfigTab';
+import { AdminWhatsappTab }     from './AdminWhatsappTab';
 
 // ── Icons
 import {
@@ -49,7 +52,7 @@ const IconBox = () => (
 );
 
 // ─── Tab definitions ──────────────────────────────────────────────────────────
-type Tab = 'overview' | 'admin_commands' | 'registrations' | 'finance' | 'services' | 'settings' | 'operations' | 'staff' | 'impersonation' | 'provisioning';
+type Tab = 'overview' | 'admin_commands' | 'registrations' | 'finance' | 'services' | 'settings' | 'operations' | 'staff' | 'impersonation' | 'provisioning' | 'plans' | 'ai_config' | 'whatsapp_config';
 
 const TAB_GROUPS = [
   {
@@ -57,6 +60,7 @@ const TAB_GROUPS = [
     items: [
       { id: 'overview'     as const, label: 'Visão Geral — BI', icon: <IconChart /> },
       { id: 'finance'      as const, label: 'Financeiro',        icon: <IconMoney /> },
+      { id: 'plans'        as const, label: 'Gestão de Planos',  icon: <span>💎</span>, badge: 'SSOT' },
     ]
   },
   {
@@ -65,7 +69,9 @@ const TAB_GROUPS = [
       { id: 'registrations' as const, label: 'Gestão de Cadastros',    icon: <IconEdit /> },
       { id: 'services'      as const, label: 'Serviços / Eficiência',   icon: <IconShopBag /> },
       { id: 'provisioning'  as const, label: 'Provisionamento',         icon: <IconBox />,    badge: 'novo' },
-      { id: 'operations'    as const, label: 'Ops & IA',                icon: <IconOps /> },
+      { id: 'operations'    as const, label: 'Ops & Infraestrutura',   icon: <IconOps /> },
+      { id: 'ai_config'     as const, label: 'IA Preditiva & RAG',     icon: <span>🤖</span>, badge: 'STF/STJ' },
+      { id: 'whatsapp_config' as const, label: 'WhatsApp API',         icon: <span>📲</span> },
     ]
   },
   {
@@ -226,6 +232,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLo
           {activeTab === 'staff'           && <StaffManagementTab actorId="super_admin" />}
           {activeTab === 'impersonation'   && <ImpersonationPanel actorId="super_admin" actorEmail="instsermelhor.adm@gmail.com" />}
           {activeTab === 'provisioning'    && <ProvisioningDashboard />}
+          {activeTab === 'plans'           && <AdminPlansTab />}
+          {activeTab === 'ai_config'        && <AdminAiConfigTab />}
+          {activeTab === 'whatsapp_config'  && <AdminWhatsappTab />}
         </main>
       </div>
     </div>
