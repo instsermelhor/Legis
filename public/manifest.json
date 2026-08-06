@@ -1,0 +1,25 @@
+{
+  "short_name": "Legis Connect",
+  "name": "Legis Connect — Plataforma Jurídica Online",
+  "description": "Ecossistema jurídico completo com inteligência artificial, contratos digitais e gestão de processos.",
+  "icons": [
+    {
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0D0A1C",
+  "theme_color": "#4F46E5",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/"
+}
