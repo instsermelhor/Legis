@@ -46,6 +46,7 @@ export const UnifiedToolsMenu: React.FC<UnifiedToolsMenuProps> = ({ onOpenModal,
         { key: 'smartContract', label: 'Smart Contracts', desc: 'Assinatura Biométrica SHA-256', icon: '📜' },
         { key: 'whatsapp', label: 'WhatsApp Notifications', desc: 'Modelos HSM & Mensageria', icon: '📲' },
         { key: 'plans', label: 'Planos & Assinatura', desc: 'Upgrade SaaS & Gateways', icon: '💎' },
+        { key: 'enterpriseCert', label: 'Certificação Enterprise 360°', desc: 'Scorecard & Relatório Auditoria 18 Fases', icon: '🏆' },
         ...(isAdmin
           ? [{ key: 'monitor', label: 'Monitor de Deploy CI/CD', desc: 'Health Check & Web Vitals', icon: '🖥️' }]
           : []),
@@ -79,7 +80,7 @@ export const UnifiedToolsMenu: React.FC<UnifiedToolsMenuProps> = ({ onOpenModal,
               🚀 Central de Ferramentas Legis
             </span>
             <span className="text-[10px] bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-bold px-2 py-0.5 rounded-full">
-              14 Módulos
+              15 Módulos (Enterprise)
             </span>
           </div>
 
