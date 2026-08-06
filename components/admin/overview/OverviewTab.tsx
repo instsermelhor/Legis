@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useDebounce } from '../../../hooks/useDebounce';
 import type { Lawyer } from '../../../types';
 import { mockClients, mockInterns, mockSecretaries, mockMonthlyRevenue, mockEfficiencyServices } from '../../../services/mockDataService';
 
@@ -59,6 +60,8 @@ export const OverviewTab: React.FC<{
   const [modal, setModal]               = useState<KpiModal>(null);
   const [stateFilter, setStateFilter]   = useState('Todos');
   const [search, setSearch]             = useState('');
+  // ISS-027: debounce
+  const debouncedSearch                 = useDebounce(search, 250);
   const [servicesCount, setServicesCount] = useState(mockEfficiencyServices.length);
   const [clients, setClients]           = useState(mockClients);
   const [interns, setInterns]           = useState(mockInterns);
