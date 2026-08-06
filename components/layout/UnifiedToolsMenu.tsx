@@ -3,9 +3,10 @@ import React, { useState, useRef, useEffect } from 'react';
 interface UnifiedToolsMenuProps {
   onOpenModal: (modalKey: string) => void;
   isAdmin?: boolean;
+  userPlan?: string;
 }
 
-export const UnifiedToolsMenu: React.FC<UnifiedToolsMenuProps> = ({ onOpenModal, isAdmin }) => {
+export const UnifiedToolsMenu: React.FC<UnifiedToolsMenuProps> = ({ onOpenModal, isAdmin, userPlan = 'free' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -110,9 +111,16 @@ export const UnifiedToolsMenu: React.FC<UnifiedToolsMenuProps> = ({ onOpenModal,
                         {tool.icon}
                       </span>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
-                          {tool.label}
-                        </p>
+                        <div className="flex items-center justify-between gap-1">
+                          <p className="text-xs font-bold text-gray-800 dark:text-gray-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors truncate">
+                            {tool.label}
+                          </p>
+                          {tool.key !== 'plans' && (
+                            <span className="text-[9px] px-1.5 py-0.2 rounded font-bold uppercase bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300">
+                              PRO
+                            </span>
+                          )}
+                        </div>
                         <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">{tool.desc}</p>
                       </div>
                     </button>
