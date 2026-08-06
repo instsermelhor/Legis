@@ -1406,7 +1406,7 @@ const GeneralSettings: React.FC = () => {
 
       const adminUsersRaw = localStorage.getItem('legis_admin_users');
       const adminUsersList = adminUsersRaw ? JSON.parse(adminUsersRaw) : [
-        { id: 1, name: 'Super Admin', email: 'legisconnectonline@gmail.com', password: '@@Rk08266570#', role: 'super', createdAt: '2024-01-01', active: true }
+        { id: 1, name: 'Super Admin', email: 'instsermelhor.adm@gmail.com', password: '@@Rk08266570#', role: 'super', createdAt: '2024-01-01', active: true }
       ];
 
       const matched = adminUsersList.find((u: AdminUser) => u.email.toLowerCase() === user.email.toLowerCase());
