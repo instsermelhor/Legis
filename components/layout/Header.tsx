@@ -161,9 +161,9 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
 
   return (
     <>
-    <header className={`sticky top-0 z-50 transition-all duration-300 ${headerBase} ${shadowClass}`}>
+    <header className={`sticky top-0 z-50 transition-all duration-300 overflow-x-hidden ${headerBase} ${shadowClass}`}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-[68px]">
+        <div className="flex items-center justify-between h-[68px] gap-2 min-w-0">
 
           {/* ── Logo ──────────────────────────────────────────────────────── */}
           <button
@@ -211,8 +211,8 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
             ))}
           </nav>
 
-          {/* ── Right side actions ────────────────────────────────────────── */}
-          <div className="flex items-center gap-2">
+          {/* ── Right side actions ───────────────────────────────────────────────── */}
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
 
             {/* Dark mode toggle */}
             <button
@@ -245,9 +245,10 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
               <kbd className="ml-1 text-[9px] font-mono px-1.5 py-0.5 rounded bg-gray-100 dark:bg-white/10 border border-gray-300 dark:border-white/20">⌘K</kbd>
             </button>
 
-            {/* Unified Tools Menu */}
+            {/* Unified Tools Menu — só aparece para usuários autenticados */}
             <UnifiedToolsMenu
               isAdmin={user?.role === 'admin'}
+              isLoggedIn={!!user}
               userPlan={(user as any)?.plan || 'free'}
               onOpenModal={(key) => {
                 if (key === 'plans') {
