@@ -26,6 +26,7 @@ export const UnifiedToolsMenu: React.FC<UnifiedToolsMenuProps> = ({ onOpenModal,
         { key: 'aiDocGen', label: 'Gerador de Peças IA', desc: 'Petições com STF/STJ & SHA-256', icon: '✍️' },
         { key: 'processTracking', label: 'Prazos & DJEN / DataJud', desc: 'Calculadora CPC & Intimações', icon: '⚖️' },
         { key: 'ocrDeadline', label: 'OCR & Leitor de Intimações', desc: 'Extração Automática de Prazos IA', icon: '📷' },
+        { key: 'virtualHearing', label: 'Audiências Virtuais & Ata IA', desc: 'Sessões Live & Transcrição', icon: '🎥' },
         { key: 'jurisprudence', label: 'Jurisprudência & Teses', desc: 'Súmulas STF/STJ & Banco de Teses', icon: '📚' },
         { key: 'predictiveAi', label: 'IA Preditiva & RAG', desc: 'Ditado de Voz & Análise STF', icon: '🤖' },
       ],
@@ -78,7 +79,7 @@ export const UnifiedToolsMenu: React.FC<UnifiedToolsMenuProps> = ({ onOpenModal,
               🚀 Central de Ferramentas Legis
             </span>
             <span className="text-[10px] bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-bold px-2 py-0.5 rounded-full">
-              13 Módulos
+              14 Módulos
             </span>
           </div>
 
