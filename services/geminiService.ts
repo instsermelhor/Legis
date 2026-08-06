@@ -98,7 +98,6 @@ export async function findPlacesWithMaps(description: string, location?: { latit
   const model = 'gemini-2.5-flash';
   const prompt = `Find lawyers or law offices near the user's location that specialize in the following legal case. Provide a helpful summary and list some options. Case description: "${description}"`;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const config: any = {
     tools: [{ googleMaps: {} }],
   };
