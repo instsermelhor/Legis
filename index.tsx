@@ -5,6 +5,11 @@ import App from './App';
 import { AppProvider } from './context/AppContext';
 import { AppDataProvider } from './context/AppDataContext';
 import { ToastProvider } from './components/common/Toast';
+import { initMonitoring } from './lib/monitoring';
+
+// Inicializa Sentry + Web Vitals + error listeners em produção
+initMonitoring();
+
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
