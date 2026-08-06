@@ -47,21 +47,41 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate, onShowTerms, onShowP
 
           {/* ── Brand (2 cols) ──────────────────────────────────────────── */}
           <div className="lg:col-span-2 space-y-5">
-            {/* Logo */}
-            <div className="flex items-center gap-2.5">
-              {config.headerLogoUrl ? (
-                <img src={config.headerLogoUrl} alt={config.appName} className="h-8 w-auto object-contain" />
-              ) : (
-                <>
-                  <div className="w-8 h-8 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary">
-                    <ScalesIcon />
-                  </div>
-                  <div className="flex flex-col leading-none">
-                    <span className="font-cinzel text-lg font-semibold tracking-widest text-white">LEGIS</span>
-                    <span className="font-cinzel text-[9px] tracking-[0.35em] text-accent/70 -mt-0.5">CONNECT</span>
-                  </div>
-                </>
-              )}
+            {/* Logo e Área Restrita */}
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex items-center gap-2.5">
+                {config.headerLogoUrl ? (
+                  <img src={config.headerLogoUrl} alt={config.appName} className="h-8 w-auto object-contain" />
+                ) : (
+                  <>
+                    <div className="w-8 h-8 rounded-lg bg-primary/20 border border-primary/30 flex items-center justify-center text-primary">
+                      <ScalesIcon />
+                    </div>
+                    <div className="flex flex-col leading-none">
+                      <span className="font-cinzel text-lg font-semibold tracking-widest text-white">LEGIS</span>
+                      <span className="font-cinzel text-[9px] tracking-[0.35em] text-accent/70 -mt-0.5">CONNECT</span>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Botão Área Restrita (Acesso ao Painel Admin em nova aba com subdomínio próprio) */}
+              <a
+                href="https://www.admin.legisconnect.com.br"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.open('https://www.admin.legisconnect.com.br', '_blank');
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-300 hover:text-white bg-white/5 border border-white/10 hover:border-amber-500/40 hover:bg-amber-500/10 transition-all duration-200 shadow-sm"
+                title="Acesso Restrito ao Painel Administrativo (www.admin.legisconnect.com.br)"
+              >
+                <svg className="w-3.5 h-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                <span>Área Restrita</span>
+              </a>
             </div>
 
             {/* Tagline */}
