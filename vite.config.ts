@@ -32,19 +32,41 @@ export default defineConfig(({ mode }) => {
         }
       },
       build: {
-        chunkSizeWarningLimit: 2500,
+        // ISS-052: reduzir limite de aviso de chunk (meta de <500kb por chunk)
+        chunkSizeWarningLimit: 600,
         rollupOptions: {
           output: {
             manualChunks(id) {
+              // ── Vendor: bibliotecas pesadas separadas ─────────────────────
               if (id.includes('node_modules')) {
                 if (id.includes('recharts')) return 'vendor-charts';
                 if (id.includes('jspdf') || id.includes('html2canvas')) return 'vendor-pdf';
                 if (id.includes('xlsx') || id.includes('papaparse')) return 'vendor-excel';
                 if (id.includes('@google/genai')) return 'vendor-ai';
+                if (id.includes('dompurify')) return 'vendor-security';
+                // React core (react, react-dom, scheduler)
+                if (
+                  id.includes('/react/') ||
+                  id.includes('/react-dom/') ||
+                  id.includes('/scheduler/')
+                ) return 'vendor-react';
               }
+
+              // ── Admin chunks (ISS-024): cada aba do admin em chunk próprio ─
+              if (id.includes('components/admin/AdminCommandsTab')) return 'admin-commands';
+              if (id.includes('components/admin/FinanceTab'))       return 'admin-finance';
+              if (id.includes('components/admin/SettingsTab'))      return 'admin-settings';
+              if (id.includes('components/admin/operations'))       return 'admin-operations';
+              if (id.includes('components/admin/staff'))            return 'admin-staff';
+              if (id.includes('components/admin/provisioning'))     return 'admin-provisioning';
+              if (id.includes('components/admin/AdminAiConfigTab')) return 'admin-ai-config';
+              if (id.includes('components/admin/AdminWhatsappTab')) return 'admin-whatsapp';
+              if (id.includes('components/admin/AdminPlansTab'))    return 'admin-plans';
+              if (id.includes('components/admin/ServicesManagement')) return 'admin-services';
             }
           }
         }
       }
     };
 });
+
