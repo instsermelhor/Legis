@@ -205,6 +205,7 @@ export const AppDataProvider: React.FC<{ children: React.ReactNode }> = ({ child
 };
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAppData = (): AppDataContextValue => {
   const ctx = useContext(AppDataContext);
   if (!ctx) throw new Error('useAppData must be used inside AppDataProvider');
