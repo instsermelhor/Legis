@@ -143,7 +143,7 @@ const WhatsAppPanel: React.FC = () => {
           <div className="bg-gray-50 dark:bg-black/20 rounded-xl p-4 text-center border border-dashed border-gray-300 dark:border-[#2A2545]">
             <div className="w-32 h-32 mx-auto bg-white dark:bg-gray-800 rounded-lg grid grid-cols-8 gap-0.5 p-2 mb-2">
               {Array.from({ length: 64 }).map((_, i) => (
-                <div key={i} className={`${Math.random() > 0.5 ? 'bg-black dark:bg-white' : 'bg-white dark:bg-gray-800'} rounded-[1px]`} />
+                <div key={i} className={`${(i * 17) % 3 !== 0 ? 'bg-black dark:bg-white' : 'bg-white dark:bg-gray-800'} rounded-[1px]`} />
               ))}
             </div>
             <p className="text-xs text-gray-500">Escaneie o QR Code com o WhatsApp Business</p>
