@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+
 /**
  * dbService.ts
  * Abstração de banco de dados local (localStorage) e nuvem (stubs).
@@ -362,7 +362,6 @@ const MOCK_TRANSACTIONS: FinancialTransaction[] = [
 ];
 
 export const dbFinancial = {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   getAll(lawyerId?: number): FinancialTransaction[] {
     const stored = load<FinancialTransaction[]>(KEYS.financialTx, []);
     if (stored.length === 0) {
