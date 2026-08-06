@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import { onAuthStateChange, signOut as supabaseSignOut, isSupabaseConfigured } from './lib/auth';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { LandingPage } from './components/landing/LandingPage';
@@ -72,6 +73,33 @@ const App: React.FC = () => {
       localStorage.removeItem('legis_user');
     }
   }, [user]);
+
+  // ── Supabase Auth: sincroniza sessão real quando configurado ─────────────────
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    const unsubscribe = onAuthStateChange((authProfile) => {
+      if (authProfile) {
+        // Mantém compatibilidade com a interface User existente
+        const supaUser: User = {
+          email: authProfile.email,
+          name: authProfile.name,
+          role: authProfile.role as User['role'],
+          id: authProfile.id,
+        };
+        setUser(supaUser);
+        // Navega para o dashboard correto baseado no role
+        if (authProfile.role === 'lawyer') handleNavigate('lawyerDashboard', supaUser);
+        else if (authProfile.role === 'admin' || authProfile.role === 'super_admin') handleNavigate('adminDashboard', supaUser);
+        else if (authProfile.role === 'intern') handleNavigate('internDashboard', supaUser);
+        else if (authProfile.role === 'secretary') handleNavigate('secretariadoDashboard', supaUser);
+        else handleNavigate('dashboard', supaUser);
+      } else {
+        setUser(null);
+      }
+    });
+    return unsubscribe;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Seed and synchronize super admin credentials for legisconnectonline@gmail.com
   useEffect(() => {
@@ -422,7 +450,10 @@ const App: React.FC = () => {
     return handleLogin(credentials);
   }, [handleLogin, handleNavigate]);
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = useCallback(async () => {
+    if (isSupabaseConfigured) {
+      await supabaseSignOut();
+    }
     setUser(null);
     handleNavigate('landing');
   }, [handleNavigate]);
