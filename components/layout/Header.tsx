@@ -22,6 +22,7 @@ import { ExpertForensicsModal } from '../lawyer/ExpertForensicsModal';
 import { CorporateMaModal } from '../lawyer/CorporateMaModal';
 import { LegalControllerModal } from '../lawyer/LegalControllerModal';
 import { SuperiorAppealsAiModal } from '../lawyer/SuperiorAppealsAiModal';
+import { OralDefenseAiModal } from '../lawyer/OralDefenseAiModal';
 import { UnifiedToolsMenu } from './UnifiedToolsMenu';
 
 interface HeaderProps {
@@ -96,6 +97,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
   const [isCorporateMaOpen, setIsCorporateMaOpen] = useState(false);
   const [isLegalControllerOpen, setIsLegalControllerOpen] = useState(false);
   const [isSuperiorAppealsOpen, setIsSuperiorAppealsOpen] = useState(false);
+  const [isOralDefenseOpen, setIsOralDefenseOpen] = useState(false);
   const [unreadCount] = useState(2);
 
   // Cmd+K / Ctrl+K global shortcut
@@ -280,6 +282,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
                 if (key === 'corporateMa') setIsCorporateMaOpen(true);
                 if (key === 'legalController') setIsLegalControllerOpen(true);
                 if (key === 'superiorAppeals') setIsSuperiorAppealsOpen(true);
+                if (key === 'oralDefense') setIsOralDefenseOpen(true);
                 if (key === 'monitor') setIsMonitorOpen(true);
               }}
             />
@@ -516,6 +519,10 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
     <SuperiorAppealsAiModal
       isOpen={isSuperiorAppealsOpen}
       onClose={() => setIsSuperiorAppealsOpen(false)}
+    />
+    <OralDefenseAiModal
+      isOpen={isOralDefenseOpen}
+      onClose={() => setIsOralDefenseOpen(false)}
     />
   </>
   );
