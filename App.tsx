@@ -28,6 +28,8 @@ import { ChatbotModal } from './components/chatbot/ChatbotModal';
 import { TermsOfServiceModal } from './components/common/TermsOfServiceModal';
 import { PrivacyPolicyModal } from './components/common/PrivacyPolicyModal';
 import { EticaOABModal } from './components/common/EticaOABModal';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
+import { LgpdConsentBanner } from './components/common/LgpdConsentBanner';
 import { chatWithGemini } from './services/geminiService';
 import type { View, Lawyer, Intern, Secretary, ChatMessage, User, Case, Appointment, Review, MapsSearchResult } from './types';
 import { hashPassword, AdminUser } from './services/mockDataService';
@@ -35,6 +37,7 @@ import { StaffService } from './services/staffService';
 import { LoginModal } from './components/common/LoginModal';
 import { ProfileSelectorModal } from './components/common/ProfileSelectorModal';
 import { useAppData } from './context/AppDataContext';
+import { initMonitoring } from './lib/monitoring';
 
 const TEST_EMAIL = 'teste@legisconnect.com.br';
 const TEST_PASSWORD = 'teste';
@@ -101,6 +104,11 @@ const App: React.FC = () => {
     });
     return unsubscribe;
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ISS-031: Ativar monitoramento de produção (Sentry + Web Vitals)
+  useEffect(() => {
+    initMonitoring();
   }, []);
 
   // Seed and synchronize super admin credentials for legisconnectonline@gmail.com
@@ -779,6 +787,9 @@ const App: React.FC = () => {
         onClose={() => setIsProfileSelectorOpen(false)}
         onNavigate={handleNavigate}
       />
+
+      {/* ISS-034: Banner LGPD Art. 8 — Consentimento de Cookies */}
+      <LgpdConsentBanner onOpenPrivacy={() => setIsPrivacyModalOpen(true)} />
     </div>
   );
 };
