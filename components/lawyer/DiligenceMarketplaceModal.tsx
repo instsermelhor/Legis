@@ -53,15 +53,16 @@ export const DiligenceMarketplaceModal: React.FC<DiligenceMarketplaceModalProps>
     e.preventDefault();
     if (!title || !comarca || !tribunalVara) return;
 
+    const now = Date.now();
     const newTask: DiligenceTask = {
-      id: `dil_${Date.now()}`,
+      id: `dil_${now}`,
       title,
       type,
       description,
       comarca,
       tribunalVara,
       processNumber,
-      deadline: new Date(Date.now() + 86400000 * deadlineDays).toISOString(),
+      deadline: new Date(now + 86400000 * deadlineDays).toISOString(),
       escrowValueBrl: split.escrowValue,
       platformFeeBrl: split.platformFee,
       netCorrespondentBrl: split.netCorrespondent,
@@ -69,7 +70,7 @@ export const DiligenceMarketplaceModal: React.FC<DiligenceMarketplaceModalProps>
       requesterId: 'user_current',
       requesterName: 'Dr. Advogado Logado',
       requesterOab: 'OAB/SP 450.120',
-      createdAt: new Date().toISOString(),
+      createdAt: new Date(now).toISOString(),
     };
 
     setTasks(prev => [newTask, ...prev]);
@@ -125,14 +126,16 @@ export const DiligenceMarketplaceModal: React.FC<DiligenceMarketplaceModalProps>
   };
 
   const handleApproveAndReleaseEscrow = (taskId: string) => {
+    const txId = `tx_escrow_${Date.now()}`;
+    const approvedDate = new Date().toISOString();
     setTasks(prev =>
       prev.map(t => {
         if (t.id === taskId) {
           return {
             ...t,
             status: 'approved',
-            approvedAt: new Date().toISOString(),
-            escrowTransactionId: `tx_escrow_${Date.now()}`,
+            approvedAt: approvedDate,
+            escrowTransactionId: txId,
           };
         }
         return t;
