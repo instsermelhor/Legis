@@ -27,6 +27,7 @@ export const UnifiedToolsMenu: React.FC<UnifiedToolsMenuProps> = ({ onOpenModal,
         { key: 'processTracking', label: 'Prazos & DJEN / DataJud', desc: 'Calculadora CPC & Intimações', icon: '⚖️' },
         { key: 'ocrDeadline', label: 'OCR & Leitor de Intimações', desc: 'Extração Automática de Prazos IA', icon: '📷' },
         { key: 'virtualHearing', label: 'Audiências Virtuais & Ata IA', desc: 'Sessões Live & Transcrição', icon: '🎥' },
+        { key: 'oralDefense', label: 'Sustentação Oral & Teleprompter', desc: 'Roteiros Cronometrados & Oratória', icon: '🎙️' },
         { key: 'expertForensics', label: 'Perícia Técnica & Liquidação', desc: 'Calculadora de Danos & Quesitos', icon: '🧪' },
         { key: 'legalController', label: 'Controladoria & Monitor STF/STJ', desc: 'Fila 4 Olhos & Certificados SHA-256', icon: '🎯' },
         { key: 'superiorAppeals', label: 'Recursos STF / STJ / TST', desc: 'Admissibilidade & Repercussão Geral', icon: '🏛️' },
@@ -84,7 +85,7 @@ export const UnifiedToolsMenu: React.FC<UnifiedToolsMenuProps> = ({ onOpenModal,
               🚀 Central de Ferramentas Legis
             </span>
             <span className="text-[10px] bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-bold px-2 py-0.5 rounded-full">
-              19 Módulos Enterprise
+              20 Módulos Enterprise
             </span>
           </div>
 
