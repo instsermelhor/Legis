@@ -13,6 +13,7 @@ import { DiligenceMarketplaceModal } from '../lawyer/DiligenceMarketplaceModal';
 import { ProcessTrackingModal } from '../lawyer/ProcessTrackingModal';
 import { AiLegalDocumentGeneratorModal } from '../lawyer/AiLegalDocumentGeneratorModal';
 import { ClientPortalModal } from '../client/ClientPortalModal';
+import { OfficeFinancialModal } from '../lawyer/OfficeFinancialModal';
 
 interface HeaderProps {
   currentView: View;
@@ -77,6 +78,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
   const [isProcessTrackingOpen, setIsProcessTrackingOpen] = useState(false);
   const [isAiDocGenOpen, setIsAiDocGenOpen] = useState(false);
   const [isClientPortalOpen, setIsClientPortalOpen] = useState(false);
+  const [isOfficeFinancialOpen, setIsOfficeFinancialOpen] = useState(false);
   const [unreadCount] = useState(2);
 
   // Cmd+K / Ctrl+K global shortcut
@@ -329,6 +331,16 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
               <span>Portal Cliente</span>
             </button>
 
+            {/* Office Financial button */}
+            <button
+              onClick={() => setIsOfficeFinancialOpen(true)}
+              className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold bg-gradient-to-r from-indigo-700 to-purple-700 text-white shadow-sm hover:opacity-90 transition-all"
+              title="Gestão Financeira do Escritório — Honorários, Faturamento & Inadimplência"
+            >
+              <span>💼</span>
+              <span>Financeiro</span>
+            </button>
+
             {/* Deploy Monitor button (admin only) */}
             {user?.role === 'admin' && (
               <button
@@ -523,6 +535,10 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
     <ClientPortalModal
       isOpen={isClientPortalOpen}
       onClose={() => setIsClientPortalOpen(false)}
+    />
+    <OfficeFinancialModal
+      isOpen={isOfficeFinancialOpen}
+      onClose={() => setIsOfficeFinancialOpen(false)}
     />
   </>
   );
