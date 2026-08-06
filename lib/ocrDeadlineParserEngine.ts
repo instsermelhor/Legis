@@ -41,7 +41,7 @@ function isBusinessDay(date: Date): boolean {
 }
 
 export function calculateBusinessDayDeadline(startDateStr: string, businessDays: number): string {
-  let curr = new Date(startDateStr);
+  const curr = new Date(startDateStr);
   // O prazo inicia no primeiro dia útil SEGUINTE à publicação (Art. 224 §2º CPC)
   curr.setDate(curr.getDate() + 1);
   while (!isBusinessDay(curr)) {
