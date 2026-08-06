@@ -8,6 +8,7 @@ import { PredictiveLegalAiModal } from '../common/PredictiveLegalAiModal';
 import { WhatsAppNotificationModal } from '../common/WhatsAppNotificationModal';
 import { BiAnalyticsModal } from '../admin/BiAnalyticsModal';
 import { SmartContractSignModal } from '../common/SmartContractSignModal';
+import { DeploymentStatusModal } from '../admin/DeploymentStatusModal';
 
 interface HeaderProps {
   currentView: View;
@@ -67,6 +68,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
   const [isWhatsappOpen, setIsWhatsappOpen] = useState(false);
   const [isBiOpen, setIsBiOpen] = useState(false);
   const [isSmartContractOpen, setIsSmartContractOpen] = useState(false);
+  const [isMonitorOpen, setIsMonitorOpen] = useState(false);
   const [unreadCount] = useState(2);
 
   // Cmd+K / Ctrl+K global shortcut
@@ -279,6 +281,18 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
               <span>Smart Contracts</span>
             </button>
 
+            {/* Deploy Monitor button (admin only) */}
+            {user?.role === 'admin' && (
+              <button
+                onClick={() => setIsMonitorOpen(true)}
+                className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold bg-gradient-to-r from-blue-700 to-indigo-800 text-white shadow-sm hover:opacity-90 transition-all"
+                title="Monitoramento de Produção & CI/CD"
+              >
+                <span>🖥️</span>
+                <span>Monitor</span>
+              </button>
+            )}
+
             {/* Notification bell (logged-in only) */}
             {user && (
               <button
@@ -441,6 +455,10 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
     <SmartContractSignModal
       isOpen={isSmartContractOpen}
       onClose={() => setIsSmartContractOpen(false)}
+    />
+    <DeploymentStatusModal
+      isOpen={isMonitorOpen}
+      onClose={() => setIsMonitorOpen(false)}
     />
   </>
   );
