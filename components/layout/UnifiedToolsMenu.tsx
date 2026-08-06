@@ -39,6 +39,7 @@ export const UnifiedToolsMenu: React.FC<UnifiedToolsMenuProps> = ({ onOpenModal,
       title: '💼 Gestão & Negócios Jurídicos',
       items: [
         { key: 'officeFinancial', label: 'Financeiro do Escritório', desc: 'Honorários OAB & Inadimplência', icon: '💼' },
+        { key: 'precatorioCredit', label: 'Precatórios & Créditos', desc: 'Simulador de Deságio & Cessão', icon: '💰' },
         { key: 'corporateMa', label: 'Fusões & Aquisições (M&A)', desc: 'Valuation, Due Diligence & SPA', icon: '🏢' },
         { key: 'diligenceMarketplace', label: 'Diligências & Correspondentes', desc: 'Geo-Localização GPS & Escrow', icon: '📍' },
         { key: 'biAnalytics', label: 'BI Analytics & DPO', desc: 'DRE & Auditoria OAB/LGPD', icon: '📊' },
@@ -85,7 +86,7 @@ export const UnifiedToolsMenu: React.FC<UnifiedToolsMenuProps> = ({ onOpenModal,
               🚀 Central de Ferramentas Legis
             </span>
             <span className="text-[10px] bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 font-bold px-2 py-0.5 rounded-full">
-              20 Módulos Enterprise
+              21 Módulos Enterprise
             </span>
           </div>
 
