@@ -9,6 +9,7 @@ import { WhatsAppNotificationModal } from '../common/WhatsAppNotificationModal';
 import { BiAnalyticsModal } from '../admin/BiAnalyticsModal';
 import { SmartContractSignModal } from '../common/SmartContractSignModal';
 import { DeploymentStatusModal } from '../admin/DeploymentStatusModal';
+import { DiligenceMarketplaceModal } from '../lawyer/DiligenceMarketplaceModal';
 
 interface HeaderProps {
   currentView: View;
@@ -69,6 +70,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
   const [isBiOpen, setIsBiOpen] = useState(false);
   const [isSmartContractOpen, setIsSmartContractOpen] = useState(false);
   const [isMonitorOpen, setIsMonitorOpen] = useState(false);
+  const [isDiligenceOpen, setIsDiligenceOpen] = useState(false);
   const [unreadCount] = useState(2);
 
   // Cmd+K / Ctrl+K global shortcut
@@ -281,6 +283,16 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
               <span>Smart Contracts</span>
             </button>
 
+            {/* Diligences Marketplace button */}
+            <button
+              onClick={() => setIsDiligenceOpen(true)}
+              className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold bg-gradient-to-r from-indigo-700 to-blue-800 text-white shadow-sm hover:opacity-90 transition-all"
+              title="Marketplace de Correspondentes Jurídicos & Diligências Geo-Localizadas"
+            >
+              <span>📍</span>
+              <span>Diligências</span>
+            </button>
+
             {/* Deploy Monitor button (admin only) */}
             {user?.role === 'admin' && (
               <button
@@ -459,6 +471,10 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
     <DeploymentStatusModal
       isOpen={isMonitorOpen}
       onClose={() => setIsMonitorOpen(false)}
+    />
+    <DiligenceMarketplaceModal
+      isOpen={isDiligenceOpen}
+      onClose={() => setIsDiligenceOpen(false)}
     />
   </>
   );
