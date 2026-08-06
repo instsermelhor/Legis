@@ -4,6 +4,7 @@ import type { Lawyer, Secretary } from '../../types';
 import { mockLawyers } from '../../services/mockLawyerService';
 import { mockInterns, mockSecretaries, MockIntern, AdminUser, mockAdminUsers } from '../../services/mockDataService';
 import { SectionTitle } from './AdminShared';
+import { useAppData } from '../../context/AppDataContext';
 
 interface AdminCommandsTabProps {
   // Optional callback to notify the parent component of data changes
@@ -210,35 +211,17 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
     }
   });
   
-  // User states loaded from localStorage/mocks
-  const [lawyers, setLawyers] = useState<Lawyer[]>(() => {
-    const savedLawyers = localStorage.getItem('legis_lawyers');
-    if (savedLawyers) {
-      return JSON.parse(savedLawyers);
-    } else {
-      localStorage.setItem('legis_lawyers', JSON.stringify(mockLawyers));
-      return mockLawyers;
-    }
-  });
-  const [interns, setInterns] = useState<MockIntern[]>(() => {
-    const savedInterns = localStorage.getItem('legis_interns');
-    if (savedInterns) {
-      return JSON.parse(savedInterns);
-    } else {
-      localStorage.setItem('legis_interns', JSON.stringify(mockInterns));
-      return mockInterns;
-    }
-  });
-  const [secretaries, setSecretaries] = useState<Secretary[]>(() => {
-    const savedSecretaries = localStorage.getItem('legis_secretaries');
-    if (savedSecretaries) {
-      return JSON.parse(savedSecretaries);
-    } else {
-      const parsed = mockSecretaries as unknown as Secretary[];
-      localStorage.setItem('legis_secretaries', JSON.stringify(parsed));
-      return parsed;
-    }
-  });
+  // ISS-011 / ISS-051: usar AppDataContext como SSOT em vez de localStorage direto
+  const { lawyers, updateLawyer, interns, updateIntern, secretaries, updateSecretary } = useAppData();
+  // Fallback para estado local apenas se o context não estiver disponível (compatibilidade)
+  const [localLawyers, setLocalLawyers] = useState<Lawyer[]>(lawyers);
+  const [localInterns, setLocalInterns] = useState<MockIntern[]>(interns as unknown as MockIntern[]);
+  const [localSecretaries, setLocalSecretaries] = useState<Secretary[]>(secretaries);
+
+  // Sincronizar estado local com context quando context atualizar
+  React.useEffect(() => { setLocalLawyers(lawyers); }, [lawyers]);
+  React.useEffect(() => { setLocalInterns(interns as unknown as MockIntern[]); }, [interns]);
+  React.useEffect(() => { setLocalSecretaries(secretaries); }, [secretaries]);
 
   // Package creator states
   const [packages, setPackages] = useState<UserPackage[]>(() => {
