@@ -30,6 +30,21 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
+      },
+      build: {
+        chunkSizeWarningLimit: 2500,
+        rollupOptions: {
+          output: {
+            manualChunks(id) {
+              if (id.includes('node_modules')) {
+                if (id.includes('recharts')) return 'vendor-charts';
+                if (id.includes('jspdf') || id.includes('html2canvas')) return 'vendor-pdf';
+                if (id.includes('xlsx') || id.includes('papaparse')) return 'vendor-excel';
+                if (id.includes('@google/genai')) return 'vendor-ai';
+              }
+            }
+          }
+        }
       }
     };
 });
