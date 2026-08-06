@@ -4,9 +4,10 @@ interface UnifiedToolsMenuProps {
   onOpenModal: (modalKey: string) => void;
   isAdmin?: boolean;
   userPlan?: string;
+  isLoggedIn?: boolean;
 }
 
-export const UnifiedToolsMenu: React.FC<UnifiedToolsMenuProps> = ({ onOpenModal, isAdmin, userPlan = 'free' }) => {
+export const UnifiedToolsMenu: React.FC<UnifiedToolsMenuProps> = ({ onOpenModal, isAdmin, userPlan = 'free', isLoggedIn = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -61,6 +62,9 @@ export const UnifiedToolsMenu: React.FC<UnifiedToolsMenuProps> = ({ onOpenModal,
     },
   ];
 
+  // Oculta completamente na navegação pública — só aparece para usuários autenticados
+  if (!isLoggedIn) return null;
+
   return (
     <div className="relative" ref={menuRef}>
       <button
@@ -81,7 +85,7 @@ export const UnifiedToolsMenu: React.FC<UnifiedToolsMenuProps> = ({ onOpenModal,
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 py-3 px-3 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className="absolute right-0 mt-2 w-[min(24rem,calc(100vw-2rem))] bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 py-3 px-3 z-50 animate-in fade-in slide-in-from-top-2 duration-150">
           <div className="px-3 pb-2 mb-2 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center">
             <span className="text-xs font-extrabold text-gray-900 dark:text-white uppercase tracking-wider">
               🚀 Central de Ferramentas Legis
