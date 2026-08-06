@@ -5,6 +5,7 @@ import { GlobalSearchModal } from '../common/GlobalSearchModal';
 import { NotificationDrawer } from '../common/NotificationDrawer';
 import { SubscriptionPlansModal } from '../common/SubscriptionPlansModal';
 import { PredictiveLegalAiModal } from '../common/PredictiveLegalAiModal';
+import { WhatsAppNotificationModal } from '../common/WhatsAppNotificationModal';
 
 interface HeaderProps {
   currentView: View;
@@ -61,6 +62,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isPlansOpen, setIsPlansOpen] = useState(false);
   const [isPredictiveAiOpen, setIsPredictiveAiOpen] = useState(false);
+  const [isWhatsappOpen, setIsWhatsappOpen] = useState(false);
   const [unreadCount] = useState(2);
 
   // Cmd+K / Ctrl+K global shortcut
@@ -243,6 +245,16 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
               <span>IA Preditiva</span>
             </button>
 
+            {/* WhatsApp notification button */}
+            <button
+              onClick={() => setIsWhatsappOpen(true)}
+              className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 transition-all"
+              title="Notificações via WhatsApp Business API"
+            >
+              <span>📲</span>
+              <span>WhatsApp</span>
+            </button>
+
             {/* Notification bell (logged-in only) */}
             {user && (
               <button
@@ -393,6 +405,10 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
     <PredictiveLegalAiModal
       isOpen={isPredictiveAiOpen}
       onClose={() => setIsPredictiveAiOpen(false)}
+    />
+    <WhatsAppNotificationModal
+      isOpen={isWhatsappOpen}
+      onClose={() => setIsWhatsappOpen(false)}
     />
   </>
   );
