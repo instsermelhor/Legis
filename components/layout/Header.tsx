@@ -12,6 +12,7 @@ import { DeploymentStatusModal } from '../admin/DeploymentStatusModal';
 import { DiligenceMarketplaceModal } from '../lawyer/DiligenceMarketplaceModal';
 import { ProcessTrackingModal } from '../lawyer/ProcessTrackingModal';
 import { AiLegalDocumentGeneratorModal } from '../lawyer/AiLegalDocumentGeneratorModal';
+import { ClientPortalModal } from '../client/ClientPortalModal';
 
 interface HeaderProps {
   currentView: View;
@@ -75,6 +76,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
   const [isDiligenceOpen, setIsDiligenceOpen] = useState(false);
   const [isProcessTrackingOpen, setIsProcessTrackingOpen] = useState(false);
   const [isAiDocGenOpen, setIsAiDocGenOpen] = useState(false);
+  const [isClientPortalOpen, setIsClientPortalOpen] = useState(false);
   const [unreadCount] = useState(2);
 
   // Cmd+K / Ctrl+K global shortcut
@@ -317,6 +319,16 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
               <span>Gerador Peças IA</span>
             </button>
 
+            {/* Client Portal button */}
+            <button
+              onClick={() => setIsClientPortalOpen(true)}
+              className="hidden sm:inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-extrabold bg-gradient-to-r from-emerald-600 to-teal-700 text-white shadow-sm hover:opacity-90 transition-all"
+              title="Portal Exclusivo do Cliente & Sala Virtual E2E"
+            >
+              <span>👤</span>
+              <span>Portal Cliente</span>
+            </button>
+
             {/* Deploy Monitor button (admin only) */}
             {user?.role === 'admin' && (
               <button
@@ -507,6 +519,10 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
     <AiLegalDocumentGeneratorModal
       isOpen={isAiDocGenOpen}
       onClose={() => setIsAiDocGenOpen(false)}
+    />
+    <ClientPortalModal
+      isOpen={isClientPortalOpen}
+      onClose={() => setIsClientPortalOpen(false)}
     />
   </>
   );
