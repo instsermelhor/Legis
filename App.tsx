@@ -1,43 +1,70 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, Suspense, lazy } from 'react';
 import { onAuthStateChange, signOut as supabaseSignOut, isSupabaseConfigured } from './lib/auth';
+// ── Layout (carregado de imediato — sempre visível) ────────────────────────
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
-import { LandingPage } from './components/landing/LandingPage';
-import { LawyerSearch } from './components/search/LawyerSearch';
-import { LawyerProfile } from './components/lawyer/LawyerProfile';
-import { ClientDashboard } from './components/client/ClientDashboard';
-import { LawyerDashboard } from './components/lawyer/LawyerDashboard';
-import { ForLawyersPage } from './components/lawyer/ForLawyersPage';
-import { AdminDashboard } from './components/admin/AdminDashboard';
-import { LoginForm, Credentials } from './components/auth/LoginForm';
-import { SignupPage } from './components/auth/SignupPage';
-import { ClientSignupData } from './components/auth/ClientSignupForm';
-import { ForInternsPage } from './components/intern/ForInternsPage';
-import { InternDashboard } from './components/intern/InternDashboard';
-import { InternSignupData } from './components/auth/InternSignupForm';
-import { CompleteProfilePage } from './components/client/CompleteProfilePage';
-import { ForClientsPage } from './components/client/ForClientsPage';
-import { EfficiencyServicesPage } from './components/client/EfficiencyServicesPage';
-import { ServicesPublicPage } from './components/public/ServicesPublicPage';
-import { ForSecretariadoPage } from './components/secretary/ForSecretariadoPage';
-import { SecretariadoDashboard } from './components/secretary/SecretariadoDashboard';
-import { SecretarySignupData } from './components/secretary/SecretariadoSignupForm';
-import { ChatbotFab } from './components/chatbot/ChatbotFab';
-import { ChatbotModal } from './components/chatbot/ChatbotModal';
-import { TermsOfServiceModal } from './components/common/TermsOfServiceModal';
-import { PrivacyPolicyModal } from './components/common/PrivacyPolicyModal';
-import { EticaOABModal } from './components/common/EticaOABModal';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { LgpdConsentBanner } from './components/common/LgpdConsentBanner';
-import { chatWithGemini } from './services/geminiService';
-import type { View, Lawyer, Intern, Secretary, ChatMessage, User, Case, Appointment, Review, MapsSearchResult } from './types';
-import { hashPassword, AdminUser } from './services/mockDataService';
-import { StaffService } from './services/staffService';
 import { LoginModal } from './components/common/LoginModal';
 import { ProfileSelectorModal } from './components/common/ProfileSelectorModal';
+
+// ── Rotas públicas (ISS-024: lazy loaded) ─────────────────────────────────
+const LandingPage          = lazy(() => import('./components/landing/LandingPage').then(m => ({ default: m.LandingPage })));
+const LawyerSearch         = lazy(() => import('./components/search/LawyerSearch').then(m => ({ default: m.LawyerSearch })));
+const LawyerProfile        = lazy(() => import('./components/lawyer/LawyerProfile').then(m => ({ default: m.LawyerProfile })));
+const ForLawyersPage       = lazy(() => import('./components/lawyer/ForLawyersPage').then(m => ({ default: m.ForLawyersPage })));
+const ForInternsPage       = lazy(() => import('./components/intern/ForInternsPage').then(m => ({ default: m.ForInternsPage })));
+const ForClientsPage       = lazy(() => import('./components/client/ForClientsPage').then(m => ({ default: m.ForClientsPage })));
+const ForSecretariadoPage  = lazy(() => import('./components/secretary/ForSecretariadoPage').then(m => ({ default: m.ForSecretariadoPage })));
+const ServicesPublicPage   = lazy(() => import('./components/public/ServicesPublicPage').then(m => ({ default: m.ServicesPublicPage })));
+const EfficiencyServicesPage = lazy(() => import('./components/client/EfficiencyServicesPage').then(m => ({ default: m.EfficiencyServicesPage })));
+
+// ── Dashboards autenticados (lazy loaded) ──────────────────────────────────
+const AdminDashboard       = lazy(() => import('./components/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const ClientDashboard      = lazy(() => import('./components/client/ClientDashboard').then(m => ({ default: m.ClientDashboard })));
+const LawyerDashboard      = lazy(() => import('./components/lawyer/LawyerDashboard').then(m => ({ default: m.LawyerDashboard })));
+const InternDashboard      = lazy(() => import('./components/intern/InternDashboard').then(m => ({ default: m.InternDashboard })));
+const SecretariadoDashboard = lazy(() => import('./components/secretary/SecretariadoDashboard').then(m => ({ default: m.SecretariadoDashboard })));
+const CompleteProfilePage  = lazy(() => import('./components/client/CompleteProfilePage').then(m => ({ default: m.CompleteProfilePage })));
+
+// ── Fluxos de auth (lazy loaded) ──────────────────────────────────────────
+const LoginForm            = lazy(() => import('./components/auth/LoginForm').then(m => ({ default: m.LoginForm })));
+const SignupPage           = lazy(() => import('./components/auth/SignupPage').then(m => ({ default: m.SignupPage })));
+
+// ── Modais globais (lazy loaded) ───────────────────────────────────────────
+const TermsOfServiceModal  = lazy(() => import('./components/common/TermsOfServiceModal').then(m => ({ default: m.TermsOfServiceModal })));
+const PrivacyPolicyModal   = lazy(() => import('./components/common/PrivacyPolicyModal').then(m => ({ default: m.PrivacyPolicyModal })));
+const EticaOABModal        = lazy(() => import('./components/common/EticaOABModal').then(m => ({ default: m.EticaOABModal })));
+const ChatbotFab           = lazy(() => import('./components/chatbot/ChatbotFab').then(m => ({ default: m.ChatbotFab })));
+const ChatbotModal         = lazy(() => import('./components/chatbot/ChatbotModal').then(m => ({ default: m.ChatbotModal })));
+
+// ── Skeleton de página para Suspense ──────────────────────────────────────
+const PageSkeleton: React.FC = () => (
+  <div className="min-h-screen bg-gray-50 dark:bg-gray-950 animate-pulse">
+    <div className="h-16 bg-white/80 dark:bg-gray-900/80 border-b border-gray-200 dark:border-gray-800" />
+    <div className="max-w-6xl mx-auto px-4 py-12 space-y-6">
+      <div className="h-10 bg-gray-200 dark:bg-gray-800 rounded-2xl w-1/2" />
+      <div className="h-6 bg-gray-200 dark:bg-gray-800 rounded-xl w-3/4" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="h-40 bg-gray-200 dark:bg-gray-800 rounded-2xl" />
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+import type { View, Lawyer, Intern, Secretary, ChatMessage, User, Case, Appointment, Review, MapsSearchResult } from './types';
+import type { Credentials } from './components/auth/LoginForm';
+import type { ClientSignupData } from './components/auth/ClientSignupForm';
+import type { InternSignupData } from './components/auth/InternSignupForm';
+import type { SecretarySignupData } from './components/secretary/SecretariadoSignupForm';
+import { hashPassword, AdminUser } from './services/mockDataService';
+import { StaffService } from './services/staffService';
 import { useAppData } from './context/AppDataContext';
 import { initMonitoring } from './lib/monitoring';
+import { chatWithGemini } from './services/geminiService';
 
 const TEST_EMAIL = 'teste@legisconnect.com.br';
 const TEST_PASSWORD = 'teste';
@@ -758,21 +785,25 @@ const App: React.FC = () => {
         onOpenProfileSelector={handleOpenProfileSelector}
       />
       <main className="flex-grow">
-        {renderView()}
+        <Suspense fallback={<PageSkeleton />}>
+          {renderView()}
+        </Suspense>
       </main>
       <Footer onNavigate={handleNavigate} onShowTerms={() => setIsTermsModalOpen(true)} onShowPrivacy={() => setIsPrivacyModalOpen(true)} onShowEtica={() => setIsEticaModalOpen(true)} />
       <MobileBottomNav currentView={currentView} onNavigate={handleNavigate} user={user} />
-      {user?.role !== 'admin' && <ChatbotFab onClick={() => setIsChatbotOpen(true)} />}
-      <ChatbotModal
-        isOpen={isChatbotOpen}
-        onClose={() => setIsChatbotOpen(false)}
-        history={chatHistory}
-        onSendMessage={handleSendChatMessage}
-        isLoading={isChatbotLoading}
-      />
-      {isTermsModalOpen   && <TermsOfServiceModal  onClose={() => setIsTermsModalOpen(false)} />}
-      {isPrivacyModalOpen && <PrivacyPolicyModal   onClose={() => setIsPrivacyModalOpen(false)} />}
-      {isEticaModalOpen   && <EticaOABModal        onClose={() => setIsEticaModalOpen(false)} />}
+      <Suspense fallback={null}>
+        {user?.role !== 'admin' && <ChatbotFab onClick={() => setIsChatbotOpen(true)} />}
+        <ChatbotModal
+          isOpen={isChatbotOpen}
+          onClose={() => setIsChatbotOpen(false)}
+          history={chatHistory}
+          onSendMessage={handleSendChatMessage}
+          isLoading={isChatbotLoading}
+        />
+        {isTermsModalOpen   && <TermsOfServiceModal  onClose={() => setIsTermsModalOpen(false)} />}
+        {isPrivacyModalOpen && <PrivacyPolicyModal   onClose={() => setIsPrivacyModalOpen(false)} />}
+        {isEticaModalOpen   && <EticaOABModal        onClose={() => setIsEticaModalOpen(false)} />}
+      </Suspense>
 
       {/* ── Auth Modals ───────────────────────────────────────────────────── */}
       <LoginModal
