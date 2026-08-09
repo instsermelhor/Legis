@@ -1,10 +1,25 @@
-export type View = 'landing' | 'search' | 'profile' | 'dashboard' | 'lawyerDashboard' | 'login' | 'signup' | 'adminDashboard' | 'adminLogin' | 'forLawyers' | 'forInterns' | 'internDashboard' | 'forClients' | 'services' | 'forSecretariado' | 'secretariadoDashboard';
+export type View =
+  // Públicas
+  | 'landing' | 'search' | 'profile' | 'login' | 'signup'
+  | 'forLawyers' | 'forInterns' | 'forClients' | 'forSecretariado' | 'services'
+  // Dashboards autenticados
+  | 'dashboard' | 'lawyerDashboard' | 'internDashboard' | 'secretariadoDashboard'
+  // Admin
+  | 'adminLogin' | 'adminDashboard'
+  // Super Admin — novas views
+  | 'superAdminDashboard'
+  | 'forcePasswordChange'
+  | 'mfaSetup'
+  | 'mfaChallenge'
+  | 'delegationManager'
+  | 'myAdminProfile';
 
 export interface User {
   email: string;
-  role: 'client' | 'lawyer' | 'admin' | 'intern' | 'secretary';
-  name?: string; // For client/admin name
-  data?: Lawyer | Intern | Secretary; // For lawyer-specific detailed data or intern/secretary data
+  role: 'client' | 'lawyer' | 'admin' | 'super_admin' | 'intern' | 'secretary';
+  name?: string;
+  data?: Lawyer | Intern | Secretary;
+  id?: string;
   // Client-specific data
   phone?: string;
   address?: string;
@@ -310,23 +325,118 @@ export type StaffRole =
   | 'staff_compliance_auditor'
   | 'staff_support_l1';
 
+/** Nível de acesso global do Super Administrador */
+export type AccessLevel = 'GLOBAL' | 'ORGANIZATION' | 'TEAM' | 'LIMITED';
+
+/** Métodos de MFA suportados */
+export type MfaMethod = 'TOTP' | 'WEBAUTHN' | 'RECOVERY_CODE';
+
+/** Status do primeiro acesso */
+export type FirstAccessStatus = 'REQUIRED_PASSWORD_CHANGE' | 'COMPLETED';
+
+/** Perfil estendido do Super Administrador Universal */
+export interface SuperAdminProfile {
+  staffId: string;
+  accessLevel: AccessLevel;
+  firstAccessStatus: FirstAccessStatus;
+  mustChangePassword: boolean;
+  mfaEnabled: boolean;
+  mfaMethod?: MfaMethod;
+  mfaSecretEncrypted?: string;
+  recoveryCodes?: string[];   // hashed, 8 codes
+  lastPasswordChange?: string;
+  passwordHistory?: string[]; // últimos 5 hashes (sem a atual)
+  sessionTimeout: number;    // em segundos, default 28800 (8h)
+}
+
+/** Registro de sessão ativa */
+export interface SessionRecord {
+  id: string;
+  userId: string;
+  userEmail: string;
+  createdAt: string;
+  expiresAt: string;
+  lastActivity: string;
+  ipAddress: string;
+  userAgent: string;
+  deviceFingerprint: string;
+  isActive: boolean;
+  revokedAt?: string;
+  revokedBy?: string;
+}
+
+/** Registro de delegação de acesso */
+export interface DelegationRecord {
+  id: string;
+  delegatedBy: string;        // ID do super_admin
+  delegatedByEmail: string;
+  targetUserId: string;       // Email do beneficiário
+  targetUserName: string;
+  organization: string;       // Escritório/organização
+  role: StaffRole;            // Função delegada
+  permissions: string[];      // Permissões específicas
+  resources: string[];        // Recursos autorizados
+  scope: string;              // Escopo descritivo
+  validFrom: string;          // ISO timestamp
+  validUntil?: string;        // ISO timestamp — null = sem expiração
+  active: boolean;
+  revokedAt?: string;
+  revokedBy?: string;
+  createdAt: string;
+  notes?: string;
+}
+
+/** Política de senha */
+export interface PasswordPolicy {
+  minLength: number;           // default: 12
+  requireUppercase: boolean;
+  requireLowercase: boolean;
+  requireNumbers: boolean;
+  requireSymbols: boolean;
+  maxHistoryCount: number;     // quantas senhas antigas verificar
+  expirationDays?: number;     // null = sem expiração
+  prohibitedPatterns?: string[];
+}
+
+/** Desafio de MFA pendente */
+export interface MfaChallenge {
+  id: string;
+  userId: string;
+  method: MfaMethod;
+  expiresAt: string;
+  attempts: number;
+  maxAttempts: number;
+  solved: boolean;
+}
+
 /** Colaborador interno da plataforma Legis Connect */
 export interface PlatformStaff {
   id: string;
   name: string;
   email: string;
-  password: string; // hasheado via hashPassword()
+  password: string;           // hasheado via PBKDF2
   role: StaffRole;
   department: string;
   phone?: string;
   active: boolean;
   createdAt: string;
   updatedAt: string;
-  createdBy: string; // ID ou 'system'
-  permissions: string[]; // Permissões customizadas (override)
+  createdBy: string;
+  permissions: string[];
   lastLogin?: string;
   loginCount?: number;
   notes?: string;
+  // Campos de segurança avançada (Super Admin)
+  mustChangePassword?: boolean;
+  passwordHistory?: string[];   // últimos 5 hashes
+  mfaEnabled?: boolean;
+  mfaMethod?: MfaMethod;
+  mfaSecretEncrypted?: string;
+  recoveryCodes?: string[];     // hashed
+  lastPasswordChange?: string;
+  accessLevel?: AccessLevel;
+  failedLoginAttempts?: number;
+  lockedUntil?: string;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
