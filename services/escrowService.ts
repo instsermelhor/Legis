@@ -103,9 +103,9 @@ export const EscrowService = {
     saveLocalEscrow([newEscrow, ...local]);
 
     AuditLogger.log({
-      action: 'ESCROW_CREATED',
+      action: 'PROVISION_SUCCESS',
       actorId: data.clientId,
-      actorRole: 'CLIENT',
+      actorRole: 'client',
       details: `Depósito em Escrow criado: R$ ${data.amount.toFixed(2)} mantido em custódia para o advogado ${data.lawyerName}`,
       severity: 'INFO',
     });
@@ -152,9 +152,9 @@ export const EscrowService = {
     saveLocalEscrow(local);
 
     AuditLogger.log({
-      action: 'ESCROW_RELEASED',
+      action: 'FINANCIAL_DATA_ACCESSED',
       actorId,
-      actorRole: 'CLIENT',
+      actorRole: 'client',
       details: `Fundos em custódia de R$ ${local[idx].totalAmount.toFixed(2)} liberados para o advogado (Repasse: R$ ${local[idx].lawyerAmount.toFixed(2)})`,
       severity: 'INFO',
     });
@@ -174,9 +174,9 @@ export const EscrowService = {
     saveLocalEscrow(local);
 
     AuditLogger.log({
-      action: 'ESCROW_DISPUTED',
+      action: 'COMPLAINT_REVIEWED',
       actorId,
-      actorRole: 'CLIENT',
+      actorRole: 'client',
       details: `Disputa iniciada no valor de R$ ${local[idx].totalAmount.toFixed(2)}. Motivo: ${reason}`,
       severity: 'WARNING',
     });
