@@ -381,3 +381,110 @@ export const dbLgpdRequests = {
   },
 };
 
+// ─── USERS (Usuários do sistema e Staff) ──────────────────────────────────────
+
+export const dbUsers = {
+  async getAll() {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('users').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    }
+    return localGet<unknown[]>('legis_admin_users', []);
+  },
+
+  async getByEmail(email: string) {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('users').select('*').eq('email', email.toLowerCase()).maybeSingle();
+      if (error) throw error;
+      return data;
+    }
+    const users = localGet<Record<string, unknown>[]>('legis_admin_users', []);
+    return users.find(u => (u.email as string)?.toLowerCase() === email.toLowerCase()) ?? null;
+  },
+
+  async create(userData: Record<string, unknown>) {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('users').insert(userData).select().single();
+      if (error) throw error;
+      return data;
+    }
+    const users = localGet<Record<string, unknown>[]>('legis_admin_users', []);
+    const newUser = { ...userData, id: userData.id || `user_${Date.now()}`, createdAt: new Date().toISOString() };
+    localSet('legis_admin_users', [...users, newUser]);
+    return newUser;
+  },
+
+  async update(id: string, updates: Record<string, unknown>) {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('users').update(updates).eq('id', id).select().single();
+      if (error) throw error;
+      return data;
+    }
+    const users = localGet<Record<string, unknown>[]>('legis_admin_users', []);
+    const updated = users.map(u => u.id === id ? { ...u, ...updates } : u);
+    localSet('legis_admin_users', updated);
+    return updated.find(u => u.id === id);
+  },
+};
+
+// ─── LAWYER PROFILES ─────────────────────────────────────────────────────────
+
+export const dbLawyerProfiles = {
+  async getAll() {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('lawyer_profiles').select('*, users(*)').order('created_at', { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    }
+    return localGet<unknown[]>('legis_lawyers', []);
+  },
+
+  async getByUserId(userId: string) {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('lawyer_profiles').select('*').eq('user_id', userId).maybeSingle();
+      if (error) throw error;
+      return data;
+    }
+    const lawyers = localGet<Record<string, unknown>[]>('legis_lawyers', []);
+    return lawyers.find(l => l.userId === userId || l.id === userId) ?? null;
+  },
+
+  async upsert(profile: Record<string, unknown>) {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('lawyer_profiles').upsert(profile).select().single();
+      if (error) throw error;
+      return data;
+    }
+    const lawyers = localGet<Record<string, unknown>[]>('legis_lawyers', []);
+    const updated = [...lawyers.filter(l => l.id !== profile.id && l.userId !== profile.userId), profile];
+    localSet('legis_lawyers', updated);
+    return profile;
+  },
+};
+
+// ─── STAFF AUDIT LOGS ────────────────────────────────────────────────────────
+
+export const dbAuditLogs = {
+  async getAll() {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('staff_audit_logs').select('*').order('timestamp', { ascending: false }).limit(500);
+      if (error) throw error;
+      return data ?? [];
+    }
+    return localGet<unknown[]>('legis_audit_log', []);
+  },
+
+  async log(logEntry: Record<string, unknown>) {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('staff_audit_logs').insert(logEntry).select().single();
+      if (error) throw error;
+      return data;
+    }
+    const logs = localGet<unknown[]>('legis_audit_log', []);
+    localSet('legis_audit_log', [logEntry, ...logs]);
+    return logEntry;
+  },
+};
+
+
