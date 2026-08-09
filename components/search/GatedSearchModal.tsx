@@ -160,7 +160,7 @@ export const GatedSearchModal: React.FC<GatedSearchModalProps> = ({
                     type="email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
-                    placeholder="seu@email.com"
+                    placeholder="Seu e-mail"
                     required
                     className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 text-sm focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/20 transition-all"
                     style={{ colorScheme: 'dark' }}
