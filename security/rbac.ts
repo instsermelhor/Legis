@@ -16,6 +16,8 @@ export type SystemRole =
   | 'intern'                 // Bacharelando/Estagiário
   | 'secretary';             // Secretário/Assistente Jurídico
 
+import type { View } from '../types';
+
 // ─── Nível Numérico de Autoridade ────────────────────────────────────────────
 export const ROLE_LEVELS: Record<SystemRole, number> = {
   super_admin:               100,
@@ -77,6 +79,7 @@ export const ROLE_PERMISSIONS: Record<SystemRole, Permission[]> = {
     'audit:read', 'audit:write', 'audit:oab_check', 'audit:complaints',
     'services:read', 'services:manage',
     'provisioning:read', 'provisioning:manage', 'provisioning:retry',
+    'lawyer:dashboard', 'client:dashboard', 'intern:dashboard', 'secretary:dashboard',
     'ai:use', 'ai:manage', 'system:config',
   ],
   admin: [
@@ -177,13 +180,47 @@ export function getVisibleAdminTabs(role: SystemRole): string[] {
   const tabs: string[] = [];
 
   if (hasPermission(role, 'admin:read')) tabs.push('overview', 'admin_commands');
-  if (hasPermission(role, 'finance:read')) tabs.push('finance');
+  if (hasPermission(role, 'finance:read')) tabs.push('finance', 'plans');
   if (hasPermission(role, 'registrations:read')) tabs.push('registrations');
   if (hasPermission(role, 'services:manage')) tabs.push('services');
   if (hasPermission(role, 'provisioning:read')) tabs.push('provisioning');
   if (hasPermission(role, 'audit:read')) tabs.push('audit');
-  if (hasPermission(role, 'admin:manage_staff')) tabs.push('staff');
-  if (hasPermission(role, 'system:config')) tabs.push('settings', 'operations');
+  if (hasPermission(role, 'admin:manage_staff')) tabs.push('staff', 'impersonation');
+  if (hasPermission(role, 'system:config')) tabs.push('settings', 'operations', 'ai_config', 'whatsapp_config');
 
   return tabs;
+}
+
+/**
+ * Retorna a view de dashboard correta para cada role.
+ * Usado para redirecionamento inteligente pós-login.
+ */
+export function getRoleRedirectView(role: SystemRole): View {
+  switch (role) {
+    case 'super_admin':  return 'superAdminDashboard';
+    case 'admin':        return 'adminDashboard';
+    case 'lawyer':       return 'lawyerDashboard';
+    case 'intern':       return 'internDashboard';
+    case 'secretary':    return 'secretariadoDashboard';
+    case 'client':       return 'dashboard';
+    // Staff roles vão para o admin dashboard com tabs filtradas
+    case 'staff_finance_admin':
+    case 'staff_compliance_auditor':
+    case 'staff_support_l1': return 'adminDashboard';
+    default:             return 'landing';
+  }
+}
+
+/**
+ * Verifica se a role é administrativa (staff interno da plataforma).
+ */
+export function isStaffRole(role: SystemRole): boolean {
+  return ['super_admin', 'admin', 'staff_finance_admin', 'staff_compliance_auditor', 'staff_support_l1'].includes(role);
+}
+
+/**
+ * Verifica se a role é super_admin.
+ */
+export function isSuperAdminRole(role: SystemRole): boolean {
+  return role === 'super_admin';
 }
