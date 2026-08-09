@@ -299,8 +299,9 @@ export const AuthService = {
    * Retorna informações do Super Admin da plataforma (sem dados sensíveis).
    */
   getSuperAdminInfo() {
+    const metaEnv = (import.meta as unknown as { env?: Record<string, string> }).env;
     return {
-      email: import.meta.env.VITE_SUPER_ADMIN_EMAIL || 'ribeiro.rikardo@gmail.com',
+      email: metaEnv?.VITE_SUPER_ADMIN_EMAIL || 'ribeiro.rikardo@gmail.com',
       role: 'super_admin' as const,
     };
   },
