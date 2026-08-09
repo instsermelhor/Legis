@@ -12,6 +12,7 @@ import { getSecurityContext } from '../../security/scopeValidator';
 import { isSuperAdminRole } from '../../security/rbac';
 import type { SystemRole } from '../../security/rbac';
 import { DatabaseHealthIndicator } from './DatabaseHealthIndicator';
+import { QaTestExecutionPanel } from './QaTestExecutionPanel';
 
 interface SuperAdminDashboardProps {
   onNavigate: (view: View) => void;
@@ -181,6 +182,9 @@ export const SuperAdminDashboard: React.FC<SuperAdminDashboardProps> = ({
 
         {/* Indicador de Conexão de Banco de Dados Sprint 8 */}
         <DatabaseHealthIndicator />
+
+        {/* Painel Executivo de Testes QA Sprint 10 */}
+        <QaTestExecutionPanel />
 
         {/* Tab navigation */}
         <nav className="flex gap-1 mb-8 flex-wrap">
