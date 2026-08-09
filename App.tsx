@@ -28,10 +28,16 @@ const InternDashboard      = lazy(() => import('./components/intern/InternDashbo
 const SecretariadoDashboard = lazy(() => import('./components/secretary/SecretariadoDashboard').then(m => ({ default: m.SecretariadoDashboard })));
 const CompleteProfilePage  = lazy(() => import('./components/client/CompleteProfilePage').then(m => ({ default: m.CompleteProfilePage })));
 
-// ── Fluxos de auth (lazy loaded) ──────────────────────────────────────────
+// ── Fluxos de auth (lazy loaded) ────────────────────────────────────────────────────
 const LoginForm            = lazy(() => import('./components/auth/LoginForm').then(m => ({ default: m.LoginForm })));
 const SignupPage           = lazy(() => import('./components/auth/SignupPage').then(m => ({ default: m.SignupPage })));
 const AdminLoginPage       = lazy(() => import('./components/admin/AdminLoginPage').then(m => ({ default: m.AdminLoginPage })));
+const ForcePasswordChangePage = lazy(() => import('./components/auth/ForcePasswordChangePage').then(m => ({ default: m.ForcePasswordChangePage })));
+const MfaSetupPage         = lazy(() => import('./components/auth/MfaSetupPage').then(m => ({ default: m.MfaSetupPage })));
+const MfaChallengePage     = lazy(() => import('./components/auth/MfaChallengePage').then(m => ({ default: m.MfaChallengePage })));
+const SuperAdminDashboard  = lazy(() => import('./components/admin/SuperAdminDashboard').then(m => ({ default: m.SuperAdminDashboard })));
+const DelegationManager    = lazy(() => import('./components/admin/DelegationManager').then(m => ({ default: m.DelegationManager })));
+const MyAdminProfile       = lazy(() => import('./components/admin/MyAdminProfile').then(m => ({ default: m.MyAdminProfile })));
 
 // ── Modais globais (lazy loaded) ───────────────────────────────────────────
 const TermsOfServiceModal  = lazy(() => import('./components/common/TermsOfServiceModal').then(m => ({ default: m.TermsOfServiceModal })));
@@ -61,7 +67,7 @@ import type { Credentials } from './components/auth/LoginForm';
 import type { ClientSignupData } from './components/auth/ClientSignupForm';
 import type { InternSignupData } from './components/auth/InternSignupForm';
 import type { SecretarySignupData } from './components/secretary/SecretariadoSignupForm';
-import { hashPassword, AdminUser } from './services/mockDataService';
+import { AdminUser } from './services/mockDataService';
 import { StaffService } from './services/staffService';
 import { useAppData } from './context/AppDataContext';
 import { initMonitoring } from './lib/monitoring';
@@ -87,12 +93,14 @@ const App: React.FC = () => {
     const savedView = localStorage.getItem('legis_currentView') as View | null;
     const savedUser = localStorage.getItem('legis_user');
     const parsedUser = savedUser ? (() => { try { return JSON.parse(savedUser); } catch { return null; } })() : null;
-    // Validate protected views against persisted user role (security: prevent admin panel on refresh without auth)
-    if (savedView === 'adminDashboard' && parsedUser?.role !== 'admin') return 'landing';
+    if (savedView === 'adminDashboard' && parsedUser?.role !== 'admin' && parsedUser?.role !== 'super_admin') return 'landing';
+    if (savedView === 'superAdminDashboard' && parsedUser?.role !== 'super_admin') return 'landing';
     if (savedView === 'lawyerDashboard' && parsedUser?.role !== 'lawyer') return 'landing';
     if (savedView === 'internDashboard' && parsedUser?.role !== 'intern') return 'landing';
     if (savedView === 'secretariadoDashboard' && parsedUser?.role !== 'secretary') return 'landing';
     if (savedView === 'dashboard' && !parsedUser) return 'landing';
+    // Protege views super admin
+    if (['forcePasswordChange','mfaSetup','mfaChallenge','delegationManager','myAdminProfile'].includes(savedView || '') && !parsedUser) return 'landing';
     return savedView || 'landing';
   });
   const [user, setUser] = useState<User | null>(() => {
@@ -119,8 +127,7 @@ const App: React.FC = () => {
   useEffect(() => {
     if (!isSupabaseConfigured) return;
     const unsubscribe = onAuthStateChange((authProfile) => {
-      if (authProfile) {
-        // Mantém compatibilidade com a interface User existente
+    if (authProfile) {
         const supaUser: User = {
           email: authProfile.email,
           name: authProfile.name,
@@ -130,7 +137,8 @@ const App: React.FC = () => {
         setUser(supaUser);
         // Navega para o dashboard correto baseado no role
         if (authProfile.role === 'lawyer') handleNavigate('lawyerDashboard', supaUser);
-        else if (authProfile.role === 'admin' || authProfile.role === 'super_admin') handleNavigate('adminDashboard', supaUser);
+        else if (authProfile.role === 'admin') handleNavigate('adminDashboard', supaUser);
+        else if (authProfile.role === 'super_admin') handleNavigate('superAdminDashboard', supaUser);
         else if (authProfile.role === 'intern') handleNavigate('internDashboard', supaUser);
         else if (authProfile.role === 'secretary') handleNavigate('secretariadoDashboard', supaUser);
         else handleNavigate('dashboard', supaUser);
@@ -147,46 +155,15 @@ const App: React.FC = () => {
     initMonitoring();
   }, []);
 
-  // Seed and synchronize super admin credentials for legisconnectonline@gmail.com
+  // Seed seguro do Super Admin Universal (sem credenciais hardcoded)
+  // A senha "teste" é hasheada em runtime via PBKDF2v2 (310k iter) — nunca em texto puro
   useEffect(() => {
-    try {
-      StaffService.initialize();
-      const savedAdminUsersRaw = localStorage.getItem('legis_admin_users');
-      const hashedPass = hashPassword('@@Rk08266570#');
-      const superUser = {
-        id: 1,
-        name: 'Super Admin',
-        email: 'instsermelhor.adm@gmail.com',
-        password: hashedPass,
-        role: 'super',
-        createdAt: '2024-01-01',
-        active: true,
-        secondaryEmail: 'admin@legisconnect.com.br',
-      };
-
-      if (savedAdminUsersRaw) {
-        const list = JSON.parse(savedAdminUsersRaw);
-        if (Array.isArray(list)) {
-          let foundSuper = false;
-          const updatedList = list.map((u: any) => {
-            if (u.email?.toLowerCase() === 'instsermelhor.adm@gmail.com') {
-              foundSuper = true;
-              return { ...u, password: hashedPass, role: 'super', active: true };
-            }
-            return u;
-          });
-
-          if (!foundSuper) {
-            updatedList.unshift(superUser);
-          }
-          localStorage.setItem('legis_admin_users', JSON.stringify(updatedList));
-        }
-      } else {
-        localStorage.setItem('legis_admin_users', JSON.stringify([superUser]));
-      }
-    } catch (e) {
-      console.error('Error seeding super admin user:', e);
-    }
+    StaffService.initialize();
+    StaffService.seedSuperAdmins().catch(e =>
+      console.error('[Legis] Erro ao inicializar Super Admin:', e)
+    );
+    // Limpa o sistema legado de admin users (substituiído pelo StaffService)
+    // Não removemos legis_admin_users para compatibilidade durante migração
   }, []);
 
   // Capture autocadastro token from URL on app load and redirect to signup
@@ -235,11 +212,15 @@ const App: React.FC = () => {
   };
 
   const handleNavigate = useCallback((view: View, overrideUser?: User | null) => {
-    window.scrollTo(0, 0); // Always scroll to top on any navigation
+    window.scrollTo(0, 0);
     const activeUser = overrideUser !== undefined ? overrideUser : user;
-    // Protected routes
-    if (view === 'adminDashboard' && activeUser?.role !== 'admin') {
+    // Rotas protegidas
+    if (view === 'adminDashboard' && activeUser?.role !== 'admin' && activeUser?.role !== 'super_admin') {
       setCurrentView('login');
+      return;
+    }
+    if (view === 'superAdminDashboard' && activeUser?.role !== 'super_admin') {
+      setCurrentView('adminLogin');
       return;
     }
     if (view === 'dashboard') {
@@ -283,9 +264,14 @@ const App: React.FC = () => {
     if (staff && staff.active) {
       const authenticatedStaff = StaffService.authenticate(lowerEmail, password || '');
       if (authenticatedStaff) {
-        const adminUser: User = { email: lowerEmail, role: 'admin', name: staff.name };
+        const userRole: User['role'] = (staff.role === 'super_admin' ? 'super_admin' : 'admin');
+        const adminUser: User = { email: lowerEmail, role: userRole, name: staff.name };
         setUser(adminUser);
-        handleNavigate('adminDashboard', adminUser);
+        if (staff.role === 'super_admin') {
+          handleNavigate('superAdminDashboard', adminUser);
+        } else {
+          handleNavigate('adminDashboard', adminUser);
+        }
         return true;
       }
       return false;
@@ -728,10 +714,32 @@ const App: React.FC = () => {
         return user?.data ? <LawyerDashboard lawyer={user.data as import('./types').Lawyer} onLogout={handleLogout} /> : <ForLawyersPage onLogin={handleLawyerPageLogin} onSignup={handleLawyerSignup} onShowTerms={() => setIsTermsModalOpen(true)} />;
       case 'adminDashboard':
         return <AdminDashboard onNavigate={handleNavigate} onLogout={handleLogout} />;
+      case 'superAdminDashboard':
+        return (user?.role === 'super_admin' || user?.role === 'admin')
+          ? <SuperAdminDashboard onNavigate={handleNavigate} onLogout={handleLogout} user={user} />
+          : <AdminLoginPage onLogin={handleLogin} onBackToSite={() => setCurrentView('landing')} />;
+      case 'forcePasswordChange':
+        return <ForcePasswordChangePage onPasswordChanged={() => {
+          handleLogout();
+          setCurrentView('adminLogin');
+        }} onCancel={() => setCurrentView('adminLogin')} />;
+      case 'mfaSetup':
+        return <MfaSetupPage onSetupComplete={() => setCurrentView('superAdminDashboard')} onSkip={() => setCurrentView('superAdminDashboard')} />;
+      case 'mfaChallenge':
+        return <MfaChallengePage onVerified={() => setCurrentView(user?.role === 'super_admin' ? 'superAdminDashboard' : 'adminDashboard')} onCancel={() => setCurrentView('adminLogin')} />;
+      case 'delegationManager':
+        return (user?.role === 'super_admin' || user?.role === 'admin')
+          ? <DelegationManager onNavigate={handleNavigate} onBack={() => setCurrentView('superAdminDashboard')} />
+          : <AdminLoginPage onLogin={handleLogin} onBackToSite={() => setCurrentView('landing')} />;
+      case 'myAdminProfile':
+        return (user?.role === 'super_admin' || user?.role === 'admin')
+          ? <MyAdminProfile onNavigate={handleNavigate} onBack={() => setCurrentView(user?.role === 'super_admin' ? 'superAdminDashboard' : 'adminDashboard')} user={user} />
+          : <AdminLoginPage onLogin={handleLogin} onBackToSite={() => setCurrentView('landing')} />;
       case 'adminLogin':
         return (
           <AdminLoginPage
             onLogin={handleLogin}
+            onNavigate={handleNavigate}
             onBackToSite={() => setCurrentView('landing')}
           />
         );
