@@ -167,7 +167,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onBackT
                 onChange={e => setEmail(e.target.value)}
                 autoComplete="email"
                 required
-                placeholder="ribeiro.rikardo@gmail.com"
+                placeholder="Seu e-mail"
                 className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/25 text-sm font-medium caret-primary transition-all duration-200 focus:outline-none focus:border-primary/60 focus:bg-white/10 focus:ring-2 focus:ring-primary/20 hover:border-white/20"
                 style={{ colorScheme: 'dark' }}
               />
