@@ -12,7 +12,8 @@ export type View =
   | 'mfaSetup'
   | 'mfaChallenge'
   | 'delegationManager'
-  | 'myAdminProfile';
+  | 'myAdminProfile'
+  | 'status';
 
 export interface User {
   email: string;
