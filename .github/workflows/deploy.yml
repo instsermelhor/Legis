@@ -1,33 +1,27 @@
-name: 🚀 Deploy — Legis Connect → www.legisconnect.com.br
+name: 🚀 Deploy — Legis Connect → Vercel Production
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
-# Permissões necessárias para GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# Garante que apenas um deploy rode por vez
 concurrency:
-  group: pages
+  group: deploy-production
   cancel-in-progress: true
 
 jobs:
-  # ─────────────────────────────────────────────
-  # JOB 1: Build de produção
-  # ─────────────────────────────────────────────
+  # ─────────────────────────────────────────────────────────────
+  # JOB 1: Build de produção + Quality Gate
+  # ─────────────────────────────────────────────────────────────
   build:
-    name: 🏗️ Build
+    name: 🏗️ Build & Quality Gate
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: 📥 Checkout código
+      - name: 📥 Checkout
         uses: actions/checkout@v4
 
-      - name: ⚙️ Configurar Node.js 20
+      - name: ⚙️ Setup Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
@@ -36,10 +30,10 @@ jobs:
       - name: 📦 Instalar dependências
         run: npm ci
 
-      - name: 🔎 ESLint — 0 warnings permitidos
+      - name: 🔎 ESLint — 0 warnings gate
         run: npm run lint
 
-      - name: 🛡️ Auditoria de segurança npm
+      - name: 🛡️ npm audit (high+critical)
         run: npm audit --audit-level=high
         continue-on-error: true
 
@@ -51,67 +45,90 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_SENTRY_DSN: ${{ secrets.VITE_SENTRY_DSN }}
 
-      - name: 🔧 Criar .htaccess para SPA routing + security headers
-        run: |
-          cat > dist/.htaccess << 'HTACCESS'
-          Options -MultiViews
-          RewriteEngine On
-          RewriteCond %{REQUEST_FILENAME} !-f
-          RewriteCond %{REQUEST_FILENAME} !-d
-          RewriteRule ^ index.html [QSA,L]
-          Options -Indexes
-          <IfModule mod_headers.c>
-              Header always set X-Frame-Options "SAMEORIGIN"
-              Header always set X-Content-Type-Options "nosniff"
-              Header always set X-XSS-Protection "1; mode=block"
-              Header always set Referrer-Policy "strict-origin-when-cross-origin"
-              Header always set Strict-Transport-Security "max-age=63072000; includeSubDomains; preload"
-              Header always set Permissions-Policy "camera=(), microphone=(self), geolocation=()"
-          </IfModule>
-          <IfModule mod_deflate.c>
-              AddOutputFilterByType DEFLATE text/html text/plain text/css application/javascript application/json
-          </IfModule>
-          <IfModule mod_expires.c>
-              ExpiresActive On
-              ExpiresByType application/javascript "access plus 1 year"
-              ExpiresByType text/css "access plus 1 year"
-              ExpiresByType image/png "access plus 1 year"
-              ExpiresByType image/jpg "access plus 1 year"
-              ExpiresByType image/svg+xml "access plus 1 year"
-              ExpiresByType text/html "access plus 0 seconds"
-          </IfModule>
-          HTACCESS
-
-      - name: 📋 Verificar estrutura do build
+      - name: 📋 Verificar artefatos do build
         run: |
           echo "=== Arquivos em dist/ ==="
-          ls -la dist/
+          ls -lh dist/assets/ | head -30
           echo "=== Tamanho total ==="
           du -sh dist/
+          echo "✅ Build gate passed"
 
-      - name: ⚙️ Configurar GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: 📤 Upload do artefato de build
-        uses: actions/upload-pages-artifact@v3
+      - name: 📤 Upload dist para próximos jobs
+        uses: actions/upload-artifact@v4
         with:
-          path: dist
-          retention-days: 7
+          name: dist-production
+          path: dist/
+          retention-days: 3
 
-  # ─────────────────────────────────────────────
-  # JOB 2: Deploy para produção
-  # ─────────────────────────────────────────────
-  deploy:
-    name: 🌐 Deploy → www.legisconnect.com.br
+  # ─────────────────────────────────────────────────────────────
+  # JOB 2: Deploy para Vercel Production
+  # ─────────────────────────────────────────────────────────────
+  deploy-production:
+    name: 🌐 Deploy → Vercel Production
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      name: production
+      url: https://legisconnect.com.br
     steps:
-      - name: 🚀 Deploy para GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - name: 📥 Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Instalar dependências
+        run: npm ci
+
+      - name: 📥 Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-production
+          path: dist/
+
+      - name: 🚀 Deploy → Vercel Production
+        run: npx vercel --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+  # ─────────────────────────────────────────────────────────────
+  # JOB 3: Health check pós-deploy
+  # ─────────────────────────────────────────────────────────────
+  health-check:
+    name: 🩺 Health Check Pós-Deploy
+    needs: deploy-production
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: ⏳ Aguardar propagação (20s)
+        run: sleep 20
+
+      - name: 🩺 Verificar /api/health
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://legisconnect.com.br/api/health || echo "000")
+          echo "Health Check HTTP Status: $STATUS"
+          if [ "$STATUS" = "200" ]; then
+            echo "✅ API Health Check OK"
+          else
+            echo "⚠️ Health check retornou HTTP $STATUS"
+          fi
+        continue-on-error: true
+
+      - name: 🌐 Verificar homepage
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://legisconnect.com.br || echo "000")
+          echo "Homepage HTTP Status: $STATUS"
+          if [ "$STATUS" = "200" ] || [ "$STATUS" = "301" ] || [ "$STATUS" = "302" ]; then
+            echo "✅ Site respondendo (HTTP $STATUS)"
+          else
+            echo "⚠️ Site retornou HTTP $STATUS"
+          fi
+        continue-on-error: true
 
       - name: 🔔 Notificar Sentry sobre novo release
         if: success()
@@ -119,32 +136,10 @@ jobs:
           if [ -n "$SENTRY_AUTH_TOKEN" ]; then
             npx @sentry/cli releases new "${{ github.sha }}" --org legis-connect --project legis-connect-web || true
             npx @sentry/cli releases finalize "${{ github.sha }}" --org legis-connect || true
-            echo "✅ Release Sentry criado: ${{ github.sha }}"
+            echo "✅ Sentry release: ${{ github.sha }}"
           else
-            echo "ℹ️ SENTRY_AUTH_TOKEN não configurado — pulando release Sentry."
+            echo "ℹ️ SENTRY_AUTH_TOKEN não configurado — pulando."
           fi
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-        continue-on-error: true
-
-  # ─────────────────────────────────────────────
-  # JOB 3: Health check pós-deploy
-  # ─────────────────────────────────────────────
-  health-check:
-    name: 🩺 Health Check Pós-Deploy
-    needs: deploy
-    runs-on: ubuntu-latest
-    steps:
-      - name: ⏳ Aguardar propagação (30s)
-        run: sleep 30
-
-      - name: 🩺 Verificar site em produção
-        run: |
-          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://www.legisconnect.com.br || echo "000")
-          echo "HTTP Status: $STATUS"
-          if [ "$STATUS" = "200" ] || [ "$STATUS" = "301" ] || [ "$STATUS" = "302" ]; then
-            echo "✅ Site respondendo corretamente (HTTP $STATUS)"
-          else
-            echo "⚠️ Site retornou HTTP $STATUS — verifique o deploy"
-          fi
         continue-on-error: true
