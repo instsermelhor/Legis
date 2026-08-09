@@ -10,6 +10,14 @@ import type { SystemRole } from './rbac';
 export type AuditAction =
   // Autenticação
   | 'LOGIN_SUCCESS' | 'LOGIN_FAILURE' | 'LOGOUT' | 'SESSION_EXPIRED'
+  // Senha e MFA
+  | 'PASSWORD_CHANGED' | 'PASSWORD_RESET_REQUESTED' | 'MFA_ENABLED' | 'MFA_DISABLED' | 'MFA_VERIFIED'
+  // Super Admin
+  | 'SUPER_ADMIN_CREATED'
+  // Sessões
+  | 'SESSION_REVOKED'
+  // Delegação
+  | 'DELEGATION_CREATED' | 'DELEGATION_REVOKED' | 'DELEGATION_EXPIRED'
   // Impersonation
   | 'IMPERSONATION_START' | 'IMPERSONATION_END'
   // Admin Actions
@@ -281,3 +289,32 @@ export const logPermissionDenied = (actorId: string, role: SystemRole, resource:
     details: `Acesso negado ao recurso: ${resource}`,
     severity: 'WARNING',
   });
+
+export const logPasswordChange = (actorId: string, role: SystemRole, wasForced: boolean) =>
+  AuditLogger.log({
+    action: 'PASSWORD_CHANGED',
+    actorId, actorRole: role,
+    details: wasForced
+      ? `Senha temporária alterada (primeiro acesso): ${actorId}`
+      : `Senha alterada voluntariamente: ${actorId}`,
+    severity: 'WARNING',
+    metadata: { wasForced },
+  });
+
+export const logMfaEnabled = (actorId: string, role: SystemRole, method: string) =>
+  AuditLogger.log({
+    action: 'MFA_ENABLED',
+    actorId, actorRole: role,
+    details: `MFA ativado (método: ${method}) para: ${actorId}`,
+    severity: 'WARNING',
+    metadata: { mfaMethod: method },
+  });
+
+export const logLogout = (actorId: string, role: SystemRole) =>
+  AuditLogger.log({
+    action: 'LOGOUT',
+    actorId, actorRole: role,
+    details: `Logout realizado: ${actorId}`,
+    severity: 'INFO',
+  });
+
