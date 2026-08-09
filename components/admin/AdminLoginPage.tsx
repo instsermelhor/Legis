@@ -1,11 +1,19 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// components/admin/AdminLoginPage.tsx
+// Página de Login da Área Restrita (Administração / Super Administrador)
+// Autenticação com PBKDF2v2, Brute-Force lockout, troca de senha e MFA
+// ─────────────────────────────────────────────────────────────────────────────
+
 import React, { useState } from 'react';
 import { AuthService } from '../../services/authService';
 import { StaffService } from '../../services/staffService';
 import type { Credentials } from '../auth/LoginForm';
+import type { View } from '../../types';
 
 interface AdminLoginPageProps {
   onLogin: (credentials: Credentials) => boolean;
   onBackToSite: () => void;
+  onNavigate?: (view: View) => void;
 }
 
 const EyeIcon = ({ open }: { open: boolean }) =>
@@ -20,7 +28,7 @@ const EyeIcon = ({ open }: { open: boolean }) =>
     </svg>
   );
 
-export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onBackToSite }) => {
+export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onBackToSite, onNavigate }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -36,6 +44,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onBackT
       const lowerEmail = email.toLowerCase().trim();
 
       // 1. Verificar se é um staff/admin registrado
+      StaffService.initialize();
       const staff = StaffService.findByEmail(lowerEmail);
       if (!staff || !staff.active) {
         setError('Acesso negado. Este portal é exclusivo para administradores autorizados.');
@@ -43,15 +52,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onBackT
         return;
       }
 
-      // 2. Verificar role — apenas admin/super_admin
-      const allowedRoles = ['super', 'admin', 'super_admin'];
-      if (!allowedRoles.includes(staff.role)) {
-        setError('Acesso negado. Permissões insuficientes para acessar o painel administrativo.');
-        setIsLoading(false);
-        return;
-      }
-
-      // 3. Autenticação com lockout via AuthService
+      // 2. Autenticação assíncrona com PBKDF2v2 e lockout via AuthService
       const authResult = await AuthService.authenticateStaffAsync(lowerEmail, password);
       if (!authResult.success) {
         setError(authResult.error || 'Credenciais inválidas. Verifique e-mail e senha.');
@@ -59,13 +60,36 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onBackT
         return;
       }
 
-      // 4. Login final
+      // 3. Checagem de troca obrigatória de senha (primeiro acesso)
+      if (authResult.requiresPasswordChange) {
+        if (onNavigate) {
+          onNavigate('forcePasswordChange');
+        } else {
+          onLogin({ email: lowerEmail, password });
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      // 4. Checagem de MFA obrigatório
+      if (authResult.requiresMfa) {
+        if (onNavigate) {
+          onNavigate('mfaChallenge');
+        } else {
+          onLogin({ email: lowerEmail, password });
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      // 5. Login completo
       const success = onLogin({ email: lowerEmail, password });
       if (!success) {
         setError('Falha na autenticação. Tente novamente.');
       }
-    } catch {
-      setError('Erro interno. Contate o suporte técnico.');
+    } catch (err) {
+      console.error('Erro no login admin:', err);
+      setError('Erro interno ao autenticar. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -102,7 +126,6 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onBackT
         >
           {/* Header */}
           <div className="text-center mb-8">
-            {/* Shield icon */}
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/30 to-amber-500/20 border border-primary/30 text-3xl mb-5 shadow-lg shadow-primary/20">
               🛡️
             </div>
@@ -144,7 +167,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onBackT
                 onChange={e => setEmail(e.target.value)}
                 autoComplete="email"
                 required
-                placeholder="admin@legisconnect.com.br"
+                placeholder="ribeiro.rikardo@gmail.com"
                 className="w-full px-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/25 text-sm font-medium caret-primary transition-all duration-200 focus:outline-none focus:border-primary/60 focus:bg-white/10 focus:ring-2 focus:ring-primary/20 hover:border-white/20"
                 style={{ colorScheme: 'dark' }}
               />
@@ -180,7 +203,7 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onBackT
 
             {/* Error */}
             {error && (
-              <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/25 animate-fade-in">
+              <div className="flex items-start gap-2.5 px-4 py-3 rounded-xl bg-red-500/10 border border-red-500/25">
                 <svg className="w-4 h-4 text-red-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
@@ -227,16 +250,6 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLogin, onBackT
             </button>
           </div>
         </div>
-
-        {/* Glow under card */}
-        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 w-2/3 h-10 bg-primary/15 blur-2xl rounded-full pointer-events-none" />
-      </div>
-
-      {/* Bottom watermark */}
-      <div className="mt-8 text-center">
-        <span className="font-cinzel text-[10px] tracking-[0.4em] text-gray-700 uppercase">
-          LEGIS CONNECT · Painel Administrativo Seguro
-        </span>
       </div>
     </div>
   );
