@@ -1,6 +1,8 @@
 import React, { useState, Suspense, lazy } from 'react';
 import type { Lawyer } from '../../types';
 import { useAppData } from '../../context/AppDataContext';
+import { getSecurityContext } from '../../security/scopeValidator';
+import { getVisibleAdminTabs } from '../../security/rbac';
 
 // ── Tabs (ISS-024: Lazy loaded para code splitting)
 const OverviewTab         = lazy(() => import('./overview/OverviewTab').then(m => ({ default: m.OverviewTab })));
@@ -120,6 +122,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLo
     setActiveTab('finance');
   };
 
+  const ctx = getSecurityContext();
+  const visibleTabIds = ctx ? getVisibleAdminTabs(ctx.role) : null;
+  const isSuperAdmin = ctx?.role === 'super_admin';
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#0D0B1E]">
       {/* ── Top bar ── */}
@@ -136,6 +142,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLo
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               <span className="hidden sm:inline">Site</span>
+            </button>
+          )}
+          {isSuperAdmin && onNavigate && (
+            <button
+              onClick={() => onNavigate('superAdminDashboard')}
+              className="flex items-center gap-1.5 text-xs font-bold text-amber-300 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 px-3 py-1.5 rounded-lg transition-all shadow shrink-0"
+            >
+              <span>⭐ Super Admin</span>
             </button>
           )}
           <div className="min-w-0">
