@@ -32,7 +32,7 @@ export default defineConfig(({ mode }) => {
         }
       },
       build: {
-        // ISS-052: reduzir limite de aviso de chunk (meta de <500kb por chunk)
+        sourcemap: false,
         chunkSizeWarningLimit: 600,
         rollupOptions: {
           output: {
