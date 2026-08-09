@@ -45,6 +45,10 @@ const PrivacyPolicyModal   = lazy(() => import('./components/common/PrivacyPolic
 const EticaOABModal        = lazy(() => import('./components/common/EticaOABModal').then(m => ({ default: m.EticaOABModal })));
 const ChatbotFab           = lazy(() => import('./components/chatbot/ChatbotFab').then(m => ({ default: m.ChatbotFab })));
 const ChatbotModal         = lazy(() => import('./components/chatbot/ChatbotModal').then(m => ({ default: m.ChatbotModal })));
+const BetaStatusPage       = lazy(() => import('./components/beta/BetaStatusPage').then(m => ({ default: m.BetaStatusPage })));
+
+import { BetaWelcomeBanner } from './components/beta/BetaWelcomeBanner';
+import { BetaFeedbackButton } from './components/beta/BetaFeedbackButton';
 
 // ── Skeleton de página para Suspense ──────────────────────────────────────
 const PageSkeleton: React.FC = () => (
@@ -777,6 +781,8 @@ const App: React.FC = () => {
         ) : <ForSecretariadoPage onLogin={handleSecretaryPageLogin} onSignup={handleSecretarySignup} />;
       case 'services':
         return <ServicesPublicPage onNavigate={handleNavigate} />;
+      case 'status':
+        return <BetaStatusPage />;
       case 'landing':
       default:
         return <LandingPage onNavigate={handleNavigate} onSearch={handleSearch} onShowEtica={() => setIsEticaModalOpen(true)} />;
@@ -800,6 +806,7 @@ const App: React.FC = () => {
 
   return (
     <div className={`flex flex-col min-h-screen bg-neutral-light font-sans ${getThemeClass()}`}>
+      <BetaWelcomeBanner />
       <Header
         currentView={currentView}
         onNavigate={handleNavigate}
@@ -845,6 +852,9 @@ const App: React.FC = () => {
 
       {/* ISS-034: Banner LGPD Art. 8 — Consentimento de Cookies */}
       <LgpdConsentBanner onOpenPrivacy={() => setIsPrivacyModalOpen(true)} />
+
+      {/* Beta Feedback Button */}
+      <BetaFeedbackButton userId={user?.id} userRole={user?.role} />
     </div>
   );
 };
