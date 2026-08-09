@@ -90,7 +90,7 @@ export const ForSecretariadoPage: React.FC<ForSecretariadoPageProps> = ({ onLogi
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">E-mail</label>
-                <input type="email" value={loginEmail} onChange={e => setLoginEmail(e.target.value)} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500" />
+                <input type="email" value={loginEmail} onChange={e => setLoginEmail(e.target.value)} placeholder="Seu e-mail" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 text-gray-900 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500" />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Senha</label>
