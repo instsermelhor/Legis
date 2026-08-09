@@ -9,6 +9,13 @@
 
 export type PaymentMethod = 'pix' | 'credit_card' | 'boleto';
 
+export type EscrowStatus =
+  | 'pending_payment'
+  | 'in_escrow_custody'
+  | 'released_to_lawyer'
+  | 'refunded_to_client'
+  | 'disputed';
+
 export interface PlanConfig {
   id: string;
   name: string;
@@ -77,6 +84,9 @@ export interface PaymentRequest {
   method: PaymentMethod;
   payerName: string;
   payerCpfEmail: string;
+  lawyerId?: string;
+  caseId?: string;
+  enableEscrow?: boolean;
   splitConfig?: {
     lawyerFeePercentage: number; // Ex: 90% para o advogado
     platformFeePercentage: number; // Ex: 10% para a plataforma
@@ -86,6 +96,7 @@ export interface PaymentRequest {
 export interface PaymentResponse {
   transactionId: string;
   status: 'pending' | 'approved' | 'failed';
+  escrowStatus?: EscrowStatus;
   pixCopiaECola?: string;
   pixQrCodeUrl?: string;
   barcode?: string;
@@ -93,6 +104,7 @@ export interface PaymentResponse {
   method: PaymentMethod;
   amount: number;
   paidAt?: string;
+  receiptUrl?: string;
 }
 
 /**
@@ -122,16 +134,20 @@ export async function processPayment(req: PaymentRequest): Promise<PaymentRespon
   await new Promise(resolve => setTimeout(resolve, 600));
 
   const transactionId = `tx_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+  const escrowStatus: EscrowStatus = req.enableEscrow ? 'in_escrow_custody' : 'released_to_lawyer';
+  const receiptUrl = `https://legisconnect.com.br/recibos/${transactionId}.pdf`;
 
   if (req.method === 'pix') {
     const pix = generatePixData(req.amount, req.description);
     return {
       transactionId,
       status: 'pending',
+      escrowStatus: 'pending_payment',
       pixCopiaECola: pix.copiaECola,
       pixQrCodeUrl: pix.qrCodeSvg,
       method: 'pix',
       amount: req.amount,
+      receiptUrl,
     };
   }
 
@@ -140,10 +156,12 @@ export async function processPayment(req: PaymentRequest): Promise<PaymentRespon
     return {
       transactionId,
       status: 'pending',
+      escrowStatus: 'pending_payment',
       barcode,
       pdfUrl: `https://legisconnect.com.br/boletos/${transactionId}.pdf`,
       method: 'boleto',
       amount: req.amount,
+      receiptUrl,
     };
   }
 
@@ -151,9 +169,11 @@ export async function processPayment(req: PaymentRequest): Promise<PaymentRespon
   return {
     transactionId,
     status: 'approved',
+    escrowStatus,
     method: 'credit_card',
     amount: req.amount,
     paidAt: new Date().toISOString(),
+    receiptUrl,
   };
 }
 
@@ -172,3 +192,4 @@ export function calculateOabSplit(totalAmount: number, lawyerSharePercent = 90) 
     platformSharePercent: 100 - lawyerSharePercent,
   };
 }
+
