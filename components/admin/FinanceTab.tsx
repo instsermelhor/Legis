@@ -3,6 +3,7 @@ import React, { useState, useMemo } from 'react';
 import type { Lawyer, EfficiencyService, EfficiencyServiceGroup, BiApoio, BiDadosBase, BiCliente, BiVenda } from '../../types';
 import { mockClients, mockInterns, mockSecretaries, mockMonthlyRevenue, mockEfficiencyServices, mockEfficiencyServiceGroups, mockBiApoio, mockBiDadosBase, mockBiClientes, mockBiVendas } from '../../services/mockDataService';
 import { SectionTitle, SearchInput, IconBriefcase, IconUsers, IconGradCap, IconSettings } from './AdminShared';
+import { EscrowCustodyPanel } from '../common/EscrowCustodyPanel';
 
 // ─── Secretary Icon ───────────────────────────────────────────────────────────
 const IconSecretariat = () => (
@@ -1143,6 +1144,9 @@ export const FinanceTab: React.FC<{ lawyers: Lawyer[]; initialFilter?: string }>
           </div>
         ))}
       </div>
+
+      {/* Escrow Custody & Payment Split Governance Panel */}
+      <EscrowCustodyPanel userId="admin_global" userRole="ADMIN" />
 
       {/* Revenue bar chart */}
       <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 dark:text-white dark:bg-[#1A1730] dark:border-[#2A2545] dark:placeholder-gray-500 dark:caret-purple-500">
