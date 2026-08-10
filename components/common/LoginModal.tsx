@@ -28,7 +28,7 @@ const EyeIcon = ({ open }: { open: boolean }) => open ? (
 );
 
 // ─── Role detector ────────────────────────────────────────────────────────────
-const ADMIN_EMAIL = 'instsermelhor.adm@gmail.com';
+const ADMIN_EMAIL = 'legisconnectonline@gmail.com';
 const TEST_EMAIL  = 'teste@legisconnect.com.br';
 
 const roleConfig = {
