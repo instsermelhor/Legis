@@ -1,20 +1,19 @@
 /**
  * services/authService.ts
  * ─────────────────────────────────────────────────────────────────────────────
- * Serviço Centralizado de Autenticação & Segurança
+ * Serviço Centralizado de Autenticação & Segurança — Enterprise Edition
  *
  * Implementa:
- *  - Autenticação assíncrona segura com PBKDF2v2 (310k iterações) e legado PBKDF2v1
- *  - Proteção contra Brute Force com lockout progressivo
- *  - Detecção de primeiro acesso (must_change_password)
+ *  - Autenticação assíncrona exclusiva com PBKDF2v2 (310k iterações, OWASP 2024)
+ *  - Proteção contra Brute Force com lockout progressivo (3→5→8→10 tentativas)
+ *  - Detecção de primeiro acesso (mustChangePassword)
  *  - Fluxo de MFA (TOTP)
- *  - Gestão de sessões seguras
- *  - Integração com SecurityContext (scopeValidator)
+ *  - Contexto de segurança por sessão
+ *  - Zero suporte a hash legado (segurança por design)
  */
 
 import type { PlatformStaff } from '../types';
 import { StaffService } from './staffService';
-import { hashPasswordAsync } from './mockDataService';
 import { verifyPasswordHash } from '../security/passwordPolicy';
 import { MfaService } from '../security/mfaService';
 import { AuditLogger } from '../security/auditLogger';
@@ -23,16 +22,17 @@ import type { SystemRole } from '../security/rbac';
 
 // ─── Configurações de Brute-Force (Lockout Progressivo) ──────────────────────
 const LOCKOUT_TIERS = [
-  { maxAttempts: 3, lockoutMs: 5 * 60 * 1000 },       // 3 falhas → 5 min
-  { maxAttempts: 5, lockoutMs: 15 * 60 * 1000 },       // 5 falhas → 15 min
-  { maxAttempts: 8, lockoutMs: 60 * 60 * 1000 },       // 8 falhas → 1 hora
+  { maxAttempts: 3,  lockoutMs: 5  * 60 * 1000 },  // 3 falhas  → 5 min
+  { maxAttempts: 5,  lockoutMs: 15 * 60 * 1000 },  // 5 falhas  → 15 min
+  { maxAttempts: 8,  lockoutMs: 60 * 60 * 1000 },  // 8 falhas  → 1 hora
   { maxAttempts: 10, lockoutMs: 24 * 60 * 60 * 1000 }, // 10 falhas → 24 horas
 ];
 
 interface LockoutRecord {
   failedCount: number;
   lockedUntil: number | null;
-  tier: number; // índice atual em LOCKOUT_TIERS
+  lockedUntilIso?: string;
+  tier: number;
 }
 
 const lockoutStore: Map<string, LockoutRecord> = new Map();
@@ -42,31 +42,43 @@ export interface AuthResult {
   success: boolean;
   staff?: Omit<PlatformStaff, 'password'>;
   error?: string;
-  requiresPasswordChange?: boolean; // must_change_password = true
-  requiresMfa?: boolean;            // MFA habilitado → envia desafio
-  mfaChallengeId?: string;          // ID do desafio MFA criado
+  requiresPasswordChange?: boolean;
+  requiresMfa?: boolean;
+  mfaChallengeId?: string;
+  /** Tempo restante do lockout em segundos (para exibir contador) */
+  lockoutRemainingSeconds?: number;
+  /** Tentativas restantes antes do próximo lockout */
+  remainingAttempts?: number;
 }
 
 // ─── Helpers de Brute Force ───────────────────────────────────────────────────
-function isLockedOut(email: string): { locked: boolean; remainingMinutes?: number } {
+function isLockedOut(email: string): { locked: boolean; remainingSeconds?: number; remainingMinutes?: number } {
   const record = lockoutStore.get(email.toLowerCase());
   if (!record?.lockedUntil) return { locked: false };
 
   const now = Date.now();
   if (now < record.lockedUntil) {
-    return { locked: true, remainingMinutes: Math.ceil((record.lockedUntil - now) / 60000) };
+    const remainingMs = record.lockedUntil - now;
+    return {
+      locked: true,
+      remainingSeconds: Math.ceil(remainingMs / 1000),
+      remainingMinutes: Math.ceil(remainingMs / 60000),
+    };
   }
-  // Lockout expirado — reseta contagem (não remove o tier)
-  lockoutStore.set(email.toLowerCase(), { ...record, lockedUntil: null });
+  // Lockout expirado — reseta sem remover o tier (tier persiste)
+  lockoutStore.set(email.toLowerCase(), { ...record, lockedUntil: null, lockedUntilIso: undefined });
   return { locked: false };
 }
 
-function recordFailedAttempt(email: string): { locked: boolean; remainingAttempts: number } {
+function recordFailedAttempt(email: string): {
+  locked: boolean;
+  remainingAttempts: number;
+  lockoutSeconds?: number;
+} {
   const key = email.toLowerCase();
   const current = lockoutStore.get(key) || { failedCount: 0, lockedUntil: null, tier: 0 };
   const newCount = current.failedCount + 1;
 
-  // Determina o tier de lockout apropriado
   let tierIdx = current.tier;
   for (let i = LOCKOUT_TIERS.length - 1; i >= 0; i--) {
     if (newCount >= LOCKOUT_TIERS[i].maxAttempts) {
@@ -76,9 +88,15 @@ function recordFailedAttempt(email: string): { locked: boolean; remainingAttempt
   }
 
   if (newCount >= LOCKOUT_TIERS[tierIdx].maxAttempts) {
-    const lockedUntil = Date.now() + LOCKOUT_TIERS[tierIdx].lockoutMs;
-    lockoutStore.set(key, { failedCount: newCount, lockedUntil, tier: Math.min(tierIdx + 1, LOCKOUT_TIERS.length - 1) });
-    return { locked: true, remainingAttempts: 0 };
+    const lockoutMs = LOCKOUT_TIERS[tierIdx].lockoutMs;
+    const lockedUntil = Date.now() + lockoutMs;
+    lockoutStore.set(key, {
+      failedCount: newCount,
+      lockedUntil,
+      lockedUntilIso: new Date(lockedUntil).toISOString(),
+      tier: Math.min(tierIdx + 1, LOCKOUT_TIERS.length - 1),
+    });
+    return { locked: true, remainingAttempts: 0, lockoutSeconds: Math.ceil(lockoutMs / 1000) };
   }
 
   lockoutStore.set(key, { failedCount: newCount, lockedUntil: null, tier: tierIdx });
@@ -90,12 +108,27 @@ function resetFailedAttempts(email: string): void {
   lockoutStore.delete(email.toLowerCase());
 }
 
+// ─── Expõe lockout store para a UI (somente leitura) ─────────────────────────
+export function getLockoutInfo(email: string): {
+  isLocked: boolean;
+  remainingSeconds: number;
+  failedCount: number;
+} {
+  const record = lockoutStore.get(email.toLowerCase());
+  if (!record) return { isLocked: false, remainingSeconds: 0, failedCount: 0 };
+
+  const now = Date.now();
+  const isLocked = !!(record.lockedUntil && now < record.lockedUntil);
+  const remainingSeconds = isLocked ? Math.ceil((record.lockedUntil! - now) / 1000) : 0;
+
+  return { isLocked, remainingSeconds, failedCount: record.failedCount };
+}
+
 // ─── Serviço de Autenticação Unificado ────────────────────────────────────────
 export const AuthService = {
   /**
-   * Autenticação assíncrona de colaboradores e administradores.
-   * Suporta PBKDF2v2 (moderno) e PBKDF2v1 (legado via hashPasswordAsync).
-   * Retorna informações sobre primeiro acesso e MFA.
+   * Autenticação assíncrona de administradores — PBKDF2v2 exclusivo.
+   * Sem suporte a hashes legados por design de segurança.
    */
   async authenticateStaffAsync(
     email: string,
@@ -108,7 +141,8 @@ export const AuthService = {
     if (lockout.locked) {
       return {
         success: false,
-        error: `Conta temporariamente bloqueada por muitas tentativas incorretas. Tente novamente em ${lockout.remainingMinutes} minuto(s).`,
+        error: `Acesso temporariamente bloqueado. Tente novamente em ${lockout.remainingMinutes} minuto(s).`,
+        lockoutRemainingSeconds: lockout.remainingSeconds,
       };
     }
 
@@ -124,37 +158,44 @@ export const AuthService = {
         actorRole: 'staff_support_l1',
         details: failed.locked
           ? `Conta bloqueada após múltiplas falhas: ${cleanEmail}`
-          : `Tentativa de login com email não encontrado: ${cleanEmail}`,
+          : `Tentativa com email não autorizado: ${cleanEmail}`,
         severity: failed.locked ? 'ERROR' : 'WARNING',
+        metadata: { attemptsRemaining: failed.remainingAttempts },
       });
       if (failed.locked) {
-        return { success: false, error: 'Múltiplas falhas de autenticação. Conta bloqueada.' };
+        return {
+          success: false,
+          error: 'Acesso bloqueado por múltiplas falhas. Aguarde antes de tentar novamente.',
+          lockoutRemainingSeconds: failed.lockoutSeconds,
+        };
       }
-      return { success: false, error: 'E-mail ou senha incorretos.' };
+      // Mensagem genérica — não revela se o email existe
+      return {
+        success: false,
+        error: 'E-mail ou senha incorretos.',
+        remainingAttempts: failed.remainingAttempts,
+      };
     }
 
-    // 3. Verificação de senha — tenta PBKDF2v2 primeiro, depois legado PBKDF2v1
+    // 3. Verificação de senha — exclusivamente PBKDF2v2
     let isPasswordValid = false;
 
-    // Tenta PBKDF2v2 (novo — hash começa com $pbkdf2v2$)
     if (staff.password.startsWith('$pbkdf2v2$')) {
       isPasswordValid = await verifyPasswordHash(password, staff.password);
-    }
-
-    // Fallback: PBKDF2v1 legado (via hashPasswordAsync do mockDataService)
-    if (!isPasswordValid) {
-      const hashedLegacy = await hashPasswordAsync(password, cleanEmail);
-      isPasswordValid =
-        staff.password === hashedLegacy ||
-        staff.password === `$pbkdf2v1$${hashedLegacy}` ||
-        // Verificação de hash legado simples (hashPassword)
-        staff.password === (await hashPasswordAsync(password, cleanEmail));
-    }
-
-    // Fallback final: hashPassword síncrono (para registros de seed antigos)
-    if (!isPasswordValid) {
-      const { hashPassword } = await import('./mockDataService');
-      isPasswordValid = staff.password === hashPassword(password);
+    } else {
+      // Senha em formato legado — nega acesso e força redefinição via suporte
+      AuditLogger.log({
+        action: 'LOGIN_FAILURE',
+        actorId: cleanEmail,
+        actorRole: staff.role as SystemRole,
+        details: `Tentativa com hash legado bloqueada — credenciais devem ser regeneradas: ${cleanEmail}`,
+        severity: 'ERROR',
+        metadata: { hashFormat: 'legacy', action: 'blocked' },
+      });
+      return {
+        success: false,
+        error: 'Credenciais desatualizadas. Entre em contato com o suporte para redefinir o acesso.',
+      };
     }
 
     if (!isPasswordValid) {
@@ -165,16 +206,21 @@ export const AuthService = {
         actorRole: staff.role as SystemRole,
         details: failed.locked
           ? `Conta bloqueada: ${cleanEmail}`
-          : `Senha incorreta para: ${cleanEmail} (${failed.remainingAttempts} tentativa(s) restante(s))`,
+          : `Senha incorreta: ${cleanEmail} (${failed.remainingAttempts} tentativa(s) restante(s))`,
         severity: failed.locked ? 'ERROR' : 'WARNING',
         metadata: { attemptsRemaining: failed.remainingAttempts },
       });
       if (failed.locked) {
-        return { success: false, error: 'Múltiplas falhas de autenticação. Conta bloqueada.' };
+        return {
+          success: false,
+          error: 'Acesso bloqueado por múltiplas falhas. Aguarde antes de tentar novamente.',
+          lockoutRemainingSeconds: failed.lockoutSeconds,
+        };
       }
       return {
         success: false,
-        error: `Credenciais inválidas. Você tem mais ${failed.remainingAttempts} tentativa(s) antes do bloqueio.`,
+        error: `E-mail ou senha incorretos. ${failed.remainingAttempts} tentativa(s) restante(s).`,
+        remainingAttempts: failed.remainingAttempts,
       };
     }
 
@@ -192,13 +238,22 @@ export const AuthService = {
 
     const { password: _, ...safeStaff } = staff;
 
-    // 5. Verifica se primeiro acesso (must_change_password)
+    // 5. Verifica se primeiro acesso (mustChangePassword)
     if (staff.mustChangePassword) {
+      // Define contexto mínimo para permitir a troca de senha
+      setSecurityContext({
+        userId: cleanEmail,
+        role: staff.role as SystemRole,
+        sessionId: `temp_${Date.now()}`,
+        customPermissions: [],
+        isImpersonating: false,
+      });
+
       AuditLogger.log({
         action: 'LOGIN_SUCCESS',
         actorId: cleanEmail,
         actorRole: staff.role as SystemRole,
-        details: `Login com senha temporária — troca obrigatória exigida para: ${cleanEmail}`,
+        details: `Login com senha temporária — troca obrigatória exigida: ${cleanEmail}`,
         severity: 'WARNING',
         metadata: { requiresPasswordChange: true },
       });
@@ -212,14 +267,14 @@ export const AuthService = {
         action: 'LOGIN_SUCCESS',
         actorId: cleanEmail,
         actorRole: staff.role as SystemRole,
-        details: `Credenciais válidas — desafio MFA criado para: ${cleanEmail}`,
+        details: `Credenciais válidas — desafio MFA iniciado: ${cleanEmail}`,
         severity: 'INFO',
         metadata: { requiresMfa: true, mfaMethod: staff.mfaMethod },
       });
       return { success: true, staff: safeStaff, requiresMfa: true, mfaChallengeId: challenge.id };
     }
 
-    // 7. Login completo — define SecurityContext (fix crítico)
+    // 7. Login completo
     this._setSecurityContextForStaff(safeStaff);
 
     AuditLogger.log({
@@ -253,7 +308,7 @@ export const AuthService = {
         action: 'LOGIN_FAILURE',
         actorId: staff.email,
         actorRole: staff.role as SystemRole,
-        details: `Falha na verificação MFA para: ${staff.email}`,
+        details: `Falha na verificação MFA: ${staff.email}`,
         severity: 'WARNING',
         metadata: { mfaError: result.error, attemptsRemaining: result.attemptsRemaining },
       });
@@ -262,15 +317,13 @@ export const AuthService = {
 
     MfaService.clearChallenge(challengeId);
     const { password: _, ...safeStaff } = staff;
-
-    // Define SecurityContext após MFA bem-sucedido
     this._setSecurityContextForStaff(safeStaff);
 
     AuditLogger.log({
       action: 'LOGIN_SUCCESS',
       actorId: staff.email,
       actorRole: staff.role as SystemRole,
-      details: `Login completo com MFA para: ${staff.email}`,
+      details: `Login completo com MFA: ${staff.email}`,
       severity: 'INFO',
       metadata: { mfaVerified: true },
     });
@@ -280,12 +333,9 @@ export const AuthService = {
 
   /**
    * Define o SecurityContext após login bem-sucedido.
-   * Fix crítico: anteriormente nunca era chamado.
    */
   _setSecurityContextForStaff(staff: Omit<PlatformStaff, 'password'>): void {
-    // Cria sessão
     const session = StaffService.createSession(staff.id, staff.email);
-
     setSecurityContext({
       userId: staff.email,
       role: staff.role as SystemRole,
@@ -296,12 +346,11 @@ export const AuthService = {
   },
 
   /**
-   * Retorna informações do Super Admin da plataforma (sem dados sensíveis).
+   * Retorna o email do Super Admin de produção (sem dados sensíveis).
    */
   getSuperAdminInfo() {
-    const metaEnv = (import.meta as unknown as { env?: Record<string, string> }).env;
     return {
-      email: metaEnv?.VITE_SUPER_ADMIN_EMAIL || 'ribeiro.rikardo@gmail.com',
+      email: 'legisconnectonline@gmail.com',
       role: 'super_admin' as const,
     };
   },
