@@ -16,7 +16,7 @@ export const DatabaseHealthIndicator: React.FC = () => {
   const [metrics, setMetrics] = useState<DatabaseMetrics>({
     status: 'checking',
     mode: isSupabaseConfigured ? 'supabase_cloud' : 'local_storage',
-    url: (import.meta.env.VITE_SUPABASE_URL as string) || 'http://localhost (localStorage)',
+    url: ((import.meta as any).env?.VITE_SUPABASE_URL as string) || 'http://localhost (localStorage)',
     tablesCount: 12,
     rlsEnabled: true,
   });
@@ -49,7 +49,7 @@ export const DatabaseHealthIndicator: React.FC = () => {
         setMetrics({
           status: 'offline',
           mode: 'supabase_cloud',
-          url: import.meta.env.VITE_SUPABASE_URL as string,
+          url: (import.meta as any).env?.VITE_SUPABASE_URL as string,
           pingMs,
           tablesCount: 12,
           rlsEnabled: true,
@@ -60,7 +60,7 @@ export const DatabaseHealthIndicator: React.FC = () => {
         setMetrics({
           status: 'online',
           mode: 'supabase_cloud',
-          url: import.meta.env.VITE_SUPABASE_URL as string,
+          url: (import.meta as any).env?.VITE_SUPABASE_URL as string,
           pingMs,
           tablesCount: 12,
           rlsEnabled: true,
@@ -72,7 +72,7 @@ export const DatabaseHealthIndicator: React.FC = () => {
       setMetrics({
         status: 'offline',
         mode: 'supabase_cloud',
-        url: import.meta.env.VITE_SUPABASE_URL as string,
+        url: (import.meta as any).env?.VITE_SUPABASE_URL as string,
         pingMs,
         tablesCount: 12,
         rlsEnabled: true,

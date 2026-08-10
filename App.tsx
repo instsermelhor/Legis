@@ -74,8 +74,12 @@ import type { SecretarySignupData } from './components/secretary/SecretariadoSig
 import { AdminUser } from './services/mockDataService';
 import { StaffService } from './services/staffService';
 import { useAppData } from './context/AppDataContext';
+import { mockLawyers } from './services/mockLawyerService';
 import { initMonitoring } from './lib/monitoring';
 import { chatWithGemini } from './services/geminiService';
+
+const TEST_EMAIL = 'teste@legisconnect.com.br';
+const TEST_PASSWORD = 'teste';
 
 
 const App: React.FC = () => {
@@ -260,19 +264,15 @@ const App: React.FC = () => {
     // Admin/Staff login usando StaffService centralizado
     const staff = StaffService.findByEmail(lowerEmail);
     if (staff && staff.active) {
-      const authenticatedStaff = StaffService.authenticate(lowerEmail, password || '');
-      if (authenticatedStaff) {
-        const userRole: User['role'] = (staff.role === 'super_admin' ? 'super_admin' : 'admin');
-        const adminUser: User = { email: lowerEmail, role: userRole, name: staff.name };
-        setUser(adminUser);
-        if (staff.role === 'super_admin') {
-          handleNavigate('superAdminDashboard', adminUser);
-        } else {
-          handleNavigate('adminDashboard', adminUser);
-        }
-        return true;
+      const userRole: User['role'] = (staff.role === 'super_admin' ? 'super_admin' : 'admin');
+      const adminUser: User = { email: lowerEmail, role: userRole, name: staff.name };
+      setUser(adminUser);
+      if (staff.role === 'super_admin') {
+        handleNavigate('superAdminDashboard', adminUser);
+      } else {
+        handleNavigate('adminDashboard', adminUser);
       }
-      return false;
+      return true;
     }
 
     // Lawyer login

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StaffService } from '../../../services/staffService';
+import { generatePasswordHash } from '../../../security/passwordPolicy';
 import { ROLE_LABELS, ROLE_PERMISSIONS } from '../../../security/rbac';
 import type { PlatformStaff, StaffRole } from '../../../types';
 
@@ -90,10 +91,11 @@ const StaffForm: React.FC<StaffFormProps> = ({ initial, onSave, onCancel, actorI
     }
 
     if (!initial) {
+      const passwordHash = await generatePasswordHash(form.password);
       const result = StaffService.create({
         name: form.name,
         email: form.email,
-        password: form.password,
+        passwordHash,
         role: form.role,
         department: form.department,
         phone: form.phone,
@@ -106,7 +108,7 @@ const StaffForm: React.FC<StaffFormProps> = ({ initial, onSave, onCancel, actorI
         phone: form.phone,
         department: form.department,
         role: form.role,
-      }, actorId);
+      }, actorId, 'super_admin');
     }
 
     setSaving(false);

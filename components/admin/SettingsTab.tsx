@@ -1404,8 +1404,9 @@ const GeneralSettings: React.FC = () => {
       const user = JSON.parse(userRaw);
       if (user.role !== 'admin') return false;
 
-      const adminUsersList = adminUsersRaw ? JSON.parse(adminUsersRaw) : [
-        { id: 1, name: 'Super Admin', email: 'legisconnectonline@gmail.com', password: process.env.ADMIN_SUPER_HASH ?? '$locked$00000000', role: 'super', createdAt: '2024-01-01', active: true }
+      const rawAdmins = localStorage.getItem('legis_admin_users');
+      const adminUsersList = rawAdmins ? JSON.parse(rawAdmins) : [
+        { id: 1, name: 'Super Admin', email: 'legisconnectonline@gmail.com', password: '$locked$', role: 'super', createdAt: '2024-01-01', active: true }
       ];
 
       const matched = adminUsersList.find((u: AdminUser) => u.email.toLowerCase() === user.email.toLowerCase());

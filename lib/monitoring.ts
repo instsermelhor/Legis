@@ -7,9 +7,9 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-const IS_PRODUCTION = import.meta.env.PROD;
-const SENTRY_DSN    = import.meta.env.VITE_SENTRY_DSN as string | undefined;
-const APP_VERSION   = (import.meta.env.VITE_APP_VERSION as string) || '1.0.0-beta';
+const IS_PRODUCTION = (import.meta as any).env?.PROD;
+const SENTRY_DSN    = (import.meta as any).env?.VITE_SENTRY_DSN as string | undefined;
+const APP_VERSION   = ((import.meta as any).env?.VITE_APP_VERSION as string) || '1.0.0-beta';
 const SENTRY_MODULE = '@sentry/browser';
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────

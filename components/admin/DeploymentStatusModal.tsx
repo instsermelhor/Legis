@@ -169,7 +169,9 @@ export const DeploymentStatusModal: React.FC<Props> = ({ isOpen, onClose }) => {
           {activeTab === 'health' && (
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {Object.entries(checks).map(([key, check]) => (
+                {Object.entries(checks).map(([key, rawCheck]) => {
+                  const check = rawCheck as CheckResult;
+                  return (
                   <div key={key} className={`p-4 rounded-xl border ${check.ok ? 'bg-emerald-950/30 border-emerald-700/30' : 'bg-rose-950/30 border-rose-700/30'}`}>
                     <div className="flex items-center justify-between mb-1">
                       <span className="text-white font-semibold text-sm capitalize">{key}</span>
@@ -182,7 +184,7 @@ export const DeploymentStatusModal: React.FC<Props> = ({ isOpen, onClose }) => {
                       <p className="text-rose-400 text-xs mt-1 truncate">{check.error}</p>
                     )}
                   </div>
-                ))}
+                ); })}
                 {Object.keys(checks).length === 0 && healthStatus === 'loading' && (
                   <div className="col-span-2 flex items-center justify-center py-12 text-slate-400">
                     <span className="animate-spin mr-2">⏳</span> Executando health checks…

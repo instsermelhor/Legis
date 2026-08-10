@@ -216,6 +216,13 @@ export const AuditLogger = {
   },
 
   /**
+   * Retorna os N logs mais recentes (atalho para query com limit).
+   */
+  getRecentLogs(limit = 50): AuditEntry[] {
+    return this.query({ limit });
+  },
+
+  /**
    * Verifica integridade da cadeia de logs (detecta adulteração).
    * Retorna `true` se todos os hashes são consistentes.
    */

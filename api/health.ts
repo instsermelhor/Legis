@@ -9,7 +9,16 @@
  * Resposta esperada: 200 OK { status: "ok", ... }
  */
 
-import type { VercelRequest, VercelResponse } from '@vercel/node';
+interface VercelRequest {
+  method?: string;
+}
+
+interface VercelResponse {
+  status: (code: number) => VercelResponse;
+  json: (data: unknown) => void;
+  setHeader: (key: string, value: string) => void;
+}
+
 import { createClient } from '@supabase/supabase-js';
 
 const APP_VERSION = process.env.VITE_APP_VERSION || '1.0.0-beta';

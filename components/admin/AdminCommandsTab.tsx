@@ -321,11 +321,8 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
         }
         return l;
       });
-      setLawyers(updated);
+      setLocalLawyers(updated);
       localStorage.setItem('legis_lawyers', JSON.stringify(updated));
-      setLawyers(prev => prev.map(l =>
-        l.id === id ? { ...l, status: l.status === 'suspenso' ? 'verificado' : 'suspenso' } : l
-      ));
     } else if (role === 'intern') {
       const updated = interns.map(i => {
         if (i.id === id) {
@@ -334,7 +331,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
         }
         return i;
       });
-      setInterns(updated);
+      setLocalInterns(updated);
       localStorage.setItem('legis_interns', JSON.stringify(updated));
     } else if (role === 'secretary') {
       const updated = secretaries.map(s => {
@@ -344,7 +341,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
         }
         return s;
       });
-      setSecretaries(updated);
+      setLocalSecretaries(updated);
       localStorage.setItem('legis_secretaries', JSON.stringify(updated));
     }
     if (onDataChange) onDataChange();
@@ -379,32 +376,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
     localStorage.setItem(`legis_lawyer_linked_intern_${lawyerId}`, String(internId));
 
     // 3. Save to state and localStorage
-    setInterns(updated);
-    localStorage.setItem('legis_interns', JSON.stringify(updated));
-    alert('Estagiário(a) vinculado(a) com sucesso ao advogado!');
-    if (onDataChange) onDataChange();
-  };
-
-  // Cancel Intern delegation
-  const handleUnlinkIntern = (internId: number) => {
-    let lawyerId: number | undefined;
-
-    const updated = interns.map(i => {
-      if (i.id === internId) {
-        lawyerId = i.supervisorLawyerId;
-        const copy = { ...i };
-        delete copy.supervisorLawyerId;
-        return copy;
-      }
-      return i;
-    });
-
-    // Remove the link from the supervisor's lawyer key
-    if (lawyerId) {
-      localStorage.removeItem(`legis_lawyer_linked_intern_${lawyerId}`);
-    }
-
-    setInterns(updated);
+    setLocalInterns(updated);
     localStorage.setItem('legis_interns', JSON.stringify(updated));
     alert('Atribuição de supervisão cancelada com sucesso.');
     if (onDataChange) onDataChange();
@@ -439,7 +411,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
     localStorage.setItem(`legis_lawyer_linked_secretary_${lawyerId}`, String(secretaryId));
 
     // 3. Save to state and localStorage
-    setSecretaries(updated);
+    setLocalSecretaries(updated);
     localStorage.setItem('legis_secretaries', JSON.stringify(updated));
     alert('Secretário(a) vinculado(a) com sucesso ao advogado!');
     if (onDataChange) onDataChange();
@@ -464,7 +436,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
       localStorage.removeItem(`legis_lawyer_linked_secretary_${lawyerId}`);
     }
 
-    setSecretaries(updated);
+    setLocalSecretaries(updated);
     localStorage.setItem('legis_secretaries', JSON.stringify(updated));
     alert('Atribuição de secretariado cancelada com sucesso.');
     if (onDataChange) onDataChange();
@@ -808,7 +780,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                       <tr key={i.id} className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors">
                         <td className="px-5 py-3">
                           <p className="font-bold text-gray-900 dark:text-white">{i.name}</p>
-                          <p className="text-xs text-gray-400">{i.contact.email}</p>
+                          <p className="text-xs text-gray-400">{i.contact?.email || ''}</p>
                         </td>
                         <td className="px-5 py-3 text-xs">{i.university} ({i.semester})</td>
                         <td className="px-5 py-3">
