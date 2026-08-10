@@ -13,7 +13,7 @@ interface LoginFormProps {
     onLogin: (credentials: Credentials) => boolean;
 }
 
-const ADMIN_EMAIL = 'instsermelhor.adm@gmail.com';
+const ADMIN_EMAIL = 'legisconnectonline@gmail.com';
 const TEST_EMAIL = 'teste@legisconnect.com.br';
 
 // ── Role badge ────────────────────────────────────────────────────────────
@@ -223,7 +223,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLogin }) => {
 
         try {
             // Checa autenticação de Admin/Staff via AuthService com lockout
-            if (userType === 'admin' || email.toLowerCase().includes('admin') || email.toLowerCase().includes('legisconnect.com.br') || email.toLowerCase() === 'instsermelhor.adm@gmail.com') {
+            if (userType === 'admin' || email.toLowerCase().includes('admin') || email.toLowerCase().includes('legisconnect.com.br') || email.toLowerCase() === 'legisconnectonline@gmail.com') {
                 const authResult = await AuthService.authenticateStaffAsync(email, password);
                 if (!authResult.success) {
                     setError(authResult.error || 'Credenciais inválidas. Verifique os dados digitados.');
