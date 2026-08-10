@@ -77,9 +77,6 @@ import { useAppData } from './context/AppDataContext';
 import { initMonitoring } from './lib/monitoring';
 import { chatWithGemini } from './services/geminiService';
 
-const TEST_EMAIL = 'teste@legisconnect.com.br';
-const TEST_PASSWORD = 'teste';
-
 
 const App: React.FC = () => {
   // ── Dados compartilhados com o painel admin via AppDataContext ──
@@ -159,15 +156,12 @@ const App: React.FC = () => {
     initMonitoring();
   }, []);
 
-  // Seed seguro do Super Admin Universal (sem credenciais hardcoded)
-  // A senha "teste" é hasheada em runtime via PBKDF2v2 (310k iter) — nunca em texto puro
+  // Bootstrap do Super Admin de Produção (legisconnectonline@gmail.com)
   useEffect(() => {
     StaffService.initialize();
-    StaffService.seedSuperAdmins().catch(e =>
+    StaffService.bootstrapProductionSuperAdmin().catch(e =>
       console.error('[Legis] Erro ao inicializar Super Admin:', e)
     );
-    // Limpa o sistema legado de admin users (substituiído pelo StaffService)
-    // Não removemos legis_admin_users para compatibilidade durante migração
   }, []);
 
   // Capture autocadastro token from URL on app load and redirect to signup
