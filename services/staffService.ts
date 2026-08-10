@@ -1,12 +1,11 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // services/staffService.ts
 // Gestão de Colaboradores Internos da Plataforma (PlatformStaff)
-// RBAC granular + Super Admin Universal + Delegações + Sessões
+// RBAC granular + Super Admin de Produção + Delegações + Sessões
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { PlatformStaff, StaffRole, DelegationRecord, SessionRecord } from '../types';
 import { AuditLogger } from '../security/auditLogger';
-import { hashPassword } from './mockDataService';
 import { generatePasswordHash } from '../security/passwordPolicy';
 import { RecoveryProtection } from '../security/recoveryProtection';
 
@@ -16,105 +15,16 @@ const DELEGATION_KEY  = 'legis_delegations';
 const SESSION_KEY     = 'legis_staff_sessions';
 const SESSION_TTL_MS  = 8 * 60 * 60 * 1000; // 8 horas
 
-// ─── Dados iniciais (seed) ────────────────────────────────────────────────────
-// IMPORTANTE: As senhas dos usuários de seed usam hashPassword() (legado PBKDF2v1).
-// O Super Admin ribeiro.rikardo@gmail.com usa generatePasswordHash() (PBKDF2v2 — assíncrono).
-// A senha temporária "teste" NÃO está em texto puro aqui; é hasheada em runtime.
-const INITIAL_STAFF: PlatformStaff[] = [
-  {
-    id: 'staff_001',
-    name: 'Carlos Supervisor',
-    email: 'carlos.supervisor@legisconnect.com.br',
-    password: hashPassword('supervisor123'),
-    role: 'super_admin',
-    department: 'Diretoria',
-    phone: '(11) 99999-0001',
-    active: true,
-    createdAt: '2024-01-01T00:00:00Z',
-    updatedAt: '2024-01-01T00:00:00Z',
-    createdBy: 'system',
-    permissions: [],
-    lastLogin: '2026-06-12T10:00:00Z',
-    loginCount: 342,
-    mustChangePassword: false,
-    mfaEnabled: false,
-    accessLevel: 'GLOBAL',
-  },
-  {
-    id: 'staff_002',
-    name: 'Amanda Financeira',
-    email: 'amanda.financeira@legisconnect.com.br',
-    password: hashPassword('finance456'),
-    role: 'staff_finance_admin',
-    department: 'Financeiro',
-    phone: '(11) 99999-0002',
-    active: true,
-    createdAt: '2024-02-01T00:00:00Z',
-    updatedAt: '2024-02-01T00:00:00Z',
-    createdBy: 'staff_001',
-    permissions: [],
-    lastLogin: '2026-06-11T14:30:00Z',
-    loginCount: 128,
-    mustChangePassword: false,
-  },
-  {
-    id: 'staff_003',
-    name: 'Roberto Compliance',
-    email: 'roberto.compliance@legisconnect.com.br',
-    password: hashPassword('compliance789'),
-    role: 'staff_compliance_auditor',
-    department: 'Compliance & Jurídico',
-    phone: '(11) 99999-0003',
-    active: true,
-    createdAt: '2024-03-01T00:00:00Z',
-    updatedAt: '2024-03-01T00:00:00Z',
-    createdBy: 'staff_001',
-    permissions: [],
-    lastLogin: '2026-06-10T09:15:00Z',
-    loginCount: 87,
-    mustChangePassword: false,
-  },
-  {
-    id: 'staff_004',
-    name: 'Juliana Suporte',
-    email: 'juliana.suporte@legisconnect.com.br',
-    password: hashPassword('suporte321'),
-    role: 'staff_support_l1',
-    department: 'Atendimento ao Cliente',
-    phone: '(11) 99999-0004',
-    active: true,
-    createdAt: '2024-04-01T00:00:00Z',
-    updatedAt: '2024-04-01T00:00:00Z',
-    createdBy: 'staff_001',
-    permissions: [],
-    lastLogin: '2026-06-12T08:00:00Z',
-    loginCount: 215,
-    mustChangePassword: false,
-  },
-  {
-    id: 'staff_005',
-    name: 'Marcos Suporte Jr.',
-    email: 'marcos.suporte@legisconnect.com.br',
-    password: hashPassword('junior654'),
-    role: 'staff_support_l1',
-    department: 'Atendimento ao Cliente',
-    phone: '(11) 99999-0005',
-    active: false,
-    createdAt: '2024-05-01T00:00:00Z',
-    updatedAt: '2024-06-01T00:00:00Z',
-    createdBy: 'staff_001',
-    permissions: [],
-    loginCount: 43,
-    mustChangePassword: false,
-  },
-];
+// ─── Email do Super Admin de Produção ────────────────────────────────────────
+const PROD_SUPER_ADMIN_EMAIL = 'legisconnectonline@gmail.com';
+const PROD_SUPER_ADMIN_ID    = 'superadmin_prod_001';
 
 // ─── Helpers de armazenamento ─────────────────────────────────────────────────
 function readStaff(): PlatformStaff[] {
   try {
     const raw = localStorage.getItem(STAFF_KEY);
-    return raw ? JSON.parse(raw) : INITIAL_STAFF;
-  } catch { return INITIAL_STAFF; }
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
 }
 
 function writeStaff(staff: PlatformStaff[]): void {
@@ -134,7 +44,6 @@ function readSessions(): SessionRecord[] {
 }
 
 function writeSessions(sessions: SessionRecord[]): void {
-  // Mantém apenas sessões ativas dos últimos 30 dias
   const cutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
   const trimmed = sessions.filter(s => s.createdAt > cutoff);
   localStorage.setItem(SESSION_KEY, JSON.stringify(trimmed));
@@ -145,7 +54,6 @@ function getDeviceFingerprint(): string {
   const lang = navigator.language;
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const raw = `${ua}|${lang}|${tz}`;
-  // Hash simples para fingerprint
   let h = 0x811c9dc5;
   for (let i = 0; i < raw.length; i++) {
     h ^= raw.charCodeAt(i);
@@ -166,17 +74,66 @@ function writeDelegations(delegations: DelegationRecord[]): void {
   localStorage.setItem(DELEGATION_KEY, JSON.stringify(delegations));
 }
 
-// ─── Inicialização ────────────────────────────────────────────────────────────
-function initializeStaff(): void {
-  const existing = localStorage.getItem(STAFF_KEY);
-  if (!existing) {
-    writeStaff(INITIAL_STAFF);
+// ─── Geração de Senha Temporária Segura ──────────────────────────────────────
+// Gera senha de 16 caracteres com critério enterprise via Web Crypto API.
+// Formato: 4 maiúsculas + 4 minúsculas + 4 números + 4 símbolos (embaralhado).
+function generateSecureTempPassword(): string {
+  const upper   = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const lower   = 'abcdefghjkmnpqrstuvwxyz';
+  const numbers = '23456789';
+  const symbols = '@#$%!&*^';
+
+  const getRandChar = (charset: string): string => {
+    const bytes = crypto.getRandomValues(new Uint8Array(1));
+    return charset[bytes[0] % charset.length];
+  };
+
+  const parts = [
+    ...Array.from({ length: 4 }, () => getRandChar(upper)),
+    ...Array.from({ length: 4 }, () => getRandChar(lower)),
+    ...Array.from({ length: 4 }, () => getRandChar(numbers)),
+    ...Array.from({ length: 4 }, () => getRandChar(symbols)),
+  ];
+
+  // Fisher-Yates shuffle usando crypto.getRandomValues
+  for (let i = parts.length - 1; i > 0; i--) {
+    const bytes = crypto.getRandomValues(new Uint8Array(1));
+    const j = bytes[0] % (i + 1);
+    [parts[i], parts[j]] = [parts[j], parts[i]];
   }
+
+  return parts.join('');
+}
+
+// ─── Migração: Remove usuários legados do localStorage ───────────────────────
+// Chamado no bootstrap para garantir ambiente limpo de produção.
+function migrateLegacyStaff(all: PlatformStaff[]): PlatformStaff[] {
+  const LEGACY_EMAILS = [
+    'ribeiro.rikardo@gmail.com',
+    'instsermelhor.adm@gmail.com',
+    'carlos.supervisor@legisconnect.com.br',
+    'amanda.financeira@legisconnect.com.br',
+    'roberto.compliance@legisconnect.com.br',
+    'juliana.suporte@legisconnect.com.br',
+    'marcos.suporte@legisconnect.com.br',
+  ];
+  return all.filter(s => !LEGACY_EMAILS.includes(s.email.toLowerCase()));
 }
 
 // ─── Service Principal ────────────────────────────────────────────────────────
 export const StaffService = {
-  initialize: initializeStaff,
+  initialize() {
+    // Lê o staff atual (pode estar vazio ou ter dados legados)
+    const all = readStaff();
+
+    // Migra dados legados se necessário
+    const cleaned = migrateLegacyStaff(all);
+    const changed = cleaned.length !== all.length;
+    if (changed) {
+      writeStaff(cleaned);
+      console.info(`[StaffService] ${all.length - cleaned.length} usuário(s) legado(s) migrado(s) e removido(s).`);
+    }
+  },
 
   /** Retorna todos os colaboradores. */
   getAll(): PlatformStaff[] {
@@ -199,139 +156,90 @@ export const StaffService = {
   },
 
   /**
-   * Autenticação de colaborador interno (verificação legada com hashPassword).
-   * Para autenticação completa (com PBKDF2v2), use AuthService.authenticateStaffAsync().
+   * Bootstrap do Super Administrador de Produção.
+   * Cria legisconnectonline@gmail.com com senha temporária segura gerada
+   * em runtime via Web Crypto API (PBKDF2v2 — 310k iterações).
+   * mustChangePassword = true → troca obrigatória no primeiro acesso.
+   *
+   * ⚠️ A senha temporária é exibida UMA ÚNICA VEZ no console do navegador
+   * durante o primeiro boot. Anote e altere imediatamente no primeiro login.
    */
-  authenticate(email: string, password: string): Omit<PlatformStaff, 'password'> | null {
-    const staff = this.findByEmail(email);
-    if (!staff || !staff.active) return null;
-
-    const hashed = hashPassword(password);
-    if (staff.password !== hashed) return null;
-
-    // Atualiza lastLogin e loginCount
-    const all = readStaff();
-    const idx = all.findIndex(s => s.id === staff.id);
-    if (idx !== -1) {
-      all[idx].lastLogin = new Date().toISOString();
-      all[idx].loginCount = (all[idx].loginCount || 0) + 1;
-      writeStaff(all);
-    }
-
-    const { password: _, ...safeStaff } = staff;
-    return safeStaff;
-  },
-
-  /**
-   * Seed seguro do Super Administrador Universal.
-   * Cria ribeiro.rikardo@gmail.com e promove instsermelhor.adm@gmail.com.
-   * A senha temporária "teste" é hasheada em runtime — nunca em texto puro.
-   * Esta função é assíncrona pois usa PBKDF2v2 (Web Crypto API).
-   */
-  async seedSuperAdmins(): Promise<void> {
+  async bootstrapProductionSuperAdmin(): Promise<void> {
     const all = readStaff();
 
-    // 1. Criar/garantir ribeiro.rikardo@gmail.com (Super Admin Principal)
-    const existing = all.find(s => s.email.toLowerCase() === 'ribeiro.rikardo@gmail.com');
-    if (!existing) {
-      // Hash da senha temporária "teste" gerado em runtime (PBKDF2v2 — 310k iterações)
-      const tempPasswordHash = await generatePasswordHash('teste');
-
-      const superAdmin: PlatformStaff = {
-        id: 'superadmin_universal_001',
-        name: 'Rikardo Ribeiro',
-        email: 'ribeiro.rikardo@gmail.com',
-        password: tempPasswordHash,
-        role: 'super_admin',
-        department: 'Governança Global',
-        phone: undefined,
-        active: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        createdBy: 'system_bootstrap',
-        permissions: [],
-        loginCount: 0,
-        // Campos de segurança obrigatórios para Super Admin
-        mustChangePassword: true,    // PRIMEIRO ACESSO — troca obrigatória
-        mfaEnabled: false,
-        accessLevel: 'GLOBAL',
-        passwordHistory: [],
-        lastPasswordChange: undefined,
-      };
-
-      all.unshift(superAdmin); // Coloca no início da lista
-
-      AuditLogger.log({
-        action: 'SUPER_ADMIN_CREATED',
-        actorId: 'system_bootstrap',
-        actorRole: 'super_admin',
-        targetId: superAdmin.id,
-        targetType: 'staff',
-        details: `Super Administrador Universal criado: ${superAdmin.email} — mustChangePassword: true`,
-        severity: 'CRITICAL',
-        metadata: { email: superAdmin.email, accessLevel: 'GLOBAL', bootstrapSeed: true },
-      });
-    } else if (existing.role !== 'super_admin') {
-      // Garante que o usuário tem a role correta
-      const idx = all.findIndex(s => s.email.toLowerCase() === 'ribeiro.rikardo@gmail.com');
+    const existing = all.find(s => s.email.toLowerCase() === PROD_SUPER_ADMIN_EMAIL);
+    if (existing) {
+      // Super Admin já existe — garante que está ativo e com role correta
+      const idx = all.findIndex(s => s.email.toLowerCase() === PROD_SUPER_ADMIN_EMAIL);
       if (idx !== -1) {
-        all[idx].role = 'super_admin';
-        all[idx].accessLevel = 'GLOBAL';
-        all[idx].updatedAt = new Date().toISOString();
+        if (all[idx].role !== 'super_admin' || !all[idx].active || all[idx].accessLevel !== 'GLOBAL') {
+          all[idx].role = 'super_admin';
+          all[idx].active = true;
+          all[idx].accessLevel = 'GLOBAL';
+          all[idx].updatedAt = new Date().toISOString();
+          writeStaff(all);
+          console.info(`[StaffService] Super Admin de produção validado: ${PROD_SUPER_ADMIN_EMAIL}`);
+        }
       }
+      return;
     }
 
-    // 2. Promover instsermelhor.adm@gmail.com para super_admin (se existir no staff)
-    const legacyIdx = all.findIndex(s => s.email.toLowerCase() === 'instsermelhor.adm@gmail.com');
-    if (legacyIdx !== -1) {
-      if (all[legacyIdx].role !== 'super_admin') {
-        all[legacyIdx].role = 'super_admin';
-        all[legacyIdx].accessLevel = 'GLOBAL';
-        all[legacyIdx].active = true;
-        all[legacyIdx].mustChangePassword = false;
-        all[legacyIdx].updatedAt = new Date().toISOString();
-        AuditLogger.log({
-          action: 'STAFF_UPDATED',
-          actorId: 'system_bootstrap',
-          actorRole: 'super_admin',
-          targetId: all[legacyIdx].id,
-          targetType: 'staff',
-          details: `Admin legado promovido a Super Administrador Universal: ${all[legacyIdx].email}`,
-          severity: 'WARNING',
-          metadata: { email: all[legacyIdx].email, promotedFrom: 'admin', promotedTo: 'super_admin' },
-        });
-      }
-    } else {
-      // Cria instsermelhor.adm@gmail.com como super_admin (hash da senha legada)
-      const legacyHash = hashPassword('@@Rk08266570#');
-      const legacyAdmin: PlatformStaff = {
-        id: 'superadmin_legacy_001',
-        name: 'Administrador Institucional',
-        email: 'instsermelhor.adm@gmail.com',
-        password: legacyHash,
-        role: 'super_admin',
-        department: 'Diretoria',
-        phone: undefined,
-        active: true,
-        createdAt: '2024-01-01T00:00:00Z',
-        updatedAt: new Date().toISOString(),
-        createdBy: 'system_bootstrap',
-        permissions: [],
-        loginCount: 0,
-        mustChangePassword: false,
-        mfaEnabled: false,
-        accessLevel: 'GLOBAL',
-        passwordHistory: [],
-      };
-      all.push(legacyAdmin);
-    }
+    // Primeiro boot: gera senha temporária segura
+    const tempPassword = generateSecureTempPassword();
+    const tempPasswordHash = await generatePasswordHash(tempPassword);
 
+    const superAdmin: PlatformStaff = {
+      id: PROD_SUPER_ADMIN_ID,
+      name: 'Legis Connect',
+      email: PROD_SUPER_ADMIN_EMAIL,
+      password: tempPasswordHash,
+      role: 'super_admin',
+      department: 'Governança Global',
+      phone: undefined,
+      active: true,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      createdBy: 'system_bootstrap',
+      permissions: [],
+      loginCount: 0,
+      mustChangePassword: true, // PRIMEIRO ACESSO — troca obrigatória
+      mfaEnabled: false,
+      accessLevel: 'GLOBAL',
+      passwordHistory: [],
+      lastPasswordChange: undefined,
+    };
+
+    all.unshift(superAdmin);
     writeStaff(all);
+
+    // ⚠️ SENHA TEMPORÁRIA — Exibida UMA ÚNICA VEZ no primeiro boot
+    console.group('%c🔐 LEGIS CONNECT — SUPER ADMIN BOOTSTRAP', 'color:#f59e0b;font-size:14px;font-weight:bold;');
+    console.log('%cSuperAdmin criado com sucesso!', 'color:#10b981;font-weight:bold;');
+    console.log(`%cEmail:  ${PROD_SUPER_ADMIN_EMAIL}`, 'color:#e2e8f0;');
+    console.log(`%cSenha:  ${tempPassword}`, 'color:#fbbf24;font-size:16px;font-weight:bold;letter-spacing:2px;');
+    console.log('%c⚠️  Esta senha é temporária. ALTERE IMEDIATAMENTE no primeiro acesso!', 'color:#f87171;font-weight:bold;');
+    console.groupEnd();
+
+    AuditLogger.log({
+      action: 'SUPER_ADMIN_CREATED',
+      actorId: 'system_bootstrap',
+      actorRole: 'super_admin',
+      targetId: superAdmin.id,
+      targetType: 'staff',
+      details: `Super Admin de Produção criado: ${PROD_SUPER_ADMIN_EMAIL} — mustChangePassword: true`,
+      severity: 'CRITICAL',
+      metadata: {
+        email: PROD_SUPER_ADMIN_EMAIL,
+        accessLevel: 'GLOBAL',
+        bootstrapSeed: true,
+        firstBoot: true,
+      },
+    });
   },
 
   /**
    * Força a troca de senha de um colaborador.
-   * Invalida a senha atual, registra no histórico, marca must_change_password = false.
+   * Invalida a senha atual, registra no histórico e marca mustChangePassword = false.
    */
   async forcePasswordChange(
     userId: string,
@@ -344,14 +252,12 @@ export const StaffService = {
 
     const staff = all[idx];
 
-    // Verifica que a nova senha não é igual à atual
-    const currentHash = staff.password;
     const newHash = await generatePasswordHash(newPassword);
 
     // Histórico: guarda a senha anterior
     const history = staff.passwordHistory || [];
-    history.unshift(currentHash); // Coloca a senha atual no histórico
-    if (history.length > 5) history.pop(); // Mantém apenas as 5 últimas
+    history.unshift(staff.password);
+    if (history.length > 5) history.pop();
 
     all[idx] = {
       ...staff,
@@ -388,7 +294,7 @@ export const StaffService = {
   create(data: {
     name: string;
     email: string;
-    password: string;
+    passwordHash: string; // Hash PBKDF2v2 já gerado pelo chamador
     role: StaffRole;
     department: string;
     phone?: string;
@@ -404,7 +310,7 @@ export const StaffService = {
       id: generateId('staff'),
       name: data.name.trim(),
       email: data.email.toLowerCase().trim(),
-      password: hashPassword(data.password),
+      password: data.passwordHash,
       role: data.role,
       department: data.department,
       phone: data.phone,
@@ -414,7 +320,7 @@ export const StaffService = {
       createdBy: data.createdBy,
       permissions: data.permissions || [],
       loginCount: 0,
-      mustChangePassword: data.mustChangePassword ?? true, // Por padrão, exige troca
+      mustChangePassword: data.mustChangePassword ?? true,
       mfaEnabled: false,
       passwordHistory: [],
     };
@@ -446,7 +352,6 @@ export const StaffService = {
     actorId: string,
     actorRole: StaffRole
   ): { success: boolean; error?: string } {
-    // Verifica escalada de privilégio se role está sendo alterada
     if (data.role) {
       const isEscalation = RecoveryProtection.detectPrivilegeEscalation(actorId, actorRole, id, data.role);
       if (isEscalation) {
@@ -487,9 +392,14 @@ export const StaffService = {
 
   /**
    * Ativa ou desativa um colaborador (nunca deleta — compliance LGPD).
-   * Protege o último super admin ativo.
+   * Protege o Super Admin de produção contra desativação acidental.
    */
   setActive(id: string, active: boolean, actorId: string): { success: boolean; error?: string } {
+    // Protege o Super Admin de produção
+    if (id === PROD_SUPER_ADMIN_ID && !active) {
+      return { success: false, error: 'O Super Administrador de produção não pode ser desativado.' };
+    }
+
     if (!active) {
       const protection = RecoveryProtection.validateDeactivation(id, actorId);
       if (!protection.allowed) {
@@ -560,7 +470,6 @@ export const StaffService = {
     sessions.push(session);
     writeSessions(sessions);
 
-    // Armazena o ID da sessão atual no sessionStorage
     sessionStorage.setItem('legis_session_id', session.id);
 
     return session;
@@ -584,7 +493,6 @@ export const StaffService = {
       sessions[idx].revokedBy = revokedBy;
       writeSessions(sessions);
     }
-    // Se a sessão revogada é a sessão atual, limpa sessionStorage
     if (sessionStorage.getItem('legis_session_id') === sessionId) {
       sessionStorage.removeItem('legis_session_id');
     }
@@ -691,5 +599,5 @@ export const StaffService = {
   },
 };
 
-// Inicializa dados na carga do módulo
+// Inicializa e migra dados na carga do módulo
 StaffService.initialize();
