@@ -129,7 +129,7 @@ export const mockAdminUsers: AdminUser[] = [
   {
     id: 1,
     name: 'Super Admin',
-    email: 'instsermelhor.adm@gmail.com',
+    email: 'legisconnectonline@gmail.com',
     // Hash must be pre-generated via hashPasswordAsync() and stored in env/secrets manager
     password: process.env.ADMIN_SUPER_HASH ?? '$locked$00000000000000000000000000000000',
     role: 'super',
