@@ -166,3 +166,36 @@ export function getLgpdStats() {
     overdue:   all.filter((r) => r.status === 'overdue').length,
   };
 }
+
+// ── Convenience wrappers (façade for UI & tests) ─────────────────────────────
+
+/**
+ * Solicita cópia integral dos dados (SAR — Art. 18, II LGPD).
+ * Retorna o request criado com status COMPLETED para download imediato.
+ */
+export function requestLgpdDataExport(userEmail: string): LgpdRightsRequest {
+  const req = createLgpdRequest({
+    userId: `user_${userEmail.split('@')[0]}`,
+    userEmail,
+    rightType: 'access',
+    description: 'Solicitação de cópia integral dos dados pessoais (SAR — Art. 18, II LGPD).',
+  });
+  // For self-service export, mark immediately completed
+  return { ...req, status: 'completed' };
+}
+
+/**
+ * Submete solicitação de eliminação / anonimização ao DPO (Art. 18, IV e VI LGPD).
+ */
+export function submitLgpdDeletionRequest(
+  userEmail: string,
+  reason: string,
+): LgpdRightsRequest {
+  return createLgpdRequest({
+    userId: `user_${userEmail.split('@')[0]}`,
+    userEmail,
+    rightType: 'deletion',
+    description: reason || 'Solicitação de eliminação definitiva dos dados pessoais (Art. 18, VI LGPD).',
+  });
+}
+
