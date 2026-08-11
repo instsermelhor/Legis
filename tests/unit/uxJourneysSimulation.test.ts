@@ -2,12 +2,12 @@
  * tests/unit/uxJourneysSimulation.test.ts
  * ─────────────────────────────────────────────────────────────────────────────
  * Suíte de Testes de Simulação de Jornadas UX/CX — Legis Connect
- * Valida a integridade de rotas, permissões e transições de estado
- * para as 8 personas do ecossistema Legis Connect.
+ * Valida a integridade de permissões e isolamento de roles para as 8 personas.
+ * Utiliza a Permission type real definida em security/rbac.ts.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-import { hasPermission, ROLE_LEVELS } from '../../security/rbac';
+import { hasPermission, canImpersonate, ROLE_LEVELS } from '../../security/rbac';
 import type { SystemRole } from '../../security/rbac';
 
 export interface JourneyTestResult {
@@ -23,139 +23,144 @@ export async function runUxJourneysSimulationTests(): Promise<JourneyTestResult[
   const results: JourneyTestResult[] = [];
 
   // ─────────────────────────────────────────────────────────────
-  // JORNADA 1: Cliente — Busca, Contratação e Acompanhamento
+  // JORNADA 1: Cliente — Acesso ao Dashboard e Serviços
   // ─────────────────────────────────────────────────────────────
   (() => {
     const t0 = performance.now();
     const role: SystemRole = 'client';
-    const canSearchLawyer = hasPermission(role, 'lawyers:read');
-    const canHireLawyer   = hasPermission(role, 'cases:create');
-    const canViewOwnCase  = hasPermission(role, 'cases:read');
-    const cannotViewAll   = !hasPermission(role, 'admin:view_all_cases');
-    const passed = canSearchLawyer && canHireLawyer && canViewOwnCase && cannotViewAll;
+    const canSeeDashboard   = hasPermission(role, 'client:dashboard');
+    const canReadServices   = hasPermission(role, 'services:read');
+    const cannotAdmin       = !hasPermission(role, 'admin:read');
+    const cannotFinance     = !hasPermission(role, 'finance:read');
+    const passed = canSeeDashboard && canReadServices && cannotAdmin && cannotFinance;
     results.push({
       persona: 'Cliente',
-      journeyName: 'Busca → Contratação → Acompanhamento de Processo',
+      journeyName: 'Dashboard → Serviços → Bloqueio Administrativo e Financeiro',
       passed,
       durationMs: Math.round(performance.now() - t0),
-      details: `search:${canSearchLawyer} hire:${canHireLawyer} track:${canViewOwnCase} noAdmin:${cannotViewAll}`,
+      details: `dashboard:${canSeeDashboard} services:${canReadServices} noAdmin:${cannotAdmin} noFinance:${cannotFinance}`,
     });
   })();
 
   // ─────────────────────────────────────────────────────────────
-  // JORNADA 2: Advogado — Onboarding, Dashboard e Recebimento
+  // JORNADA 2: Advogado — Dashboard, Serviços e IA
   // ─────────────────────────────────────────────────────────────
   (() => {
     const t0 = performance.now();
     const role: SystemRole = 'lawyer';
-    const canManageProfile = hasPermission(role, 'lawyers:write');
-    const canViewCases     = hasPermission(role, 'cases:read');
-    const canUseEscrow     = hasPermission(role, 'escrow:manage');
+    const canSeeDashboard   = hasPermission(role, 'lawyer:dashboard');
+    const canReadServices   = hasPermission(role, 'services:read');
+    const canUseAI          = hasPermission(role, 'ai:use');
     const cannotManageStaff = !hasPermission(role, 'admin:manage_staff');
-    const passed = canManageProfile && canViewCases && canUseEscrow && cannotManageStaff;
+    const cannotImpersonate = !canImpersonate(role);
+    const passed = canSeeDashboard && canReadServices && canUseAI && cannotManageStaff && cannotImpersonate;
     results.push({
       persona: 'Advogado',
-      journeyName: 'Onboarding OAB → Dashboard Financeiro → Liberação Escrow',
+      journeyName: 'Dashboard → IA Copilot → Bloqueio Staff e Impersonação',
       passed,
       durationMs: Math.round(performance.now() - t0),
-      details: `profile:${canManageProfile} cases:${canViewCases} escrow:${canUseEscrow} noStaff:${cannotManageStaff}`,
+      details: `dashboard:${canSeeDashboard} ai:${canUseAI} noStaff:${cannotManageStaff} noImpersonate:${cannotImpersonate}`,
     });
   })();
 
   // ─────────────────────────────────────────────────────────────
-  // JORNADA 3: Estagiário — Acesso Restrito a Tarefas
+  // JORNADA 3: Estagiário — Acesso Restrito, Sem Financeiro
   // ─────────────────────────────────────────────────────────────
   (() => {
     const t0 = performance.now();
     const role: SystemRole = 'intern';
-    const canViewCases    = hasPermission(role, 'cases:read');
-    const cannotWrite     = !hasPermission(role, 'cases:create');
-    const cannotEscrow    = !hasPermission(role, 'escrow:manage');
+    const canSeeDashboard = hasPermission(role, 'intern:dashboard');
+    const canUseAI        = hasPermission(role, 'ai:use');
+    const cannotFinance   = !hasPermission(role, 'finance:read');
+    const cannotAdmin     = !hasPermission(role, 'admin:write');
     const levelIsLow      = ROLE_LEVELS[role] < ROLE_LEVELS['lawyer'];
-    const passed = canViewCases && cannotWrite && cannotEscrow && levelIsLow;
+    const passed = canSeeDashboard && canUseAI && cannotFinance && cannotAdmin && levelIsLow;
     results.push({
       persona: 'Estagiário',
-      journeyName: 'Acesso Leitura → Bloqueio de Escrita e Financeiro',
+      journeyName: 'Dashboard → IA Suporte → Sem Acesso Financeiro e Administrativo',
       passed,
       durationMs: Math.round(performance.now() - t0),
-      details: `read:${canViewCases} noCreate:${cannotWrite} noEscrow:${cannotEscrow} lowerLevel:${levelIsLow}`,
+      details: `dashboard:${canSeeDashboard} ai:${canUseAI} noFinance:${cannotFinance} noAdmin:${cannotAdmin} lowerLevel:${levelIsLow}`,
     });
   })();
 
   // ─────────────────────────────────────────────────────────────
-  // JORNADA 4: Secretária — Agenda, Documentos e Suporte
+  // JORNADA 4: Secretária — Agenda e Documentos, Sem Financeiro
   // ─────────────────────────────────────────────────────────────
   (() => {
     const t0 = performance.now();
     const role: SystemRole = 'secretary';
-    const canReadCases    = hasPermission(role, 'cases:read');
+    const canSeeDashboard = hasPermission(role, 'secretary:dashboard');
+    const canReadServices = hasPermission(role, 'services:read');
     const cannotAdmin     = !hasPermission(role, 'admin:manage_staff');
-    const cannotEscrow    = !hasPermission(role, 'escrow:manage');
-    const passed = canReadCases && cannotAdmin && cannotEscrow;
+    const cannotFinance   = !hasPermission(role, 'finance:write');
+    const passed = canSeeDashboard && canReadServices && cannotAdmin && cannotFinance;
     results.push({
       persona: 'Secretária',
-      journeyName: 'Agendamento → Suporte Documental → Sem Acesso Financeiro',
+      journeyName: 'Dashboard → Serviços → Sem Gestão de Staff e Financeiro',
       passed,
       durationMs: Math.round(performance.now() - t0),
-      details: `read:${canReadCases} noAdmin:${cannotAdmin} noEscrow:${cannotEscrow}`,
+      details: `dashboard:${canSeeDashboard} services:${canReadServices} noAdmin:${cannotAdmin} noFinance:${cannotFinance}`,
     });
   })();
 
   // ─────────────────────────────────────────────────────────────
-  // JORNADA 5: Compliance Auditor — Somente Leitura de Auditoria
+  // JORNADA 5: Compliance Auditor — Auditoria Somente Leitura
   // ─────────────────────────────────────────────────────────────
   (() => {
     const t0 = performance.now();
     const role: SystemRole = 'staff_compliance_auditor';
-    const canReadAudit    = hasPermission(role, 'audit:read');
-    const cannotWrite     = !hasPermission(role, 'cases:create');
-    const cannotImpersonate = !hasPermission(role, 'admin:impersonate');
-    const passed = canReadAudit && cannotWrite && cannotImpersonate;
+    const canReadAudit      = hasPermission(role, 'audit:read');
+    const canReadRegs       = hasPermission(role, 'registrations:read');
+    const cannotFinance     = !hasPermission(role, 'finance:write');
+    const cannotImpersonate = !canImpersonate(role);
+    const passed = canReadAudit && canReadRegs && cannotFinance && cannotImpersonate;
     results.push({
       persona: 'Staff — Compliance Auditor',
-      journeyName: 'Leitura Auditoria → Bloqueio Criação → Sem Impersonação',
+      journeyName: 'Leitura Auditoria → Registros → Sem Financeiro e Impersonação',
       passed,
       durationMs: Math.round(performance.now() - t0),
-      details: `audit:${canReadAudit} noCreate:${cannotWrite} noImpersonate:${cannotImpersonate}`,
+      details: `audit:${canReadAudit} regs:${canReadRegs} noFinance:${cannotFinance} noImpersonate:${cannotImpersonate}`,
     });
   })();
 
   // ─────────────────────────────────────────────────────────────
-  // JORNADA 6: Finance Admin — Acesso Financeiro Delegado
+  // JORNADA 6: Finance Admin — Acesso Financeiro Completo
   // ─────────────────────────────────────────────────────────────
   (() => {
     const t0 = performance.now();
     const role: SystemRole = 'staff_finance_admin';
-    const canReadFinancial = hasPermission(role, 'financial:read');
-    const canManageEscrow  = hasPermission(role, 'escrow:manage');
+    const canReadFinance    = hasPermission(role, 'finance:read');
+    const canWriteFinance   = hasPermission(role, 'finance:write');
+    const canManageProvis   = hasPermission(role, 'provisioning:manage');
     const cannotManageStaff = !hasPermission(role, 'admin:manage_staff');
-    const passed = canReadFinancial && canManageEscrow && cannotManageStaff;
+    const passed = canReadFinance && canWriteFinance && canManageProvis && cannotManageStaff;
     results.push({
       persona: 'Staff — Finance Admin',
-      journeyName: 'Painel Financeiro → Gerenciamento Escrow → Sem Gestão de Staff',
+      journeyName: 'Painel Financeiro Completo → Provisionamento → Sem Gestão Staff',
       passed,
       durationMs: Math.round(performance.now() - t0),
-      details: `financial:${canReadFinancial} escrow:${canManageEscrow} noStaffMgmt:${cannotManageStaff}`,
+      details: `finRead:${canReadFinance} finWrite:${canWriteFinance} provisioning:${canManageProvis} noStaffMgmt:${cannotManageStaff}`,
     });
   })();
 
   // ─────────────────────────────────────────────────────────────
-  // JORNADA 7: Admin — Gestão Operacional da Plataforma
+  // JORNADA 7: Admin — Gestão Operacional Plena
   // ─────────────────────────────────────────────────────────────
   (() => {
     const t0 = performance.now();
     const role: SystemRole = 'admin';
-    const canManageStaff  = hasPermission(role, 'admin:manage_staff');
-    const canViewAllCases = hasPermission(role, 'admin:view_all_cases');
-    const cannotImpersonate = !hasPermission(role, 'admin:impersonate');
-    const levelBelowSuper = ROLE_LEVELS[role] < ROLE_LEVELS['super_admin'];
-    const passed = canManageStaff && canViewAllCases && cannotImpersonate && levelBelowSuper;
+    const canManageStaff    = hasPermission(role, 'admin:manage_staff');
+    const canReadAdmin      = hasPermission(role, 'admin:read');
+    const cannotImpersonate = !canImpersonate(role);
+    const levelBelowSuper   = ROLE_LEVELS[role] < ROLE_LEVELS['super_admin'];
+    const passed = canManageStaff && canReadAdmin && cannotImpersonate && levelBelowSuper;
     results.push({
       persona: 'Admin',
-      journeyName: 'Gestão de Staff → Todos os Casos → Sem Impersonação',
+      journeyName: 'Gestão de Staff → Leitura Admin → Sem Impersonação',
       passed,
       durationMs: Math.round(performance.now() - t0),
-      details: `staff:${canManageStaff} allCases:${canViewAllCases} noImpersonate:${cannotImpersonate} levelOk:${levelBelowSuper}`,
+      details: `staff:${canManageStaff} adminRead:${canReadAdmin} noImpersonate:${cannotImpersonate} levelOk:${levelBelowSuper}`,
     });
   })();
 
@@ -166,16 +171,17 @@ export async function runUxJourneysSimulationTests(): Promise<JourneyTestResult[
     const t0 = performance.now();
     const role: SystemRole = 'super_admin';
     const canManageAll    = hasPermission(role, 'admin:manage_staff');
-    const canImpersonate  = hasPermission(role, 'admin:impersonate');
-    const canDeleteAudit  = hasPermission(role, 'audit:delete');
+    const canImpersonateUser = canImpersonate(role);
+    const canAuditWrite   = hasPermission(role, 'audit:write');
+    const canSystemConfig = hasPermission(role, 'system:config');
     const hasMaxLevel     = ROLE_LEVELS[role] === 9;
-    const passed = canManageAll && canImpersonate && canDeleteAudit && hasMaxLevel;
+    const passed = canManageAll && canImpersonateUser && canAuditWrite && canSystemConfig && hasMaxLevel;
     results.push({
       persona: 'Super Admin',
-      journeyName: 'Acesso Total → Impersonação → Deleção de Auditoria → Level 9',
+      journeyName: 'Acesso Total → Impersonação → Audit Write → System Config → Level 9',
       passed,
       durationMs: Math.round(performance.now() - t0),
-      details: `manageAll:${canManageAll} impersonate:${canImpersonate} deleteAudit:${canDeleteAudit} maxLevel:${hasMaxLevel}`,
+      details: `manageAll:${canManageAll} impersonate:${canImpersonateUser} auditWrite:${canAuditWrite} sysConfig:${canSystemConfig} maxLevel:${hasMaxLevel}`,
     });
   })();
 
