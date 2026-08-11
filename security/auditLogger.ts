@@ -187,6 +187,11 @@ export const AuditLogger = {
     return readLogs();
   },
 
+  /** Aliás para getAll() */
+  getLogs(): AuditEntry[] {
+    return this.getAll();
+  },
+
   /**
    * Retorna logs filtrados por ação, ator ou severidade.
    */
