@@ -1,5 +1,6 @@
 export interface Processo {
   id_processo: number;
+  numero?: string;
   departamento: 'Cível' | 'Trabalhista' | 'Societário';
   advogado: string;
   gestor: string;
@@ -7,7 +8,7 @@ export interface Processo {
   data_conclusao?: string | null;
   status: 'Em Andamento' | 'Concluído' | 'Aguardando Documentação';
   valor: number;
-  tempo: number; // calculado
+  tempo: number; // calculated
   clientName?: string;
   clientCpf?: string;
 }
