@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getConsolidatedBiMetrics, BiMetricsResult } from '../../lib/biAnalyticsEngine';
 
+import { exportBiReportPdf, exportBiReportExcel } from '../../services/biExporterService';
+
 interface BiAnalyticsModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -12,7 +14,7 @@ export const BiAnalyticsModal: React.FC<BiAnalyticsModalProps> = ({
 }) => {
   const [metrics, setMetrics] = useState<BiMetricsResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [exportSuccess, setExportSuccess] = useState(false);
+  const [exportSuccess, setExportSuccess] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -29,9 +31,18 @@ export const BiAnalyticsModal: React.FC<BiAnalyticsModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleExportReport = () => {
-    setExportSuccess(true);
-    setTimeout(() => setExportSuccess(false), 3000);
+  const handleExportPdf = () => {
+    if (!metrics) return;
+    exportBiReportPdf(metrics);
+    setExportSuccess('PDF Exportado!');
+    setTimeout(() => setExportSuccess(null), 3000);
+  };
+
+  const handleExportExcel = () => {
+    if (!metrics) return;
+    exportBiReportExcel(metrics);
+    setExportSuccess('Excel Exportado!');
+    setTimeout(() => setExportSuccess(null), 3000);
   };
 
   return (
@@ -141,12 +152,20 @@ export const BiAnalyticsModal: React.FC<BiAnalyticsModalProps> = ({
                     </div>
                   </div>
                 </div>
-                <button
-                  onClick={handleExportReport}
-                  className="px-4 py-2 bg-emerald-600 text-white font-bold rounded-xl text-xs hover:bg-emerald-700 transition-all shadow shrink-0"
-                >
-                  {exportSuccess ? '✓ Relatório Gerado!' : '📄 Exportar Relatório DPO (PDF)'}
-                </button>
+                <div className="flex gap-2 shrink-0">
+                  <button
+                    onClick={handleExportPdf}
+                    className="px-3 py-2 bg-emerald-600 text-white font-bold rounded-xl text-xs hover:bg-emerald-700 transition-all shadow flex items-center gap-1"
+                  >
+                    📄 Exportar PDF
+                  </button>
+                  <button
+                    onClick={handleExportExcel}
+                    className="px-3 py-2 bg-blue-600 text-white font-bold rounded-xl text-xs hover:bg-blue-700 transition-all shadow flex items-center gap-1"
+                  >
+                    📊 Exportar Excel
+                  </button>
+                </div>
               </div>
 
             </div>
