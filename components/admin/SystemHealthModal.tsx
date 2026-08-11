@@ -135,7 +135,7 @@ export const SystemHealthModal: React.FC<SystemHealthModalProps> = ({ isOpen, on
               <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Diagnostic Checks</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {healthStatus?.checks &&
-                  Object.entries(healthStatus.checks).map(([key, check]) => (
+                  Object.entries(healthStatus.checks).map(([key, check]: [string, { ok: boolean; latencyMs?: number; error?: string }]) => (
                     <div
                       key={key}
                       className="p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 flex flex-col justify-between"
@@ -171,7 +171,7 @@ export const SystemHealthModal: React.FC<SystemHealthModalProps> = ({ isOpen, on
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {performanceSummary?.metrics &&
-                  Object.entries(performanceSummary.metrics).map(([name, m]) => (
+                  Object.entries(performanceSummary.metrics).map(([name, m]: [string, import('../../lib/performanceMetricsEngine').MetricEntry]) => (
                     <div key={name} className="p-4 rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10">
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-xs font-bold text-gray-900 dark:text-white">{name}</span>
