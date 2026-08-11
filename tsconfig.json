@@ -25,5 +25,15 @@
     },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "platform",
+    "services/ai-orchestrator-service",
+    "services/identity-service",
+    "services/search-intelligence-service",
+    "services/soc-sentinel-service",
+    "tests/e2e"
+  ]
 }
