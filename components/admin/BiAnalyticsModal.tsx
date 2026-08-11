@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getConsolidatedBiMetrics, BiMetricsResult } from '../../lib/biAnalyticsEngine';
+import { BiDrillDownView } from './BiDrillDownView';
 
 import { exportBiReportPdf, exportBiReportExcel } from '../../services/biExporterService';
 
@@ -15,6 +16,7 @@ export const BiAnalyticsModal: React.FC<BiAnalyticsModalProps> = ({
   const [metrics, setMetrics] = useState<BiMetricsResult | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [exportSuccess, setExportSuccess] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'kpi' | 'drilldown'>('kpi');
 
   useEffect(() => {
     let isMounted = true;
@@ -58,6 +60,24 @@ export const BiAnalyticsModal: React.FC<BiAnalyticsModalProps> = ({
             <h2 className="text-xl md:text-2xl font-extrabold text-gray-900 dark:text-white mt-1">
               Painel de Inteligência Financeira & Auditoria de Conformidade
             </h2>
+            <div className="flex gap-2 mt-2">
+              <button
+                onClick={() => setViewMode('kpi')}
+                className={`text-[10px] font-bold px-3 py-1 rounded-full transition-all ${
+                  viewMode === 'kpi' ? 'bg-amber-500 text-white' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                }`}
+              >
+                📊 Visão KPI Executiva
+              </button>
+              <button
+                onClick={() => setViewMode('drilldown')}
+                className={`text-[10px] font-bold px-3 py-1 rounded-full transition-all ${
+                  viewMode === 'drilldown' ? 'bg-purple-600 text-white' : 'bg-purple-500/10 text-purple-600 dark:text-purple-400'
+                }`}
+              >
+                🔍 Drill-Through de Transações
+              </button>
+            </div>
           </div>
           <button
             onClick={onClose}
