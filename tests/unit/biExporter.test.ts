@@ -53,7 +53,7 @@ export async function runBiExporterTests(): Promise<BiExporterTestResult[]> {
     const isValidSar = Boolean(
       sarRecord &&
       sarRecord.userEmail === 'titular.teste@legisconnect.com.br' &&
-      sarRecord.status === 'COMPLETED'
+      sarRecord.status === 'completed'
     );
 
     results.push({
