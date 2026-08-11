@@ -60,8 +60,8 @@ export async function runUmlSequenceTests(): Promise<SequenceTestResult[]> {
     const t0 = performance.now();
     // Passo 1: Leitura do relato do caso e chamada ao copiloto
     const aiResponse = await chatWithGemini(
-      'Necessito de auxílio em ação trabalhista por horas extras acumuladas em contrato comercial',
-      []
+      [],
+      'Necessito de auxílio em ação trabalhista por horas extras acumuladas em contrato comercial'
     );
 
     const hasContent = Boolean(aiResponse && aiResponse.length > 0);
