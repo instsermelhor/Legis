@@ -47,6 +47,7 @@ export interface FinancialTransaction {
   amount: number;
   status: 'recebido' | 'pendente' | 'inadimplente';
   caseId?: string;
+  lawyerId?: number;
 }
 
 // ─── Default Config ───────────────────────────────────────────────────────────
