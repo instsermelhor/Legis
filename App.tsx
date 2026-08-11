@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, Suspense, lazy } from 'react';
+import { canAccessView } from './security/rbac';
 import { onAuthStateChange, signOut as supabaseSignOut, isSupabaseConfigured } from './lib/auth';
 // ── Layout (carregado de imediato — sempre visível) ────────────────────────
 import { Header } from './components/layout/Header';
@@ -98,14 +99,12 @@ const App: React.FC = () => {
     const savedView = localStorage.getItem('legis_currentView') as View | null;
     const savedUser = localStorage.getItem('legis_user');
     const parsedUser = savedUser ? (() => { try { return JSON.parse(savedUser); } catch { return null; } })() : null;
-    if (savedView === 'adminDashboard' && parsedUser?.role !== 'admin' && parsedUser?.role !== 'super_admin') return 'landing';
-    if (savedView === 'superAdminDashboard' && parsedUser?.role !== 'super_admin') return 'landing';
-    if (savedView === 'lawyerDashboard' && parsedUser?.role !== 'lawyer') return 'landing';
-    if (savedView === 'internDashboard' && parsedUser?.role !== 'intern') return 'landing';
-    if (savedView === 'secretariadoDashboard' && parsedUser?.role !== 'secretary') return 'landing';
+    // V-004 FIX: Validar view restaurada contra RBAC engine, não apenas via localStorage
+    if (savedView && savedView !== 'landing') {
+      const role = parsedUser?.role ?? 'client';
+      if (!canAccessView(role, savedView as View)) return 'landing';
+    }
     if (savedView === 'dashboard' && !parsedUser) return 'landing';
-    // Protege views super admin
-    if (['forcePasswordChange','mfaSetup','mfaChallenge','delegationManager','myAdminProfile'].includes(savedView || '') && !parsedUser) return 'landing';
     return savedView || 'landing';
   });
   const [user, setUser] = useState<User | null>(() => {
@@ -216,13 +215,15 @@ const App: React.FC = () => {
   const handleNavigate = useCallback((view: View, overrideUser?: User | null) => {
     window.scrollTo(0, 0);
     const activeUser = overrideUser !== undefined ? overrideUser : user;
-    // Rotas protegidas
-    if (view === 'adminDashboard' && activeUser?.role !== 'admin' && activeUser?.role !== 'super_admin') {
-      setCurrentView('login');
-      return;
-    }
-    if (view === 'superAdminDashboard' && activeUser?.role !== 'super_admin') {
-      setCurrentView('adminLogin');
+    // V-001 & V-002 FIX: Usar canAccessView() do RBAC engine — DENY BY DEFAULT
+    const activeRole = activeUser?.role ?? 'client';
+    if (!canAccessView(activeRole, view)) {
+      // Redirecionar para login apropriado baseado no contexto
+      if (view === 'superAdminDashboard' || view === 'adminDashboard') {
+        setCurrentView('adminLogin');
+      } else {
+        setCurrentView('login');
+      }
       return;
     }
     if (view === 'dashboard') {
@@ -713,7 +714,8 @@ const App: React.FC = () => {
       case 'adminDashboard':
         return <AdminDashboard onNavigate={handleNavigate} onLogout={handleLogout} />;
       case 'superAdminDashboard':
-        return (user?.role === 'super_admin' || user?.role === 'admin')
+        // V-002 FIX: superAdminDashboard é EXCLUSIVO de super_admin — admin não tem acesso
+        return user?.role === 'super_admin'
           ? <SuperAdminDashboard onNavigate={handleNavigate} onLogout={handleLogout} user={user} />
           : <AdminLoginPage onLogin={handleLogin} onBackToSite={() => setCurrentView('landing')} />;
       case 'forcePasswordChange':
@@ -726,11 +728,12 @@ const App: React.FC = () => {
       case 'mfaChallenge':
         return <MfaChallengePage onVerified={() => setCurrentView(user?.role === 'super_admin' ? 'superAdminDashboard' : 'adminDashboard')} onCancel={() => setCurrentView('adminLogin')} />;
       case 'delegationManager':
-        return (user?.role === 'super_admin' || user?.role === 'admin')
+        // delegationManager requer roles:delegate — admin e super_admin
+        return canAccessView(user?.role ?? 'client', 'delegationManager')
           ? <DelegationManager onNavigate={handleNavigate} onBack={() => setCurrentView('superAdminDashboard')} />
           : <AdminLoginPage onLogin={handleLogin} onBackToSite={() => setCurrentView('landing')} />;
       case 'myAdminProfile':
-        return (user?.role === 'super_admin' || user?.role === 'admin')
+        return canAccessView(user?.role ?? 'client', 'myAdminProfile')
           ? <MyAdminProfile onNavigate={handleNavigate} onBack={() => setCurrentView(user?.role === 'super_admin' ? 'superAdminDashboard' : 'adminDashboard')} user={user} />
           : <AdminLoginPage onLogin={handleLogin} onBackToSite={() => setCurrentView('landing')} />;
       case 'adminLogin':
