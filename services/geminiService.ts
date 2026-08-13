@@ -1,11 +1,10 @@
 import { GoogleGenAI, Type } from "@google/genai";
-// FIX: Corrected import paths for local modules.
 import { AREAS_OF_LAW } from '../constants';
 import type { CaseAnalysis, ChatMessage, MapsSearchResult, GroundingChunk } from '../types';
 
 // ─── Proxy helper (VULN-004 fix: API Key remains on server) ───────────────────
 const PROXY_URL = process.env.GEMINI_PROXY_URL || '/api/gemini';
-const IS_PROXY_MODE = process.env.API_KEY === 'USE_PROXY' || process.env.GEMINI_API_KEY === 'USE_PROXY';
+const IS_PROXY_MODE = process.env.API_KEY === 'USE_PROXY' || process.env.GEMINI_API_KEY === 'USE_PROXY' || !process.env.GEMINI_API_KEY;
 
 async function callGeminiProxy(payload: { model?: string; contents: unknown; generationConfig?: unknown }) {
   const response = await fetch(PROXY_URL, {
@@ -29,7 +28,9 @@ const getAI = () => {
     return null;
   }
 };
+
 const ai = getAI();
+
 export async function analyzeCaseWithGemini(description: string): Promise<CaseAnalysis> {
   const model = "gemini-2.5-flash";
 
@@ -70,23 +71,27 @@ You must respond in JSON format.`;
   };
 
   try {
-    // FIX: Use ai.models.generateContent to make API calls.
-    const response = await ai.models.generateContent({
-      model: model,
-      contents: description,
-      config: {
-        systemInstruction,
-        responseMimeType: "application/json",
-        responseSchema: responseSchema,
-      },
-    });
+    let jsonStr = '';
+    if (!ai) {
+      const data = await callGeminiProxy({
+        model,
+        contents: [{ parts: [{ text: `${systemInstruction}\n\nCase description: ${description}` }] }],
+      });
+      jsonStr = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    } else {
+      const response = await ai.models.generateContent({
+        model: model,
+        contents: description,
+        config: {
+          systemInstruction,
+          responseMimeType: "application/json",
+          responseSchema: responseSchema,
+        },
+      });
+      jsonStr = response.text || '';
+    }
 
-    // FIX: Access the response text directly from response.text.
-    const text = response.text;
-
-    // FIX: Trim whitespace which can sometimes be returned by the API.
-    const jsonStr = text.trim();
-    const result: CaseAnalysis = JSON.parse(jsonStr);
+    const result: CaseAnalysis = JSON.parse(jsonStr.trim());
     return result;
   } catch (error) {
     console.error("Error analyzing case with Gemini:", error);
@@ -110,27 +115,36 @@ export async function findPlacesWithMaps(description: string, location?: { latit
           longitude: location.longitude,
         }
       }
-    }
+    };
   }
 
   try {
-    const response = await ai.models.generateContent({
-      model: model,
-      contents: prompt,
-      config: config,
-    });
+    let text = '';
+    let groundingChunks: GroundingChunk[] = [];
 
-    const text = response.text;
-    const groundingChunks = (response.candidates?.[0]?.groundingMetadata?.groundingChunks || []) as unknown as GroundingChunk[];
+    if (!ai) {
+      const data = await callGeminiProxy({
+        model,
+        contents: [{ parts: [{ text: prompt }] }],
+      });
+      text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      groundingChunks = (data.candidates?.[0]?.groundingMetadata?.groundingChunks || []) as GroundingChunk[];
+    } else {
+      const response = await ai.models.generateContent({
+        model: model,
+        contents: prompt,
+        config: config,
+      });
+      text = response.text || '';
+      groundingChunks = (response.candidates?.[0]?.groundingMetadata?.groundingChunks || []) as unknown as GroundingChunk[];
+    }
 
     return { text, groundingChunks };
   } catch (error) {
     console.error("Error finding places with Maps Grounding:", error);
-    // Return an empty result instead of throwing, so the UI can still display the mock results
     return { text: 'Não foi possível buscar sugestões do Google Maps no momento.', groundingChunks: [] };
   }
 }
-
 
 export async function chatWithGemini(history: ChatMessage[], newMessage: string): Promise<string> {
   const model = 'gemini-2.5-flash';
@@ -141,15 +155,30 @@ Your purpose is to answer user questions about:
 3.  General questions about the status of a legal case (e.g., "what does 'in instruction phase' mean?").
 
 IMPORTANT rules:
-- You MUST NOT provide legal advice. If a user asks for advice on their specific situation, you must decline and recommend they consult with a qualified lawyer through the platform. For example, say: "Não posso fornecer aconselhamento jurídico, pois não sou um advogado. Para obter ajuda com seu caso específico, recomendo que você encontre um especialista aqui na plataforma."
+- You MUST NOT provide legal advice. If a user asks for advice on their specific situation, you must decline and recommend they consult with a qualified lawyer through the platform.
 - Keep your answers concise and easy to understand.
 - Be polite and professional.
 - Your responses must be in Brazilian Portuguese.`;
 
   try {
-    const chat = ai.chats.create({ model, history, config: { systemInstruction } });
-    const response = await chat.sendMessage({ message: newMessage });
-    return response.text;
+    if (!ai) {
+      const formattedHistory = history.map(msg => ({
+        role: msg.sender === 'user' ? 'user' : 'model',
+        parts: [{ text: msg.text }],
+      }));
+      formattedHistory.push({ role: 'user', parts: [{ text: newMessage }] });
+
+      const data = await callGeminiProxy({
+        model,
+        contents: formattedHistory,
+        generationConfig: { systemInstruction },
+      });
+      return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    } else {
+      const chat = ai.chats.create({ model, history, config: { systemInstruction } });
+      const response = await chat.sendMessage({ message: newMessage });
+      return response.text || '';
+    }
   } catch (error) {
     console.error("Error in chat with Gemini:", error);
     throw new Error("Failed to get a response from the AI assistant.");
