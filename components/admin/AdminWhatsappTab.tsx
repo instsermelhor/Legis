@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 export const AdminWhatsappTab: React.FC = () => {
   const [phone, setPhone] = useState('+55 11 98888-7777');
-  const [apiKey, setApiKey] = useState('waba_live_sec_9938475892019348');
+  const [apiKey, setApiKey] = useState('');
   const [templateAppointments, setTemplateAppointments] = useState(true);
   const [templatePaymentReminders, setTemplatePaymentReminders] = useState(true);
   const [templateCaseUpdates, setTemplateCaseUpdates] = useState(true);
