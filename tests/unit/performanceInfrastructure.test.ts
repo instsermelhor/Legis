@@ -8,6 +8,7 @@
 
 import { performanceMetricsEngine } from '../../lib/performanceMetricsEngine';
 import { infrastructureCacheManager, clientRateLimiter, sanitizePayload } from '../../lib/infrastructureCacheManager';
+import { runHealthCheck, getSlaMetrics } from '../../lib/monitoring';
 
 export interface PerformanceTestResult {
   suite: string;
@@ -99,6 +100,20 @@ export async function runPerformanceInfrastructureTests(): Promise<{
       testName: 'Mascaramento automático de campos sensíveis (password/token)',
       passed,
       details: `password:${sanitized.password}, token:${sanitized.token}`,
+    });
+  })();
+
+  // TEST 5: Health Check & SLA Engine — Validação de runHealthCheck e getSlaMetrics
+  await (async () => {
+    const hc = await runHealthCheck();
+    const sla = getSlaMetrics();
+    const passed = (hc.status === 'healthy' || hc.status === 'degraded') && sla.targetUptime === 99.9 && sla.calculatedUptime >= 98;
+
+    results.push({
+      suite: 'HealthCheckSlaEngine',
+      testName: 'Verificação de Saúde do Sistema e Cálculo de SLA (Target 99.9%)',
+      passed,
+      details: `status:${hc.status}, uptime:${sla.calculatedUptime}%, errors:${sla.errorCount}`,
     });
   })();
 
