@@ -12,15 +12,27 @@
  *      VITE_SUPABASE_URL=https://xxxx.supabase.co
  *      VITE_SUPABASE_ANON_KEY=eyJ...
  *
+ * SEGURANÇA:
+ *  - Apenas VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY (chave pública).
+ *  - A chave service_role NUNCA deve aparecer aqui ou no frontend.
+ *  - Row-Level Security (RLS) garante isolamento de dados no banco.
  * ────────────────────────────────────────────────────────────────────────────
  */
 
-import { createClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from './database.types';
 
-const supabaseUrl = (import.meta as any).env?.VITE_SUPABASE_URL as string;
-const supabaseKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY as string;
+const supabaseUrl = (import.meta as any).env?.VITE_SUPABASE_URL as string | undefined;
+const supabaseKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY as string | undefined;
 
-if (!supabaseUrl || !supabaseKey) {
+/** Verifica se o Supabase está configurado com credenciais reais. */
+export const isSupabaseConfigured =
+  !!supabaseUrl &&
+  supabaseUrl !== 'https://placeholder.supabase.co' &&
+  !!supabaseKey &&
+  supabaseKey !== 'placeholder-key';
+
+if (!isSupabaseConfigured) {
   console.warn(
     '[Legis Connect] Supabase não configurado. ' +
     'Crie o arquivo .env.local com VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY. ' +
@@ -29,10 +41,10 @@ if (!supabaseUrl || !supabaseKey) {
 }
 
 /**
- * Cliente Supabase principal — use este em toda a aplicação.
+ * Cliente Supabase principal tipado com o schema do banco.
  * Já gerencia sessão JWT automaticamente (refresh token, persistência).
  */
-export const supabase = createClient(
+export const supabase: SupabaseClient<Database> = createClient<Database>(
   supabaseUrl ?? 'https://placeholder.supabase.co',
   supabaseKey ?? 'placeholder-key',
   {
@@ -41,15 +53,13 @@ export const supabase = createClient(
       autoRefreshToken: true,
       detectSessionInUrl: true,
     },
+    global: {
+      headers: {
+        'x-application-name': 'legis-connect',
+      },
+    },
   }
 );
-
-/** Verifica se o Supabase está configurado com credenciais reais. */
-export const isSupabaseConfigured =
-  !!supabaseUrl &&
-  supabaseUrl !== 'https://placeholder.supabase.co' &&
-  !!supabaseKey &&
-  supabaseKey !== 'placeholder-key';
 
 /** Retorna o usuário autenticado atual (ou null se não logado). */
 export async function getCurrentUser() {
