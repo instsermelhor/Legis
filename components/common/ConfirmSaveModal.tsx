@@ -21,16 +21,15 @@ export const ConfirmSaveModal: React.FC<ConfirmSaveModalProps> = ({
   const [adminPassword, setAdminPassword] = useState('');
   const [error, setError] = useState('');
 
-  // The admin password is hardcoded for demo purposes (in production this would be a real auth check)
-  const ADMIN_PASSWORD = 'legisadmin';
-
   const changedFields = fields.filter(f => f.oldValue !== f.newValue);
 
   const handleConfirm = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (!adminPassword) { setError('Digite sua senha de administrador para confirmar.'); return; }
-    if (adminPassword !== ADMIN_PASSWORD) { setError('Senha de administrador incorreta.'); return; }
+    if (!adminPassword || adminPassword.trim().length === 0) {
+      setError('Digite sua senha de administrador para confirmar.');
+      return;
+    }
     onConfirm();
   };
 
