@@ -13,6 +13,8 @@ import { logLogout } from '../security/auditLogger';
 import type { SystemRole } from '../security/rbac';
 import type { View } from '../types';
 
+import { TenantService, PLATFORM_TENANT_ID, DEFAULT_TENANT_ID } from '../services/tenantService';
+
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 export interface AuthStaffState {
   staff: Omit<PlatformStaff, 'password'>;
@@ -20,6 +22,8 @@ export interface AuthStaffState {
 }
 
 export interface AuthContextValue {
+  /** Tenant ID ativo no contexto de autenticação */
+  currentTenantId: string;
   /** Colaborador administrativo autenticado (staff/super admin) */
   authStaff: AuthStaffState | null;
   /** Indica se está autenticado */
@@ -88,6 +92,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isAuthenticated = authStaff !== null;
   const isSuperAdmin = authStaff?.staff.role === 'super_admin';
   const isAdmin = authStaff?.staff.role === 'admin' || isSuperAdmin;
+  const currentTenantId = authStaff
+    ? (isSuperAdmin ? PLATFORM_TENANT_ID : DEFAULT_TENANT_ID)
+    : DEFAULT_TENANT_ID;
 
   // Persiste staff na sessão (sem a senha)
   useEffect(() => {
@@ -213,6 +220,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [authStaff]);
 
   const value: AuthContextValue = {
+    currentTenantId,
     authStaff,
     isAuthenticated,
     isSuperAdmin,
