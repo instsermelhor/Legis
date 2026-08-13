@@ -257,9 +257,9 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
       if (parsed.length <= 1 && !localStorage.getItem('legis_admin_users_seeded')) {
         const fullMock = [
           ...parsed,
-          { id: 101, name: 'Ana Costa', email: 'ana.costa@legisconnect.com.br', password: 'admin', role: 'admin' as const, createdAt: '2024-02-15', active: true },
-          { id: 102, name: 'Carlos Souza', email: 'carlos.souza@legisconnect.com.br', password: 'admin', role: 'manager' as const, createdAt: '2024-03-10', active: true },
-          { id: 103, name: 'Julia Lima', email: 'julia.lima@legisconnect.com.br', password: 'admin', role: 'collaborator' as const, createdAt: '2024-04-01', active: true }
+          { id: 101, name: 'Ana Costa', email: 'ana.costa@legisconnect.com.br', password: '$locked$', role: 'admin' as const, createdAt: '2024-02-15', active: true },
+          { id: 102, name: 'Carlos Souza', email: 'carlos.souza@legisconnect.com.br', password: '$locked$', role: 'manager' as const, createdAt: '2024-03-10', active: true },
+          { id: 103, name: 'Julia Lima', email: 'julia.lima@legisconnect.com.br', password: '$locked$', role: 'collaborator' as const, createdAt: '2024-04-01', active: true }
         ];
         localStorage.setItem('legis_admin_users', JSON.stringify(fullMock));
         localStorage.setItem('legis_admin_users_seeded', '1');
@@ -269,9 +269,9 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
     } else {
       const defaultAdmins = [
         ...mockAdminUsers,
-        { id: 101, name: 'Ana Costa', email: 'ana.costa@legisconnect.com.br', password: 'admin', role: 'admin' as const, createdAt: '2024-02-15', active: true },
-        { id: 102, name: 'Carlos Souza', email: 'carlos.souza@legisconnect.com.br', password: 'admin', role: 'manager' as const, createdAt: '2024-03-10', active: true },
-        { id: 103, name: 'Julia Lima', email: 'julia.lima@legisconnect.com.br', password: 'admin', role: 'collaborator' as const, createdAt: '2024-04-01', active: true }
+        { id: 101, name: 'Ana Costa', email: 'ana.costa@legisconnect.com.br', password: '$locked$', role: 'admin' as const, createdAt: '2024-02-15', active: true },
+        { id: 102, name: 'Carlos Souza', email: 'carlos.souza@legisconnect.com.br', password: '$locked$', role: 'manager' as const, createdAt: '2024-03-10', active: true },
+        { id: 103, name: 'Julia Lima', email: 'julia.lima@legisconnect.com.br', password: '$locked$', role: 'collaborator' as const, createdAt: '2024-04-01', active: true }
       ];
       localStorage.setItem('legis_admin_users', JSON.stringify(defaultAdmins));
       return defaultAdmins;
