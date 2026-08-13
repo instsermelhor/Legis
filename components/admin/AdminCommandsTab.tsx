@@ -382,6 +382,29 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
     if (onDataChange) onDataChange();
   };
 
+  // Cancel Intern supervisor assignment
+  const handleUnlinkIntern = (internId: number) => {
+    let lawyerId: number | undefined;
+
+    const updated = interns.map(i => {
+      if (i.id === internId) {
+        lawyerId = i.supervisorLawyerId;
+        const copy = { ...i };
+        delete copy.supervisorLawyerId;
+        return copy;
+      }
+      return i;
+    });
+
+    if (lawyerId) {
+      localStorage.removeItem(`legis_lawyer_linked_intern_${lawyerId}`);
+    }
+    setLocalInterns(updated);
+    localStorage.setItem('legis_interns', JSON.stringify(updated));
+    alert('Vínculo de supervisão removido com sucesso.');
+    if (onDataChange) onDataChange();
+  };
+
   // Delegate / link Secretary to Lawyer
   const handleLinkSecretary = (secretaryId: number) => {
     const lawyerId = selectedSecretaryLawyer[secretaryId];
@@ -780,7 +803,7 @@ export const AdminCommandsTab: React.FC<AdminCommandsTabProps> = ({ onDataChange
                       <tr key={i.id} className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors">
                         <td className="px-5 py-3">
                           <p className="font-bold text-gray-900 dark:text-white">{i.name}</p>
-                          <p className="text-xs text-gray-400">{i.contact?.email || ''}</p>
+                          <p className="text-xs text-gray-400">{i.email || ''}</p>
                         </td>
                         <td className="px-5 py-3 text-xs">{i.university} ({i.semester})</td>
                         <td className="px-5 py-3">
