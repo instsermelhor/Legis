@@ -3,8 +3,7 @@
  * Suíte de Testes Unitários de Autenticação, Criptografia e RBAC Legis Connect
  */
 
-import { hashPasswordAsync } from '../../services/mockDataService';
-import { verifyPasswordHash } from '../../security/passwordPolicy';
+import { createPasswordHash, verifyPasswordHash } from '../../security/passwordPolicy';
 import { hasPermission, SystemRole } from '../../security/rbac';
 
 export interface TestResult {
@@ -22,8 +21,7 @@ export async function runAuthTests(): Promise<TestResult[]> {
   try {
     const t0 = performance.now();
     const testPass = 'SenhaSegura@2026';
-    const email = 'advogado.teste@legisconnect.com.br';
-    const hashed = await hashPasswordAsync(testPass, email);
+    const hashed = await createPasswordHash(testPass);
     const isValid = await verifyPasswordHash(testPass, hashed);
     const durationMs = Math.round(performance.now() - t0);
 
