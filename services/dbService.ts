@@ -31,6 +31,7 @@ export interface AppConfig {
 
 export interface ReceivedDocument {
   id: string;
+  tenantId?: string;
   name: string;
   type: 'pdf' | 'image';
   size: number;
@@ -41,6 +42,7 @@ export interface ReceivedDocument {
 
 export interface FinancialTransaction {
   id: string;
+  tenantId?: string;
   date: string;
   clientName: string;
   description: string;
