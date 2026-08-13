@@ -53,10 +53,10 @@ async function fetchUserProfile(authUser: User): Promise<SupabaseAuthUser | null
     .from('users')
     .select('id, email, role, name')
     .eq('id', authUser.id)
-    .single();
+    .single() as { data: { id: string; email: string; role: string; name: string } | null; error: unknown };
 
   if (error || !data) {
-    console.error('[SupabaseAuth] Erro ao buscar perfil do usuário:', error?.message);
+    console.error('[SupabaseAuth] Erro ao buscar perfil do usuário:', (error as any)?.message);
     return null;
   }
 

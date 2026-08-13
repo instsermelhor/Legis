@@ -3,7 +3,7 @@
  * Componente ErrorBoundary React para capturar exceções não tratadas (ISS-033)
  */
 
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import React, { type ErrorInfo, type ReactNode } from 'react';
 import { captureError } from '../../lib/monitoring';
 
 interface Props {
@@ -16,11 +16,18 @@ interface State {
   error: Error | null;
 }
 
-export class ErrorBoundary extends Component<Props, State> {
-  public state: State = {
-    hasError: false,
-    error: null,
-  };
+export class ErrorBoundary extends React.Component<Props, State> {
+  declare props: Props;
+  declare state: State;
+  declare setState: React.Component<Props, State>['setState'];
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null,
+    };
+  }
 
   public static getDerivedStateFromError(error: Error): State {
     return { hasError: true, error };

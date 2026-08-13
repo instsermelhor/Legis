@@ -86,7 +86,7 @@ export async function runPerformanceInfrastructureTests(): Promise<{
   (() => {
     const payload = {
       username: 'advogado1',
-      password: 'SecretPassword123!',
+      password: '$locked$',
       token: 'jwt_token_xyz',
       oab: 'SP123456',
     };

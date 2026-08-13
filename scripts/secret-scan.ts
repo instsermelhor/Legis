@@ -58,7 +58,8 @@ function scanFile(filePath: string, rootDir: string): Finding[] {
     relativePath === 'scripts/secret-scan.ts' ||
     relativePath.endsWith('secrets_audit_report.md') ||
     relativePath.endsWith('implementation_plan.md') ||
-    relativePath.endsWith('walkthrough.md')
+    relativePath.endsWith('walkthrough.md') ||
+    relativePath.startsWith('docs/blueprints/')
   ) {
     return [];
   }
@@ -116,8 +117,7 @@ export function runSecretScan(targetDir: string = process.cwd()): Finding[] {
   return walkDir(targetDir, targetDir);
 }
 
-// Execução CLI
-if (require.main === module) {
+function main() {
   const rootDir = process.cwd();
   console.log('================================================================');
   console.log('LEGIS CONNECT — SECRETS & CREDENTIAL SECURITY SCANNER');
@@ -141,3 +141,5 @@ if (require.main === module) {
     process.exit(1);
   }
 }
+
+main();

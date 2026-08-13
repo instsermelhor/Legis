@@ -1,6 +1,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { AREAS_OF_LAW } from '../constants';
-import type { CaseAnalysis, ChatMessage, MapsSearchResult, GroundingChunk } from '../types';
+import type { CaseAnalysis, ChatMessage, MapsSearchResult, GroundingChunk, Message } from '../types';
 
 // ─── Proxy helper (VULN-004 fix: API Key remains on server) ───────────────────
 const PROXY_URL = process.env.GEMINI_PROXY_URL || '/api/gemini';
@@ -146,7 +146,7 @@ export async function findPlacesWithMaps(description: string, location?: { latit
   }
 }
 
-export async function chatWithGemini(history: ChatMessage[], newMessage: string): Promise<string> {
+export async function chatWithGemini(history: (Message | ChatMessage)[], newMessage: string): Promise<string> {
   const model = 'gemini-2.5-flash';
   const systemInstruction = `You are "Legis Connect Assistente IA", a friendly and helpful AI assistant for the Legis Connect platform.
 Your purpose is to answer user questions about:
@@ -162,10 +162,15 @@ IMPORTANT rules:
 
   try {
     if (!ai) {
-      const formattedHistory = history.map(msg => ({
-        role: msg.sender === 'user' ? 'user' : 'model',
-        parts: [{ text: msg.text }],
-      }));
+      // Convert history to Gemini format (both Message and ChatMessage shapes supported)
+      const formattedHistory = history.map(msg => {
+        if ('sender' in msg) {
+          // Message shape: { sender, text }
+          return { role: (msg as Message).sender === 'client' ? 'user' : 'model', parts: [{ text: (msg as Message).text }] };
+        }
+        // ChatMessage shape: { role, parts }
+        return { role: (msg as ChatMessage).role, parts: (msg as ChatMessage).parts };
+      });
       formattedHistory.push({ role: 'user', parts: [{ text: newMessage }] });
 
       const data = await callGeminiProxy({
@@ -175,7 +180,7 @@ IMPORTANT rules:
       });
       return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
     } else {
-      const chat = ai.chats.create({ model, history, config: { systemInstruction } });
+      const chat = ai.chats.create({ model, history: history as any, config: { systemInstruction } });
       const response = await chat.sendMessage({ message: newMessage });
       return response.text || '';
     }

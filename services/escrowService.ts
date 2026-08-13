@@ -85,7 +85,7 @@ export const EscrowService = {
 
     if (isSupabaseConfigured) {
       try {
-        await supabase.from('invoices').insert({
+        await (supabase as any).from('invoices').insert({
           id: newEscrow.id,
           client_id: data.clientId,
           lawyer_id: data.lawyerId,

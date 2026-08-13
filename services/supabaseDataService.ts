@@ -47,6 +47,47 @@ export interface SupabaseCase {
   closedAt: string | null;
 }
 
+export interface SupabaseUserProfile {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  phone: string | null;
+}
+
+// ─── Tipos internos de query ──────────────────────────────────────────────────
+
+interface LawyerRow {
+  id: string;
+  user_id: string;
+  oab: string;
+  oab_uf: string;
+  bio: string | null;
+  specialties: string[];
+  location_city: string | null;
+  location_state: string | null;
+  location_lat: number | null;
+  location_lng: number | null;
+  photo_url: string | null;
+  rating: number;
+  review_count: number;
+  consultation_fee: number | null;
+  verified: boolean;
+  users: { name: string; email: string };
+}
+
+interface CaseRow {
+  id: string;
+  case_number: string | null;
+  title: string;
+  status: string;
+  client_id: string;
+  lawyer_id: string;
+  description: string | null;
+  opened_at: string;
+  closed_at: string | null;
+}
+
 // ─── Advogados ────────────────────────────────────────────────────────────────
 
 export const supabaseLawyerService = {
@@ -55,9 +96,9 @@ export const supabaseLawyerService = {
    * Retorna null quando Supabase não está configurado (usar fallback mock).
    */
   async getAll(): Promise<SupabaseLawyer[] | null> {
-    if (!isSupabaseConfigured || !supabase) return null;
+    if (!isSupabaseConfigured) return null;
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('lawyer_profiles')
       .select(`
         id,
@@ -79,14 +120,14 @@ export const supabaseLawyerService = {
       `)
       .eq('active', true)
       .eq('verified', true)
-      .order('rating', { ascending: false });
+      .order('rating', { ascending: false }) as { data: LawyerRow[] | null; error: { message: string } | null };
 
     if (error) {
       console.error('[SupabaseData] Erro ao buscar advogados:', error.message);
       return null;
     }
 
-    return (data ?? []).map((row: any) => ({
+    return (data ?? []).map((row) => ({
       id: row.id,
       userId: row.user_id,
       name: row.users.name,
@@ -115,9 +156,9 @@ export const supabaseLawyerService = {
     city?: string;
     state?: string;
   }): Promise<SupabaseLawyer[] | null> {
-    if (!isSupabaseConfigured || !supabase) return null;
+    if (!isSupabaseConfigured) return null;
 
-    let query = supabase
+    let query = (supabase as any)
       .from('lawyer_profiles')
       .select(`
         id, user_id, oab, oab_uf, bio, specialties,
@@ -138,14 +179,17 @@ export const supabaseLawyerService = {
       query = query.eq('location_state', params.state);
     }
 
-    const { data, error } = await query.order('rating', { ascending: false });
+    const { data, error } = await query.order('rating', { ascending: false }) as {
+      data: LawyerRow[] | null;
+      error: { message: string } | null;
+    };
 
     if (error) {
       console.error('[SupabaseData] Erro na busca de advogados:', error.message);
       return null;
     }
 
-    return (data ?? []).map((row: any) => ({
+    return (data ?? []).map((row) => ({
       id: row.id,
       userId: row.user_id,
       name: row.users.name,
@@ -175,13 +219,13 @@ export const supabaseCaseService = {
    * RLS garante que apenas processos do próprio usuário sejam retornados.
    */
   async getMyCases(): Promise<SupabaseCase[] | null> {
-    if (!isSupabaseConfigured || !supabase) return null;
+    if (!isSupabaseConfigured) return null;
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('cases')
       .select('id, case_number, title, status, client_id, lawyer_id, description, opened_at, closed_at')
       .is('deleted_at', null)
-      .order('opened_at', { ascending: false });
+      .order('opened_at', { ascending: false }) as { data: CaseRow[] | null; error: { message: string } | null };
 
     if (error) {
       console.error('[SupabaseData] Erro ao buscar processos:', error.message);
@@ -205,14 +249,14 @@ export const supabaseCaseService = {
    * Busca um processo específico pelo ID.
    */
   async getById(caseId: string): Promise<SupabaseCase | null> {
-    if (!isSupabaseConfigured || !supabase) return null;
+    if (!isSupabaseConfigured) return null;
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('cases')
       .select('id, case_number, title, status, client_id, lawyer_id, description, opened_at, closed_at')
       .eq('id', caseId)
       .is('deleted_at', null)
-      .single();
+      .single() as { data: CaseRow | null; error: { message: string } | null };
 
     if (error || !data) return null;
 
@@ -236,22 +280,16 @@ export const supabaseUserService = {
   /**
    * Busca o perfil completo do usuário pelo ID.
    */
-  async getProfile(userId: string): Promise<{
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-    phone: string | null;
-  } | null> {
-    if (!isSupabaseConfigured || !supabase) return null;
+  async getProfile(userId: string): Promise<SupabaseUserProfile | null> {
+    if (!isSupabaseConfigured) return null;
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('users')
       .select('id, name, email, role, phone')
       .eq('id', userId)
       .eq('active', true)
       .is('deleted_at', null)
-      .single();
+      .single() as { data: SupabaseUserProfile | null; error: { message: string } | null };
 
     if (error || !data) return null;
     return data;
@@ -264,12 +302,12 @@ export const supabaseUserService = {
     name?: string;
     phone?: string;
   }): Promise<boolean> {
-    if (!isSupabaseConfigured || !supabase) return false;
+    if (!isSupabaseConfigured) return false;
 
-    const { error } = await supabase
+    const { error } = await (supabase as any)
       .from('users')
-      .update(updates)
-      .eq('id', userId);
+      .update(updates as Record<string, string | undefined>)
+      .eq('id', userId) as { error: { message: string } | null };
 
     if (error) {
       console.error('[SupabaseData] Erro ao atualizar perfil:', error.message);
@@ -295,17 +333,17 @@ export const supabaseAuditService = {
     targetId?: string;
     metadata?: Record<string, unknown>;
   }): Promise<void> {
-    if (!isSupabaseConfigured || !supabase) return;
+    if (!isSupabaseConfigured) return;
 
-    const { error } = await supabase.from('staff_audit_logs').insert({
+    const { error } = await (supabase as any).from('staff_audit_logs').insert({
       action: entry.action,
       actor_id: entry.actorId,
       actor_role: entry.actorRole,
       details: entry.details,
       severity: entry.severity ?? 'INFO',
       target_id: entry.targetId ?? null,
-      metadata: (entry.metadata as any) ?? null,
-    });
+      metadata: entry.metadata ?? null,
+    }) as { error: { message: string } | null };
 
     if (error) {
       // Nunca bloquear o fluxo por falha de auditoria — apenas logar

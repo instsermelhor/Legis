@@ -50,7 +50,7 @@ export const BetaFeedbackButton: React.FC<Props> = ({ userId = 'anonymous', user
       };
 
       if (isSupabaseConfigured) {
-        await supabase.from('beta_feedback').insert(payload);
+        await (supabase as any).from('beta_feedback').insert(payload);
       } else {
         // Fallback localStorage em modo offline
         const existing = JSON.parse(localStorage.getItem('legis_beta_feedback') || '[]');

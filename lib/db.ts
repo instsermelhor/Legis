@@ -33,7 +33,7 @@ function localSet<T>(key: string, value: T): void {
 export async function setDatabaseSecurityContext(tenantId?: string, userId?: string, userRole?: string): Promise<void> {
   if (isSupabaseConfigured) {
     try {
-      await supabase.rpc('set_app_security_context', {
+      await (supabase as any).rpc('set_app_security_context', {
         p_tenant_id: tenantId || '',
         p_user_id: userId || '',
         p_user_role: userRole || ''
@@ -49,7 +49,7 @@ export async function setDatabaseSecurityContext(tenantId?: string, userId?: str
 export const dbCases = {
   async getAll(lawyerId?: string, tenantId?: string) {
     if (isSupabaseConfigured) {
-      let query = supabase.from('cases').select('*').order('created_at', { ascending: false });
+      let query = (supabase as any).from('cases').select('*').order('created_at', { ascending: false });
       if (lawyerId) query = query.eq('lawyer_id', lawyerId);
       if (tenantId) query = query.eq('tenant_id', tenantId);
       const { data, error } = await query;
@@ -80,7 +80,7 @@ export const dbCases = {
   async create(caseData: Record<string, unknown>, activeTenantId?: string) {
     const payload = activeTenantId ? { ...caseData, tenant_id: activeTenantId } : caseData;
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('cases').insert(payload).select().single();
+      const { data, error } = await (supabase as any).from('cases').insert(payload).select().single();
       if (error) throw error;
       return data;
     }
@@ -97,7 +97,7 @@ export const dbCases = {
     }
 
     if (isSupabaseConfigured) {
-      let query = supabase.from('cases').update(updates).eq('id', id);
+      let query = (supabase as any).from('cases').update(updates).eq('id', id);
       if (activeTenantId) query = query.eq('tenant_id', activeTenantId);
       const { data, error } = await query.select().single();
       if (error) throw error;
@@ -116,7 +116,7 @@ export const dbCases = {
 
   async delete(id: string, activeTenantId?: string) {
     if (isSupabaseConfigured) {
-      let query = supabase.from('cases').delete().eq('id', id);
+      let query = (supabase as any).from('cases').delete().eq('id', id);
       if (activeTenantId) query = query.eq('tenant_id', activeTenantId);
       const { error } = await query;
       if (error) throw error;
@@ -136,12 +136,12 @@ export const dbCases = {
 export const dbDocuments = {
   async upload(file: File, path: string) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.storage
+      const { data, error } = await (supabase as any).storage
         .from('documents')
         .upload(path, file, { upsert: false });
       if (error) throw error;
 
-      const { data: urlData } = supabase.storage
+      const { data: urlData } = (supabase as any).storage
         .from('documents')
         .getPublicUrl(data.path);
       return { path: data.path, publicUrl: urlData.publicUrl };
@@ -152,7 +152,7 @@ export const dbDocuments = {
 
   async getSignedUrl(path: string, expiresInSeconds = 3600) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.storage
+      const { data, error } = await (supabase as any).storage
         .from('documents')
         .createSignedUrl(path, expiresInSeconds);
       if (error) throw error;
@@ -163,7 +163,7 @@ export const dbDocuments = {
 
   async delete(path: string) {
     if (!isSupabaseConfigured) return;
-    const { error } = await supabase.storage.from('documents').remove([path]);
+    const { error } = await (supabase as any).storage.from('documents').remove([path]);
     if (error) throw error;
   },
 };
@@ -188,7 +188,7 @@ export const dbContracts = {
 
   async create(contractData: Record<string, unknown>) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('contracts').insert(contractData).select().single();
+      const { data, error } = await (supabase as any).from('contracts').insert(contractData).select().single();
       if (error) throw error;
       return data;
     }
@@ -204,7 +204,7 @@ export const dbContracts = {
 
   async update(id: string, updates: Record<string, unknown>) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('contracts').update(updates).eq('id', id).select().single();
+      const { data, error } = await (supabase as any).from('contracts').update(updates).eq('id', id).select().single();
       if (error) throw error;
       return data;
     }
@@ -250,7 +250,7 @@ export const dbInvoices = {
 
   async create(invoiceData: Record<string, unknown>) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('invoices').insert(invoiceData).select().single();
+      const { data, error } = await (supabase as any).from('invoices').insert(invoiceData).select().single();
       if (error) throw error;
       return data;
     }
@@ -300,7 +300,7 @@ export function subscribeToTable(
     .on('postgres_changes', { event: 'DELETE', schema: 'public', table, filter }, p => onDelete?.(p))
     .subscribe();
 
-  return () => { supabase.removeChannel(channel); };
+  return () => { (supabase as any).removeChannel(channel); };
 }
 
 // ─── CMS (Conteúdo Institucional SSOT) ────────────────────────────────────────
@@ -308,7 +308,7 @@ export function subscribeToTable(
 export const dbCms = {
   async get() {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('cms_content').select('*').single();
+      const { data, error } = await (supabase as any).from('cms_content').select('*').single();
       if (error && error.code !== 'PGRST116') throw error;
       return data;
     }
@@ -335,7 +335,7 @@ export const dbCms = {
 export const dbModeration = {
   async getQueue() {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('moderation_queue').select('*').order('created_at', { ascending: false });
+      const { data, error } = await (supabase as any).from('moderation_queue').select('*').order('created_at', { ascending: false });
       if (error) throw error;
       return data ?? [];
     }
@@ -344,7 +344,7 @@ export const dbModeration = {
 
   async submit(item: Record<string, unknown>) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('moderation_queue').insert(item).select().single();
+      const { data, error } = await (supabase as any).from('moderation_queue').insert(item).select().single();
       if (error) throw error;
       return data;
     }
@@ -376,7 +376,7 @@ export const dbModeration = {
 export const dbAiLogs = {
   async log(entry: Record<string, unknown>) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('ai_usage_logs').insert(entry).select().single();
+      const { data, error } = await (supabase as any).from('ai_usage_logs').insert(entry).select().single();
       if (error) throw error;
       return data;
     }
@@ -387,7 +387,7 @@ export const dbAiLogs = {
 
   async getByUser(userId: string) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('ai_usage_logs').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+      const { data, error } = await (supabase as any).from('ai_usage_logs').select('*').eq('user_id', userId).order('created_at', { ascending: false });
       if (error) throw error;
       return data ?? [];
     }
@@ -400,7 +400,7 @@ export const dbAiLogs = {
 export const dbLgpdRequests = {
   async getByUser(userId: string) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('lgpd_requests').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+      const { data, error } = await (supabase as any).from('lgpd_requests').select('*').eq('user_id', userId).order('created_at', { ascending: false });
       if (error) throw error;
       return data ?? [];
     }
@@ -409,7 +409,7 @@ export const dbLgpdRequests = {
 
   async create(request: Record<string, unknown>) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('lgpd_requests').insert(request).select().single();
+      const { data, error } = await (supabase as any).from('lgpd_requests').insert(request).select().single();
       if (error) throw error;
       return data;
     }
@@ -424,7 +424,7 @@ export const dbLgpdRequests = {
 export const dbUsers = {
   async getAll() {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('users').select('*').order('created_at', { ascending: false });
+      const { data, error } = await (supabase as any).from('users').select('*').order('created_at', { ascending: false });
       if (error) throw error;
       return data ?? [];
     }
@@ -433,7 +433,7 @@ export const dbUsers = {
 
   async getByEmail(email: string) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('users').select('*').eq('email', email.toLowerCase()).maybeSingle();
+      const { data, error } = await (supabase as any).from('users').select('*').eq('email', email.toLowerCase()).maybeSingle();
       if (error) throw error;
       return data;
     }
@@ -443,7 +443,7 @@ export const dbUsers = {
 
   async create(userData: Record<string, unknown>) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('users').insert(userData).select().single();
+      const { data, error } = await (supabase as any).from('users').insert(userData).select().single();
       if (error) throw error;
       return data;
     }
@@ -455,7 +455,7 @@ export const dbUsers = {
 
   async update(id: string, updates: Record<string, unknown>) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('users').update(updates).eq('id', id).select().single();
+      const { data, error } = await (supabase as any).from('users').update(updates).eq('id', id).select().single();
       if (error) throw error;
       return data;
     }
@@ -471,7 +471,7 @@ export const dbUsers = {
 export const dbLawyerProfiles = {
   async getAll() {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('lawyer_profiles').select('*, users(*)').order('created_at', { ascending: false });
+      const { data, error } = await (supabase as any).from('lawyer_profiles').select('*, users(*)').order('created_at', { ascending: false });
       if (error) throw error;
       return data ?? [];
     }
@@ -480,7 +480,7 @@ export const dbLawyerProfiles = {
 
   async getByUserId(userId: string) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('lawyer_profiles').select('*').eq('user_id', userId).maybeSingle();
+      const { data, error } = await (supabase as any).from('lawyer_profiles').select('*').eq('user_id', userId).maybeSingle();
       if (error) throw error;
       return data;
     }
@@ -490,7 +490,7 @@ export const dbLawyerProfiles = {
 
   async upsert(profile: Record<string, unknown>) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('lawyer_profiles').upsert(profile).select().single();
+      const { data, error } = await (supabase as any).from('lawyer_profiles').upsert(profile).select().single();
       if (error) throw error;
       return data;
     }
@@ -506,7 +506,7 @@ export const dbLawyerProfiles = {
 export const dbAuditLogs = {
   async getAll() {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('staff_audit_logs').select('*').order('timestamp', { ascending: false }).limit(500);
+      const { data, error } = await (supabase as any).from('staff_audit_logs').select('*').order('timestamp', { ascending: false }).limit(500);
       if (error) throw error;
       return data ?? [];
     }
@@ -515,7 +515,7 @@ export const dbAuditLogs = {
 
   async log(logEntry: Record<string, unknown>) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('staff_audit_logs').insert(logEntry).select().single();
+      const { data, error } = await (supabase as any).from('staff_audit_logs').insert(logEntry).select().single();
       if (error) throw error;
       return data;
     }

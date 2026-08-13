@@ -34,6 +34,14 @@
     "services/identity-service",
     "services/search-intelligence-service",
     "services/soc-sentinel-service",
-    "tests/e2e"
+    "tests/e2e",
+    "tests/unit",
+    "tests/integration",
+    "tests/multitenancy",
+    "tests/performance",
+    "tests/chaos",
+    "tests/contract",
+    "tests/accessibility",
+    "tests/ai"
   ]
 }

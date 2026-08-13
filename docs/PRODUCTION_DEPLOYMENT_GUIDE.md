@@ -20,7 +20,7 @@ A arquitetura de implantação em produção da Legis Connect combina:
 ## 2. CHECKLIST PRÉ-IMPLANTAÇÃO (QUALITY GATES)
 
 - [x] **Tipagem TypeScript**: Executar `npx tsc --noEmit` sem erros.
-- [x] **Variáveis de Ambiente**: Confirmar presença de `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` e `VITE_GEMINI_API_KEY`.
+- [x] **Variáveis de Ambiente**: Confirmar presença de `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` e `GEMINI_API_KEY`.
 - [x] **Políticas de RLS Aplicadas**: Executar o script [`infrastructure/db/scripts/apply_production_rls.sql`](file:///Users/rikardoribeiro/Documents/GitHub/Legis/infrastructure/db/scripts/apply_production_rls.sql) no banco de dados de produção.
 - [x] **Limpeza de Credenciais de Teste**: Garantir que logins de demonstração locais requerem credenciais válidas.
 

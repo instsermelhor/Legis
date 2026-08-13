@@ -10,7 +10,7 @@
 #   - Projeto linkado: supabase link --project-ref tddzffccnuccewfoczjl
 #
 # Ou via psql direto:
-#   SUPABASE_DB_URL="postgresql://postgres:[SENHA]@db.tddzffccnuccewfoczjl.supabase.co:5432/postgres"
+#   SUPABASE_DB_URL="$DATABASE_URL"
 # ============================================================================
 
 set -euo pipefail

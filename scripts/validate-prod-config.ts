@@ -52,8 +52,11 @@ export function validateProductionConfiguration(): ValidationReport {
   const warnings: string[] = [];
 
   // SECURITY AUDIT: Ensure no secret API keys carry VITE_ prefix (which leaks to frontend bundle)
-  if (env.VITE_GEMINI_API_KEY || env.VITE_SECRET_KEY || env.VITE_DATABASE_URL || env.VITE_JWT_SECRET) {
-    errors.push('[ERRO DE SEGURANÇA CRÍTICO] Segredos privados detectados com prefixo VITE_! Remova o prefixo VITE_ para manter no servidor.');
+  const forbiddenPrefixes = ['GEMINI_API_KEY', 'SECRET_KEY', 'DATABASE_URL', 'JWT_SECRET'];
+  for (const key of forbiddenPrefixes) {
+    if (env[`VITE_${key}`]) {
+      errors.push(`[ERRO DE SEGURANÇA CRÍTICO] Segredo VITE_${key} detectado no cliente!`);
+    }
   }
 
   for (const v of checkedVariables) {
