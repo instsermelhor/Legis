@@ -1,5 +1,8 @@
+import { TenantService, PLATFORM_TENANT_ID, DEFAULT_TENANT_ID } from './tenantService';
+
 export interface Processo {
   id_processo: number;
+  tenantId?: string;
   numero?: string;
   departamento: 'Cível' | 'Trabalhista' | 'Societário';
   advogado: string;
@@ -268,29 +271,48 @@ export function calcularTempo(dataEntradaStr: string, dataConclusaoStr?: string 
 const STORAGE_KEY = 'legis_gestao_processos';
 
 export const mockProcessosService = {
-  getProcessos(): Processo[] {
+  getProcessos(activeTenantId?: string, maskSensitivePii: boolean = false): Processo[] {
+    let allProcessos: Processo[] = [];
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as Processo[];
-        // Recalculate tempo dynamically to ensure consistency
-        return parsed.map(p => ({
+        allProcessos = parsed.map((p, idx) => ({
           ...p,
+          tenantId: p.tenantId || (idx % 3 === 0 ? 'tenant_lawfirm_alpha' : idx % 3 === 1 ? 'tenant_lawfirm_beta' : 'tenant_independent_gamma'),
           tempo: calcularTempo(p.data_entrada, p.data_conclusao)
         }));
+      } else {
+        allProcessos = INITIAL_PROCESSOS.map((p, idx) => ({
+          ...p,
+          tenantId: idx % 3 === 0 ? 'tenant_lawfirm_alpha' : idx % 3 === 1 ? 'tenant_lawfirm_beta' : 'tenant_independent_gamma',
+          tempo: calcularTempo(p.data_entrada, p.data_conclusao)
+        })) as Processo[];
+        this.saveProcessos(allProcessos);
       }
     } catch (e) {
       console.warn('[mockProcessosService] Error loading processes from localStorage, using defaults.', e);
+      allProcessos = INITIAL_PROCESSOS.map((p, idx) => ({
+        ...p,
+        tenantId: idx % 3 === 0 ? 'tenant_lawfirm_alpha' : idx % 3 === 1 ? 'tenant_lawfirm_beta' : 'tenant_independent_gamma',
+        tempo: calcularTempo(p.data_entrada, p.data_conclusao)
+      })) as Processo[];
     }
 
-    // Initialize defaults with calculated tempo
-    const initialWithTempo = INITIAL_PROCESSOS.map(p => ({
-      ...p,
-      tempo: calcularTempo(p.data_entrada, p.data_conclusao)
-    })) as Processo[];
+    // Filtrar por Tenant se um tenant ativo for informado
+    const tenantFiltered = activeTenantId
+      ? TenantService.filterByTenant(allProcessos, activeTenantId)
+      : allProcessos;
 
-    this.saveProcessos(initialWithTempo);
-    return initialWithTempo;
+    // Mascarar PII (CPF) se solicitado ou em escopos de terceiros (LGPD)
+    if (maskSensitivePii) {
+      return tenantFiltered.map(p => ({
+        ...p,
+        clientCpf: TenantService.maskCpf(p.clientCpf)
+      }));
+    }
+
+    return tenantFiltered;
   },
 
   saveProcessos(processos: Processo[]): void {
@@ -301,13 +323,14 @@ export const mockProcessosService = {
     }
   },
 
-  addProcesso(processo: Omit<Processo, 'id_processo' | 'tempo'>): Processo {
+  addProcesso(processo: Omit<Processo, 'id_processo' | 'tempo'>, activeTenantId: string = DEFAULT_TENANT_ID): Processo {
     const list = this.getProcessos();
     const nextId = list.length > 0 ? Math.max(...list.map(p => p.id_processo)) + 1 : 1001;
     
     const newProcesso: Processo = {
       ...processo,
       id_processo: nextId,
+      tenantId: processo.tenantId || activeTenantId,
       tempo: calcularTempo(processo.data_entrada, processo.data_conclusao)
     };
 
@@ -316,12 +339,19 @@ export const mockProcessosService = {
     return newProcesso;
   },
 
-  updateProcesso(id: number, updates: Partial<Omit<Processo, 'id_processo' | 'tempo'>>): Processo | null {
+  updateProcesso(id: number, updates: Partial<Omit<Processo, 'id_processo' | 'tempo'>>, activeTenantId?: string): Processo | null {
     const list = this.getProcessos();
     const idx = list.findIndex(p => p.id_processo === id);
     if (idx === -1) return null;
 
-    const merged = { ...list[idx], ...updates };
+    const existing = list[idx];
+
+    // Validação estrita de isolamento de Tenant (IDOR Protection)
+    if (activeTenantId && activeTenantId !== PLATFORM_TENANT_ID) {
+      TenantService.assertTenantAccess(activeTenantId, existing.tenantId);
+    }
+
+    const merged = { ...existing, ...updates };
     merged.tempo = calcularTempo(merged.data_entrada, merged.data_conclusao);
 
     list[idx] = merged;
@@ -329,10 +359,17 @@ export const mockProcessosService = {
     return merged;
   },
 
-  deleteProcesso(id: number): boolean {
+  deleteProcesso(id: number, activeTenantId?: string): boolean {
     const list = this.getProcessos();
+    const existing = list.find(p => p.id_processo === id);
+    if (!existing) return false;
+
+    // Validação estrita de isolamento de Tenant (IDOR Protection)
+    if (activeTenantId && activeTenantId !== PLATFORM_TENANT_ID) {
+      TenantService.assertTenantAccess(activeTenantId, existing.tenantId);
+    }
+
     const filtered = list.filter(p => p.id_processo !== id);
-    if (filtered.length === list.length) return false;
     this.saveProcessos(filtered);
     return true;
   }
