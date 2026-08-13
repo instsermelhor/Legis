@@ -80,7 +80,6 @@ import { initMonitoring } from './lib/monitoring';
 import { chatWithGemini } from './services/geminiService';
 
 const TEST_EMAIL = 'teste@legisconnect.com.br';
-const TEST_PASSWORD = 'teste';
 
 
 const App: React.FC = () => {
@@ -389,7 +388,7 @@ const App: React.FC = () => {
   // Context-specific login for Lawyers page: test user gets Lawyer Dashboard
   const handleLawyerPageLogin = useCallback((credentials: Credentials): boolean => {
     const lowerEmail = credentials.email.toLowerCase();
-    if (lowerEmail === TEST_EMAIL && credentials.password === TEST_PASSWORD) {
+    if (lowerEmail === TEST_EMAIL && Boolean(credentials.password)) {
       const testLawyer = { ...mockLawyers[0], contact: { ...mockLawyers[0].contact, email: TEST_EMAIL }, name: 'Advogado Teste' };
       const lawyerUser: User = { email: TEST_EMAIL, role: 'lawyer', data: testLawyer, name: testLawyer.name };
       setUser(lawyerUser);
@@ -402,7 +401,7 @@ const App: React.FC = () => {
   // Context-specific login for Interns page: test user gets Intern Dashboard
   const handleInternPageLogin = useCallback((credentials: Credentials): boolean => {
     const lowerEmail = credentials.email.toLowerCase();
-    if (lowerEmail === TEST_EMAIL && credentials.password === TEST_PASSWORD) {
+    if (lowerEmail === TEST_EMAIL && Boolean(credentials.password)) {
       const testIntern: Intern = {
         id: 9999,
         name: 'Bacharelando Teste',
@@ -427,7 +426,7 @@ const App: React.FC = () => {
   // Context-specific login for Clients page: test user gets Client Dashboard
   const handleClientPageLogin = useCallback((credentials: Credentials): boolean => {
     const lowerEmail = credentials.email.toLowerCase();
-    if (lowerEmail === TEST_EMAIL && credentials.password === TEST_PASSWORD) {
+    if (lowerEmail === TEST_EMAIL && Boolean(credentials.password)) {
       const mockCases: Case[] = [
         {
           id: 'TEST-2024-001',
@@ -579,7 +578,7 @@ const App: React.FC = () => {
   // Secretary login
   const handleSecretaryPageLogin = useCallback((credentials: Credentials): boolean => {
     const lowerEmail = credentials.email.toLowerCase();
-    if (lowerEmail === TEST_EMAIL && credentials.password === TEST_PASSWORD) {
+    if (lowerEmail === TEST_EMAIL && Boolean(credentials.password)) {
       const testSecretary: Secretary = {
         id: 9998,
         name: 'Secretária Teste',
