@@ -35,10 +35,10 @@ export function validateProductionConfiguration(): ValidationReport {
       description: 'Chave pública anônima do Supabase',
     },
     {
-      name: 'VITE_GEMINI_API_KEY',
-      present: Boolean(env.VITE_GEMINI_API_KEY),
+      name: 'GEMINI_API_KEY',
+      present: Boolean(env.GEMINI_API_KEY || env.API_KEY),
       required: true,
-      description: 'Chave de API do Google Gemini para orquestração de IA Jurídica',
+      description: 'Chave de API do Google Gemini (SERVER-ONLY proxy)',
     },
     {
       name: 'DATABASE_URL',
@@ -50,6 +50,11 @@ export function validateProductionConfiguration(): ValidationReport {
 
   const errors: string[] = [];
   const warnings: string[] = [];
+
+  // SECURITY AUDIT: Ensure no secret API keys carry VITE_ prefix (which leaks to frontend bundle)
+  if (env.VITE_GEMINI_API_KEY || env.VITE_SECRET_KEY || env.VITE_DATABASE_URL || env.VITE_JWT_SECRET) {
+    errors.push('[ERRO DE SEGURANÇA CRÍTICO] Segredos privados detectados com prefixo VITE_! Remova o prefixo VITE_ para manter no servidor.');
+  }
 
   for (const v of checkedVariables) {
     if (v.required && !v.present) {
