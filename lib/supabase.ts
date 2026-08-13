@@ -19,8 +19,7 @@
  * ────────────────────────────────────────────────────────────────────────────
  */
 
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from './database.types';
+import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = (import.meta as any).env?.VITE_SUPABASE_URL as string | undefined;
 const supabaseKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY as string | undefined;
@@ -41,10 +40,12 @@ if (!isSupabaseConfigured) {
 }
 
 /**
- * Cliente Supabase principal tipado com o schema do banco.
+ * Cliente Supabase principal — use este em toda a aplicação.
+ * Tipagem permissiva (sem genérico) para compatibilidade com lib/db.ts.
+ * Para queries tipadas, use os serviços em services/supabase*.ts.
  * Já gerencia sessão JWT automaticamente (refresh token, persistência).
  */
-export const supabase: SupabaseClient<Database> = createClient<Database>(
+export const supabase = createClient(
   supabaseUrl ?? 'https://placeholder.supabase.co',
   supabaseKey ?? 'placeholder-key',
   {
