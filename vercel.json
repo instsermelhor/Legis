@@ -7,8 +7,8 @@
   "installCommand": "npm ci",
   "rewrites": [
     {
-      "source": "/api/health",
-      "destination": "/api/health"
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
     },
     {
       "source": "/(.*)",
