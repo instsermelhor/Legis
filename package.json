@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+    "test": "npx tsx scripts/run-all-tests.ts",
     "secret-scan": "npx tsx scripts/secret-scan.ts",
     "preview": "vite preview"
   },
