@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import './index.css';
 // FIX: Correct import path for App component.
 import App from './App';
 import { AppProvider } from './context/AppContext';
