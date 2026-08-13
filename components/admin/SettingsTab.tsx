@@ -4305,7 +4305,19 @@ const APIConnections: React.FC = () => {
     setApiValues(prev => ({ ...prev, [apiId]: { ...prev[apiId], [key]: value } }));
 
   const handleSaveApi = (id: string) => {
-    localStorage.setItem('legis_api_values', JSON.stringify(apiValues));
+    // SECURITY: Mask sensitive secret values before saving to browser localStorage
+    const sanitized = { ...apiValues };
+    const api = allApis.find(a => a.id === id);
+    if (api && sanitized[id]) {
+      const maskedFields: Record<string, string> = { ...sanitized[id] };
+      for (const field of api.fields) {
+        if (field.type === 'password' && maskedFields[field.key]) {
+          maskedFields[field.key] = '[CONFIGURED_VIA_SECRET_MANAGER]';
+        }
+      }
+      sanitized[id] = maskedFields;
+    }
+    localStorage.setItem('legis_api_values', JSON.stringify(sanitized));
     setSavedId(id);
     setTimeout(() => setSavedId(null), 2500);
   };
