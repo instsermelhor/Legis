@@ -123,12 +123,16 @@ export async function runPrdComplianceTests(): Promise<TestResult[]> {
       amount: 150.00,
     });
 
-    const isProvisioned = prov.status === 'PROVISIONED';
+    // Aguarda a transição de estado da State Machine (latência de 50-300ms)
+    await new Promise(resolve => setTimeout(resolve, 400));
+    const allProv = ProvisioningService.filter({ userId: 'user-789' });
+    const finalProv = allProv.find(p => p.id === prov.id);
+    const isProvisioned = finalProv?.status === 'PROVISIONED';
 
     results.push({
       name: 'PRD FR-022: Provisioning Engine Fulfillment Gate',
       category: 'SYNC',
-      passed: isProvisioned,
+      passed: Boolean(isProvisioned),
       durationMs: Math.round(performance.now() - t0),
     });
   } catch (err: any) {

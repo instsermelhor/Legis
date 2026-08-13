@@ -40,6 +40,11 @@ function expect<T>(actual: T) {
         throw new Error(`Expected value to be defined`);
       }
     },
+    toBeGreaterThan(expected: number) {
+      if (typeof actual !== 'number' || actual <= expected) {
+        throw new Error(`Expected ${actual} to be greater than ${expected}`);
+      }
+    },
     toThrow(regex?: RegExp) {
       if (typeof actual !== 'function') {
         throw new Error(`Expected target to be a function`);

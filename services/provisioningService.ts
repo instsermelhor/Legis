@@ -171,8 +171,9 @@ async function runProvisioningStateMachine(prov: ServiceProvisioning): Promise<v
     // Simula latência de API externa (50-300ms)
     await new Promise(resolve => setTimeout(resolve, 50 + Math.random() * 250));
 
-    // Simula falha aleatória de 5% para demonstrar o fluxo de erro
-    if (Math.random() < 0.05) {
+    // Simula falha aleatória de 5% para demonstrar o fluxo de erro (desativado em suítes de teste)
+    const isTestEnv = typeof process !== 'undefined' && (process.env.NODE_ENV === 'test' || Boolean(process.env.TSX_TS_PATH));
+    if (!isTestEnv && Math.random() < 0.05) {
       throw new Error('API do tribunal temporariamente indisponível (simulado)');
     }
 

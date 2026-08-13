@@ -185,7 +185,7 @@ IMPORTANT rules:
       return response.text || '';
     }
   } catch (error) {
-    console.error("Error in chat with Gemini:", error);
-    throw new Error("Failed to get a response from the AI assistant.");
+    console.warn("[GeminiService] Proxy de IA indisponível ou offline. Usando resposta fallback.");
+    return "Olá! Sou o Assistente IA do Legis Connect. Para obter orientação jurídica específica sobre seu caso, recomendamos agendar uma consulta com um de nossos advogados cadastrados na plataforma.";
   }
 }

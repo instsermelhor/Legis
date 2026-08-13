@@ -33,3 +33,6 @@ certificates/
 *.sln
 *.sw?
 .vercel
+*.pdf
+*.xlsx
+legis_connect_*
