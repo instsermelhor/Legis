@@ -45,6 +45,8 @@ export function hashPassword(password: string): string {
 
 export interface MockClient {
   id: number;
+  tenantId?: string;
+  firmId?: string;
   name: string;
   email: string;
   phone: string;
@@ -66,6 +68,8 @@ export interface MockClient {
 
 export interface MockIntern {
   id: number;
+  tenantId?: string;
+  firmId?: string;
   name: string;
   email: string;
   phone: string;
@@ -324,6 +328,8 @@ export const mockEfficiencyServices: EfficiencyService[] = [
 // ─── Secretariat Mock Data ─────────────────────────────────────────────────────
 export interface MockSecretary {
   id: number;
+  tenantId?: string;
+  firmId?: string;
   name: string;
   email: string;
   phone: string;
