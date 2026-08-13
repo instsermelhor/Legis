@@ -15,12 +15,46 @@ export type View =
   | 'myAdminProfile'
   | 'status';
 
+export interface Tenant {
+  id: string;
+  name: string;
+  code: string; // E.g., 'TENANT_ALPHA', 'TENANT_BETA'
+  cnpj?: string;
+  type: 'escritorio' | 'empresa' | 'instituicao' | 'autonomo' | 'plataforma';
+  status: 'ativo' | 'suspenso' | 'inativo';
+  createdAt: string;
+  ownerUserId: string;
+}
+
+export interface TenantMembership {
+  id: string;
+  tenantId: string;
+  userId: string;
+  role: string;
+  scope: 'global' | 'office' | 'team' | 'individual';
+  status: 'ativo' | 'pendente' | 'inativo';
+  joinedAt: string;
+}
+
+export interface LawFirm {
+  id: string;
+  tenantId: string;
+  name: string;
+  cnpj: string;
+  oabRegistration: string;
+  city: string;
+  state: string;
+  activeLawyersCount: number;
+}
+
 export interface User {
   email: string;
   role: 'client' | 'lawyer' | 'admin' | 'super_admin' | 'intern' | 'secretary';
   name?: string;
   data?: Lawyer | Intern | Secretary;
   id?: string;
+  tenantId?: string;
+  firmId?: string;
   // Client-specific data
   phone?: string;
   address?: string;
@@ -40,6 +74,8 @@ export interface CaseStage {
 
 export interface Case {
   id: string;
+  tenantId?: string;
+  firmId?: string;
   title: string;
   clientName: string;
   lawyerName: string;
@@ -83,6 +119,8 @@ export interface Review {
 
 export interface Lawyer {
   id: number;
+  tenantId?: string;
+  firmId?: string;
   name: string;
   oab: string;
   specialties: string[];
@@ -134,6 +172,8 @@ export interface Lawyer {
 
 export interface Intern {
   id: number;
+  tenantId?: string;
+  firmId?: string;
   name: string;
   cpf: string;
   university: string;
@@ -222,6 +262,8 @@ export interface EfficiencyService {
 
 export interface Secretary {
   id: number;
+  tenantId?: string;
+  firmId?: string;
   name: string;
   cpf?: string;
   rg?: string;
