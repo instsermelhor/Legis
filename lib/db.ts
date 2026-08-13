@@ -29,65 +29,103 @@ function localSet<T>(key: string, value: T): void {
   } catch { /* ignore storage full */ }
 }
 
+/** Define o contexto de segurança RLS na sessão ativas do Supabase/PostgreSQL */
+export async function setDatabaseSecurityContext(tenantId?: string, userId?: string, userRole?: string): Promise<void> {
+  if (isSupabaseConfigured) {
+    try {
+      await supabase.rpc('set_app_security_context', {
+        p_tenant_id: tenantId || '',
+        p_user_id: userId || '',
+        p_user_role: userRole || ''
+      });
+    } catch (e) {
+      console.warn('[db.ts] erro ao injetar contexto de segurança de banco:', e);
+    }
+  }
+}
+
 // ─── CASES (Processos jurídicos) ──────────────────────────────────────────────
 
 export const dbCases = {
-  async getAll(lawyerId?: string) {
+  async getAll(lawyerId?: string, tenantId?: string) {
     if (isSupabaseConfigured) {
       let query = supabase.from('cases').select('*').order('created_at', { ascending: false });
       if (lawyerId) query = query.eq('lawyer_id', lawyerId);
+      if (tenantId) query = query.eq('tenant_id', tenantId);
       const { data, error } = await query;
       if (error) throw error;
       return data ?? [];
     }
-    return localGet<unknown[]>('legis_cases', []);
+    const local = localGet<Record<string, unknown>[]>('legis_cases', []);
+    return local.filter(c => (!lawyerId || c.lawyerId === lawyerId) && (!tenantId || c.tenantId === tenantId));
   },
 
-  async getByClient(clientId: string) {
+  async getByClient(clientId: string, tenantId?: string) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase
+      let query = supabase
         .from('cases')
         .select('*')
         .eq('client_id', clientId)
         .order('created_at', { ascending: false });
+      if (tenantId) query = query.eq('tenant_id', tenantId);
+      const { data, error } = await query;
       if (error) throw error;
       return data ?? [];
     }
-    return localGet<unknown[]>('legis_cases', []).filter(
-      (c: unknown) => (c as Record<string, unknown>).clientId === clientId
+    return localGet<Record<string, unknown>[]>('legis_cases', []).filter(
+      c => c.clientId === clientId && (!tenantId || c.tenantId === tenantId)
     );
   },
 
-  async create(caseData: Record<string, unknown>) {
+  async create(caseData: Record<string, unknown>, activeTenantId?: string) {
+    const payload = activeTenantId ? { ...caseData, tenant_id: activeTenantId } : caseData;
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('cases').insert(caseData).select().single();
+      const { data, error } = await supabase.from('cases').insert(payload).select().single();
       if (error) throw error;
       return data;
     }
     const cases = localGet<unknown[]>('legis_cases', []);
-    const newCase = { ...caseData, id: `local_${Date.now()}`, createdAt: new Date().toISOString() };
+    const newCase = { ...payload, id: `local_${Date.now()}`, createdAt: new Date().toISOString() };
     localSet('legis_cases', [...cases, newCase]);
     return newCase;
   },
 
-  async update(id: string, updates: Record<string, unknown>) {
+  async update(id: string, updates: Record<string, unknown>, activeTenantId?: string) {
+    // Defesa em profundidade: previne mutação de tenant_id durante UPDATE
+    if (updates.tenant_id && activeTenantId && updates.tenant_id !== activeTenantId) {
+      throw new Error('[SECURITY DENIED] Tentativa de alteração maliciosa de tenant_id bloqueada no driver.');
+    }
+
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase.from('cases').update(updates).eq('id', id).select().single();
+      let query = supabase.from('cases').update(updates).eq('id', id);
+      if (activeTenantId) query = query.eq('tenant_id', activeTenantId);
+      const { data, error } = await query.select().single();
       if (error) throw error;
       return data;
     }
     const cases = localGet<Record<string, unknown>[]>('legis_cases', []);
+    const target = cases.find(c => c.id === id);
+    if (!target) return undefined;
+    if (activeTenantId && target.tenantId && target.tenantId !== activeTenantId) {
+      throw new Error('[SECURITY DENIED] Tentativa de modificação cross-tenant bloqueada no driver.');
+    }
     const updated = cases.map(c => c.id === id ? { ...c, ...updates } : c);
     localSet('legis_cases', updated);
     return updated.find(c => c.id === id);
   },
 
-  async delete(id: string) {
+  async delete(id: string, activeTenantId?: string) {
     if (isSupabaseConfigured) {
-      const { error } = await supabase.from('cases').delete().eq('id', id);
+      let query = supabase.from('cases').delete().eq('id', id);
+      if (activeTenantId) query = query.eq('tenant_id', activeTenantId);
+      const { error } = await query;
       if (error) throw error;
     } else {
       const cases = localGet<Record<string, unknown>[]>('legis_cases', []);
+      const target = cases.find(c => c.id === id);
+      if (target && activeTenantId && target.tenantId && target.tenantId !== activeTenantId) {
+        throw new Error('[SECURITY DENIED] Tentativa de exclusão cross-tenant bloqueada no driver.');
+      }
       localSet('legis_cases', cases.filter(c => c.id !== id));
     }
   },
