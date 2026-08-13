@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+    "secret-scan": "npx tsx scripts/secret-scan.ts",
     "preview": "vite preview"
   },
   "dependencies": {
