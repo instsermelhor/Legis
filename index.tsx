@@ -6,11 +6,11 @@ import App from './App';
 import { AppProvider } from './context/AppContext';
 import { AppDataProvider } from './context/AppDataContext';
 import { ToastProvider } from './components/common/Toast';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { initMonitoring } from './lib/monitoring';
 
 // Inicializa Sentry + Web Vitals + error listeners em produção
 initMonitoring();
-
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -20,12 +20,14 @@ if (!rootElement) {
 const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
-    <ToastProvider>
-      <AppProvider>
-        <AppDataProvider>
-          <App />
-        </AppDataProvider>
-      </AppProvider>
-    </ToastProvider>
+    <ErrorBoundary fallbackTitle="Falha de Inicialização na Plataforma Legis Connect">
+      <ToastProvider>
+        <AppProvider>
+          <AppDataProvider>
+            <App />
+          </AppDataProvider>
+        </AppProvider>
+      </ToastProvider>
+    </ErrorBoundary>
   </React.StrictMode>
 );

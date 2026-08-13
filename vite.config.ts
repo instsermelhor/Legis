@@ -15,8 +15,11 @@ export default defineConfig(({ mode }) => {
         // ⚠️ SECURITY (VULN-004 FIX): GEMINI_API_KEY REMOVED from frontend bundle.
         // The frontend MUST call the proxy at /api/gemini — see server/gemini-proxy.js
         // API_KEY is intentionally undefined in the client bundle.
+        'process.env.NODE_ENV': JSON.stringify(mode === 'production' ? 'production' : 'development'),
         'process.env.API_KEY': JSON.stringify('USE_PROXY'), // Signal to geminiService.ts
         'process.env.GEMINI_API_KEY': JSON.stringify('USE_PROXY'),
+        'process.env.ADMIN_SUPER_HASH': JSON.stringify(''),
+        'process.env.ADMIN_SECONDARY_HASH': JSON.stringify(''),
         'process.env.GEMINI_PROXY_URL': JSON.stringify(
           env.NODE_ENV === 'development'
             ? 'http://localhost:3001/api/gemini'
