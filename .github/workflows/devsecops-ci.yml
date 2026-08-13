@@ -29,6 +29,9 @@ jobs:
         run: npm audit --audit-level=high
         continue-on-error: true
 
+      - name: Secret Scanning Gate
+        run: npm run secret-scan
+
       - name: Build check
         run: npm run build
         env:
