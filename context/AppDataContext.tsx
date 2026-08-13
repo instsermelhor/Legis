@@ -32,6 +32,8 @@ import {
 } from '../services/mockDataService';
 import type { MockClient, MockIntern, MockSecretary } from '../services/mockDataService';
 
+import { TenantService } from '../services/tenantService';
+
 // ─── Storage keys ─────────────────────────────────────────────────────────────
 const KEYS = {
   lawyers:       'legis_lawyers',
@@ -43,12 +45,21 @@ const KEYS = {
 } as const;
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-function loadFromStorage<T>(key: string, fallback: T[]): T[] {
+function loadFromStorage<T extends { id?: number | string; tenantId?: string }>(key: string, fallback: T[]): T[] {
   try {
     const raw = localStorage.getItem(key);
-    if (raw) return JSON.parse(raw) as T[];
+    if (raw) {
+      const items = JSON.parse(raw) as T[];
+      return items.map((item, idx) => ({
+        ...item,
+        tenantId: item.tenantId || (idx % 3 === 0 ? 'tenant_lawfirm_alpha' : idx % 3 === 1 ? 'tenant_lawfirm_beta' : 'tenant_independent_gamma')
+      }));
+    }
   } catch { /* ignore */ }
-  return fallback;
+  return fallback.map((item, idx) => ({
+    ...item,
+    tenantId: item.tenantId || (idx % 3 === 0 ? 'tenant_lawfirm_alpha' : idx % 3 === 1 ? 'tenant_lawfirm_beta' : 'tenant_independent_gamma')
+  }));
 }
 
 function saveToStorage<T>(key: string, data: T[]): void {
