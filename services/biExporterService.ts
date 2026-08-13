@@ -104,7 +104,7 @@ export function exportBiReportToPdf(metrics?: BiMetricsResult): Blob {
     avgCaseDurationDays: 120,
     conversionRate: 68,
     lgpdComplianceScore: 100,
-    oabEthicsStatus: 'REGULAR',
+    oabEthicsStatus: '100% Conforme — Provimento 205/2021 OAB',
     revenueBySpecialty: [
       { specialty: 'Direito Civil', revenue: 75000, percentage: 50 },
       { specialty: 'Trabalhista', revenue: 45000, percentage: 30 },
@@ -124,7 +124,7 @@ export function exportBiReportToExcel(metrics?: BiMetricsResult): Blob {
     avgCaseDurationDays: 120,
     conversionRate: 68,
     lgpdComplianceScore: 100,
-    oabEthicsStatus: 'REGULAR',
+    oabEthicsStatus: '100% Conforme — Provimento 205/2021 OAB',
     revenueBySpecialty: [
       { specialty: 'Direito Civil', revenue: 75000, percentage: 50 },
       { specialty: 'Trabalhista', revenue: 45000, percentage: 30 },
