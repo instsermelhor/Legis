@@ -75,24 +75,23 @@ export const BetaFeedbackButton: React.FC<Props> = ({ userId = 'anonymous', user
 
   return (
     <>
-      {/* Botão flutuante */}
+      {/* Botão flutuante posicionado no canto inferior esquerdo para não cobrir o Assistente IA */}
       <button
         id="beta-feedback-btn"
         onClick={() => setOpen(true)}
         aria-label="Enviar feedback do beta"
-        title="Enviar feedback"
-        className="fixed bottom-6 right-6 z-[9998] flex items-center gap-2 px-4 py-2.5 rounded-full font-semibold text-sm shadow-2xl transition-all duration-300 group"
+        title="Enviar feedback da plataforma"
+        className="fixed bottom-6 left-6 z-40 flex items-center gap-2 px-3.5 py-2.5 rounded-full font-semibold text-xs sm:text-sm shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 border border-white/15 backdrop-blur-md cursor-pointer"
         style={{
-          background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
-          color: 'white',
-          boxShadow: '0 4px 24px rgba(79,70,229,0.5)',
+          background: 'rgba(15, 13, 26, 0.85)',
+          color: '#c7d2fe',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
         }}
-        onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.05) translateY(-2px)')}
-        onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1) translateY(0)')}
       >
         <span className="text-base">💬</span>
-        <span className="hidden sm:inline">Feedback</span>
+        <span className="font-medium text-white/90">Feedback</span>
       </button>
+
 
       {/* Modal de feedback */}
       {open && (
