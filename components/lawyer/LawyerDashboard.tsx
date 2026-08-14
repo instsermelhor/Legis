@@ -1,5 +1,6 @@
 import { Icon } from '@/components/common/IconComponents';
 import React, { useState, useMemo } from 'react';
+import { DashboardTopBar } from '../layout/DashboardTopBar';
 import type { Lawyer, Appointment, Case, CaseStage } from '../../types';
 import { CalendarIcon, ClockIcon, VideoCameraIcon, UsersIcon, ClipboardListIcon, CurrencyDollarIcon, PencilIcon, CalendarPlusIcon } from '../common/IconComponents';
 import { CaseProgressTracker } from '../common/CaseProgressTracker';
@@ -603,24 +604,22 @@ export const LawyerDashboard: React.FC<LawyerDashboardProps> = ({ lawyer, onLogo
 
     return (
         <>
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                
-                {/* Mobile Header Bar */}
-                <div className="md:hidden flex items-center justify-between bg-white dark:bg-[#1A1730] border border-gray-200 dark:border-[#2A2545] rounded-xl p-3.5 shadow-sm mb-4">
-                    <div className="flex items-center gap-2.5">
-                        <img src={lawyer.photoUrl} alt={lawyer.name} className="w-8 h-8 rounded-full object-cover ring-2 ring-primary" />
-                        <div>
-                            <span className="block text-xs font-bold text-gray-800 dark:text-white truncate">{lawyer.name}</span>
-                            <span className="block text-[9px] text-gray-400">Painel do Advogado</span>
-                        </div>
-                    </div>
+            <DashboardTopBar
+                title={lawyer.name}
+                subtitle="Painel do Advogado"
+                role="lawyer"
+                onLogout={onLogout}
+                mobileMenuButton={
                     <button
                         onClick={() => setShowMobileMenu(!showMobileMenu)}
-                        className="px-3 py-1.5 bg-primary text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow"
+                        className="md:hidden px-3 py-1.5 bg-violet-600 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 shadow"
+                        aria-label="Abrir menu lateral"
                     >
-                        <span>{showMobileMenu ? '<Icon name="✕" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Fechar' : '<Icon name="☰" className="w-4 h-4 inline-block mr-1 align-text-bottom" /> Menu'}</span>
+                        <span>{showMobileMenu ? 'Fechar' : 'Menu'}</span>
                     </button>
-                </div>
+                }
+            />
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
                 <div className="flex flex-col md:flex-row gap-6 items-start animate-fade-in">
                     {/* Left Sidebar Panel */}
