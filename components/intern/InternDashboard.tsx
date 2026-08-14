@@ -1,5 +1,6 @@
 import { Icon } from '@/components/common/IconComponents';
 import React, { useState, useRef, useMemo } from 'react';
+import { DashboardTopBar } from '../layout/DashboardTopBar';
 import type { Intern, Case } from '../../types';
 import { AcademicCapIcon, ClipboardListIcon, UsersIcon, ChatBubbleIcon, XIcon } from '../common/IconComponents';
 import { AREAS_OF_LAW, BRAZILIAN_STATES } from '../../constants';
@@ -571,7 +572,15 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
     const totalGradedSubjects = Object.values(grades).flatMap(g => Object.values(g)).filter(v => v.trim()).length;
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="min-h-screen bg-gray-50 dark:bg-[#0D0B1E]">
+            <DashboardTopBar
+                title={intern.name}
+                subtitle={`Painel do Bacharelando — ${intern.university}`}
+                avatarLetter={intern.name}
+                role="intern"
+                onLogout={onLogout}
+            />
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <div className="bg-neutral-light p-6 sm:p-8 rounded-xl shadow-sm">
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row items-center sm:space-x-4 mb-6 text-center sm:text-left">
@@ -632,7 +641,7 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
 
                         {onLogout && (
                             <button onClick={onLogout}
-                                className="py-3 px-1 border-b-2 border-transparent font-medium text-sm text-red-500 hover:text-red-700 hover:border-red-300 transition-colors ml-auto">
+                                className="py-3 px-1 border-b-2 border-transparent font-medium text-sm text-red-500 hover:text-red-700 hover:border-red-300 transition-colors ml-auto hidden">
                                 🚪 Sair
                             </button>
                         )}
@@ -1110,5 +1119,6 @@ export const InternDashboard: React.FC<InternDashboardProps> = ({ intern, userEm
                 onClose={() => setIsMentorshipModalOpen(false)}
             />
         </div>
+    </div>
     );
 };
