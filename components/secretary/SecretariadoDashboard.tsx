@@ -1,5 +1,6 @@
 import { Icon } from '@/components/common/IconComponents';
 import React, { useState, useRef, useMemo } from 'react';
+import { DashboardTopBar } from '../layout/DashboardTopBar';
 import type { Secretary, Case } from '../../types';
 import { ChangePasswordModal } from '../common/ChangePasswordModal';
 import { ChangeEmailModal } from '../common/ChangeEmailModal';
@@ -474,25 +475,16 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
   // ─────────────────────────────────────────────────────────────────────────────
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="bg-neutral-light p-6 sm:p-8 rounded-xl shadow-sm">
-
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 mb-6">
-          <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 text-2xl font-bold shrink-0">
-            {secretary.name.charAt(0)}
-          </div>
-          <div className="text-center sm:text-left">
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Painel do Secret./Assist. Jurídico</h1>
-            <p className="text-gray-600">Bem-vindo(a), {profile.name || secretary.name}!</p>
-            {assignedLawyer && (
-              <button onClick={() => setShowLawyerPopup(true)}
-                className="mt-2 inline-flex items-center gap-2 px-3 py-1.5 bg-green-50 border border-green-200 text-green-700 text-xs font-semibold rounded-full hover:bg-green-100 transition-colors">
-                🎉 Vinculado: {assignedLawyer.name} — Ver informações
-              </button>
-            )}
-          </div>
-        </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-[#0D0B1E]">
+      <DashboardTopBar
+        title={profile.name || secretary.name}
+        subtitle="Painel do Secret./Assist. Jurídico"
+        avatarLetter={secretary.name}
+        role="secretary"
+        onLogout={onLogout}
+      />
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="bg-neutral-light p-6 sm:p-8 rounded-xl shadow-sm">
 
         {assignedLawyer && (
           <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl p-4 mb-6 text-white flex items-center justify-between gap-4">
@@ -535,7 +527,7 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
 
             {onLogout && (
               <button onClick={onLogout}
-                className="py-3 px-2 border-b-2 border-transparent font-medium text-sm text-red-500 hover:text-red-700 hover:border-red-300 transition-colors ml-auto">
+                className="py-3 px-2 border-b-2 border-transparent font-medium text-sm text-red-500 hover:text-red-700 hover:border-red-300 transition-colors ml-auto hidden">
                 🚪 Sair
               </button>
             )}
@@ -710,7 +702,8 @@ export const SecretariadoDashboard: React.FC<SecretariadoDashboardProps> = ({
           <SecretaryEfficiency />
         )}
 
-      </div>
+        </div>{/* end bg-neutral-light */}
+      </div>{/* end container */}
 
       {/* ─── Modals ─── */}
       {showPersonalDocModal && (
