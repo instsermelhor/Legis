@@ -153,13 +153,32 @@ export const LawyerSearch: React.FC<LawyerSearchProps> = ({ lawyers, onSelectLaw
           )}
 
           {/* Filters */}
-          <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Encontre o Advogado Ideal</h2>
+          <div className="bg-white dark:bg-surface-card p-6 sm:p-8 rounded-2xl shadow-lg border border-gray-100 dark:border-white/5 mb-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+              <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white font-montserrat">Encontre o Advogado Ideal</h2>
+              {(areaFilter || locationFilter) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAreaFilter('');
+                    setLocationFilter('');
+                    setUserCoords(null);
+                    setCurrentPage(1);
+                  }}
+                  className="text-xs font-semibold text-primary hover:text-primary-dark dark:hover:text-primary-light flex items-center gap-1 self-start sm:self-auto"
+                >
+                  ✕ Limpar filtros
+                </button>
+              )}
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
               <select
                 value={areaFilter}
-                onChange={e => setAreaFilter(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-md focus:ring-primary focus:border-primary md:col-span-2"
+                onChange={e => {
+                  setAreaFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full p-3.5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50/50 dark:bg-white/5 text-gray-900 dark:text-white md:col-span-2 text-sm font-medium transition-all"
               >
                 <option value="">Todas as Áreas de Atuação</option>
                 {AREAS_OF_LAW.map(area => <option key={area} value={area}>{area}</option>)}
@@ -170,17 +189,17 @@ export const LawyerSearch: React.FC<LawyerSearchProps> = ({ lawyers, onSelectLaw
                   placeholder="Cidade, Estado ou use sua localização"
                   value={locationFilter}
                   onChange={handleLocationInputChange}
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-primary focus:border-primary pr-10"
+                  className="w-full p-3.5 border border-gray-200 dark:border-white/10 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-gray-50/50 dark:bg-white/5 text-gray-900 dark:text-white pr-10 text-sm font-medium transition-all"
                 />
                 <button
                   type="button"
                   onClick={handleGeolocation}
                   disabled={isGeolocating}
-                  className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-primary disabled:text-gray-300"
+                  className="absolute inset-y-0 right-0 flex items-center pr-3.5 text-gray-400 hover:text-primary disabled:text-gray-300 transition-colors"
                   aria-label="Usar minha localização"
                 >
                   {isGeolocating ? (
-                    <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
                     </svg>
@@ -191,20 +210,24 @@ export const LawyerSearch: React.FC<LawyerSearchProps> = ({ lawyers, onSelectLaw
               </div>
               <button
                 onClick={() => setCurrentPage(1)}
-                className="w-full bg-primary text-white font-bold py-3 px-4 rounded-md hover:bg-primary-dark transition-colors"
+                className="w-full btn-primary font-bold py-3.5 px-4 rounded-xl shadow-md shadow-purple-600/20 hover:shadow-purple-600/35 transition-all"
               >
-                Pesquisar
+                Buscar
               </button>
             </div>
-            {geoError && <p className="text-red-600 text-sm mt-2">{geoError}</p>}
+            {geoError && <p className="text-red-500 text-xs mt-2.5 font-medium">{geoError}</p>}
           </div>
 
           {/* Results */}
-          <div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-6">{processedLawyers.length} advogados encontrados</h3>
+          <div id="search-results">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-bold text-gray-800 dark:text-gray-200">
+                {processedLawyers.length} {processedLawyers.length === 1 ? 'advogado encontrado' : 'advogados encontrados'}
+              </h3>
+            </div>
             {paginatedLawyers.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                   {paginatedLawyers.map(lawyer => {
                     const lawyerWithDistance = lawyer as Lawyer & { distance?: number };
                     return (
@@ -222,7 +245,8 @@ export const LawyerSearch: React.FC<LawyerSearchProps> = ({ lawyers, onSelectLaw
                     <button
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className="p-2 rounded-md hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="p-2.5 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      aria-label="Página anterior"
                     >
                       <ChevronLeftIcon className="h-5 w-5" />
                     </button>
@@ -230,7 +254,11 @@ export const LawyerSearch: React.FC<LawyerSearchProps> = ({ lawyers, onSelectLaw
                       <button
                         key={page}
                         onClick={() => handlePageChange(page)}
-                        className={`px-4 py-2 rounded-md text-sm font-medium ${currentPage === page ? 'bg-primary text-white' : 'hover:bg-gray-200'}`}
+                        className={`w-10 h-10 rounded-xl font-bold text-sm transition-all ${
+                          currentPage === page
+                            ? 'bg-primary text-white shadow-md shadow-purple-600/30'
+                            : 'border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/5'
+                        }`}
                       >
                         {page}
                       </button>
@@ -238,7 +266,8 @@ export const LawyerSearch: React.FC<LawyerSearchProps> = ({ lawyers, onSelectLaw
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
-                      className="p-2 rounded-md hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="p-2.5 rounded-xl border border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      aria-label="Próxima página"
                     >
                       <ChevronRightIcon className="h-5 w-5" />
                     </button>
@@ -246,8 +275,25 @@ export const LawyerSearch: React.FC<LawyerSearchProps> = ({ lawyers, onSelectLaw
                 )}
               </>
             ) : (
-              <div className="text-center py-16 bg-white rounded-lg shadow-md">
-                <p className="text-gray-500">Nenhum advogado encontrado com os filtros selecionados.</p>
+              <div className="text-center py-16 bg-white dark:bg-surface-card rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm">
+                <div className="w-16 h-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center text-3xl mx-auto mb-4">
+                  ⚖️
+                </div>
+                <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Nenhum advogado encontrado</h4>
+                <p className="text-gray-500 dark:text-gray-400 text-sm max-w-sm mx-auto mb-6">
+                  Tente ajustar ou limpar os filtros de especialidade ou localização para encontrar profissionais disponíveis.
+                </p>
+                <button
+                  onClick={() => {
+                    setAreaFilter('');
+                    setLocationFilter('');
+                    setUserCoords(null);
+                    setCurrentPage(1);
+                  }}
+                  className="btn-secondary text-sm py-2.5 px-6"
+                >
+                  Ver Todos os Advogados
+                </button>
               </div>
             )}
           </div>
