@@ -40,6 +40,16 @@ const profileCards = [
     color: 'from-teal-500/20 to-emerald-600/10 border-teal-500/25 hover:border-teal-400/50',
     badge: 'bg-teal-500/15 text-teal-300 border-teal-500/30',
   },
+  {
+    icon: '📋',
+    title: 'Sou Secret./Assist.',
+    subtitle: 'Apoio Jurídico & Adm.',
+    desc: 'Conecte-se a escritórios de advocacia que valorizam assistência jurídica e operacional qualificada.',
+    cta: 'Cadastrar Secretariado',
+    action: 'secretary' as const,
+    color: 'from-purple-500/20 to-pink-600/10 border-purple-500/25 hover:border-purple-400/50',
+    badge: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
+  },
 ];
 
 export const SignupPage: React.FC<SignupPageProps> = ({ onClientSignup, onNavigate, onShowTerms }) => {
@@ -48,7 +58,7 @@ export const SignupPage: React.FC<SignupPageProps> = ({ onClientSignup, onNaviga
     if (showClientForm) {
         return (
             <div
-              className="min-h-screen flex items-start justify-center py-12 px-4 relative overflow-hidden"
+              className="min-h-screen flex items-start justify-center py-10 sm:py-14 px-4 relative overflow-hidden"
               style={{ background: 'linear-gradient(135deg, #0F0D1A 0%, #1A1130 50%, #0D1B2A 100%)' }}
             >
               {/* Decorative blobs */}
@@ -60,7 +70,7 @@ export const SignupPage: React.FC<SignupPageProps> = ({ onClientSignup, onNaviga
 
               <div className="relative w-full max-w-xl animate-scale-in">
                 <div
-                  className="rounded-2xl border border-white/8 p-8"
+                  className="rounded-2xl border border-white/8 p-6 sm:p-8"
                   style={{ background: 'rgba(26, 23, 48, 0.88)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)' }}
                 >
                   <button
@@ -91,7 +101,7 @@ export const SignupPage: React.FC<SignupPageProps> = ({ onClientSignup, onNaviga
 
     return (
         <div
-          className="min-h-[75vh] flex items-center justify-center py-20 px-4 relative overflow-hidden"
+          className="min-h-[75vh] flex items-center justify-center py-10 sm:py-14 px-4 sm:px-6 lg:px-8 relative overflow-hidden"
           style={{ background: 'linear-gradient(135deg, #0F0D1A 0%, #1A1130 50%, #0D1B2A 100%)' }}
         >
           {/* Decorative blobs */}
@@ -101,22 +111,22 @@ export const SignupPage: React.FC<SignupPageProps> = ({ onClientSignup, onNaviga
             style={{ backgroundImage: 'radial-gradient(circle, rgba(124,58,237,0.12) 1px, transparent 1px)', backgroundSize: '32px 32px' }}
           />
 
-          <div className="relative w-full max-w-4xl animate-fade-in">
+          <div className="relative w-full max-w-6xl animate-fade-in">
             {/* Header */}
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/15 border border-primary/25 text-accent text-sm font-semibold mb-6">
+            <div className="text-center mb-8 sm:mb-10">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/15 border border-primary/25 text-accent text-sm font-semibold mb-4 sm:mb-6">
                 ✦ Comece gratuitamente
               </div>
-              <h1 className="font-montserrat text-4xl sm:text-5xl font-bold text-white mb-4">
+              <h1 className="font-montserrat text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-3">
                 Junte-se à <span className="text-gradient-purple">LEGIS CONNECT</span>
               </h1>
-              <p className="text-gray-400 text-lg max-w-xl mx-auto">
+              <p className="text-gray-400 text-base sm:text-lg max-w-xl mx-auto">
                 Selecione o tipo de conta que deseja criar e inicie sua jornada no ecossistema jurídico digital.
               </p>
             </div>
 
             {/* Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
               {profileCards.map((card) => (
                 <button
                   key={card.action}
@@ -124,34 +134,37 @@ export const SignupPage: React.FC<SignupPageProps> = ({ onClientSignup, onNaviga
                     if (card.action === 'client') setShowClientForm(true);
                     else if (card.action === 'lawyer') onNavigate('forLawyers');
                     else if (card.action === 'intern') onNavigate('forInterns');
+                    else if (card.action === 'secretary') onNavigate('forSecretariado');
                   }}
                   className={`
-                    group text-left p-8 rounded-2xl border bg-gradient-to-br
+                    group text-left p-6 sm:p-7 rounded-2xl border bg-gradient-to-br
                     transition-all duration-300 hover:-translate-y-2 hover:shadow-glow
-                    cursor-pointer ${card.color}
+                    cursor-pointer ${card.color} flex flex-col justify-between
                   `}
                   style={{ background: 'rgba(26, 23, 48, 0.7)' }}
                 >
-                  {/* Icon */}
-                  <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">
-                    {card.icon}
+                  <div>
+                    {/* Icon */}
+                    <div className="text-4xl mb-3 group-hover:scale-110 transition-transform duration-300">
+                      {card.icon}
+                    </div>
+
+                    {/* Badge */}
+                    <span className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-bold border mb-3 ${card.badge}`}>
+                      {card.subtitle}
+                    </span>
+
+                    {/* Title */}
+                    <h2 className="font-montserrat text-lg font-bold text-white mb-2">{card.title}</h2>
+
+                    {/* Description */}
+                    <p className="text-gray-400 text-xs sm:text-sm leading-relaxed mb-5">{card.desc}</p>
                   </div>
 
-                  {/* Badge */}
-                  <span className={`inline-block px-2.5 py-1 rounded-full text-[11px] font-bold border mb-4 ${card.badge}`}>
-                    {card.subtitle}
-                  </span>
-
-                  {/* Title */}
-                  <h2 className="font-montserrat text-xl font-bold text-white mb-3">{card.title}</h2>
-
-                  {/* Description */}
-                  <p className="text-gray-400 text-sm leading-relaxed mb-6">{card.desc}</p>
-
                   {/* CTA */}
-                  <div className="flex items-center gap-2 text-sm font-semibold text-primary group-hover:text-accent transition-colors">
+                  <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-primary group-hover:text-accent transition-colors pt-2 border-t border-white/5">
                     {card.cta}
-                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
                     </svg>
                   </div>
