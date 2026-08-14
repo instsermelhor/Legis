@@ -195,17 +195,17 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
               <button
                 key={link.view}
                 onClick={() => onNavigate(link.view)}
-                className={`relative px-3.5 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-200 ${
+                className={`relative px-3.5 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200 ${
                   isActive(link.view)
-                    ? 'text-primary bg-primary/10 font-semibold'
+                    ? 'text-primary bg-primary/10 font-bold'
                     : isLandingOrPublic
-                      ? 'text-white/80 hover:text-white hover:bg-white/8'
+                      ? 'text-white/80 hover:text-white hover:bg-white/10'
                       : 'text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary-light hover:bg-gray-100 dark:hover:bg-white/6'
                 }`}
               >
                 {link.label}
                 {isActive(link.view) && (
-                  <span className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
+                  <span className="absolute bottom-0 inset-x-3 h-0.5 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500" />
                 )}
               </button>
             ))}
@@ -217,13 +217,13 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
             {/* Dark mode toggle */}
             <button
               onClick={() => setDarkMode(d => !d)}
-              className={`p-2 rounded-lg transition-all duration-200 ${
+              className={`p-2 rounded-xl transition-all duration-300 hover:scale-105 active:scale-95 ${
                 isLandingOrPublic
                   ? 'text-white/70 hover:text-white hover:bg-white/10'
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/8'
               }`}
               title={darkMode ? 'Modo claro' : 'Modo escuro'}
-              aria-label="Alternar modo escuro"
+              aria-label={darkMode ? 'Alternar para modo claro' : 'Alternar para modo escuro'}
             >
               {darkMode ? <SunIcon /> : <MoonIcon />}
             </button>
@@ -232,7 +232,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
             <button
               onClick={() => setIsSearchOpen(true)}
               title="Busca Global (⌘K)"
-              className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 border ${
+              className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 border ${
                 isLandingOrPublic
                   ? 'text-white/70 border-white/15 hover:bg-white/10 hover:text-white'
                   : 'text-gray-500 dark:text-gray-400 border-gray-200 dark:border-white/10 hover:bg-gray-100 dark:hover:bg-white/8'
@@ -283,8 +283,6 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
               }}
             />
 
-
-
             {/* Deploy Monitor button (admin only) */}
             {user?.role === 'admin' && (
               <button
@@ -312,9 +310,6 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="w-5 h-5">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
-                {unreadCount > 0 && (
-                  <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-surface-card animate-pulse" />
-                )}
               </button>
             )}
 
@@ -350,7 +345,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
                 </button>
                 <button
                   onClick={onOpenProfileSelector}
-                  className="btn-primary text-sm py-2 px-4"
+                  className="btn-primary text-sm py-2 px-4 shadow-md shadow-purple-600/20 hover:shadow-purple-600/35"
                 >
                   Cadastrar-se
                 </button>
@@ -360,11 +355,12 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
             {/* Mobile hamburger */}
             {navLinks.length > 0 && (
               <button
-                className={`lg:hidden p-2 rounded-lg transition-colors ${
+                className={`lg:hidden p-2 rounded-xl transition-colors ${
                   isLandingOrPublic ? 'text-white/80 hover:bg-white/10' : 'text-gray-600 hover:bg-gray-100'
                 }`}
                 onClick={() => setMobileOpen(o => !o)}
-                aria-label="Abrir menu"
+                aria-expanded={mobileOpen}
+                aria-label={mobileOpen ? "Fechar menu de navegação" : "Abrir menu de navegação"}
               >
                 {mobileOpen ? (
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -416,6 +412,7 @@ export const Header: React.FC<HeaderProps> = ({ currentView, onNavigate, user, o
         </div>
       )}
     </header>
+
 
     {/* ── Global overlays ───────────────────────────────────────────────────── */}
     <GlobalSearchModal
