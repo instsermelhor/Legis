@@ -43,12 +43,12 @@ const useVisible = () => {
 const StatCard: React.FC<{ value: number; suffix?: string; label: string; icon: React.ReactNode; started: boolean }> = ({ value, suffix = '+', label, icon, started }) => {
   const count = useCounter(value, 2200, started);
   return (
-    <div className="text-center">
-      <div className="mb-2 flex justify-center">{icon}</div>
-      <div className="font-montserrat text-4xl md:text-5xl font-bold text-gradient-purple mb-1">
+    <div className="text-center p-4 rounded-2xl bg-white/[0.02] border border-white/5 backdrop-blur-sm hover:border-primary/25 transition-all duration-300">
+      <div className="mb-3 flex justify-center text-primary-light">{icon}</div>
+      <div className="font-montserrat text-3xl sm:text-4xl md:text-5xl font-extrabold text-gradient-purple mb-1">
         {count.toLocaleString('pt-BR')}{suffix}
       </div>
-      <div className="text-sm text-gray-400 font-medium tracking-wide uppercase">{label}</div>
+      <div className="text-xs sm:text-sm text-gray-400 font-semibold tracking-wide uppercase">{label}</div>
     </div>
   );
 };
@@ -59,24 +59,28 @@ const testimonials = [
     name: 'Dra. Ana Carolina Lima',
     role: 'Advogada Tributarista · OAB/SP 245.891',
     text: 'A LEGIS CONNECT transformou minha captação de clientes. Em 3 meses, tripliquei o número de consultas qualificadas. A plataforma transmite exatamente o nível de profissionalismo que meu escritório exige.',
-    avatar: '⚖️',
+    initials: 'AL',
+    gradient: 'from-purple-600 to-indigo-600',
     rating: 5,
   },
   {
     name: 'Carlos Eduardo Mendes',
     role: 'Empresário · São Paulo, SP',
     text: 'Encontrei o advogado ideal para minha empresa em menos de 2 dias. O processo foi transparente, seguro e extremamente eficiente. Não consigo imaginar como funcionava antes dessa tecnologia.',
-    avatar: '💼',
+    initials: 'CM',
+    gradient: 'from-blue-600 to-cyan-600',
     rating: 5,
   },
   {
     name: 'Dr. Roberto Alves',
     role: 'Advogado Criminalista · OAB/RJ 184.320',
     text: 'O sistema de gerenciamento de casos é excepcional. Consigo acompanhar todos os meus processos, comunicar com clientes e organizar documentos em um único lugar. Recomendo fortemente.',
-    avatar: '🏛️',
+    initials: 'RA',
+    gradient: 'from-amber-600 to-rose-600',
     rating: 5,
   },
 ];
+
 
 // ── Feature card ──────────────────────────────────────────────────────────
 const features = [
@@ -193,32 +197,38 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
 
               {/* CTA buttons */}
               <div className="animate-slide-up delay-300 flex flex-wrap gap-4">
-                <a href="#buscar" className="btn-primary text-base py-3.5 px-7">
+                <button
+                  onClick={() => document.getElementById('buscar')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="btn-primary text-base py-3.5 px-7 flex items-center gap-2 cursor-pointer shadow-lg shadow-purple-600/25 hover:shadow-purple-600/40"
+                >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                   Buscar Advogado Agora
-                </a>
-                <a href="#como-funciona" className="btn-secondary text-base py-3.5 px-7">
+                </button>
+                <button
+                  onClick={() => document.getElementById('como-funciona')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="btn-secondary text-base py-3.5 px-7 flex items-center gap-2 cursor-pointer"
+                >
                   Como funciona
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7"/></svg>
-                </a>
+                </button>
               </div>
 
               {/* Trust badges */}
               <div className="animate-fade-in delay-500 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-400">
                 <span className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
+                  <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
                   LGPD Compliant
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
+                  <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
                   Verificado OAB
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
+                  <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
                   Criptografia TLS
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <svg className="w-4 h-4 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
+                  <svg className="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/></svg>
                   Atendimento 24h
                 </span>
               </div>
@@ -239,11 +249,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
             </div>
 
             {/* Right: search form card */}
-            <div id="buscar" className="animate-scale-in delay-300">
-              <div className="card-dark p-8 hover-glow">
+            <div id="buscar" className="animate-scale-in delay-300 scroll-mt-24">
+              <div className="card-dark p-6 sm:p-8 hover-glow rounded-3xl border border-white/10 shadow-2xl">
                 {/* Form header */}
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-xl"><Icon name="⚖" className="w-4 h-4 inline-block mr-1 align-text-bottom" />️</div>
+                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary-light">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                    </svg>
+                  </div>
                   <div>
                     <h2 className="font-montserrat text-lg font-bold text-white">Descreva seu Caso</h2>
                     <p className="text-sm text-gray-400">Nossa IA encontrará o advogado ideal</p>
@@ -261,63 +275,58 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
       </section>
 
       {/* ═══════════════════════════════════════════════════════════════════
-          CONFORMIDADE BANNER — always visible right below the hero
-      ═══════════════════════════════════════════════════════════════════ */}
-      <section className="relative z-20 bg-gradient-to-r from-[#0D0B1E] via-[#1a1035] to-[#0D0B1E] border-y border-gold/25 py-0">
-        {/* Animated shimmer line */}
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gold/60 to-transparent animate-pulse" />
-        <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent" />
-
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-5">
-
-            {/* Left: compliance chips */}
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gold/10 border border-gold/30 text-gold text-xs font-bold uppercase tracking-widest">
-                ⚖️ Plataforma 100% Regulamentada
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
-                ✔ Provimento CFOAB 205/2021
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-400/30 text-violet-300 text-xs font-semibold">
-                🔐 Lei nº 8.906/1994 · LGPD
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/30 text-blue-300 text-xs font-semibold">
-                🛡 Inscrição OAB Verificada
-              </span>
-            </div>
-
-            {/* Right: CTA to open ethics modal */}
-            {onShowEtica && (
-              <button
-                onClick={onShowEtica}
-                className="whitespace-nowrap inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gold/15 hover:bg-gold/25 border border-gold/40 hover:border-gold/70 text-gold font-bold text-sm transition-all duration-300 hover:scale-105 shadow-lg shadow-gold/10 group"
-              >
-                <span className="text-base">📜</span>
-                <span>Ver Código de Ética OAB Completo</span>
-                <svg className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/>
-                </svg>
-              </button>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════════════
           STATS SECTION
       ═══════════════════════════════════════════════════════════════════ */}
-      <section ref={statsRef} className="py-8 sm:py-10 lg:py-12 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #0F0D1A 0%, #13102A 100%)' }}>
+      <section ref={statsRef} className="py-10 sm:py-12 relative overflow-hidden" style={{ background: 'linear-gradient(180deg, #0F0D1A 0%, #13102A 100%)' }}>
         <div className="absolute inset-0 dot-grid opacity-20 pointer-events-none" />
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 md:gap-10">
-            <StatCard value={1200} label="Advogados Verificados" icon={<Icon name="scale" className="w-10 h-10 text-accent" />} started={statsVisible} />
-            <StatCard value={8500} label="Casos Conectados" icon={<Icon name="folder" className="w-10 h-10 text-accent" />} started={statsVisible} />
-            <StatCard value={27} label="Estados Atendidos" icon={<Icon name="globe" className="w-10 h-10 text-accent" />} started={statsVisible} suffix="+" />
-            <StatCard value={98} label="Satisfação dos Clientes" icon={<Icon name="star" className="w-10 h-10 text-accent" />} started={statsVisible} suffix="%" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+            <StatCard 
+              value={1200} 
+              label="Advogados Verificados" 
+              icon={
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                </svg>
+              } 
+              started={statsVisible} 
+            />
+            <StatCard 
+              value={8500} 
+              label="Casos Conectados" 
+              icon={
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              } 
+              started={statsVisible} 
+            />
+            <StatCard 
+              value={27} 
+              label="Estados Atendidos" 
+              icon={
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              } 
+              started={statsVisible} 
+              suffix="+" 
+            />
+            <StatCard 
+              value={98} 
+              label="Satisfação dos Clientes" 
+              icon={
+                <svg className="w-8 h-8 text-amber-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                </svg>
+              } 
+              started={statsVisible} 
+              suffix="%" 
+            />
           </div>
         </div>
       </section>
+
 
       {/* ═══════════════════════════════════════════════════════════════════
           FEATURES SECTION
@@ -517,30 +526,31 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onSearch, onNavigate, 
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {testimonials.map((t, i) => (
-              <div key={i} className={`reveal-section card-dark p-8 hover-glow delay-${(i + 1) * 150}`}>
+              <div key={i} className="reveal-section card-dark p-8 hover-glow rounded-3xl border border-white/5 bg-white/[0.02]">
                 {/* Stars */}
-                <div className="flex gap-0.5 mb-4">
+                <div className="flex gap-1 mb-4">
                   {Array.from({ length: t.rating }).map((_, j) => (
-                    <svg key={j} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                    <svg key={j} className="w-4 h-4 text-amber-400 fill-current" viewBox="0 0 20 20">
                       <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
                     </svg>
                   ))}
                 </div>
                 {/* Quote */}
                 <p className="text-gray-300 text-sm leading-relaxed mb-6 italic">"{t.text}"</p>
-                {/* Author */}
+                {/* Author with stylized initials avatar */}
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-xl">
-                    {t.avatar}
+                  <div className={`w-10 h-10 rounded-full bg-gradient-to-tr ${t.gradient} flex items-center justify-center text-sm font-extrabold text-white shadow-md`}>
+                    {t.initials}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-white">{t.name}</p>
-                    <p className="text-xs text-gray-500">{t.role}</p>
+                    <p className="text-sm font-bold text-white">{t.name}</p>
+                    <p className="text-xs text-gray-400">{t.role}</p>
                   </div>
                 </div>
               </div>
             ))}
           </div>
+
         </div>
       </section>
 
