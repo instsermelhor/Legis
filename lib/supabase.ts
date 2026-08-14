@@ -21,15 +21,18 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = (import.meta as any).env?.VITE_SUPABASE_URL as string | undefined;
-const supabaseKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY as string | undefined;
+const rawUrl = (import.meta as any).env?.VITE_SUPABASE_URL as string | undefined;
+const rawKey = (import.meta as any).env?.VITE_SUPABASE_ANON_KEY as string | undefined;
+
+const sanitizedUrl = typeof rawUrl === 'string' && rawUrl.trim().length > 0 ? rawUrl.trim() : undefined;
+const sanitizedKey = typeof rawKey === 'string' && rawKey.trim().length > 0 ? rawKey.trim() : undefined;
 
 /** Verifica se o Supabase está configurado com credenciais reais. */
 export const isSupabaseConfigured =
-  !!supabaseUrl &&
-  supabaseUrl !== 'https://placeholder.supabase.co' &&
-  !!supabaseKey &&
-  supabaseKey !== 'placeholder-key';
+  Boolean(sanitizedUrl) &&
+  sanitizedUrl !== 'https://placeholder.supabase.co' &&
+  Boolean(sanitizedKey) &&
+  sanitizedKey !== 'placeholder-key';
 
 if (!isSupabaseConfigured) {
   console.warn(
@@ -46,13 +49,13 @@ if (!isSupabaseConfigured) {
  * Já gerencia sessão JWT automaticamente (refresh token, persistência).
  */
 export const supabase = createClient(
-  supabaseUrl ?? 'https://placeholder.supabase.co',
-  supabaseKey ?? 'placeholder-key',
+  sanitizedUrl || 'https://placeholder.supabase.co',
+  sanitizedKey || 'placeholder-key',
   {
     auth: {
-      persistSession: true,
-      autoRefreshToken: true,
-      detectSessionInUrl: true,
+      persistSession: isSupabaseConfigured,
+      autoRefreshToken: isSupabaseConfigured,
+      detectSessionInUrl: isSupabaseConfigured,
     },
     global: {
       headers: {
