@@ -227,11 +227,12 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
       {/* Card */}
       <div
-        className="relative w-full max-w-md animate-scale-in"
+        className="relative w-full max-w-md animate-scale-in max-h-[90vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
+        style={{ scrollbarWidth: 'none' }}
       >
         <div
-          className="rounded-2xl border border-white/10 p-7 sm:p-9 shadow-2xl"
+          className="rounded-2xl border border-white/10 p-6 sm:p-8 shadow-2xl"
           style={{ background: 'rgba(18, 15, 38, 0.96)', backdropFilter: 'blur(24px)' }}
         >
           {/* Close button */}
