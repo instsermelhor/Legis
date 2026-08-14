@@ -46,6 +46,7 @@ export default defineConfig(({ mode }) => {
                 if (id.includes('jspdf') || id.includes('html2canvas')) return 'vendor-pdf';
                 if (id.includes('xlsx') || id.includes('papaparse')) return 'vendor-excel';
                 if (id.includes('@google/genai')) return 'vendor-ai';
+                if (id.includes('@supabase')) return 'vendor-supabase';
                 if (id.includes('dompurify')) return 'vendor-security';
                 // React core (react, react-dom, scheduler)
                 if (
