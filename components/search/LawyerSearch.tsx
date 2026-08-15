@@ -304,6 +304,7 @@ export const LawyerSearch: React.FC<LawyerSearchProps> = ({ lawyers, onSelectLaw
       <GatedSearchModal
         isOpen={showGate}
         onUnlock={handleUnlock}
+        onClose={() => setShowGate(false)}
         query={locationFilter}
       />
     </div>
