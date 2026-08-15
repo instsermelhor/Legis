@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SearchStore, LeadStore } from '../../utils/sessionStore';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface GatedSearchModalProps {
   isOpen: boolean;
   onUnlock: () => void;
+  onClose?: () => void;
   /** The search query that triggered the gating */
   query?: string;
 }
@@ -22,6 +23,7 @@ const maskCpf = (v: string) =>
 export const GatedSearchModal: React.FC<GatedSearchModalProps> = ({
   isOpen,
   onUnlock,
+  onClose,
   query = '',
 }) => {
   const [name, setName]       = useState('');
@@ -30,6 +32,24 @@ export const GatedSearchModal: React.FC<GatedSearchModalProps> = ({
   const [error, setError]     = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [done, setDone]       = useState(false);
+
+  // Esc key listener + body scroll lock
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && onClose) {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isOpen, onClose]);
 
   const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCpf(maskCpf(e.target.value));
@@ -61,20 +81,40 @@ export const GatedSearchModal: React.FC<GatedSearchModalProps> = ({
       className="fixed inset-0 z-[9998] flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
-      aria-label="Liberar acesso à busca"
+      aria-labelledby="gated-search-title"
     >
-      {/* Backdrop — NOT dismissible (gated content stays) */}
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-md" />
+      {/* Backdrop — dismissible on click */}
+      <div
+        className="absolute inset-0 bg-black/80 backdrop-blur-md animate-fade-in cursor-pointer"
+        onClick={onClose}
+        aria-hidden="true"
+      />
 
       {/* Card */}
       <div
-        className="relative w-full max-w-md animate-scale-in"
+        className="relative w-full max-w-md animate-scale-in max-h-[90vh] overflow-y-auto"
         onClick={e => e.stopPropagation()}
+        style={{ scrollbarWidth: 'none' }}
       >
         <div
-          className="rounded-2xl border border-white/10 p-7 sm:p-9"
+          className="relative rounded-2xl border border-white/10 p-7 sm:p-9 shadow-2xl"
           style={{ background: 'rgba(14, 11, 30, 0.97)', backdropFilter: 'blur(24px)' }}
         >
+          {/* Close button */}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 p-2 rounded-xl text-gray-400 hover:text-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-primary/40 transition-all z-10"
+              aria-label="Fechar modal de liberação de acesso"
+              title="Fechar"
+              type="button"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          )}
+
           {done ? (
             /* ─── Success state ────────────────────────────────────────────── */
             <div className="text-center py-4 animate-scale-in">
@@ -92,7 +132,7 @@ export const GatedSearchModal: React.FC<GatedSearchModalProps> = ({
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-primary/20 border border-primary/30 text-xl mb-3">
                   🔓
                 </div>
-                <h2 className="font-montserrat text-xl font-bold text-white mb-1">
+                <h2 id="gated-search-title" className="font-montserrat text-xl font-bold text-white mb-1">
                   Libere o Acesso Gratuito
                 </h2>
                 <p className="text-sm text-gray-400 leading-relaxed">
@@ -198,6 +238,19 @@ export const GatedSearchModal: React.FC<GatedSearchModalProps> = ({
                   )}
                 </button>
               </form>
+
+              {/* Dismiss / Continue as visitor */}
+              {onClose && (
+                <div className="mt-4 text-center">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="text-xs text-gray-400 hover:text-white transition-colors underline underline-offset-4 py-1"
+                  >
+                    Continuar navegando como visitante →
+                  </button>
+                </div>
+              )}
 
               <p className="text-center text-[10px] text-gray-600 mt-4 leading-relaxed">
                 Seus dados são protegidos conforme a LGPD (Lei nº 13.709/2018). Não compartilhamos com terceiros.
