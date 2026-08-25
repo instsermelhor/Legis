@@ -103,6 +103,7 @@ const MAX_REPORTS_PER_WINDOW = 5;
 // Armazenamento em memória para SSR / testes / cache
 let memoryStore: ErrorReportRecord[] = [];
 const idempotencyMap = new Map<string, string>();
+const inFlightMap = new Map<string, Promise<{ success: boolean; reportId: string; isDuplicate?: boolean; isSecurityIncident?: boolean; error?: string }>>();
 const userSubmissionTimestamps = new Map<string, number[]>();
 
 function getStoredReports(): ErrorReportRecord[] {
@@ -134,6 +135,7 @@ export class ErrorReportingService {
   static resetForTesting(): void {
     memoryStore = [];
     idempotencyMap.clear();
+    inFlightMap.clear();
     userSubmissionTimestamps.clear();
     try {
       if (typeof localStorage !== 'undefined') {
@@ -223,10 +225,16 @@ export class ErrorReportingService {
       const tenantId = input.tenantId || 'tenant_default';
       const userRole = input.userRole || 'client';
 
-      // 1. Idempotência (Verificação Prévia)
+      // 1. Idempotência (Verificação Prévia & In-Flight Lock)
       const idemKey = input.idempotencyKey;
-      if (idemKey && idempotencyMap.has(idemKey)) {
-        return { success: true, reportId: idempotencyMap.get(idemKey)!, isDuplicate: true };
+      if (idemKey) {
+        if (idempotencyMap.has(idemKey)) {
+          return { success: true, reportId: idempotencyMap.get(idemKey)!, isDuplicate: true };
+        }
+        if (inFlightMap.has(idemKey)) {
+          const inFlightRes = await inFlightMap.get(idemKey)!;
+          return { ...inFlightRes, isDuplicate: true };
+        }
       }
 
       // 2. Rate Limiting Check
