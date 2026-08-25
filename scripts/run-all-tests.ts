@@ -52,6 +52,7 @@ import { runUmlSequenceTests } from '../tests/integration/umlSequence.test';
 import { runDatabaseRlsSecurityTests } from '../tests/multitenancy/rls-database-security.test';
 import { runMultiTenancyTests } from '../tests/multitenancy/tenant-isolation.test';
 import { runModuleCatalogTests } from '../tests/unit/moduleCatalog.test';
+import { runErrorReportingTests } from '../tests/unit/errorReporting.test';
 
 interface SuiteResult {
   suiteName: string;
@@ -151,7 +152,9 @@ export async function runAllSuites(): Promise<SuiteResult[]> {
   suites.push(await executeSuite('16. Tenant Isolation & IDOR Defense', 'MULTITENANCY', runMultiTenancyTests));
 
   // Suíte de Arquitetura Modular & Catálogo
+  // Suíte de Error Reporting & Gestão de Incidentes
   suites.push(await executeSuite('17. Module Catalog & Entitlements Engine', 'SECURITY', runModuleCatalogTests));
+  suites.push(await executeSuite('18. Error Reporting & Incident Management', 'SECURITY', runErrorReportingTests));
 
   // Impressão dos resultados
   let totalTestsAll = 0;
