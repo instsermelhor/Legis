@@ -39,7 +39,8 @@ if (typeof globalThis.window === 'undefined') {
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
-import { RBAC_MATRIX, SystemRole } from '../security/rbacMatrix';
+import { RBAC_MATRIX } from '../security/rbacMatrix';
+import type { SystemRole } from '../security/rbac';
 import { auditOwaspTop10 } from '../security/securityAuditEngine';
 
 export type Severity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO';
@@ -176,7 +177,7 @@ function runSastScan(sourceFiles: string[]): SecurityFinding[] {
     },
     {
       id: 'SAST-003',
-      regex: /(?:SELECT|INSERT|UPDATE|DELETE)\s+[^\n;`"']*\$\{[^}]+\}/i,
+      regex: /(?:\.query|\.rpc|sql`|rawSql|\.raw\()\s*[^;\n]*(?:SELECT|INSERT|UPDATE|DELETE|WHERE|FROM)[^;\n]*\$\{[^}]+\}/i,
       title: 'Interpolação de Strings em Queries SQL (Risco de SQLi)',
       severity: 'CRITICAL',
       exploitability: 'EXPLOITABLE',
@@ -278,10 +279,12 @@ function runSecretsScan(sourceFiles: string[]): SecurityFinding[] {
 function runRbacSecurityScan(): SecurityFinding[] {
   const findings: SecurityFinding[] = [];
 
-  // Validar se todas as 10 roles oficiais estão mapeadas no RBAC
+  // Validar se todas as roles oficiais do sistema estão mapeadas no RBAC
+  // Sincronizado com o tipo SystemRole em security/rbac.ts
   const requiredRoles = [
-    'super_admin', 'admin', 'staff_support', 'staff_finance_admin',
-    'staff_security_officer', 'staff_operations', 'lawyer', 'secretary',
+    'super_admin', 'admin', 'staff_finance_admin',
+    'staff_compliance_auditor', 'staff_support_l1',
+    'gestor', 'lawyer', 'secretary',
     'legal_assistant', 'intern', 'student', 'client'
   ];
 
