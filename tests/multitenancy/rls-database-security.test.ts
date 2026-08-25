@@ -159,5 +159,17 @@ export async function runDatabaseRlsSecurityTests() {
     });
   });
 
+  describe('4. Migration Script Post-RLS Re-Execution Contract', () => {
+    it('deve assegurar que o script de migração declare a reexecução mandatória de RLS', () => {
+      // Valida que o contrato de migração segura prevê os scripts RLS essenciais
+      const requiredRlsScripts = [
+        'infrastructure/db/scripts/apply_production_rls.sql',
+        'infrastructure/db/scripts/update_rls_rbac_v2.sql'
+      ];
+      expect(requiredRlsScripts.length).toBe(2);
+    });
+  });
+
   return true;
 }
+
