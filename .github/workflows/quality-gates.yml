@@ -1,5 +1,6 @@
 # Legis Connect — Enterprise Quality Gates Pipeline
 # Cadeia de Garantia de Qualidade e Segurança para Push e Pull Requests
+# Security Gate: CRITICAL ou HIGH não mitigado = DEPLOY BLOCKED (exit 1)
 
 name: Quality Gates
 
@@ -13,7 +14,7 @@ jobs:
   enterprise-quality-gate:
     name: "Enterprise Quality Gate"
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -39,14 +40,18 @@ jobs:
       - name: 4. Master Automated Test Suite (22 Suites)
         run: npm test
 
-      - name: 5. Production Build Gate (Vite Bundle Compilation)
+      - name: 5. 🛡️ Enterprise Security Audit Gate (SAST + RBAC + RLS + Headers)
+        run: npm run sast
+        # EXIT CODE 1 se CRITICAL ou HIGH não mitigado → bloqueia deploy automaticamente
+
+      - name: 6. Production Build Gate (Vite Bundle Compilation)
         run: npm run build
         env:
           NODE_ENV: production
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-      - name: 6. Verify Production Artifacts
+      - name: 7. Verify Production Artifacts
         run: |
           echo "=== Dist Artifacts Verification ==="
           ls -lh dist/
