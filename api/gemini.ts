@@ -18,7 +18,9 @@ interface VercelResponse {
   setHeader: (key: string, value: string) => void;
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+import { EdgeShield } from './_edge-shield';
+
+async function geminiHandler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -63,3 +65,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(500).json({ error: 'Erro interno no proxy Gemini.' });
   }
 }
+
+export default EdgeShield.wrapHandler(geminiHandler);
+
