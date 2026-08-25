@@ -8,6 +8,7 @@ on:
 
 jobs:
   security-and-build:
+    name: "DevSecOps Master Pipeline"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -22,19 +23,25 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: ESLint Security Scan
+      - name: 1. ESLint Security Scan
         run: npm run lint
 
-      - name: npm audit (high severity only)
-        run: npm audit --audit-level=high
-        continue-on-error: true
+      - name: 2. TypeScript Static Typecheck
+        run: npm run typecheck
 
-      - name: Secret Scanning Gate
+      - name: 3. Secret Scanning Gate
         run: npm run secret-scan
 
-      - name: Build check
+      - name: 4. Automated Testing Pipeline (22 Suites)
+        run: npm test
+
+      - name: 5. Production Build Verification
         run: npm run build
         env:
           NODE_ENV: production
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: 6. Dependency Vulnerability Audit
+        run: npm audit --audit-level=high
+        continue-on-error: true
