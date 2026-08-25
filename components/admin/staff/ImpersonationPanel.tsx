@@ -107,7 +107,6 @@ export const ImpersonationPanel: React.FC<ImpersonationPanelProps> = ({
       if (raw) {
         const s: ImpersonationSession = JSON.parse(raw);
         if (new Date(s.expiresAt).getTime() > Date.now()) {
-          // eslint-disable-next-line react-hooks/set-state-in-effect
           setActiveSession(s);
         } else {
           sessionStorage.removeItem(IMPERSONATION_KEY);
