@@ -26,8 +26,8 @@ import { SystemRole } from '../../security/rbac';
 
 export const AdminErrorReportsTab: React.FC = () => {
   const secCtx = getSecurityContext();
-  const userRole = (secCtx.role || 'admin') as SystemRole;
-  const tenantId = secCtx.tenantId || 'tenant_default';
+  const userRole = (secCtx?.role || 'admin') as SystemRole;
+  const tenantId = secCtx?.tenantId || 'tenant_default';
 
   const [reports, setReports] = useState<ErrorReportRecord[]>([]);
   const [selectedReport, setSelectedReport] = useState<ErrorReportRecord | null>(null);
