@@ -46,7 +46,8 @@ export type Resource =
   | 'audit'
   | 'ai'
   | 'system'
-  | 'roles';
+  | 'roles'
+  | 'error_reports';
 
 // ─── Actions ──────────────────────────────────────────────────────────────────
 
@@ -117,6 +118,7 @@ export const RBAC_MATRIX: FullMatrix = {
     audit:         { CREATE:'ALLOW',READ:'ALLOW',UPDATE:'ALLOW',DELETE:'ALLOW',LIST:'ALLOW',EXPORT:'ALLOW',AUDIT:'ALLOW' },
     ai:            { CREATE:'ALLOW',READ:'ALLOW',UPDATE:'ALLOW',DELETE:'ALLOW',LIST:'ALLOW',EXPORT:'ALLOW',MANAGE:'ALLOW',CONFIGURE:'ALLOW' },
     system:        { CREATE:'ALLOW',READ:'ALLOW',UPDATE:'ALLOW',DELETE:'ALLOW',LIST:'ALLOW',EXPORT:'ALLOW',CONFIGURE:'ALLOW',AUDIT:'ALLOW',MANAGE:'ALLOW' },
+    error_reports: { CREATE:'ALLOW',READ:'ALLOW',UPDATE:'ALLOW',DELETE:'ALLOW',LIST:'ALLOW',EXPORT:'ALLOW' },
   },
 
   // ── ADMIN ────────────────────────────────────────────────────────────────────
@@ -144,6 +146,7 @@ export const RBAC_MATRIX: FullMatrix = {
     audit:         { READ:'ALLOW',LIST:'ALLOW',EXPORT:'ALLOW',DELETE:'DENY',AUDIT:'ALLOW' },
     ai:            { READ:'ALLOW',MANAGE:'DENY',CONFIGURE:'DENY' },
     system:        { READ:'ALLOW',CONFIGURE:'DENY',AUDIT:'ALLOW',MANAGE:'DENY' },
+    error_reports: { CREATE:'ALLOW',READ:'ALLOW',UPDATE:'ALLOW',DELETE:'DENY',LIST:'ALLOW',EXPORT:'DENY' },
   },
 
   // ── STAFF — FINANCE ADMIN ────────────────────────────────────────────────────
@@ -161,6 +164,7 @@ export const RBAC_MATRIX: FullMatrix = {
     notifications: { READ:'ALLOW' },
     audit:         { READ:'ALLOW',LIST:'ALLOW',EXPORT:'ALLOW',DELETE:'DENY' },
     system:        { READ:'ALLOW',CONFIGURE:'DENY' },
+    error_reports: { CREATE:'ALLOW',READ:'ALLOW',LIST:'ALLOW' },
   },
 
   // ── STAFF — COMPLIANCE AUDITOR ────────────────────────────────────────────────
@@ -180,6 +184,7 @@ export const RBAC_MATRIX: FullMatrix = {
     audit:         { READ:'ALLOW',LIST:'ALLOW',EXPORT:'ALLOW',DELETE:'DENY',AUDIT:'ALLOW' },
     provisioning:  { READ:'ALLOW' },
     system:        { READ:'ALLOW',CONFIGURE:'DENY' },
+    error_reports: { CREATE:'ALLOW',READ:'ALLOW',LIST:'ALLOW',EXPORT:'ALLOW' },
   },
 
   // ── STAFF — SUPPORT L1 ────────────────────────────────────────────────────────
@@ -194,6 +199,7 @@ export const RBAC_MATRIX: FullMatrix = {
     financial:     { READ:'DENY' },
     escrow:        { READ:'DENY' },
     system:        { READ:'ALLOW',CONFIGURE:'DENY' },
+    error_reports: { CREATE:'ALLOW',READ:'ALLOW',LIST:'ALLOW' },
   },
 
   // ── GESTOR ────────────────────────────────────────────────────────────────────
@@ -229,6 +235,7 @@ export const RBAC_MATRIX: FullMatrix = {
     system:        { READ:'DENY',CONFIGURE:'DENY' },
     staff:         { READ:'DENY',DELEGATE:'DENY' },
     registrations: { READ:'DENY' },
+    error_reports: { CREATE:'ALLOW',READ:'CONDITIONAL',LIST:'CONDITIONAL' },
   },
 
   // ── LAWYER ────────────────────────────────────────────────────────────────────
@@ -251,6 +258,7 @@ export const RBAC_MATRIX: FullMatrix = {
     ai:            { READ:'ALLOW' },
     system:        { READ:'DENY',CONFIGURE:'DENY' },
     staff:         { READ:'CONDITIONAL',DELEGATE:'ALLOW',REVOKE:'ALLOW' }, // apenas sua secretária/estagiário
+    error_reports: { CREATE:'ALLOW',READ:'CONDITIONAL' },
   },
 
   // ── SECRETARY ─────────────────────────────────────────────────────────────────
@@ -274,6 +282,7 @@ export const RBAC_MATRIX: FullMatrix = {
     academic:      { READ:'DENY' },
     content:       { READ:'DENY' },
     security:      { READ:'DENY' },
+    error_reports: { CREATE:'ALLOW' },
   },
 
   // ── LEGAL ASSISTANT ───────────────────────────────────────────────────────────
@@ -297,6 +306,7 @@ export const RBAC_MATRIX: FullMatrix = {
     academic:      { READ:'DENY' },
     content:       { READ:'DENY' },
     security:      { READ:'DENY' },
+    error_reports: { CREATE:'ALLOW' },
   },
 
   // ── INTERN ────────────────────────────────────────────────────────────────────
@@ -320,6 +330,7 @@ export const RBAC_MATRIX: FullMatrix = {
     registrations: { READ:'DENY' },
     content:       { READ:'DENY' },
     security:      { READ:'DENY' },
+    error_reports: { CREATE:'ALLOW' },
   },
 
   // ── STUDENT ────────────────────────────────────────────────────────────────────
@@ -343,6 +354,7 @@ export const RBAC_MATRIX: FullMatrix = {
     staff:         { READ:'DENY',DELEGATE:'DENY' },
     registrations: { READ:'DENY' },
     security:      { READ:'DENY' },
+    error_reports: { CREATE:'ALLOW' },
   },
 
   // ── CLIENT ────────────────────────────────────────────────────────────────────
@@ -358,6 +370,7 @@ export const RBAC_MATRIX: FullMatrix = {
     financial:     { READ:'CONDITIONAL',LIST:'CONDITIONAL',EXPORT:'DENY',CHARGEBACK:'DENY',APPROVE:'DENY' }, // apenas próprio financeiro
     escrow:        { READ:'CONDITIONAL',LIST:'CONDITIONAL',CREATE:'DENY',RELEASE:'DENY',DISPUTE:'DENY',MANAGE:'DENY' }, // leitura dos seus escrows
     notifications: { READ:'ALLOW' },
+    error_reports: { CREATE:'ALLOW',READ:'CONDITIONAL' },
     audit:         { READ:'CONDITIONAL',LIST:'CONDITIONAL',DELETE:'DENY' }, // somente seus logs
     ai:            { READ:'DENY' },
     system:        { READ:'DENY',CONFIGURE:'DENY' },
