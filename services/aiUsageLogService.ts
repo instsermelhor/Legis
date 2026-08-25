@@ -99,3 +99,110 @@ export function pruneAiUsageLogs(olderThanDays = 90): void {
   const filtered = getAiUsageLogs().filter((l) => l.createdAt >= cutoff);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Quota Management & 80% Threshold Alert Engine
+// ─────────────────────────────────────────────────────────────────────────────
+
+const QUOTA_CONFIG_KEY = 'legis_ai_quota_config';
+
+export interface AiQuotaConfig {
+  monthlyQuotaTokens: number;      // Padrão: 2.000.000 tokens/mês
+  alertThresholdPercent: number;   // Padrão: 80%
+  criticalThresholdPercent: number;// Padrão: 95%
+  hardLimitEnabled: boolean;       // Bloquear ao atingir 100%
+}
+
+export interface AiQuotaStatus {
+  monthlyQuotaTokens: number;
+  usedTokensCurrentMonth: number;
+  remainingTokens: number;
+  percentageUsed: number;
+  status: 'NORMAL' | 'WARNING_80' | 'CRITICAL_95' | 'EXCEEDED';
+  alertTriggered: boolean;
+  message: string;
+}
+
+export const DEFAULT_AI_QUOTA_CONFIG: AiQuotaConfig = {
+  monthlyQuotaTokens: 2_000_000,
+  alertThresholdPercent: 80,
+  criticalThresholdPercent: 95,
+  hardLimitEnabled: true,
+};
+
+export function getAiQuotaConfig(): AiQuotaConfig {
+  try {
+    const raw = localStorage.getItem(QUOTA_CONFIG_KEY);
+    return raw ? { ...DEFAULT_AI_QUOTA_CONFIG, ...JSON.parse(raw) } : DEFAULT_AI_QUOTA_CONFIG;
+  } catch {
+    return DEFAULT_AI_QUOTA_CONFIG;
+  }
+}
+
+export function saveAiQuotaConfig(config: Partial<AiQuotaConfig>): AiQuotaConfig {
+  const current = getAiQuotaConfig();
+  const updated = { ...current, ...config };
+  localStorage.setItem(QUOTA_CONFIG_KEY, JSON.stringify(updated));
+  return updated;
+}
+
+/** Calcula o status da cota mensal com base no consumo desde o primeiro dia do mês corrente */
+export function getAiMonthlyQuotaStatus(): AiQuotaStatus {
+  const config = getAiQuotaConfig();
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+  const logs = getAiUsageLogs();
+  const currentMonthLogs = logs.filter((l) => l.createdAt >= startOfMonth);
+  const usedTokens = currentMonthLogs.reduce((acc, l) => acc + l.tokensIn + l.tokensOut, 0);
+
+  const percentageUsed = config.monthlyQuotaTokens > 0
+    ? Math.min(100, Number(((usedTokens / config.monthlyQuotaTokens) * 100).toFixed(1)))
+    : 0;
+
+  const remainingTokens = Math.max(0, config.monthlyQuotaTokens - usedTokens);
+
+  let status: AiQuotaStatus['status'] = 'NORMAL';
+  let alertTriggered = false;
+  let message = 'Consumo dentro dos limites operacionais normais.';
+
+  if (percentageUsed >= 100) {
+    status = 'EXCEEDED';
+    alertTriggered = true;
+    message = 'ALERTA CRÍTICO: Cota mensal de 100% de tokens foi atingida! Modo de proteção contra sobrecarga ativado.';
+  } else if (percentageUsed >= config.criticalThresholdPercent) {
+    status = 'CRITICAL_95';
+    alertTriggered = true;
+    message = `ALERTA DE SEGURANÇA: Consumo de tokens atingiu ${percentageUsed}% da cota mensal (limite crítico de ${config.criticalThresholdPercent}%).`;
+  } else if (percentageUsed >= config.alertThresholdPercent) {
+    status = 'WARNING_80';
+    alertTriggered = true;
+    message = `AVISO PREVENTIVO: Consumo de tokens atingiu ${percentageUsed}% da cota mensal (limite de atenção de ${config.alertThresholdPercent}%).`;
+  }
+
+  return {
+    monthlyQuotaTokens: config.monthlyQuotaTokens,
+    usedTokensCurrentMonth: usedTokens,
+    remainingTokens,
+    percentageUsed,
+    status,
+    alertTriggered,
+    message,
+  };
+}
+
+/** Valida se a chamada de IA é permitida antes da execução */
+export function validateAiCallQuota(): { allowed: boolean; reason?: string } {
+  const quota = getAiMonthlyQuotaStatus();
+  const config = getAiQuotaConfig();
+
+  if (config.hardLimitEnabled && quota.status === 'EXCEEDED') {
+    return {
+      allowed: false,
+      reason: 'Cota mensal de tokens de IA esgotada. Contate o administrador do sistema para expansão.',
+    };
+  }
+
+  return { allowed: true };
+}
+
