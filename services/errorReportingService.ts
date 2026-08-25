@@ -174,6 +174,8 @@ export class ErrorReportingService {
       'security denied',
       'access denied',
       'forbidden tenant',
+      'security alert',
+      'acesso cross-tenant',
     ];
     const lower = errText.toLowerCase();
     return indicators.some(ind => lower.includes(ind));
