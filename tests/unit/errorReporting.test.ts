@@ -1,37 +1,29 @@
-/**
- * tests/unit/errorReporting.test.ts
- * ─────────────────────────────────────────────────────────────────────────────
- * SUÍTE 18 — ERROR REPORTING, SANITIZATION (LGPD), DEDUPLICATION & INCIDENT MGMT
- * ─────────────────────────────────────────────────────────────────────────────
- */
-
 import { ErrorReportingService } from '../../services/errorReportingService';
 import { ErrorReportSanitizer } from '../../security/errorReportSanitizer';
 import { generateFingerprint, generateRequestId, addBreadcrumb, getBreadcrumbs, clearBreadcrumbs } from '../../lib/monitoring';
 import { AuditLogger } from '../../security/auditLogger';
 import { isAllowed, checkMatrix } from '../../security/rbacMatrix';
 
+// ─── Test framework interno: suporta testes async corretamente ─────────────────
+
+type TestFn = () => void | Promise<void>;
+interface TestCase { name: string; fn: TestFn; }
+interface Suite { name: string; cases: TestCase[]; }
+
+let _suites: Suite[] = [];
+let _currentSuite: Suite | null = null;
+
 function describe(suiteName: string, fn: () => void) {
-  console.log(`\n--- [ERROR REPORTING SUITE] ${suiteName} ---`);
+  const suite: Suite = { name: suiteName, cases: [] };
+  _suites.push(suite);
+  _currentSuite = suite;
   fn();
+  _currentSuite = null;
 }
 
-function it(testName: string, fn: () => void | Promise<void>) {
-  try {
-    const res = fn();
-    if (res instanceof Promise) {
-      return res.then(
-        () => console.log(`  ✓ ${testName}`),
-        (err) => {
-          console.error(`  ✕ ${testName}: ${err.message}`);
-          throw err;
-        }
-      );
-    }
-    console.log(`  ✓ ${testName}`);
-  } catch (err: any) {
-    console.error(`  ✕ ${testName}: ${err.message}`);
-    throw err;
+function it(testName: string, fn: TestFn) {
+  if (_currentSuite) {
+    _currentSuite.cases.push({ name: testName, fn });
   }
 }
 
@@ -71,6 +63,9 @@ function expect(actual: any) {
 }
 
 export async function runErrorReportingTests() {
+  // Registrar todos os testes via describe/it acima
+  _suites = [];
+  _currentSuite = null;
   ErrorReportingService.resetForTesting();
   clearBreadcrumbs();
 
@@ -391,6 +386,23 @@ export async function runErrorReportingTests() {
       }
     });
   });
+
+  // ─── Executar todas as suítes sequencialmente, aguardando async ────────────
+  for (const suite of _suites) {
+    console.log(`\n--- [ERROR REPORTING SUITE] ${suite.name} ---`);
+    for (const { name, fn } of suite.cases) {
+      try {
+        const result = fn();
+        if (result instanceof Promise) {
+          await result;
+        }
+        console.log(`  ✓ ${name}`);
+      } catch (err: any) {
+        console.error(`  ✕ ${name}: ${err.message}`);
+        throw err;
+      }
+    }
+  }
 
   return true;
 }
