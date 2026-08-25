@@ -1,19 +1,26 @@
 /**
  * tests/multitenancy/tenant-isolation.test.ts
- * Suíte de Testes Automatizados de Isolamento Multi-Tenant e IDOR Protection
+ * ─────────────────────────────────────────────────────────────────────────────
+ * LEGIS CONNECT — SUÍTE DE TESTES AUTOMATIZADOS DE ISOLAMENTO MULTI-TENANT v3.0
  * 
- * Valida os 45 requisitos do PROMPT MASTER:
- * 1. Resolução estrita do Tenant ID
- * 2. Bloqueio de acesso cross-tenant entre Tenant A, B e C
+ * Valida os 49 requisitos do PROMPT MASTER:
+ * 1. Resolução estrita do Tenant Context & Multi-Membership
+ * 2. Bloqueio de acesso cross-tenant entre Tenant Alpha, Beta e Gamma
  * 3. Proteção contra IDOR em consultas, atualizações e exclusões
- * 4. Mascaramento de PII (CPF) para conformidade LGPD
- * 5. Bypasses autorizados e auditados do Super Admin
+ * 4. Bloqueio de mutação maliciosa de tenant_id em UPDATE / INSERT
+ * 5. Isolamento de Storage de Documentos e Chaves de Cache
+ * 6. Isolamento de Contexto de IA (Gemini / AI Orchestrator)
+ * 7. Isolamento de Relatórios e Exportações BI (PDF e Excel)
+ * 8. Revogação imediata de Membership (Teste F)
+ * 9. Acesso global autorizado e auditado do Super Administrador
+ * ─────────────────────────────────────────────────────────────────────────────
  */
 
-import { TenantService, PLATFORM_TENANT_ID } from '../../services/tenantService';
+import { TenantService, PLATFORM_TENANT_ID, DEFAULT_TENANT_ID } from '../../services/tenantService';
 import { mockProcessosService } from '../../services/mockProcessosService';
+import { analyzeCaseWithGemini } from '../../services/geminiService';
+import { exportBiReportPdf, exportBiReportExcel } from '../../services/biExporterService';
 
-// Lightweight test assertion framework (self-contained)
 function describe(name: string, fn: () => void) {
   console.log(`\n--- [TEST SUITE] ${name} ---`);
   fn();
@@ -88,12 +95,12 @@ function expect<T>(actual: T) {
   };
 }
 
-// ─── SUÍTE DE TESTES MULTI-TENANT CONFORMIDADE ───────────────────────────────
+// ─── SUÍTE DE TESTES MULTI-TENANT CONFORMIDADE v3.0 ──────────────────────────
 export function runMultiTenancyTests() {
   const TENANT_A = 'tenant_lawfirm_alpha';
   const TENANT_B = 'tenant_lawfirm_beta';
 
-  describe('1. Tenant Context Resolution', () => {
+  describe('1. Tenant Context Resolution & Multi-Membership', () => {
     it('deve resolver o tenant_id correto para um usuário válido', () => {
       const userAlpha = { id: '1', email: 'lawyer1@alpha.com', role: 'lawyer' as const };
       const tenantId = TenantService.resolveTenantId(userAlpha);
@@ -105,29 +112,42 @@ export function runMultiTenancyTests() {
       const tenantId = TenantService.resolveTenantId(superAdmin);
       expect(tenantId).toBe(PLATFORM_TENANT_ID);
     });
+
+    it('deve suportar alternância de contexto para usuário com múltiplos vínculos ativos', () => {
+      const userMulti = { id: '1', email: 'lawyer1@alpha.com', role: 'lawyer' as const };
+      const switchedUser = TenantService.switchTenantContext(userMulti, TENANT_B);
+      expect(switchedUser.tenantId).toBe(TENANT_B);
+    });
+
+    it('deve REJEITAR alternância para tenant onde o usuário não possui membership ativa', () => {
+      const userSingle = { id: 'intern_1', email: 'intern@alpha.com', role: 'intern' as const };
+      expect(() => {
+        TenantService.switchTenantContext(userSingle, 'tenant_unauthorized_x');
+      }).toThrow(/SECURITY DENIED/);
+    });
   });
 
   describe('2. Cross-Tenant Isolation Guards (Assertion Tests)', () => {
-    it('deve permitir acesso a um recurso pertencente ao mesmo tenant', () => {
+    it('deve permitir acesso a um recurso pertencente ao mesmo tenant (Teste A)', () => {
       expect(() => {
         TenantService.assertTenantAccess(TENANT_A, TENANT_A);
       }).notToThrow();
     });
 
-    it('deve BLOQUEAR com erro de segurança qualquer tentativa de acesso ao Tenant B pelo Tenant A', () => {
+    it('deve BLOQUEAR com erro de segurança tentativa de acesso ao Tenant B pelo Tenant A (Teste B)', () => {
       expect(() => {
-        TenantService.assertTenantAccess(TENANT_A, TENANT_B);
+        TenantService.assertTenantAccess(TENANT_A, TENANT_B, 'user_1', 'lawyer');
       }).toThrow(/SECURITY DENIED/);
     });
 
-    it('deve permitir ao Super Admin (PLATFORM_TENANT_ID) acessar recursos de qualquer tenant', () => {
+    it('deve permitir ao Super Admin (PLATFORM_TENANT_ID) acessar recursos com auditoria (Teste E)', () => {
       expect(() => {
         TenantService.assertTenantAccess(PLATFORM_TENANT_ID, TENANT_B);
       }).notToThrow();
     });
   });
 
-  describe('3. Resource Ownership & IDOR Protection', () => {
+  describe('3. Resource Ownership, IDOR & Mutation Protection', () => {
     it('deve rejeitar modificação de processo pertencente ao Tenant B quando solicitado pelo Tenant A', () => {
       const processos = mockProcessosService.getProcessos();
       const processoB = processos.find(p => p.tenantId === TENANT_B);
@@ -165,7 +185,19 @@ export function runMultiTenancyTests() {
     });
   });
 
-  describe('4. Query Scoping & PII Sanitization (LGPD Compliance)', () => {
+  describe('4. Storage & Cache Boundaries', () => {
+    it('deve gerar caminhos de storage padronizados e isolados por tenant', () => {
+      const path = TenantService.getTenantStoragePath(TENANT_A, 'documents', 'doc_123', 'procuracao.pdf');
+      expect(path).toBe('tenants/tenant_lawfirm_alpha/documents/doc_123/procuracao.pdf');
+    });
+
+    it('deve gerar chaves de cache segregadas por tenant boundary', () => {
+      const key = TenantService.getTenantCacheKey(TENANT_A, 'cases', 'case_456');
+      expect(key).toBe('tenant:tenant_lawfirm_alpha:cases:case_456');
+    });
+  });
+
+  describe('5. Query Scoping, AI & Report Sanitization (LGPD Compliance)', () => {
     it('deve retornar apenas processos do Tenant A quando getProcessos é chamado para Tenant A', () => {
       const processosAlpha = mockProcessosService.getProcessos(TENANT_A);
       expect(processosAlpha.length).toBeGreaterThan(0);
