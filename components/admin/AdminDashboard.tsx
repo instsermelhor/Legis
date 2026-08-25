@@ -19,6 +19,7 @@ const ProvisioningDashboard = lazy(() => import('./provisioning/ProvisioningDash
 const AdminPlansTab       = lazy(() => import('./AdminPlansTab').then(m => ({ default: m.AdminPlansTab })));
 const AdminAiConfigTab    = lazy(() => import('./AdminAiConfigTab').then(m => ({ default: m.AdminAiConfigTab })));
 const AdminWhatsappTab    = lazy(() => import('./AdminWhatsappTab').then(m => ({ default: m.AdminWhatsappTab })));
+const AdminErrorReportsTab = lazy(() => import('./AdminErrorReportsTab').then(m => ({ default: m.AdminErrorReportsTab })));
 
 // ── Skeleton de loading para Suspense
 const TabSkeleton: React.FC = () => (
@@ -67,15 +68,16 @@ const IconBox = () => (
 );
 
 // ─── Tab definitions ──────────────────────────────────────────────────────────
-type Tab = 'overview' | 'admin_commands' | 'registrations' | 'finance' | 'services' | 'settings' | 'operations' | 'staff' | 'impersonation' | 'provisioning' | 'plans' | 'ai_config' | 'whatsapp_config';
+type Tab = 'overview' | 'admin_commands' | 'registrations' | 'finance' | 'services' | 'settings' | 'operations' | 'staff' | 'impersonation' | 'provisioning' | 'plans' | 'ai_config' | 'whatsapp_config' | 'error_reports';
 
 const TAB_GROUPS = [
   {
     title: 'Monitoramento & Finanças',
     items: [
-      { id: 'overview'     as const, label: 'Visão Geral — BI', icon: <IconChart /> },
-      { id: 'finance'      as const, label: 'Financeiro',        icon: <IconMoney /> },
-      { id: 'plans'        as const, label: 'Gestão de Planos',  icon: <span>💎</span>, badge: 'SSOT' },
+      { id: 'overview'      as const, label: 'Visão Geral — BI',    icon: <IconChart /> },
+      { id: 'error_reports' as const, label: 'Relatórios de Erros', icon: <span>🛠️</span>, badge: 'lgpd' },
+      { id: 'finance'       as const, label: 'Financeiro',           icon: <IconMoney /> },
+      { id: 'plans'         as const, label: 'Gestão de Planos',     icon: <span>💎</span>, badge: 'SSOT' },
     ]
   },
   {
@@ -249,6 +251,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigate, onLo
             {activeTab === 'plans'           && <AdminPlansTab />}
             {activeTab === 'ai_config'        && <AdminAiConfigTab />}
             {activeTab === 'whatsapp_config'  && <AdminWhatsappTab />}
+            {activeTab === 'error_reports'    && <AdminErrorReportsTab />}
           </Suspense>
         </main>
       </div>
