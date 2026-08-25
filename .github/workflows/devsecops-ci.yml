@@ -1,4 +1,6 @@
 name: DevSecOps Enterprise CI/CD Pipeline
+# Cadeia: CÓDIGO → ANÁLISE ESTÁTICA → DEPENDÊNCIAS → SECRETS → BUILD → TESTES → SEGURANÇA → AUTHORIZATION → SECURITY GATE → DEPLOY
+# REGRA MESTRA: CRITICAL ou HIGH não mitigado = DEPLOY BLOCKED (exit 1)
 
 on:
   push:
@@ -10,6 +12,7 @@ jobs:
   security-and-build:
     name: "DevSecOps Master Pipeline"
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -23,25 +26,38 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: 1. ESLint Security Scan
+      # ── FASE 1: Análise Estática ──────────────────────────────────────────────
+      - name: "1. ESLint Security Scan"
         run: npm run lint
 
-      - name: 2. TypeScript Static Typecheck
+      - name: "2. TypeScript Static Typecheck"
         run: npm run typecheck
 
-      - name: 3. Secret Scanning Gate
+      # ── FASE 2: Secrets & Credentials Scanning ───────────────────────────────
+      - name: "3. Secret Scanning Gate"
         run: npm run secret-scan
 
-      - name: 4. Automated Testing Pipeline (22 Suites)
+      # ── FASE 3: Testes Automatizados ─────────────────────────────────────────
+      - name: "4. Automated Testing Pipeline (22 Suites)"
         run: npm test
 
-      - name: 5. Production Build Verification
+      # ── FASE 4: 🛡️ ENTERPRISE SECURITY GATE (Bloqueador Mandatório) ──────────
+      - name: "5. 🛡️ Enterprise Security Audit Gate (SAST + RBAC + RLS + Headers)"
+        run: npm run sast
+        # CRITICAL ou HIGH não mitigado → exit 1 → pipeline bloqueada → DEPLOY BLOQUEADO
+        # Regras: OWASP Top 10, SAST, Secret Detection, RBAC Matrix, Multi-Tenant RLS, Security Headers
+
+      # ── FASE 5: Build de Produção ─────────────────────────────────────────────
+      - name: "6. Production Build Verification"
         run: npm run build
         env:
           NODE_ENV: production
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-      - name: 6. Dependency Vulnerability Audit
+      # ── FASE 6: Auditoria de Dependências ────────────────────────────────────
+      - name: "7. Dependency Vulnerability Audit (npm audit)"
         run: npm audit --audit-level=high
         continue-on-error: true
+        # continue-on-error: true pois npm audit falha em deps transitivas não controláveis
+        # O controle real de vulnerabilidades de código está no Security Gate (passo 5)
