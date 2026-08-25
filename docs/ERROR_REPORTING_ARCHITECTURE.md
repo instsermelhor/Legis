@@ -94,7 +94,7 @@ O sanitizador [`security/errorReportSanitizer.ts`](file:///Users/rikardoribeiro/
 | **Senhas e Credenciais** | `password`, `passwd`, `pwd`, `db_pass` | Redigido para `[REDACTED]` |
 | **Tokens de Acesso** | `Bearer <token>`, `Basic <token>`, JWTs | Substituído por `Bearer ********` ou `[REDACTED_JWT]` |
 | **Chaves de API** | `AIza...`, `sk-...`, `ghp_...`, `apiKey` | Substituído por `[REDACTED_API_KEY]` |
-| **Connection Strings** | `postgresql://user:pass@host/db` | Substituído por `postgresql://****:****@host/db` |
+| **Connection Strings** | `postgresql://{user}:{pass}@{host}/{db}` | Substituído por `postgresql://****:****@{host}/{db}` |
 | **CPF do Cidadão** | `\d{3}\.\d{3}\.\d{3}-\d{2}` | Mascarado para `XXX.***.***-XX` |
 | **CNPJ de Pessoa Jurídica** | `\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}` | Mascarado para `XX.***.***/XXXX-**` |
 | **Cartões de Crédito** | `\d{4}[\s-]?\d{4}[\s-]?\d{4}[\s-]?\d{4}` | Substituído por `****-****-****-****` |
