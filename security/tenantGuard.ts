@@ -69,7 +69,7 @@ export class TenantGuard {
       AuditLogger.log({
         action: 'TENANT_VIOLATION_BLOCKED',
         actorId: ctx.userId,
-        actorRole: ctx.role,
+        actorRole: (ctx.role || 'client') as any,
         targetId: resourceTenantId || String(resourceOwnerUserId || 'unknown'),
         details: `Violação de isolamento bloqueada no ${actionName}. Solicitante Tenant: ${ctx.tenantId} | Alvo Tenant: ${resourceTenantId}`,
         severity: 'CRITICAL',
