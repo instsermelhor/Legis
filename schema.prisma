@@ -313,6 +313,85 @@ model ServiceProvisioning {
   @@index([paymentId])
 }
 
+enum ErrorReportStatus {
+  NEW
+  TRIAGED
+  INVESTIGATING
+  IN_PROGRESS
+  BLOCKED
+  FIXED
+  RETESTING
+  RESOLVED
+  DUPLICATE
+  WONT_FIX
+}
+
+enum ErrorSeverity {
+  INFO
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model ErrorReport {
+  id                 String            @id @default(uuid())
+  reportId           String            @unique @map("report_id") // ERR-YYYY-XXXXXX
+  tenantId           String            @map("tenant_id")
+  userId             String            @map("user_id")
+  userRole           String            @map("user_role")
+  status             ErrorReportStatus @default(NEW)
+  severity           ErrorSeverity     @default(LOW)
+  isSecurityIncident Boolean           @default(false) @map("is_security_incident")
+  fingerprint        String            @map("fingerprint")
+  occurrences        Int               @default(1)
+  title              String?
+  userDescription    String?           @map("user_description")
+  url                String?
+  componentName      String?           @map("component_name")
+  moduleName         String?           @map("module_name")
+  environment        String
+  appVersion         String?           @map("app_version")
+  requestId          String?           @map("request_id")
+  correlationId      String?           @map("correlation_id")
+  breadcrumbs        Json?
+  errorName          String?           @map("error_name")
+  errorMessage       String?           @map("error_message")
+  stackTrace         String?           @map("stack_trace")
+  userAgent          String?           @map("user_agent")
+  viewport           String?
+  screenshotRef      String?           @map("screenshot_ref")
+  screenshotConsent  Boolean           @default(false) @map("screenshot_consent")
+  assignedTo         String?           @map("assigned_to")
+  resolvedAt         DateTime?         @map("resolved_at")
+  createdAt          DateTime          @default(now()) @map("created_at")
+  updatedAt          DateTime          @updatedAt @map("updated_at")
+  events             ErrorReportEvent[]
+
+  @@map("error_reports")
+  @@index([tenantId])
+  @@index([fingerprint])
+  @@index([status])
+  @@index([severity])
+  @@index([createdAt])
+}
+
+model ErrorReportEvent {
+  id          String      @id @default(uuid())
+  reportId    String      @map("report_id")
+  report      ErrorReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  actorId     String      @map("actor_id")
+  actorRole   String      @map("actor_role")
+  eventType   String      @map("event_type")
+  fromStatus  String?     @map("from_status")
+  toStatus    String?     @map("to_status")
+  comment     String?
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  @@map("error_report_events")
+  @@index([reportId])
+}
+
 // =============================================================================
 // ROW-LEVEL SECURITY POLICIES (PostgreSQL SQL — executar após migrate)
 // =============================================================================
