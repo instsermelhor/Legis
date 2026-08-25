@@ -52,10 +52,27 @@ export function validateProductionConfiguration(): ValidationReport {
   const warnings: string[] = [];
 
   // SECURITY AUDIT: Ensure no secret API keys carry VITE_ prefix (which leaks to frontend bundle)
-  const forbiddenPrefixes = ['GEMINI_API_KEY', 'SECRET_KEY', 'DATABASE_URL', 'JWT_SECRET'];
+  const forbiddenPrefixes = [
+    'GEMINI_API_KEY',
+    'SECRET_KEY',
+    'DATABASE_URL',
+    'DATABASE_PASSWORD',
+    'JWT_SECRET',
+    'SUPABASE_SERVICE_ROLE_KEY',
+    'STRIPE_SECRET_KEY',
+    'PAGARME_SECRET_KEY',
+    'ADMIN_PASSWORD',
+    'ADMIN_TOKEN',
+    'PRIVATE_KEY',
+    'AWS_SECRET_ACCESS_KEY',
+    'WHATSAPP_TOKEN',
+    'WABA_SECRET',
+    'API_SECRET',
+    'SERVICE_ROLE'
+  ];
   for (const key of forbiddenPrefixes) {
     if (env[`VITE_${key}`]) {
-      errors.push(`[ERRO DE SEGURANÇA CRÍTICO] Segredo VITE_${key} detectado no cliente!`);
+      errors.push(`[ERRO DE SEGURANÇA CRÍTICO] Segredo proibido VITE_${key} detectado! Credenciais privadas jamais devem ser expostas no bundle do cliente.`);
     }
   }
 
