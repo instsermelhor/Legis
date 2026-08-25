@@ -170,45 +170,59 @@ export const dbDocuments = {
 
 // ─── CONTRACTS (Contratos de honorários) ──────────────────────────────────────
 
+// ─── CONTRACTS (Contratos de honorários) ──────────────────────────────────────
+
 export const dbContracts = {
-  async getByCase(caseId: string) {
+  async getByCase(caseId: string, tenantId?: string) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase
+      let query = supabase
         .from('contracts')
         .select('*')
         .eq('case_id', caseId)
         .order('created_at', { ascending: false });
+      if (tenantId) query = query.eq('tenant_id', tenantId);
+      const { data, error } = await query;
       if (error) throw error;
       return data ?? [];
     }
-    return localGet<unknown[]>('legis_contracts', []).filter(
-      (c: unknown) => (c as Record<string, unknown>).caseId === caseId
+    return localGet<Record<string, unknown>[]>('legis_contracts', []).filter(
+      c => c.caseId === caseId && (!tenantId || c.tenantId === tenantId)
     );
   },
 
-  async create(contractData: Record<string, unknown>) {
+  async create(contractData: Record<string, unknown>, activeTenantId?: string) {
+    const payload = activeTenantId ? { ...contractData, tenant_id: activeTenantId, tenantId: activeTenantId } : contractData;
     if (isSupabaseConfigured) {
-      const { data, error } = await (supabase as any).from('contracts').insert(contractData).select().single();
-      if (error) throw error;
-      return data;
-    }
-    const contracts = localGet<unknown[]>('legis_contracts', []);
-    const newContract = { ...contractData, id: `local_${Date.now()}`, createdAt: new Date().toISOString() };
-    localSet('legis_contracts', [...contracts, newContract]);
-    return newContract;
-  },
-
-  async updateStatus(id: string, status: string) {
-    return dbContracts.update(id, { status });
-  },
-
-  async update(id: string, updates: Record<string, unknown>) {
-    if (isSupabaseConfigured) {
-      const { data, error } = await (supabase as any).from('contracts').update(updates).eq('id', id).select().single();
+      const { data, error } = await (supabase as any).from('contracts').insert(payload).select().single();
       if (error) throw error;
       return data;
     }
     const contracts = localGet<Record<string, unknown>[]>('legis_contracts', []);
+    const newContract = { ...payload, id: `local_${Date.now()}`, createdAt: new Date().toISOString() };
+    localSet('legis_contracts', [...contracts, newContract]);
+    return newContract;
+  },
+
+  async updateStatus(id: string, status: string, activeTenantId?: string) {
+    return dbContracts.update(id, { status }, activeTenantId);
+  },
+
+  async update(id: string, updates: Record<string, unknown>, activeTenantId?: string) {
+    if (updates.tenant_id && activeTenantId && updates.tenant_id !== activeTenantId) {
+      throw new Error('[SECURITY DENIED] Tentativa de alteração maliciosa de tenant_id bloqueada no driver.');
+    }
+    if (isSupabaseConfigured) {
+      let query = (supabase as any).from('contracts').update(updates).eq('id', id);
+      if (activeTenantId) query = query.eq('tenant_id', activeTenantId);
+      const { data, error } = await query.select().single();
+      if (error) throw error;
+      return data;
+    }
+    const contracts = localGet<Record<string, unknown>[]>('legis_contracts', []);
+    const target = contracts.find(c => c.id === id);
+    if (target && activeTenantId && target.tenantId && target.tenantId !== activeTenantId) {
+      throw new Error('[SECURITY DENIED] Tentativa de modificação cross-tenant bloqueada no driver.');
+    }
     const updated = contracts.map(c => c.id === id ? { ...c, ...updates } : c);
     localSet('legis_contracts', updated);
     return updated.find(c => c.id === id);
@@ -218,60 +232,69 @@ export const dbContracts = {
 // ─── INVOICES (Faturas / cobranças) ───────────────────────────────────────────
 
 export const dbInvoices = {
-  async getByLawyer(lawyerId: string) {
+  async getByLawyer(lawyerId: string, tenantId?: string) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase
+      let query = supabase
         .from('invoices')
         .select('*')
         .eq('lawyer_id', lawyerId)
         .order('due_date', { ascending: false });
+      if (tenantId) query = query.eq('tenant_id', tenantId);
+      const { data, error } = await query;
       if (error) throw error;
       return data ?? [];
     }
-    return localGet<unknown[]>('legis_invoices', []).filter(
-      (i: unknown) => (i as Record<string, unknown>).lawyerId === lawyerId
+    return localGet<Record<string, unknown>[]>('legis_invoices', []).filter(
+      i => i.lawyerId === lawyerId && (!tenantId || i.tenantId === tenantId)
     );
   },
 
-  async getByClient(clientId: string) {
+  async getByClient(clientId: string, tenantId?: string) {
     if (isSupabaseConfigured) {
-      const { data, error } = await supabase
+      let query = supabase
         .from('invoices')
         .select('*')
         .eq('client_id', clientId)
         .order('due_date', { ascending: false });
+      if (tenantId) query = query.eq('tenant_id', tenantId);
+      const { data, error } = await query;
       if (error) throw error;
       return data ?? [];
     }
-    return localGet<unknown[]>('legis_invoices', []).filter(
-      (i: unknown) => (i as Record<string, unknown>).clientId === clientId
+    return localGet<Record<string, unknown>[]>('legis_invoices', []).filter(
+      i => i.clientId === clientId && (!tenantId || i.tenantId === tenantId)
     );
   },
 
-  async create(invoiceData: Record<string, unknown>) {
+  async create(invoiceData: Record<string, unknown>, activeTenantId?: string) {
+    const payload = activeTenantId ? { ...invoiceData, tenant_id: activeTenantId, tenantId: activeTenantId } : invoiceData;
     if (isSupabaseConfigured) {
-      const { data, error } = await (supabase as any).from('invoices').insert(invoiceData).select().single();
-      if (error) throw error;
-      return data;
-    }
-    const invoices = localGet<unknown[]>('legis_invoices', []);
-    const newInvoice = { ...invoiceData, id: `local_${Date.now()}`, createdAt: new Date().toISOString() };
-    localSet('legis_invoices', [...invoices, newInvoice]);
-    return newInvoice;
-  },
-
-  async updateStatus(id: string, status: 'pending' | 'paid' | 'overdue' | 'cancelled') {
-    if (isSupabaseConfigured) {
-      const { data, error } = await supabase
-        .from('invoices')
-        .update({ status, paid_at: status === 'paid' ? new Date().toISOString() : null })
-        .eq('id', id)
-        .select()
-        .single();
+      const { data, error } = await (supabase as any).from('invoices').insert(payload).select().single();
       if (error) throw error;
       return data;
     }
     const invoices = localGet<Record<string, unknown>[]>('legis_invoices', []);
+    const newInvoice = { ...payload, id: `local_${Date.now()}`, createdAt: new Date().toISOString() };
+    localSet('legis_invoices', [...invoices, newInvoice]);
+    return newInvoice;
+  },
+
+  async updateStatus(id: string, status: 'pending' | 'paid' | 'overdue' | 'cancelled', activeTenantId?: string) {
+    if (isSupabaseConfigured) {
+      let query = supabase
+        .from('invoices')
+        .update({ status, paid_at: status === 'paid' ? new Date().toISOString() : null })
+        .eq('id', id);
+      if (activeTenantId) query = query.eq('tenant_id', activeTenantId);
+      const { data, error } = await query.select().single();
+      if (error) throw error;
+      return data;
+    }
+    const invoices = localGet<Record<string, unknown>[]>('legis_invoices', []);
+    const target = invoices.find(i => i.id === id);
+    if (target && activeTenantId && target.tenantId && target.tenantId !== activeTenantId) {
+      throw new Error('[SECURITY DENIED] Tentativa de modificação cross-tenant bloqueada no driver.');
+    }
     const updated = invoices.map(i => i.id === id ? { ...i, status } : i);
     localSet('legis_invoices', updated);
     return updated.find(i => i.id === id);
