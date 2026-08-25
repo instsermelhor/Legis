@@ -1,5 +1,5 @@
-# Legis Connect — Quality Gates
-# Verifica lint, build e segurança a cada push/PR
+# Legis Connect — Enterprise Quality Gates Pipeline
+# Cadeia de Garantia de Qualidade e Segurança para Push e Pull Requests
 
 name: Quality Gates
 
@@ -10,51 +10,64 @@ on:
     branches: [main]
 
 jobs:
-  lint-and-build:
-    name: "Lint + Build Gate"
+  enterprise-quality-gate:
+    name: "Enterprise Quality Gate"
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js 20 LTS
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: npm ci
 
-      - name: ESLint — 0 warnings gate
+      - name: 1. ESLint — Zero Warnings Gate
         run: npm run lint
 
-      - name: Production build
+      - name: 2. TypeScript — Typecheck Gate (0 errors)
+        run: npm run typecheck
+
+      - name: 3. DevSecOps — Secrets & Credentials Scanning Gate
+        run: npm run secret-scan
+
+      - name: 4. Master Automated Test Suite (22 Suites)
+        run: npm test
+
+      - name: 5. Production Build Gate (Vite Bundle Compilation)
         run: npm run build
         env:
           NODE_ENV: production
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
 
-      - name: Verify dist output
+      - name: 6. Verify Production Artifacts
         run: |
-          echo "=== Build output ==="
+          echo "=== Dist Artifacts Verification ==="
           ls -lh dist/
           du -sh dist/
-          echo "✅ Quality gate passed"
+          echo "✅ Enterprise Quality Gate 100% Passed!"
 
   security-audit:
-    name: "Security Audit"
+    name: "Dependency Security Audit"
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js 20 LTS
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: npm ci
 
       - name: npm audit (high+critical only)
