@@ -12,8 +12,7 @@
  */
 
 import { ErrorReportingService } from '../../services/errorReportingService';
-import { EscrowService } from '../../services/escrowService';
-import { TenantService } from '../../services/tenantService';
+import { calculateOabSplit } from '../../lib/paymentGateway';
 
 // ─── Test Framework Interno ──────────────────────────────────────────────────
 type TestFn = () => void | Promise<void>;
@@ -59,6 +58,11 @@ function expect(actual: any) {
         throw new Error(`Expected ${actual} to be greater than ${expected}`);
       }
     },
+    toMatch(regex: RegExp) {
+      if (!regex.test(String(actual))) {
+        throw new Error(`Expected "${actual}" to match ${regex}`);
+      }
+    },
   };
 }
 
@@ -102,14 +106,13 @@ export async function runConcurrencyAndIdempotencyTests() {
       const initialDeposits = [1000, 2500.50, 5000, 150.75, 12000];
 
       for (const amount of initialDeposits) {
-        const split = EscrowService.calculateFeeSplit(amount, 0.20, 0.05); // 20% honorários, 5% plataforma
+        const split = calculateOabSplit(amount, 90); // 90% honorários, 10% plataforma
         
         expect(split.lawyerAmount).toBeDefined();
-        expect(split.platformFee).toBeDefined();
-        expect(split.netAmount).toBeDefined();
+        expect(split.platformAmount).toBeDefined();
 
         // A soma dos componentes deve ser exatamente igual ao total
-        const reconstructedTotal = +(split.lawyerAmount + split.platformFee + split.netAmount).toFixed(2);
+        const reconstructedTotal = +(split.lawyerAmount + split.platformAmount).toFixed(2);
         expect(reconstructedTotal).toBe(amount);
       }
     });
