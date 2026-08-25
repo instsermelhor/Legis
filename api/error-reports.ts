@@ -27,6 +27,7 @@ interface VercelResponse {
 }
 
 import { ErrorReportSanitizer } from '../security/errorReportSanitizer';
+import { EdgeShield } from './_edge-shield';
 
 const MAX_PAYLOAD_BYTES = 65_536; // 64 KB
 
@@ -36,7 +37,7 @@ function generateReportId(): string {
   return `ERR-${year}-${randomHex}`;
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+async function errorReportsHandler(req: VercelRequest, res: VercelResponse) {
   res.setHeader('Content-Type', 'application/json');
 
   // 1. Validar Método
@@ -102,3 +103,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
   }
 }
+
+export default EdgeShield.wrapHandler(errorReportsHandler);
+
