@@ -10,8 +10,14 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import type { BiMetricsResult } from '../lib/biAnalyticsEngine';
+import { EntitlementManager } from '../security/entitlementManager';
 
 export function exportBiReportPdf(metrics: BiMetricsResult, tenantId?: string): void {
+  // Backend Enforcement de Entitlement do Módulo BI
+  if (tenantId && !EntitlementManager.isTenantEntitled(tenantId, 'bi_analytics')) {
+    throw new Error(`[SECURITY DENIED] Tenant '${tenantId}' não possui entitlement ativo para o módulo 'bi_analytics'.`);
+  }
+
   const doc = new jsPDF();
 
   // Cabeçalho
@@ -71,6 +77,11 @@ export function exportBiReportPdf(metrics: BiMetricsResult, tenantId?: string): 
 }
 
 export function exportBiReportExcel(metrics: BiMetricsResult, tenantId?: string): void {
+  // Backend Enforcement de Entitlement do Módulo BI
+  if (tenantId && !EntitlementManager.isTenantEntitled(tenantId, 'bi_analytics')) {
+    throw new Error(`[SECURITY DENIED] Tenant '${tenantId}' não possui entitlement ativo para o módulo 'bi_analytics'.`);
+  }
+
   const kpiData = [
     { Indicador: 'Tenant Context', Valor: tenantId || 'tenant_platform_global', Unidade: 'Identifier' },
     { Indicador: 'Receita Bruta Total', Valor: metrics.totalRevenue, Unidade: 'BRL' },
