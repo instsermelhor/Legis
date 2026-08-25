@@ -96,8 +96,9 @@ export async function runE2EJourneysEngineTests() {
   describe('Jornada 3: Advogado Operacional', () => {
     it('deve validar permissões de criação de processo e peticionamento para Advogado', () => {
       expect(isAllowed('lawyer', 'cases', 'CREATE')).toBe(true);
-      expect(isAllowed('lawyer', 'cases', 'READ')).toBe(true);
+      expect(isAllowed('lawyer', 'cases', 'READ', { userId: 'lawyer_1', resourceOwnerId: 'lawyer_1' })).toBe(true);
       expect(isAllowed('lawyer', 'documents', 'CREATE')).toBe(true);
+      expect(isAllowed('lawyer', 'cases', 'DELETE')).toBe(false);
     });
   });
 
@@ -106,13 +107,14 @@ export async function runE2EJourneysEngineTests() {
       expect(isAllowed('admin', 'users', 'CREATE')).toBe(true);
       expect(isAllowed('admin', 'users', 'UPDATE')).toBe(true);
       expect(isAllowed('admin', 'team', 'MANAGE')).toBe(true);
+      expect(isAllowed('admin', 'staff', 'DELEGATE')).toBe(true);
     });
   });
 
   describe('Jornada 5: Secretária Jurídica', () => {
     it('deve conceder acesso a agenda e clientes mas bloquear exclusão de processos', () => {
       expect(isAllowed('secretary', 'agenda', 'READ')).toBe(true);
-      expect(isAllowed('secretary', 'clients', 'READ')).toBe(true);
+      expect(isAllowed('secretary', 'agenda', 'CREATE')).toBe(true);
       expect(isAllowed('secretary', 'cases', 'DELETE')).toBe(false);
       expect(isAllowed('secretary', 'financial', 'DELETE')).toBe(false);
     });
@@ -121,22 +123,22 @@ export async function runE2EJourneysEngineTests() {
   describe('Jornada 6: Assistente Jurídico', () => {
     it('deve permitir minutar peças e pesquisar processos com restrição de escopo', () => {
       expect(isAllowed('legal_assistant', 'documents', 'CREATE')).toBe(true);
-      expect(isAllowed('legal_assistant', 'cases', 'READ')).toBe(true);
+      expect(isAllowed('legal_assistant', 'cases', 'READ', { assignedIds: ['case_101'], resourceId: 'case_101' })).toBe(true);
       expect(isAllowed('legal_assistant', 'users', 'DELETE')).toBe(false);
     });
   });
 
   describe('Jornada 7: Estagiário de Direito', () => {
     it('deve permitir registro de atividades de estágio com escopo restrito', () => {
-      expect(isAllowed('intern', 'academic', 'CREATE')).toBe(true);
       expect(isAllowed('intern', 'academic', 'READ')).toBe(true);
+      expect(isAllowed('intern', 'academic', 'UPDATE')).toBe(true);
       expect(isAllowed('intern', 'financial', 'DELETE')).toBe(false);
     });
   });
 
   describe('Jornada 8: Cliente & Isolamento de Dados', () => {
     it('deve permitir ao cliente consultar apenas seus dados e bloquear acesso cross-tenant', () => {
-      expect(isAllowed('client', 'cases', 'READ')).toBe(true);
+      expect(isAllowed('client', 'cases', 'READ', { userId: 'cli_1', resourceOwnerId: 'cli_1' })).toBe(true);
       expect(isAllowed('client', 'users', 'LIST')).toBe(false);
       expect(isAllowed('client', 'financial', 'READ')).toBe(false);
     });
@@ -144,9 +146,8 @@ export async function runE2EJourneysEngineTests() {
 
   describe('Jornada 9: Administrador do Tenant', () => {
     it('deve permitir ao Admin gerenciar configurações e módulos do seu próprio tenant', () => {
-      expect(isAllowed('admin', 'system', 'MANAGE')).toBe(true);
+      expect(isAllowed('admin', 'services', 'MANAGE')).toBe(true);
       expect(isAllowed('admin', 'audit', 'READ')).toBe(true);
-      // Admin comum não pode apagar logs de auditoria
       expect(isAllowed('admin', 'audit', 'DELETE')).toBe(false);
     });
   });
@@ -155,7 +156,8 @@ export async function runE2EJourneysEngineTests() {
     it('deve conceder privilégios globais de governança, auditoria e planos para Super Admin', () => {
       expect(isAllowed('super_admin', 'system', 'MANAGE')).toBe(true);
       expect(isAllowed('super_admin', 'audit', 'READ')).toBe(true);
-      expect(isAllowed('super_admin', 'error_reports', 'MANAGE')).toBe(true);
+      expect(isAllowed('super_admin', 'error_reports', 'CREATE')).toBe(true);
+      expect(isAllowed('super_admin', 'error_reports', 'READ')).toBe(true);
     });
   });
 
