@@ -17,7 +17,7 @@
 
 import { ModuleKey, ModuleDefinition, LEGIS_MODULE_CATALOG, getModuleDefinition } from './catalog';
 import { SystemRole } from './rbac';
-import { Resource, Action, isAllowed } from './rbacMatrix';
+import { Resource, Action, isAllowed, checkMatrix } from './rbacMatrix';
 import { AuditLogger } from './auditLogger';
 import { PLATFORM_TENANT_ID } from '../services/tenantService';
 
@@ -306,11 +306,11 @@ export class EntitlementManager {
       };
     }
 
-    // Passo 6: Verificar Autorização RBAC para o papel do usuário
+    // Passo 6: Verificar Autorização RBAC para o papel do usuário (ALLOW ou CONDITIONAL permite acesso ao módulo)
     const resourceType = MODULE_TO_RESOURCE_MAP[moduleKey];
     if (resourceType) {
-      const hasRbac = isAllowed(ctx.userRole, resourceType, action);
-      if (!hasRbac) {
+      const matrixResult = checkMatrix(ctx.userRole, resourceType, action);
+      if (matrixResult === 'DENY') {
         return {
           granted: false,
           statusCode: 403,
