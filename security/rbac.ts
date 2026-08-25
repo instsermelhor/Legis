@@ -833,6 +833,7 @@ export const VIEW_PERMISSION_MAP: Partial<Record<View, Permission>> = {
   forcePasswordChange:    'admin:dashboard',
   mfaSetup:               'admin:dashboard',
   mfaChallenge:           'admin:dashboard',
+  errorReports:           'admin:dashboard',
 };
 
 /**
@@ -874,7 +875,7 @@ export function getVisibleAdminTabs(role: SystemRole): string[] {
   if (hasPermission(role, 'registrations:read')) tabs.push('registrations');
   if (hasPermission(role, 'services:manage')) tabs.push('services');
   if (hasPermission(role, 'provisioning:read')) tabs.push('provisioning');
-  if (hasPermission(role, 'audit:read')) tabs.push('audit');
+  if (hasPermission(role, 'audit:read')) tabs.push('audit', 'error_reports');
   if (hasPermission(role, 'staff:read') || hasPermission(role, 'admin:manage_staff')) tabs.push('staff', 'impersonation');
   if (hasPermission(role, 'system:config')) tabs.push('settings', 'operations', 'ai_config', 'whatsapp_config');
   return tabs;
