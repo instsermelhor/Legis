@@ -33,6 +33,13 @@ jobs:
       - name: 🔎 ESLint — 0 warnings gate
         run: npm run lint
 
+      - name: 🔐 DevSecOps — Secrets Scanning Gate
+        run: npm run secret-scan
+
+      - name: 🛡️ Enterprise Security Audit Gate (SAST + RBAC + RLS + Headers)
+        run: npm run sast
+        # REGRA MESTRA: CRITICAL ou HIGH não mitigado → exit 1 → DEPLOY BLOQUEADO
+
       - name: 🛡️ npm audit (high+critical)
         run: npm audit --audit-level=high
         continue-on-error: true
