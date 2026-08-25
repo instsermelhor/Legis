@@ -5,7 +5,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 
 import type { SystemRole, Permission } from './rbac';
-import { hasPermission, hasMinLevel } from './rbac';
+import { hasPermission, hasMinLevel, isStaffRole } from './rbac';
 import { AuditLogger, logPermissionDenied } from './auditLogger';
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -123,7 +123,8 @@ export function validateCpfOwnership(
   if (!ctx) return { granted: false, reason: 'Não autenticado.' };
 
   // Admin e staff podem acessar qualquer CPF
-  if (hasMinLevel(ctx.role, 20)) {
+  // FIX [CRÍTICO]: hasMinLevel(ctx.role, 20) sempre retornava false pois nível máximo é 9
+  if (isStaffRole(ctx.role)) {
     return { granted: true, reason: 'Acesso staff autorizado.' };
   }
 
@@ -193,10 +194,10 @@ export function createAccessGuard(ctx: SecurityContext | null) {
       ctx ? hasMinLevel(ctx.role, level) : false,
 
     isStaff: (): boolean =>
-      ctx ? hasMinLevel(ctx.role, 20) : false,
+      ctx ? isStaffRole(ctx.role) : false,
 
     isAdmin: (): boolean =>
-      ctx ? hasMinLevel(ctx.role, 80) : false,
+      ctx ? hasMinLevel(ctx.role, 7) : false,
 
     isSuperAdmin: (): boolean =>
       ctx?.role === 'super_admin',
