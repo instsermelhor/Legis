@@ -140,7 +140,7 @@ export class TenantService {
     AuditLogger.log({
       action: 'TENANT_CONTEXT_SWITCHED',
       actorId: String(user.id || user.email),
-      actorRole: user.role,
+      actorRole: (user.role || 'client') as any,
       targetId: targetTenantId,
       details: `Usuário alternou contexto de tenant para ${targetTenantId}`,
       severity: 'INFO',
@@ -169,7 +169,7 @@ export class TenantService {
         AuditLogger.log({
           action: 'CROSS_TENANT_ACCESS_BLOCKED',
           actorId,
-          actorRole,
+          actorRole: actorRole as any,
           targetId: resourceTenantId,
           details: `Tentativa de acesso não autorizado do Tenant ${requesterTenantId} ao recurso do Tenant ${resourceTenantId}`,
           severity: 'CRITICAL',
