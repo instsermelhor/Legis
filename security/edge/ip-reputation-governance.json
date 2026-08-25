@@ -1,0 +1,45 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-08-25T16:35:00Z",
+  "governancePolicy": "LEGIS_CONNECT_IP_REPUTATION_POLICY_V1",
+  "denylist": [
+    {
+      "ipOrCidr": "198.51.100.14",
+      "reason": "Known malicious scanner / automated SQLi probe",
+      "category": "MALICIOUS_SCANNER",
+      "responsible": "Security Operations Officer",
+      "addedAt": "2026-08-20T10:00:00Z",
+      "expiresAt": "2026-09-20T10:00:00Z",
+      "status": "ACTIVE"
+    },
+    {
+      "ipOrCidr": "203.0.113.88",
+      "reason": "Credential stuffing attacks against /login",
+      "category": "CREDENTIAL_STUFFING",
+      "responsible": "Security Operations Officer",
+      "addedAt": "2026-08-22T14:30:00Z",
+      "expiresAt": "2026-09-22T14:30:00Z",
+      "status": "ACTIVE"
+    }
+  ],
+  "allowlist": [
+    {
+      "ipOrCidr": "127.0.0.1",
+      "reason": "Local development and internal health checks",
+      "category": "INTERNAL_INFRASTRUCTURE",
+      "responsible": "DevOps Lead",
+      "addedAt": "2026-08-01T00:00:00Z",
+      "expiresAt": "2099-12-31T23:59:59Z",
+      "status": "ACTIVE"
+    },
+    {
+      "ipOrCidr": "::1",
+      "reason": "Localhost IPv6 internal health checks",
+      "category": "INTERNAL_INFRASTRUCTURE",
+      "responsible": "DevOps Lead",
+      "addedAt": "2026-08-01T00:00:00Z",
+      "expiresAt": "2099-12-31T23:59:59Z",
+      "status": "ACTIVE"
+    }
+  ]
+}
