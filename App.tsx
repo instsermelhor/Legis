@@ -50,6 +50,8 @@ const BetaStatusPage       = lazy(() => import('./components/beta/BetaStatusPage
 
 import { BetaWelcomeBanner } from './components/beta/BetaWelcomeBanner';
 import { BetaFeedbackButton } from './components/beta/BetaFeedbackButton';
+import { ErrorReportButton } from './components/error/ErrorReportButton';
+import { addBreadcrumb } from './lib/monitoring';
 
 // ── Skeleton de página para Suspense ──────────────────────────────────────
 const PageSkeleton: React.FC = () => (
@@ -214,6 +216,14 @@ const App: React.FC = () => {
   const handleNavigate = useCallback((view: View, overrideUser?: User | null) => {
     window.scrollTo(0, 0);
     const activeUser = overrideUser !== undefined ? overrideUser : user;
+    
+    // Rastreamento de Breadcrumb para suporte técnico e auditoria
+    addBreadcrumb({
+      category: 'navigation',
+      message: `Navegação para ${view}`,
+      data: { role: activeUser?.role, targetView: view },
+    });
+
     // V-001 & V-002 FIX: Usar canAccessView() do RBAC engine — DENY BY DEFAULT
     const activeRole = activeUser?.role ?? 'client';
     if (!canAccessView(activeRole, view)) {
@@ -812,9 +822,16 @@ const App: React.FC = () => {
         onOpenProfileSelector={handleOpenProfileSelector}
       />
       <main className="flex-grow">
-        <Suspense fallback={<PageSkeleton />}>
-          {renderView()}
-        </Suspense>
+        <ErrorBoundary
+          moduleName={currentView}
+          tenantId={user?.tenantId}
+          userId={user?.id}
+          userRole={user?.role}
+        >
+          <Suspense fallback={<PageSkeleton />}>
+            {renderView()}
+          </Suspense>
+        </ErrorBoundary>
       </main>
       <Footer onNavigate={handleNavigate} onShowTerms={() => setIsTermsModalOpen(true)} onShowPrivacy={() => setIsPrivacyModalOpen(true)} onShowEtica={() => setIsEticaModalOpen(true)} />
       <MobileBottomNav currentView={currentView} onNavigate={handleNavigate} user={user} />
@@ -851,6 +868,16 @@ const App: React.FC = () => {
 
       {/* Beta Feedback Button */}
       <BetaFeedbackButton userId={user?.id} userRole={user?.role} />
+
+      {/* Botão Oficial de Reportar Erro (Disponível para usuários autenticados) */}
+      {user && (
+        <ErrorReportButton
+          tenantId={user?.tenantId}
+          userId={user?.id}
+          userRole={user?.role}
+          moduleName={currentView}
+        />
+      )}
     </div>
   );
 };
