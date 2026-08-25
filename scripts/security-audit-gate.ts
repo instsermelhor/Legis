@@ -457,7 +457,40 @@ function runDependencyScan(): SecurityFinding[] {
   return findings;
 }
 
-// ─── 8. Motor de Avaliação & Decisão do Security Gate ─────────────────────────
+// ─── 8. Edge Security & WAF Perimeter Scan ─────────────────────────────────────
+function runEdgeSecurityScan(): SecurityFinding[] {
+  const findings: SecurityFinding[] = [];
+
+  const requiredEdgeModules = [
+    { file: path.join(ROOT_DIR, 'security', 'edge', 'wafEngine.ts'), name: 'WAF Engine (wafEngine.ts)' },
+    { file: path.join(ROOT_DIR, 'security', 'edge', 'botManagementEngine.ts'), name: 'Bot Management Engine (botManagementEngine.ts)' },
+    { file: path.join(ROOT_DIR, 'security', 'edge', 'rateLimitingEngine.ts'), name: 'Rate Limiting Engine (rateLimitingEngine.ts)' },
+    { file: path.join(ROOT_DIR, 'security', 'edge', 'bruteForceProtection.ts'), name: 'Anti-Brute Force (bruteForceProtection.ts)' },
+    { file: path.join(ROOT_DIR, 'security', 'edge', 'originCloakProtection.ts'), name: 'Origin Shield (originCloakProtection.ts)' },
+    { file: path.join(ROOT_DIR, 'security', 'edge', 'threatIntelligence.ts'), name: 'Threat Intelligence (threatIntelligence.ts)' },
+    { file: path.join(ROOT_DIR, 'security', 'edge', 'multiTenantCacheGuard.ts'), name: 'Multi-Tenant Cache Guard (multiTenantCacheGuard.ts)' },
+    { file: path.join(ROOT_DIR, 'api', '_edge-shield.ts'), name: 'Master Edge Shield Wrapper (_edge-shield.ts)' },
+    { file: path.join(ROOT_DIR, 'security', 'edge', 'ip-reputation-governance.json'), name: 'IP Reputation Governance Registry' },
+  ];
+
+  for (const mod of requiredEdgeModules) {
+    if (!fs.existsSync(mod.file)) {
+      findings.push({
+        id: 'EDGE-001',
+        title: `Módulo do Escudo de Borda Ausente: ${mod.name}`,
+        category: 'CONFIG',
+        severity: 'CRITICAL',
+        exploitability: 'EXPLOITABLE',
+        description: `O componente perimetral obrigatório ${mod.name} não foi encontrado na infraestrutura.`,
+        remediation: 'Implemente o componente do Escudo de Borda correspondente no diretório security/edge/ ou api/.'
+      });
+    }
+  }
+
+  return findings;
+}
+
+// ─── 9. Motor de Avaliação & Decisão do Security Gate ─────────────────────────
 export async function runSecurityAuditGate(): Promise<boolean> {
   console.log('\n================================================================');
   console.log('  LEGIS CONNECT — ENTERPRISE SECURITY AUDIT & CI/CD GATE');
@@ -478,7 +511,8 @@ export async function runSecurityAuditGate(): Promise<boolean> {
     ...runRbacSecurityScan(),
     ...runMultiTenantRlsScan(),
     ...runConfigScan(),
-    ...runDependencyScan()
+    ...runDependencyScan(),
+    ...runEdgeSecurityScan(),
   ];
 
   // Mapear exceções aprovadas
