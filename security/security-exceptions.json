@@ -1,0 +1,13 @@
+[
+  {
+    "id": "SEC-EXC-EXAMPLE-001",
+    "vulnerability": "Example mitigated vulnerability",
+    "severity": "LOW",
+    "justification": "Template de exceção documentada para auditoria formal",
+    "riskAssessment": "Risco aceito e mitigado por controles compensatórios em nível de infraestrutura",
+    "owner": "CISO / DevSecOps Team",
+    "expiresAt": "2026-12-31T23:59:59Z",
+    "mitigation": "Controle compensatório via WAF e rate limiting per-IP",
+    "approvedBy": "Security Board Legis Connect"
+  }
+]
