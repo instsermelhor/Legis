@@ -20,11 +20,12 @@ interface VercelResponse {
 }
 
 import { createClient } from '@supabase/supabase-js';
+import { EdgeShield } from './_edge-shield';
 
 const APP_VERSION = process.env.VITE_APP_VERSION || '1.0.0-beta';
 const START_TIME  = Date.now();
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+async function healthHandler(req: VercelRequest, res: VercelResponse) {
   // Apenas GET permitido
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method Not Allowed' });
@@ -91,3 +92,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     },
   });
 }
+
+export default EdgeShield.wrapHandler(healthHandler);
+
