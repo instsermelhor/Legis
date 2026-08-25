@@ -60,9 +60,55 @@ export async function runGeminiTests(): Promise<TestResult[]> {
       category: 'AI',
       passed: false,
       durationMs: 0,
+  // Teste 3: Monitor de Cota e Limiar de Alerta de 80%
+  try {
+    const t0 = performance.now();
+    const {
+      saveAiQuotaConfig,
+      getAiMonthlyQuotaStatus,
+      DEFAULT_AI_QUOTA_CONFIG
+    } = await import('../../services/aiUsageLogService');
+
+    // Configura quota reduzida para testar disparo de alerta em 80%
+    saveAiQuotaConfig({
+      monthlyQuotaTokens: 100,
+      alertThresholdPercent: 80,
+      criticalThresholdPercent: 95,
+      hardLimitEnabled: true,
+    });
+
+    // Registra log com 85 tokens (atinge 85% > 80%)
+    logAiUsage({
+      userId: 'user_qa_quota_test',
+      model: 'gemini-2.5-flash',
+      promptText: 'a'.repeat(200), // ~50 tokens
+      responseText: 'b'.repeat(140), // ~35 tokens => total 85 tokens
+      view: 'qa_quota_test',
+    });
+
+    const status = getAiMonthlyQuotaStatus();
+    const isWarningTriggered = status.alertTriggered && (status.status === 'WARNING_80' || status.status === 'CRITICAL_95' || status.status === 'EXCEEDED');
+
+    // Restaura config padrão
+    saveAiQuotaConfig(DEFAULT_AI_QUOTA_CONFIG);
+    const durationMs = Math.round(performance.now() - t0);
+
+    results.push({
+      name: 'Gemini AI Quota 80% Threshold Alert Engine',
+      category: 'AI',
+      passed: isWarningTriggered,
+      durationMs,
+    });
+  } catch (err: any) {
+    results.push({
+      name: 'Gemini AI Quota 80% Threshold Alert Engine',
+      category: 'AI',
+      passed: false,
+      durationMs: 0,
       error: err?.message,
     });
   }
 
   return results;
 }
+
