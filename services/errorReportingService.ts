@@ -102,7 +102,7 @@ const MAX_REPORTS_PER_WINDOW = 5;
 
 // Armazenamento em memória para SSR / testes / cache
 let memoryStore: ErrorReportRecord[] = [];
-let idempotencySet = new Set<string>();
+const idempotencyMap = new Map<string, string>();
 const userSubmissionTimestamps = new Map<string, number[]>();
 
 function getStoredReports(): ErrorReportRecord[] {
@@ -133,7 +133,7 @@ export class ErrorReportingService {
    */
   static resetForTesting(): void {
     memoryStore = [];
-    idempotencySet.clear();
+    idempotencyMap.clear();
     userSubmissionTimestamps.clear();
     try {
       if (typeof localStorage !== 'undefined') {
@@ -223,7 +223,13 @@ export class ErrorReportingService {
       const tenantId = input.tenantId || 'tenant_default';
       const userRole = input.userRole || 'client';
 
-      // 1. Rate Limiting Check
+      // 1. Idempotência (Verificação Prévia)
+      const idemKey = input.idempotencyKey;
+      if (idemKey && idempotencyMap.has(idemKey)) {
+        return { success: true, reportId: idempotencyMap.get(idemKey)!, isDuplicate: true };
+      }
+
+      // 2. Rate Limiting Check
       if (this.isRateLimited(userId)) {
         return {
           success: false,
@@ -231,16 +237,6 @@ export class ErrorReportingService {
           error: 'Limite de envio atingido. Aguarde alguns instantes antes de reportar novamente.',
         };
       }
-
-      // 2. Idempotência
-      const idemKey = input.idempotencyKey || `${userId}_${Date.now()}`;
-      if (idempotencySet.has(idemKey)) {
-        const existing = getStoredReports().find(r => r.requestId === input.idempotencyKey);
-        if (existing) {
-          return { success: true, reportId: existing.reportId, isDuplicate: true };
-        }
-      }
-      idempotencySet.add(idemKey);
 
       // 3. Extrair dados do erro
       const rawError = input.error instanceof Error ? input.error : new Error(String(input.error || 'Relato de Usuário'));
@@ -350,6 +346,10 @@ export class ErrorReportingService {
 
         reports.unshift(newRecord);
         saveStoredReports(reports.slice(0, 200)); // manter até 200 relatórios
+      }
+
+      if (idemKey) {
+        idempotencyMap.set(idemKey, finalReportId);
       }
 
       this.recordSubmission(userId);
