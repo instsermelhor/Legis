@@ -1,127 +1,263 @@
-# LEGIS CONNECT — ROLE-BASED ACCESS CONTROL (RBAC) & ACCESS GOVERNANCE
+# LEGIS CONNECT — MATRIZ OFICIAL DE ACESSO E PERMISSÕES MASTER
+## RBAC + Tenancy + Membership + Ownership + Scope + RLS (Defesa em Profundidade)
 
-**Versão Normativa Oficial:** 2.0  
-**Data de Aprovação:** 11 de Agosto de 2026  
-**Status:** VIGENTE E NORMATIVO  
-**Princípio Basilar:** *DENY BY DEFAULT — Nenhum usuário acessa, visualiza, altera ou executa qualquer função sem autorização explícita de sua Role, Escopo e Contexto.*
+**Versão Normativa Oficial:** 3.0.0 — Enterprise Governance Edition  
+**Data de Aprovação:** 24 de Agosto de 2026  
+**Classificação:** Fonte Oficial de Verdade de Governança e Segurança  
+**Princípio Basilar:** *DENY BY DEFAULT — Estar autenticado não significa estar autorizado. Possuir uma função não significa possuir acesso global.*
 
 ---
 
-## 1. OBJETIVO E PRINCÍPIOS DE SEGURANÇA
+## 1. OBJETIVO E PRINCÍPIO FUNDAMENTAL
 
 ### 1.1 Objetivo
-Este documento estabelece a política oficial e arquitetura técnica de **Controle de Acesso Baseado em Funções (RBAC)** e **Governança de Acessos** da plataforma **Legis Connect**. Serve como fonte primária para frontend, backend, banco de dados (RLS) e suítes de auditoria/testes.
+Estabelecer a modelagem, implementação e auditoria definitiva da matriz oficial de níveis de acesso da **Legis Connect**, determinando:
+> **QUEM PODE FAZER O QUÊ, EM QUAL TENANT, SOBRE QUAL RECURSO, EM QUAL CONTEXTO E SOB QUAIS CONDIÇÕES.**
 
-### 1.2 Princípios Fundamentais
-1. **DENY BY DEFAULT**: Se uma ação/recurso não for expressamente concedida a uma função, ela é estritamente negada.
-2. **Menor Privilégio**: Cada usuário possui apenas o acesso mínimo estritamente necessário para desempenhar sua função.
-3. **Backend como Autoridade Final**: A validação de autorização DEVE ser realizada no backend/servidor (serviços e PostgreSQL RLS). A interface gráfica apenas reflete permissões já concedidas.
-4. **Segregação Absoluta de Dados**: Isolamento rigoroso entre Clientes, Advogados, Estagiários, Secretárias e Staff Administrativo.
-5. **Prevenção contra IDOR**: Nenhum recurso (caso, documento, cliente, transação) pode ser acessado apenas alterando parâmetros ou IDs via URL/payload.
-6. **Segregation of Duties (SoD)**: Prevenção de conflito de interesses (ex.: criar e liberar pagamentos em escrow).
-
----
-
-## 2. HIERARQUIA DE ROLES E NÍVEIS DE AUTORIDADE
-
-A plataforma opera sob 9 roles estruturadas hierarquicamente com níveis numéricos de autoridade (1 a 9):
+O RBAC na Legis Connect **não é tratado apenas como `Usuário → Cargo`**. O acesso efetivo é obrigatoriamente calculado através da cadeia multidimensional:
 
 ```text
-┌─────────────────────────────────────────────────────────────────┐
-│                      SUPER USUÁRIO / SUPER ADMIN (Level 9)      │
-│                      👑 Governança Absoluta & Impersonação       │
-└────────────────────────────────┬────────────────────────────────┘
-                                 │
-     ┌───────────────────────────┴───────────────────────────┐
-     ▼                                                       ▼
-┌───────────────────────────┐               ┌───────────────────────────┐
-│     ADMINISTRADOR (7)     │               │   STAFF ESPECIALIZADO     │
-│   🛡️ Gestão Operacional   │               │ 💰 Finance Admin (5)      │
-└────────────┬──────────────┘               │ 🔍 Compliance Auditor (5) │
-             │                              │ 🎧 Support L1 (4)         │
-             │                              └───────────────────────────┘
-     ┌───────┴──────────────────────┬──────────────────────┐
-     ▼                              ▼                      ▼
-┌───────────────┐           ┌───────────────┐      ┌───────────────┐
-│ ADVOGADO (3)  │           │ CLIENTE (1)   │      │ BACHARELANDO  │
-│ ⚖️ Escritório │           │ 👤 Titular    │      │ 🎓 Estudante  │
-└───────┬───────┘           └───────────────┘      └───────────────┘
-        │
-  ┌─────┴────────────────┐
-  ▼                      ▼
-┌────────────────┐ ┌────────────────┐
-│ SECRETÁRIA (2) │ │ ESTAGIÁRIO (2) │
-│ 📋 Assistente  │ │ 🎓 Atribuído   │
-└────────────────┘ └────────────────┘
+  ┌──────────────┐
+  │  IDENTIDADE  │
+  └──────┬───────┘
+         ▼
+  ┌──────────────┐
+  │   USUÁRIO    │
+  └──────┬───────┘
+         ▼
+  ┌──────────────┐
+  │  MEMBERSHIP  │
+  └──────┬───────┘
+         ▼
+  ┌──────────────┐
+  │    TENANT    │
+  └──────┬───────┘
+         ▼
+  ┌──────────────┐
+  │     ROLE     │
+  └──────┬───────┘
+         ▼
+  ┌──────────────┐
+  │  PERMISSION  │
+  └──────┬───────┘
+         ▼
+  ┌──────────────┐
+  │   RESOURCE   │
+  └──────┬───────┘
+         ▼
+  ┌──────────────┐
+  │    SCOPE     │
+  └──────┬───────┘
+         ▼
+  ┌──────────────┐
+  │  OWNERSHIP   │
+  └──────┬───────┘
+         ▼
+  ┌───────────────────────────┐
+  │   BACKEND AUTHORIZATION   │
+  └──────────────┬────────────┘
+                 ▼
+  ┌───────────────────────────┐
+  │  POSTGRESQL RLS (BANCO)   │
+  └──────────────┬────────────┘
+                 ▼
+  ┌───────────────────────────┐
+  │       ACESSO EFETIVO      │
+  └───────────────────────────┘
 ```
 
-### 2.1 Tabela de Níveis e Escopos Padrão
-
-| SystemRole | Nível | Escopo Padrão | Descrição Resumida |
-| :--- | :---: | :--- | :--- |
-| `super_admin` | 9 | `global` | Autoridade máxima de governança, criação de admins e impersonação. |
-| `admin` | 7 | `global` | Gestão operacional delegada de usuários, advogados e serviços. |
-| `staff_finance_admin` | 5 | `global` | Gestão financeira, estornos, liberações de escrow e faturamento. |
-| `staff_compliance_auditor` | 5 | `global` | Auditoria de logs, verificações OAB, reclamações e compliance. |
-| `staff_support_l1` | 4 | `global` | Suporte operacional Nível 1 (leitura básica e diagnóstico). |
-| `lawyer` | 3 | `office` | Gestão jurídica do seu escritório, clientes e casos vinculados. |
-| `secretary` | 2 | `assigned` | Assistência operacional delegada pelo advogado (agenda, docs). |
-| `intern` | 2 | `assigned` | Apoio acadêmico/estágio em casos e tarefas atribuídas. |
-| `client` | 1 | `own` | Titular dos dados: visualização de seus casos, docs e finanças. |
+### 1.2 Princípios Inegociáveis
+1. **Deny by Default**: Se uma permissão não for expressamente concedida, ela é negada.
+2. **Frontend Não é Autoridade Final**: Ocultar botões ou rotas na UI é mera conveniência de UX. A autorização é sempre imposta no Backend (Guards/Services) e no Banco de Dados (PostgreSQL RLS).
+3. **Isolamento de Tenancy Inviolável**: Uma requisição do Tenant A jamais acessa recursos do Tenant B sem autorização explícita ou credencial de Super Admin com auditoria.
+4. **Ownership Estrito**: Recursos pertencem a usuários ou escritórios específicos. O conhecimento de um ID (`UUID`) por si só jamais garante acesso ao objeto.
 
 ---
 
-## 3. ESCOPOS DE ACESSO (PERÍMETROS DE DADOS)
+## 2. INVENTÁRIO DE PERFIS OFICIAIS
 
-Não basta definir *o que* o usuário pode fazer; é obrigatório definir *sobre quais dados*:
+| Perfil | Nível | Natureza | Escopo Primário | Finalidade e Descrição |
+|---|:---:|---|---|---|
+| **Super Administrador** | 9 | Plataforma | `global` | Autoridade de governança máxima. MFA mandatório, sessão rastreada e auditada. Pode realizar impersonação auditada. |
+| **Administrador** | 7 | Plataforma | `global` | Gestão operacional delegada de usuários e serviços. Sem impersonação e sem deleção irrestrita. |
+| **Gestor Financeiro** (`staff_finance_admin`) | 5 | Plataforma | `tenant` | Gestão de faturamento, liquidações, chargebacks e disputas de escrow. Sem acesso a peças processuais. |
+| **Auditor de Compliance** (`staff_compliance_auditor`) | 5 | Plataforma | `tenant` | Leitura de logs de auditoria, verificação de registros OAB e conformidade LGPD. Sem acesso financeiro. |
+| **Suporte Nível 1** (`staff_support_l1`) | 4 | Plataforma | `tenant` | Diagnóstico e apoio ao usuário. Somente leitura básica. Sem mutação de dados. |
+| **Gestor de Escritório** (`gestor`) | 3 | Escritório | `office` | Gestão da equipe, produtividade, clientes, processos e agenda da banca no tenant. |
+| **Advogado** (`lawyer`) | 3 | Profissional | `office` / `own` | Atuação jurídica em causas próprias ou formalmente atribuídas. Elaboração de peças, agenda e consultas. |
+| **Secretária** (`secretary`) | 2 | Apoio Operacional | `assigned` | Recepção virtual, triagem, agenda e comunicação com clientes do advogado supervisor. |
+| **Assistente Jurídico** (`legal_assistant`) | 2 | Apoio Técnico | `assigned` | Apoio técnico-jurídico com formação técnica. Pode atualizar andamentos e minutas delegadas. |
+| **Estagiário / Bacharelando** (`intern`) | 2 | Acadêmico Vinculado | `assigned` | Atuação sob supervisão formal (Lei 11.788/08). Acessa apenas tarefas e processos atribuídos. |
+| **Estudante de Direito** (`student`) | 1 | Acadêmico Livre | `own` | Sem vínculo profissional. Acessa biblioteca, simulador OAB e seu próprio perfil acadêmico. |
+| **Cliente** (`client`) | 1 | Titular Final | `own` / `related` | Acesso exclusivo aos seus próprios processos, contratos, consultas e transações financeiras. |
 
-1. **`own`**: Somente os recursos pertencentes diretamente ao próprio usuário (`owner_id = user.id`).
-2. **`assigned`**: Recursos atribuídos explicitamente ao usuário (`assigned_to = user.id`).
-3. **`team`**: Recursos da equipe imediata do usuário.
-4. **`office`**: Recursos pertencentes à mesma organização/escritório (`office_id = user.office_id`).
-5. **`global`**: Recursos de toda a plataforma Legis Connect.
-
----
-
-## 4. PERMISSÕES GRANULARES E MATRIZ RBAC
-
-As permissões utilizam o padrão `<recurso>:<ação>`.
-
-### 4.1 Recursos Padronizados
-`users`, `roles`, `clients`, `lawyers`, `cases`, `documents`, `agenda`, `financial`, `escrow`, `provisioning`, `services`, `staff`, `registrations`, `audit`, `ai`, `system`.
-
-### 4.2 Ações Padronizadas
-`CREATE`, `READ`, `UPDATE`, `DELETE`, `LIST`, `SEARCH`, `EXPORT`, `IMPORT`, `APPROVE`, `REJECT`, `ASSIGN`, `UNASSIGN`, `DELEGATE`, `REVOKE`, `CONFIGURE`, `MANAGE`, `AUDIT`, `CHARGEBACK`, `RELEASE`, `DISPUTE`, `IMPERSONATE`.
+> **Nota Arquitetural sobre "Escritório":** "Escritório" é modelado como uma entidade organizacional (`Tenant` / `LawFirm`), possuindo múltiplos membros (`TenantMembership`), e **não** como um usuário simples.
 
 ---
 
-## 5. SEGREGATION OF DUTIES (SoD) & REGRAS DE DELEGAÇÃO
+## 3. MODELO DE PERMISSÃO E ESCOPO
 
-### 5.1 Matriz de SoD (Conflitos Proibidos)
-As seguintes combinações de permissões NÃO podem coexistir em nenhuma role (exceto `super_admin` por isenção normativo-operacional):
-- `financial:approve` + `financial:chargeback` (Aprovação e estorno financeiro)
-- `escrow:create` + `escrow:release` (Abertura e liberação de valores sob custódia)
-- `users:create` + `roles:manage` (Criação de usuários e elevação arbitrária de permissões)
-- `audit:write` + `audit:delete` (Registro e deleção de auditoria)
+### 3.1 Nomenclatura Padrão
+As permissões são expressas na estrutura granular:
+$$\text{RESOURCE} + \text{ACTION} + \text{SCOPE}$$
 
-### 5.2 Regras de Delegação e Elevação
-- **Hierarquia Inviolável**: NENHUM usuário pode conceder a outro usuário privilégios superiores ou iguais aos seus (`grantor.level > grantee.level`).
-- **Escopo Restrito**: O concedente só pode delegar permissões que ele próprio possui ativamente.
-- **Revogação Imediata**: Toda revogação de role/permissão invalida imediatamente a sessão ativa do usuário impactado.
+Exemplos:
+- `CLIENT:READ:OWN`
+- `PROCESS:READ:ASSIGNED`
+- `DOCUMENT:UPDATE:TENANT`
+- `USER:MANAGE:GLOBAL`
+
+### 3.2 Escopos Padronizados
+- **`OWN`**: Somente aquilo que pertence diretamente ao usuário autenticado (`owner_id = user.id`).
+- **`ASSIGNED`**: Aquilo formalmente atribuído ao usuário (`assigned_to = user.id`).
+- **`TEAM`**: Aquilo pertencente à equipe imediata do usuário.
+- **`OFFICE`**: Aquilo pertencente ao escritório/organização autorizado.
+- **`TENANT`**: Aquilo pertencente ao tenant ativo.
+- **`GLOBAL`**: Toda a plataforma (reservado para governança com auditoria).
+- **`RELATED`**: Dados diretamente vinculados aos casos/contratos do titular.
+- **`AUTHORIZED`**: Dados para os quais há compartilhamento explícito.
+- **`NONE`**: Bloqueio total.
 
 ---
 
-## 6. PROTEÇÃO CONTRA IDOR E ISOLAMENTO MULTI-TENANT
+## 4. MATRIZ EXECUTIVA RBAC
 
-Toda consulta e mutação de dados DEVE passar pelas regras RLS do PostgreSQL (`update_rls_rbac_v2.sql`):
-1. **Profiles**: `id = auth.uid()` ou `legis_is_staff()`
-2. **Cases**: `client_id = auth.uid()` OR `office_id = legis_get_user_office_id()` OR `assigned_to = auth.uid()`
-3. **Documents**: `owner_id = auth.uid()` OR `auth.uid() = ANY(shared_with)` OR `office_id = legis_get_user_office_id()`
-4. **Financial**: `client_id = auth.uid()` OR `lawyer_id = auth.uid()` OR `role IN ('super_admin', 'admin', 'staff_finance_admin')`
+Legenda:
+- ✅ **Permitido**: Operação autorizada no escopo padrão do perfil.
+- 🔒 **Permitido com Escopo**: Autorizado estritamente sob vínculo (`OWN`, `ASSIGNED` ou `OFFICE`).
+- ⚠️ **Condicionado**: Requer aprovação prévia, dupla custódia ou supervisão formal.
+- ❌ **Proibido**: Acesso estritamente negado por padrão (*Deny by Default*).
+
+| Recurso | Ação | Super Admin | Admin | Gestor | Advogado | Secretária | Assistente | Estagiário | Estudante | Cliente |
+|---|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **Usuários** | Criar / Gerenciar | ✅ | 🔒 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Usuários** | Impersonar (Modo Espelho) | ⚠️ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Clientes** | Cadastrar | ✅ | ✅ | 🔒 | 🔒 | 🔒 | ❌ | ❌ | ❌ | ❌ |
+| **Clientes** | Visualizar Dados | ✅ | ✅ | 🔒 | 🔒 | 🔒 | 🔒 | ❌ | ❌ | 🔒 |
+| **Clientes** | Exportar Base | ✅ | ✅ | 🔒 | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Processos / Casos** | Criar Pasta | ✅ | ❌ | 🔒 | 🔒 | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Processos / Casos** | Visualizar Andamentos | ✅ | 🔒 | 🔒 | 🔒 | 🔒 | 🔒 | 🔒 | ❌ | 🔒 |
+| **Processos / Casos** | Atualizar Fases | ✅ | 🔒 | 🔒 | 🔒 | ❌ | 🔒 | ❌ | ❌ | ❌ |
+| **Processos / Casos** | Excluir / Arquivar | ✅ | ❌ | 🔒 | 🔒 | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Documentos** | Upload | ✅ | ✅ | 🔒 | 🔒 | 🔒 | 🔒 | ❌ | ❌ | 🔒 |
+| **Documentos** | Leitura / Download | ✅ | ✅ | 🔒 | 🔒 | 🔒 | 🔒 | 🔒 | ❌ | 🔒 |
+| **Documentos** | Exclusão Definitiva | ✅ | ❌ | 🔒 | 🔒 | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Agenda** | Gerenciar / Agendar | ✅ | ✅ | 🔒 | 🔒 | 🔒 | 🔒 | ❌ | ❌ | 🔒 |
+| **Financeiro** | Visualizar Lançamentos | ✅ | 🔒 | 🔒 | 🔒 | ❌ | ❌ | ❌ | ❌ | 🔒 |
+| **Financeiro** | Estorno / Chargeback | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Escrow** | Criar Custódia | ✅ | ❌ | ❌ | 🔒 | ❌ | ❌ | ❌ | ❌ | 🔒 |
+| **Escrow** | Liberar Valores | ✅ | ❌ | ❌ | 🔒 | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Equipe** | Convidar / Delegar | ✅ | 🔒 | 🔒 | 🔒 | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Acadêmico** | Registrar Horas | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | 🔒 | ❌ | ❌ |
+| **Acadêmico** | Validar Horas Estágio | ✅ | ❌ | 🔒 | 🔒 | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Acadêmico** | Simulador OAB | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ | ✅ | ❌ |
+| **Auditoria** | Leitura de Trilha | ✅ | ✅ | 🔒 | 🔒 | 🔒 | 🔒 | 🔒 | 🔒 | 🔒 |
+| **Auditoria** | Exclusão de Logs | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Sistema** | Configurações Globais | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 ---
 
-## 7. MONITORAMENTO E AUDITORIA
+## 5. MATRIZ TÉCNICA DE PERMISSÕES GRANULARES
 
-Todas as operações sensíveis (elevação de privilégio, impersonação, criação/deletar usuários, exportação de dados LGPD) são registradas em log de auditoria append-only com os campos:
-`id`, `timestamp`, `actor_id`, `actor_role`, `action`, `resource`, `resource_id`, `status`, `ip_address`, `details`.
+| Role | Resource | Action | Scope | Tenant Constraint | Ownership Required | Backend Enforcement | Database RLS | Status |
+|---|---|---|---|---|---|---|---|---|
+| `super_admin` | `ALL` | `ALL` | `GLOBAL` | Cross-Tenant Auditado | Não (com log compulsório) | `RbacGuard` + Audit Filter | Bypass via Bypass Policy | **CONFORME** |
+| `admin` | `users` | `CREATE/UPDATE/LIST` | `GLOBAL` | Global Platform | Não | `StaffGuard` | `users_select_policy` | **CONFORME** |
+| `admin` | `system` | `CONFIGURE` | `NONE` | N/A | Sim | Rejeição 403 no Handler | N/A | **CONFORME** |
+| `staff_finance_admin` | `financial` | `READ/EXPORT/APPROVE` | `TENANT` | `app.current_tenant_id` | Não (contexto contábil) | `FinanceGuard` | `financial_isolation` | **CONFORME** |
+| `staff_compliance_auditor`| `audit` | `READ/EXPORT` | `TENANT` | `app.current_tenant_id` | Não (função auditora) | `AuditService` | `audit_readonly` | **CONFORME** |
+| `gestor` | `team` | `INVITE/MANAGE` | `OFFICE` | `app.current_tenant_id` | Pertencimento ao Office | `OfficeGuard` | `memberships_policy` | **CONFORME** |
+| `gestor` | `cases` | `READ/UPDATE/ASSIGN` | `OFFICE` | `app.current_tenant_id` | `office_id = user.office_id` | `CaseService` | `cases_select_policy` | **CONFORME** |
+| `lawyer` | `cases` | `CREATE/READ/UPDATE` | `ASSIGNED/OWN` | `app.current_tenant_id` | `lawyer_id = user.id` | `CaseController` | `cases_select_policy` | **CONFORME** |
+| `lawyer` | `escrow` | `CREATE/RELEASE` | `OWN` | `app.current_tenant_id` | Vínculo contratual ativo | `EscrowService` | `escrow_ownership` | **CONFORME** |
+| `secretary` | `agenda` | `CREATE/READ/UPDATE` | `OFFICE` | `app.current_tenant_id` | `assigned_lawyer_id` | `AgendaService` | `agenda_policy` | **CONFORME** |
+| `secretary` | `financial` | `READ` | `NONE` | N/A | Sim (Negação Absoluta) | 403 Forbidden | Bloqueio RLS | **CONFORME** |
+| `legal_assistant` | `cases` | `READ/UPDATE` | `ASSIGNED` | `app.current_tenant_id` | `assigned_to = user.id` | `CaseService` | `cases_select_policy` | **CONFORME** |
+| `intern` | `cases` | `READ` | `ASSIGNED` | `app.current_tenant_id` | Atribuição direta de tarefa | `CaseService` | `cases_select_policy` | **CONFORME** |
+| `intern` | `clients` | `READ/LIST` | `NONE` | N/A | Sim (Negação Absoluta) | 403 Forbidden | Bloqueio RLS | **CONFORME** |
+| `student` | `academic` | `READ/SIMULATE` | `OWN` | Platform Academic Hub | `user_id = user.id` | `AcademicGuard` | `academic_isolation`| **CONFORME** |
+| `student` | `cases` | `ALL` | `NONE` | N/A | Sim (Negação Absoluta) | 403 Forbidden | Bloqueio RLS | **CONFORME** |
+| `client` | `cases` | `READ` | `OWN/RELATED` | `app.current_tenant_id` | `client_id = user.id` | `ClientPortalGuard` | `client_isolation` | **CONFORME** |
+| `client` | `documents` | `READ/DOWNLOAD` | `OWN` | `app.current_tenant_id` | `owner_id = user.id` | `DocStorageGuard` | `doc_client_policy` | **CONFORME** |
+
+---
+
+## 6. MATRIZ DE APIs E ENDPOINTS PROTEGIDOS
+
+| Endpoint | Método | Recurso | Roles Autorizadas | Escopo Obrigatório | Validação de Tenant | Validação de Ownership | Proteção IDOR |
+|---|:---:|---|---|---|:---:|:---:|:---:|
+| `/api/users` | `GET` | `users` | `super_admin`, `admin` | `GLOBAL` | Server Header | Não | Token JWT |
+| `/api/users/:id/impersonate` | `POST` | `users` | `super_admin` | `GLOBAL` | Auditado | Justificativa $\ge 20$ char | Log Append-Only |
+| `/api/cases` | `GET` | `cases` | `gestor`, `lawyer`, `legal_assistant`, `intern`, `client` | `OFFICE` / `OWN` | `TenantGuard` | Filtro `user_id` / `office_id` | Where Clause Injetada |
+| `/api/cases` | `POST` | `cases` | `gestor`, `lawyer` | `OFFICE` | `TenantGuard` | Context Injection | Atribuição Automática |
+| `/api/cases/:id` | `PATCH` | `cases` | `gestor`, `lawyer`, `legal_assistant` | `ASSIGNED` | `TenantGuard` | Assert `can_modify_case(id)` | RLS + Service Check |
+| `/api/cases/:id` | `DELETE` | `cases` | `super_admin`, `gestor`, `lawyer` | `OWN` / `OFFICE` | `TenantGuard` | Soft Delete + Ownership | RLS Enforcement |
+| `/api/documents/upload` | `POST` | `documents` | `gestor`, `lawyer`, `secretary`, `legal_assistant`, `client` | `OFFICE` / `OWN` | `TenantGuard` | Auto-tagging de dono | Encriptação AES-GCM |
+| `/api/financial/overview` | `GET` | `financial` | `super_admin`, `staff_finance_admin`, `gestor`, `lawyer` | `OFFICE` / `OWN` | `TenantGuard` | Restrição por `firmId` | DRE Agregado Seguro |
+| `/api/escrow/release` | `POST` | `escrow` | `super_admin`, `staff_finance_admin`, `lawyer` | `OWN` | `TenantGuard` | Validação de Conclusão | Dupla Assinatura |
+| `/api/academic/hours` | `POST` | `academic` | `intern` | `OWN` | `TenantGuard` | `intern_id = user.id` | Lei 11.788 Validation |
+| `/api/academic/validate` | `POST` | `academic` | `gestor`, `lawyer` | `OFFICE` | `TenantGuard` | Supervisor OAB Ativo | Assinatura Digital |
+| `/api/audit/logs` | `GET` | `audit` | `super_admin`, `staff_compliance_auditor` | `GLOBAL` / `TENANT` | Audit Isolation | Append-Only View | Imutabilidade SHA-256 |
+
+---
+
+## 7. MATRIZ ROW-LEVEL SECURITY (POSTGRESQL RLS)
+
+| Tabela | Tenant Constraint | SELECT Policy | INSERT Policy | UPDATE Policy | DELETE Policy | Cláusula USING | Cláusula WITH CHECK | Status |
+|---|---|---|---|---|---|---|---|---|
+| `users` | Multi-Tenant | `users_select` | `users_insert` | `users_update` | Bloqueado (Soft Delete) | `id = auth.uid() OR is_staff()` | `id = auth.uid() OR is_staff()` | **CONFORME** |
+| `cases` | Estrito por Tenant | `cases_select` | `cases_insert` | `cases_update` | `cases_delete` | `tenant_id = current_tenant() AND (lawyer_id = uid() OR client_id = uid() OR office_id = user_office())` | `tenant_id = current_tenant()` | **CONFORME** |
+| `case_stages` | Cascata com `cases` | `stages_select` | `stages_insert` | `stages_update` | `stages_delete` | `EXISTS(SELECT 1 FROM cases WHERE cases.id = case_id AND ...)` | `EXISTS(SELECT 1 FROM cases WHERE cases.id = case_id)` | **CONFORME** |
+| `documents` | Estrito por Tenant | `docs_select` | `docs_insert` | `docs_update` | `docs_delete` | `tenant_id = current_tenant() AND (owner_id = uid() OR uid() = ANY(shared_with))` | `tenant_id = current_tenant()` | **CONFORME** |
+| `financial_records` | Estrito por Tenant | `fin_select` | `fin_insert` | `fin_update` | Bloqueado | `tenant_id = current_tenant() AND (lawyer_id = uid() OR is_finance_admin())` | `tenant_id = current_tenant()` | **CONFORME** |
+| `staff_audit_logs` | Global / Append-Only | `audit_select` | `audit_insert` | **FALSE** | **FALSE** | `is_compliance_or_super()` | N/A (Update/Delete Negados) | **CONFORME** |
+| `impersonation_sessions` | Global Auditado | `imp_select` | `imp_insert` | `imp_update` | **FALSE** | `staff_id = auth.uid() OR is_super()` | `staff_id = auth.uid() AND length(justification) >= 20` | **CONFORME** |
+
+---
+
+## 8. SEGREGAÇÃO DE FUNÇÕES (SEGREGATION OF DUTIES — SoD)
+
+Para prevenir fraudes, conflitos de interesses e sabotagem interna, a plataforma impõe regras rígidas de não-coexistência de permissões:
+
+```mermaid
+graph TD
+    subgraph "Conflitos Críticos de SoD (Proibidos na Mesma Role)"
+        A[Solicitar / Lançar Pagamento] <-->|BLOQUEADO| B[Aprovar / Estornar Pagamento]
+        C[Criar Custódia Escrow] <-->|BLOQUEADO| D[Liberar Honorários Escrow]
+        E[Criar / Administrar Usuários] <-->|BLOQUEADO| F[Elevação Arbitrária de Roles]
+        G[Escrever Log de Auditoria] <-->|BLOQUEADO| H[Excluir / Modificar Trilha]
+    end
+```
+
+| Role Alvo | Permissão Primária | Conflita com | Nível de Risco | Mitigação Arquitetural |
+|---|---|---|:---:|---|
+| `gestor` / `lawyer` | `financial:approve` | `financial:chargeback` | **CRÍTICO** | Chargeback restrito a `staff_finance_admin` e `super_admin`. |
+| `lawyer` / `client` | `escrow:create` | `escrow:release` | **ALTO** | A liberação de escrow requer validação de entrega do serviço e confirmação do contratante. |
+| `admin` | `users:create` | `roles:manage` | **ALTO** | Apenas `super_admin` pode alterar o catálogo e atribuição de papéis do sistema. |
+| `staff_compliance` | `audit:write` | `audit:delete` | **CRÍTICO** | Imutabilidade imposta no PostgreSQL RLS com `USING (false)` para UPDATE e DELETE. |
+
+---
+
+## 9. GAP ANALYSIS E RELATÓRIO DE CONFORMIDADE
+
+| Item Auditado | Diagnóstico Inicial | Causa Raiz | Ação Corretiva Aplicada | Status Final |
+|---|---|---|---|:---:|
+| **Perfil Gestor** | Ausente no engine | Não modelado como role autônoma | Criado perfil `gestor` com nível 3 e escopo `office` | **CONFORME** |
+| **Assistente Jurídico** | Mesclado com `secretary` | Agrupamento de papéis distintos | Separado em `legal_assistant` com poderes de atualização jurídica | **CONFORME** |
+| **Estudante de Direito** | Não diferenciado de `intern` | Ausência de persona sem vínculo | Criado perfil `student` com acesso restrito a ambiente acadêmico | **CONFORME** |
+| **Bug `scopeValidator`** | `hasMinLevel(ctx.role, 20)` | Nível 20 inexistente (máx 9) | Corrigido para `isStaffRole(ctx.role)` e níveis normalizados | **CONFORME** |
+| **Tenant Guard NestJS** | Bloqueava Super Admin | Ausência de bypass auditado | Implementado bypass seguro para `super_admin` | **CONFORME** |
+| **Ações Granulares** | Faltavam ARCHIVE, SHARE, DOWNLOAD | Modelo de ação reduzido | Adicionadas 7 novas ações e 5 novos recursos à matriz | **CONFORME** |
+
+---
+
+## 10. EVIDÊNCIAS DE IMPLEMENTAÇÃO E ARQUIVOS FONTE
+
+1. **Engine RBAC Central**: [`security/rbac.ts`](file:///Users/rikardoribeiro/Documents/GitHub/Legis/security/rbac.ts)
+2. **Matriz Granular e Resolução de Contexto**: [`security/rbacMatrix.ts`](file:///Users/rikardoribeiro/Documents/GitHub/Legis/security/rbacMatrix.ts)
+3. **Guardião de Escopo e Proteção de PII (LGPD)**: [`security/scopeValidator.ts`](file:///Users/rikardoribeiro/Documents/GitHub/Legis/security/scopeValidator.ts)
+4. **Isolamento de Tenancy Backend (NestJS Guard)**: [`services/identity-service/src/guards/tenant-isolation.guard.ts`](file:///Users/rikardoribeiro/Documents/GitHub/Legis/services/identity-service/src/guards/tenant-isolation.guard.ts)
+5. **Componente de Proteção Visual**: [`security/RbacGuard.tsx`](file:///Users/rikardoribeiro/Documents/GitHub/Legis/security/RbacGuard.tsx)
+6. **Suíte de Testes Unitários e Conformance**: [`tests/unit/rbacConformance.test.ts`](file:///Users/rikardoribeiro/Documents/GitHub/Legis/tests/unit/rbacConformance.test.ts)
+7. **Suíte de Testes de Isolamento Multi-Tenant**: [`tests/multitenancy/tenant-isolation.test.ts`](file:///Users/rikardoribeiro/Documents/GitHub/Legis/tests/multitenancy/tenant-isolation.test.ts)
+8. **Políticas de Row-Level Security no Banco**: [`docs/DATABASE_SECURITY_RLS_ARCHITECTURE.md`](file:///Users/rikardoribeiro/Documents/GitHub/Legis/docs/DATABASE_SECURITY_RLS_ARCHITECTURE.md)
