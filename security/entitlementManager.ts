@@ -15,9 +15,9 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-import { ModuleKey, LEGIS_MODULE_CATALOG, getModuleDefinition } from './catalog';
-import { SystemRole, ResourceAction, hasPermission } from './rbac';
-import { ResourceType } from './rbacMatrix';
+import { ModuleKey, ModuleDefinition, LEGIS_MODULE_CATALOG, getModuleDefinition } from './catalog';
+import { SystemRole } from './rbac';
+import { Resource, Action, isAllowed } from './rbacMatrix';
 import { AuditLogger } from './auditLogger';
 import { PLATFORM_TENANT_ID } from '../services/tenantService';
 
@@ -110,23 +110,23 @@ export const PLAN_DEFAULT_ENTITLEMENTS: Record<string, ModuleKey[]> = {
 /**
  * Mapeamento de Chave de Módulo para Tipo de Recurso no RBAC
  */
-const MODULE_TO_RESOURCE_MAP: Partial<Record<ModuleKey, ResourceType>> = {
+const MODULE_TO_RESOURCE_MAP: Partial<Record<ModuleKey, Resource>> = {
   core_clients: 'clients',
   core_cases: 'cases',
-  legal_contracts: 'contracts',
-  legal_invoices: 'invoices',
+  legal_contracts: 'documents',
+  legal_invoices: 'financial',
   legal_agenda: 'agenda',
-  ai_copilot: 'ai_juridica',
-  bi_analytics: 'bi_reports',
-  messaging_waba: 'whatsapp',
-  staff_provisioning: 'services',
-  intern_portal: 'intern_tasks',
-  secretary_portal: 'secretary_attendance',
-  client_portal: 'client_portal',
-  marketplace: 'marketplace_demands',
-  audit_compliance: 'staff_audit_logs',
-  super_admin: 'system_core',
-  settings_config: 'settings',
+  ai_copilot: 'ai',
+  bi_analytics: 'financial',
+  messaging_waba: 'notifications',
+  staff_provisioning: 'provisioning',
+  intern_portal: 'academic',
+  secretary_portal: 'staff',
+  client_portal: 'profile',
+  marketplace: 'services',
+  audit_compliance: 'audit',
+  super_admin: 'system',
+  settings_config: 'security',
 };
 
 // Armazenamento em memória / cache com fallback
@@ -156,13 +156,14 @@ export class EntitlementManager {
       action: 'ENTITLEMENT_GRANTED' as any,
       actorId: entitlement.grantedBy,
       actorRole: 'super_admin',
-      targetTenantId: entitlement.tenantId,
-      details: {
+      targetId: entitlement.tenantId,
+      targetType: 'tenant',
+      details: JSON.stringify({
         moduleKey: entitlement.moduleKey,
         source: entitlement.source,
         expiresAt: entitlement.expiresAt,
         reason: entitlement.reason || 'Concessão formal de entitlement',
-      },
+      }),
     });
   }
 
@@ -193,8 +194,9 @@ export class EntitlementManager {
       action: 'ENTITLEMENT_REVOKED' as any,
       actorId: revokedBy,
       actorRole: 'super_admin',
-      targetTenantId: tenantId,
-      details: { moduleKey, reason },
+      targetId: tenantId,
+      targetType: 'tenant',
+      details: JSON.stringify({ moduleKey, reason }),
     });
   }
 
@@ -248,7 +250,7 @@ export class EntitlementManager {
   static canAccessModule(
     ctx: AccessResolutionContext,
     moduleKey: ModuleKey,
-    action: ResourceAction = 'READ'
+    action: Action = 'READ'
   ): AccessResolutionResult {
     // Passo 1: Verificar se módulo existe no catálogo oficial
     const moduleDef = getModuleDefinition(moduleKey);
@@ -307,7 +309,7 @@ export class EntitlementManager {
     // Passo 6: Verificar Autorização RBAC para o papel do usuário
     const resourceType = MODULE_TO_RESOURCE_MAP[moduleKey];
     if (resourceType) {
-      const hasRbac = hasPermission(ctx.userRole, resourceType, action);
+      const hasRbac = isAllowed(ctx.userRole, resourceType, action);
       if (!hasRbac) {
         return {
           granted: false,
@@ -333,7 +335,7 @@ export class EntitlementManager {
     ctx: AccessResolutionContext,
     moduleKey: ModuleKey,
     featureKey: string,
-    action: ResourceAction = 'READ'
+    action: Action = 'READ'
   ): AccessResolutionResult {
     // 1. Valida o módulo pai
     const moduleResult = this.canAccessModule(ctx, moduleKey, action);
