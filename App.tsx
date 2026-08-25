@@ -152,7 +152,6 @@ const App: React.FC = () => {
       }
     });
     return unsubscribe;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ISS-031: Ativar monitoramento de produção (Sentry + Web Vitals)
