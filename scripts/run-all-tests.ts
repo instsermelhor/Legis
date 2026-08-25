@@ -60,6 +60,7 @@ import { runApiContractsTests } from '../tests/api/apiContractsAndEndpoints.test
 import { runConcurrencyAndIdempotencyTests } from '../tests/unit/concurrencyAndIdempotency.test';
 import { runWcagAccessibilityTests } from '../tests/accessibility/wcagAccessibility.test';
 import { runE2EJourneysEngineTests } from '../tests/e2e/e2eJourneysEngine.test';
+import { runEdgeSecurityAndWafTests } from '../tests/security/edgeSecurityAndWaf.test';
 
 export interface SuiteResult {
   suiteName: string;
@@ -185,6 +186,7 @@ export async function runAllSuites(): Promise<SuiteResult[]> {
     { name: '20. Concurrency, Idempotency & Race Conditions', category: 'UNIT', fn: runConcurrencyAndIdempotencyTests },
     { name: '21. WCAG 2.1 AA Accessibility & Semantics', category: 'UNIT', fn: runWcagAccessibilityTests },
     { name: '22. 10 Critical User Journeys Engine (E2E)', category: 'E2E', fn: runE2EJourneysEngineTests },
+    { name: '23. Edge Security, WAF & Bot Management', category: 'SECURITY', fn: runEdgeSecurityAndWafTests },
   ];
 
   const suitesToRun = allSuitesDefinitions.filter(s => {
