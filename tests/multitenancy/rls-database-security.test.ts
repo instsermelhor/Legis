@@ -17,18 +17,24 @@
 import { setDatabaseSecurityContext, dbCases, dbContracts, dbInvoices, dbAuditLogs } from '../../lib/db';
 import { TenantService, PLATFORM_TENANT_ID } from '../../services/tenantService';
 
-function describe(name: string, fn: () => void) {
-  console.log(`\n--- [RLS DB SECURITY SUITE] ${name} ---`);
+type TestFn = () => void | Promise<void>;
+interface TestCase { name: string; fn: TestFn; }
+interface Suite { name: string; cases: TestCase[]; }
+
+let _suites: Suite[] = [];
+let _currentSuite: Suite | null = null;
+
+function describe(suiteName: string, fn: () => void) {
+  const suite: Suite = { name: suiteName, cases: [] };
+  _suites.push(suite);
+  _currentSuite = suite;
   fn();
+  _currentSuite = null;
 }
 
-function it(name: string, fn: () => void) {
-  try {
-    fn();
-    console.log(`  ✓ ${name}`);
-  } catch (err: any) {
-    console.error(`  ✕ ${name}: ${err.message}`);
-    throw err;
+function it(testName: string, fn: TestFn) {
+  if (_currentSuite) {
+    _currentSuite.cases.push({ name: testName, fn });
   }
 }
 
@@ -81,7 +87,7 @@ function expect<T>(actual: T) {
         errorMsg = err.message || String(err);
       }
       if (!rejected) {
-        throw new Error(`Expected promise to reject with an error`);
+        throw new Error(`Expected async function to reject`);
       }
       if (regex && !regex.test(errorMsg)) {
         throw new Error(`Expected rejection message "${errorMsg}" to match ${regex}`);
@@ -91,6 +97,9 @@ function expect<T>(actual: T) {
 }
 
 export async function runDatabaseRlsSecurityTests() {
+  _suites = [];
+  _currentSuite = null;
+
   const TENANT_ALPHA = 'tenant_lawfirm_alpha';
   const TENANT_BETA = 'tenant_lawfirm_beta';
 
@@ -218,6 +227,23 @@ export async function runDatabaseRlsSecurityTests() {
       expect(requiredRlsScripts.length).toBeGreaterThan(1);
     });
   });
+
+  // ─── Executar todas as suítes sequencialmente ──────────────────────────────
+  for (const suite of _suites) {
+    console.log(`\n--- [RLS DB SECURITY SUITE] ${suite.name} ---`);
+    for (const { name, fn } of suite.cases) {
+      try {
+        const result = fn();
+        if (result instanceof Promise) {
+          await result;
+        }
+        console.log(`  ✓ ${name}`);
+      } catch (err: any) {
+        console.error(`  ✕ ${name}: ${err.message}`);
+        throw err;
+      }
+    }
+  }
 
   return true;
 }
