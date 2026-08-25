@@ -49,7 +49,6 @@ const SocialLinksEditor: React.FC<SocialLinksEditorProps> = ({ value, onChange }
   // Sync initial value if parent updates (e.g. after save/reload)
   React.useEffect(() => {
     setSlots(initSlots(value));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(value)]);
 
   const updateSlots = (next: SocialSlot[]) => {
