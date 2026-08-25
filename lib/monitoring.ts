@@ -20,6 +20,16 @@ export interface AppError {
   component?: string;
   action?: string;
   severity?: 'error' | 'warning' | 'fatal';
+  fingerprint?: string;
+  requestId?: string;
+}
+
+export interface BreadcrumbEntry {
+  timestamp: string;
+  category: 'navigation' | 'ui' | 'network' | 'system' | 'user';
+  message: string;
+  level?: 'info' | 'warn' | 'error';
+  data?: Record<string, unknown>;
 }
 
 export interface UserContext {
@@ -32,6 +42,56 @@ export interface ErrorContext {
   component?: string;
   action?: string;
   extra?: Record<string, unknown>;
+  requestId?: string;
+}
+
+// ─── Breadcrumb Collector ────────────────────────────────────────────────────
+const MAX_BREADCRUMBS = 20;
+let breadcrumbBuffer: BreadcrumbEntry[] = [];
+
+export function addBreadcrumb(crumb: Omit<BreadcrumbEntry, 'timestamp'> & { timestamp?: string }): void {
+  try {
+    const entry: BreadcrumbEntry = {
+      timestamp: crumb.timestamp || new Date().toISOString(),
+      category: crumb.category,
+      message: String(crumb.message).slice(0, 200),
+      level: crumb.level || 'info',
+      data: crumb.data ? JSON.parse(JSON.stringify(crumb.data)) : undefined,
+    };
+    breadcrumbBuffer.push(entry);
+    if (breadcrumbBuffer.length > MAX_BREADCRUMBS) {
+      breadcrumbBuffer.shift();
+    }
+  } catch {}
+}
+
+export function getBreadcrumbs(): BreadcrumbEntry[] {
+  return [...breadcrumbBuffer];
+}
+
+export function clearBreadcrumbs(): void {
+  breadcrumbBuffer = [];
+}
+
+// ─── Utilitários de Rastreamento (Request ID & Fingerprint) ───────────────────
+export function generateRequestId(): string {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return `req_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
+}
+
+export function generateFingerprint(error: unknown, component?: string, url?: string): string {
+  const err = error instanceof Error ? error : new Error(String(error));
+  const raw = `${err.name}:${err.message}:${component || ''}:${url || ''}`;
+  
+  // FNV-1a Hash 32-bit em Hexadecimal
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < raw.length; i++) {
+    hash ^= raw.charCodeAt(i);
+    hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+  }
+  return `fp_${(hash >>> 0).toString(16).padStart(8, '0')}`;
 }
 
 // ─── Fila de erros em memória/localStorage para o modal de status ──────────────
@@ -113,12 +173,48 @@ export async function runHealthCheck(): Promise<{
   return { status, checks };
 }
 
-// ─── Inicialização Sentry ─────────────────────────────────────────────────────
+// ─── Inicialização Sentry & Listeners Globais ────────────────────────────────
 let sentryInitialized = false;
+let globalListenersAttached = false;
 
 export function initMonitoring(): void {
+  // 1. Anexar listeners globais de erro no browser (executado uma única vez)
+  if (typeof window !== 'undefined' && !globalListenersAttached) {
+    globalListenersAttached = true;
+
+    window.addEventListener('error', (event: ErrorEvent) => {
+      const err = event.error || new Error(event.message || 'Script error');
+      addBreadcrumb({
+        category: 'system',
+        message: `window.onerror: ${err.message}`,
+        level: 'error',
+        data: { filename: event.filename, lineno: event.lineno, colno: event.colno },
+      });
+      captureError(err, {
+        component: 'window.onerror',
+        action: 'global_script_error',
+        extra: { filename: event.filename, lineno: event.lineno, colno: event.colno },
+      });
+    });
+
+    window.addEventListener('unhandledrejection', (event: PromiseRejectionEvent) => {
+      const reason = event.reason;
+      const err = reason instanceof Error ? reason : new Error(String(reason || 'Unhandled Promise Rejection'));
+      addBreadcrumb({
+        category: 'system',
+        message: `unhandledrejection: ${err.message}`,
+        level: 'error',
+      });
+      captureError(err, {
+        component: 'window.onunhandledrejection',
+        action: 'async_promise_rejection',
+        extra: { reason: String(reason) },
+      });
+    });
+  }
+
   if (!IS_PRODUCTION) {
-    console.info('[Monitoring] Dev mode — Sentry desativado.');
+    console.info('[Monitoring] Dev mode — Sentry desativado. Listeners globais ativos.');
     reportWebVitals();
     return;
   }
@@ -162,6 +258,9 @@ export function setMonitoringUser(user: UserContext | null): void {
 
 export function captureError(error: unknown, context?: ErrorContext): void {
   const err = error instanceof Error ? error : new Error(String(error));
+  const currentUrl = typeof window !== 'undefined' ? window.location?.href : '';
+  const fingerprint = generateFingerprint(err, context?.component, currentUrl);
+  const requestId = context?.requestId || generateRequestId();
 
   pushToErrorQueue({
     id: `err_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
@@ -170,6 +269,14 @@ export function captureError(error: unknown, context?: ErrorContext): void {
     component: context?.component,
     action: context?.action,
     severity: 'error',
+    fingerprint,
+    requestId,
+  });
+
+  addBreadcrumb({
+    category: 'system',
+    message: `Erro capturado em ${context?.component || 'geral'}: ${err.message}`,
+    level: 'error',
   });
 
   if (!IS_PRODUCTION || !sentryInitialized) {
