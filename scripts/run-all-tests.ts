@@ -1,14 +1,17 @@
 /**
  * scripts/run-all-tests.ts — Legis Connect Master Test Execution Engine
  * ─────────────────────────────────────────────────────────────────────────────
- * Executável CLI para rodar todas as 16 suítes de testes da plataforma.
+ * Executável CLI para rodar todas as 22 suítes de testes da plataforma.
  *
  * Cobertura de Testes:
- *   • Unitários: Auth, PRD, Security Pentest, Escrow, BI Exporter,
- *                Performance/Infra, Visual UI, Multi-Agent Engine,
- *                Gemini IA, UX Journeys, RBAC Conformance.
- *   • Integração: LGPD/RBAC End-to-End, Sync Supabase, Sequência UML.
- *   • Multitenancy: RLS Database Security, Tenant Isolation.
+ *   • Unitários (01 a 11, 20, 21): Auth, PRD, Security Pentest, Escrow, BI Exporter,
+ *                Performance/Infra, Visual UI, Multi-Agent Engine, Gemini IA,
+ *                UX Journeys, RBAC Conformance, Concurrency, WCAG A11y.
+ *   • Integração (12 a 14, 19): LGPD/RBAC End-to-End, Sync Supabase, Sequência UML,
+ *                API Contracts & Endpoints.
+ *   • Multitenancy (15, 16): RLS Database Security, Tenant Isolation & IDOR.
+ *   • Arquitetura & Segurança (17, 18): Catálogo de Módulos, Error Reporting.
+ *   • E2E Journeys (22): 10 Jornadas Críticas de Usuário.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
@@ -53,10 +56,14 @@ import { runDatabaseRlsSecurityTests } from '../tests/multitenancy/rls-database-
 import { runMultiTenancyTests } from '../tests/multitenancy/tenant-isolation.test';
 import { runModuleCatalogTests } from '../tests/unit/moduleCatalog.test';
 import { runErrorReportingTests } from '../tests/unit/errorReporting.test';
+import { runApiContractsTests } from '../tests/api/apiContractsAndEndpoints.test';
+import { runConcurrencyAndIdempotencyTests } from '../tests/unit/concurrencyAndIdempotency.test';
+import { runWcagAccessibilityTests } from '../tests/accessibility/wcagAccessibility.test';
+import { runE2EJourneysEngineTests } from '../tests/e2e/e2eJourneysEngine.test';
 
-interface SuiteResult {
+export interface SuiteResult {
   suiteName: string;
-  category: 'UNIT' | 'INTEGRATION' | 'MULTITENANCY' | 'SECURITY';
+  category: 'UNIT' | 'INTEGRATION' | 'MULTITENANCY' | 'SECURITY' | 'E2E';
   total: number;
   passed: number;
   failed: number;
@@ -89,7 +96,6 @@ async function executeSuite(
         }
       }
     } else if (rawResult && typeof rawResult === 'object') {
-      // Formato objeto (ex: { totalTests, passedTests, tests: [...] })
       const tests = rawResult.tests || rawResult.results || [];
       if (Array.isArray(tests) && tests.length > 0) {
         total = tests.length;
@@ -121,42 +127,83 @@ async function executeSuite(
 }
 
 export async function runAllSuites(): Promise<SuiteResult[]> {
+  const args = process.argv.slice(2);
+  const filterUnit = args.includes('--unit');
+  const filterIntegration = args.includes('--integration');
+  const filterSecurity = args.includes('--security');
+  const filterE2E = args.includes('--e2e');
+  const filterMultitenancy = args.includes('--multitenancy');
+
+  const hasFilter = filterUnit || filterIntegration || filterSecurity || filterE2E || filterMultitenancy;
+
   console.log('================================================================');
   console.log('  LEGIS CONNECT — MASTER AUTOMATED TEST EXECUTION ENGINE');
   console.log('================================================================');
   console.log(`  Data: ${new Date().toISOString()}`);
+  if (hasFilter) {
+    console.log(`  Filtro Ativo: ${[
+      filterUnit && 'UNIT',
+      filterIntegration && 'INTEGRATION',
+      filterSecurity && 'SECURITY',
+      filterE2E && 'E2E',
+      filterMultitenancy && 'MULTITENANCY'
+    ].filter(Boolean).join(', ')}`);
+  }
   console.log('----------------------------------------------------------------\n');
+
+  const allSuitesDefinitions: Array<{
+    name: string;
+    category: SuiteResult['category'];
+    fn: () => Promise<any> | any;
+  }> = [
+    // Suítes Unitárias & Core
+    { name: '01. Authentication & PBKDF2 Hashing', category: 'UNIT', fn: runAuthTests },
+    { name: '02. PRD Master Compliance Contract', category: 'SECURITY', fn: runPrdComplianceTests },
+    { name: '03. Security Pentest (OWASP Top 10)', category: 'SECURITY', fn: runSecurityPentestTests },
+    { name: '04. Escrow Custody & Fee Split', category: 'UNIT', fn: runEscrowTests },
+    { name: '05. BI Exporter Engine', category: 'UNIT', fn: runBiExporterTests },
+    { name: '06. Performance & Infrastructure Limits', category: 'UNIT', fn: runPerformanceInfrastructureTests },
+    { name: '07. Visual UI Conformance', category: 'UNIT', fn: runVisualUiConformanceTests },
+    { name: '08. Legis Multi-Agent Engine', category: 'UNIT', fn: runLegisMultiAgentEngineTests },
+    { name: '09. Gemini AI Integration & Throttling', category: 'UNIT', fn: runGeminiTests },
+    { name: '10. UX Journeys Simulation', category: 'UNIT', fn: runUxJourneysSimulationTests },
+    { name: '11. RBAC Conformance & Matrix', category: 'SECURITY', fn: runRbacConformanceTests },
+
+    // Suítes de Integração & Backend
+    { name: '12. LGPD & RBAC End-to-End Flow', category: 'INTEGRATION', fn: runEndToEndIntegrationTests },
+    { name: '13. Supabase Cloud Sync Engine', category: 'INTEGRATION', fn: runSupabaseSyncTests },
+    { name: '14. UML Sequence Architecture', category: 'INTEGRATION', fn: runUmlSequenceTests },
+
+    // Suítes de Multitenancy & RLS
+    { name: '15. PostgreSQL RLS Database Security', category: 'MULTITENANCY', fn: runDatabaseRlsSecurityTests },
+    { name: '16. Tenant Isolation & IDOR Defense', category: 'MULTITENANCY', fn: runMultiTenancyTests },
+
+    // Suítes de Módulos, Incidentes, Contratos, Concorrência, A11y & E2E
+    { name: '17. Module Catalog & Entitlements Engine', category: 'SECURITY', fn: runModuleCatalogTests },
+    { name: '18. Error Reporting & Incident Management', category: 'SECURITY', fn: runErrorReportingTests },
+    { name: '19. API Contracts & Endpoints Integrity', category: 'INTEGRATION', fn: runApiContractsTests },
+    { name: '20. Concurrency, Idempotency & Race Conditions', category: 'UNIT', fn: runConcurrencyAndIdempotencyTests },
+    { name: '21. WCAG 2.1 AA Accessibility & Semantics', category: 'UNIT', fn: runWcagAccessibilityTests },
+    { name: '22. 10 Critical User Journeys Engine (E2E)', category: 'E2E', fn: runE2EJourneysEngineTests },
+  ];
+
+  const suitesToRun = allSuitesDefinitions.filter(s => {
+    if (!hasFilter) return true;
+    if (filterUnit && s.category === 'UNIT') return true;
+    if (filterIntegration && s.category === 'INTEGRATION') return true;
+    if (filterSecurity && s.category === 'SECURITY') return true;
+    if (filterE2E && s.category === 'E2E') return true;
+    if (filterMultitenancy && s.category === 'MULTITENANCY') return true;
+    return false;
+  });
 
   const suites: SuiteResult[] = [];
 
-  // Suítes Unitárias
-  suites.push(await executeSuite('01. Authentication & PBKDF2 Hashing', 'UNIT', runAuthTests));
-  suites.push(await executeSuite('02. PRD Master Compliance Contract', 'SECURITY', runPrdComplianceTests));
-  suites.push(await executeSuite('03. Security Pentest (OWASP Top 10)', 'SECURITY', runSecurityPentestTests));
-  suites.push(await executeSuite('04. Escrow Custody & Fee Split', 'UNIT', runEscrowTests));
-  suites.push(await executeSuite('05. BI Exporter Engine', 'UNIT', runBiExporterTests));
-  suites.push(await executeSuite('06. Performance & Infrastructure Limits', 'UNIT', runPerformanceInfrastructureTests));
-  suites.push(await executeSuite('07. Visual UI Conformance', 'UNIT', runVisualUiConformanceTests));
-  suites.push(await executeSuite('08. Legis Multi-Agent Engine', 'UNIT', runLegisMultiAgentEngineTests));
-  suites.push(await executeSuite('09. Gemini AI Integration & Throttling', 'UNIT', runGeminiTests));
-  suites.push(await executeSuite('10. UX Journeys Simulation', 'UNIT', runUxJourneysSimulationTests));
-  suites.push(await executeSuite('11. RBAC Conformance & Matrix', 'SECURITY', runRbacConformanceTests));
+  for (const def of suitesToRun) {
+    suites.push(await executeSuite(def.name, def.category, def.fn));
+  }
 
-  // Suítes de Integração
-  suites.push(await executeSuite('12. LGPD & RBAC End-to-End Flow', 'INTEGRATION', runEndToEndIntegrationTests));
-  suites.push(await executeSuite('13. Supabase Cloud Sync Engine', 'INTEGRATION', runSupabaseSyncTests));
-  suites.push(await executeSuite('14. UML Sequence Architecture', 'INTEGRATION', runUmlSequenceTests));
-
-  // Suítes de Multitenancy & RLS
-  suites.push(await executeSuite('15. PostgreSQL RLS Database Security', 'MULTITENANCY', runDatabaseRlsSecurityTests));
-  suites.push(await executeSuite('16. Tenant Isolation & IDOR Defense', 'MULTITENANCY', runMultiTenancyTests));
-
-  // Suíte de Arquitetura Modular & Catálogo
-  // Suíte de Error Reporting & Gestão de Incidentes
-  suites.push(await executeSuite('17. Module Catalog & Entitlements Engine', 'SECURITY', runModuleCatalogTests));
-  suites.push(await executeSuite('18. Error Reporting & Incident Management', 'SECURITY', runErrorReportingTests));
-
-  // Impressão dos resultados
+  // Impressão consolidada dos resultados
   let totalTestsAll = 0;
   let totalPassedAll = 0;
   let totalFailedAll = 0;
@@ -171,7 +218,7 @@ export async function runAllSuites(): Promise<SuiteResult[]> {
     totalDurationAll += s.durationMs;
 
     const icon = s.failed === 0 ? '✅ PASSED' : '❌ FAILED';
-    const fill = s.suiteName.padEnd(45, '.');
+    const fill = s.suiteName.padEnd(50, '.');
     console.log(`  ${icon}  ${fill} ${s.passed}/${s.total} (${s.durationMs}ms)`);
 
     if (s.errors.length > 0) {
