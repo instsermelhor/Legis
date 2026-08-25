@@ -74,13 +74,19 @@ function expect(actual: any) {
 // ─── Mock Helpers para Vercel Serverless Functions ───────────────────────────
 function createMockReqRes(options: {
   method?: string;
+  url?: string;
   body?: any;
   headers?: Record<string, string>;
 }) {
   const req = {
     method: options.method || 'GET',
+    url: options.url || '/api/health',
     body: options.body,
-    headers: options.headers || {},
+    headers: {
+      'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+      'x-legis-edge-secret': 'LEGIS_ENTERPRISE_EDGE_DEFAULT_SECRET_2026',
+      ...(options.headers || {})
+    },
   };
 
   let statusCode = 200;
