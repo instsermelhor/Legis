@@ -11,7 +11,7 @@ import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import type { BiMetricsResult } from '../lib/biAnalyticsEngine';
 
-export function exportBiReportPdf(metrics: BiMetricsResult): void {
+export function exportBiReportPdf(metrics: BiMetricsResult, tenantId?: string): void {
   const doc = new jsPDF();
 
   // Cabeçalho
@@ -22,7 +22,7 @@ export function exportBiReportPdf(metrics: BiMetricsResult): void {
   doc.setFontSize(10);
   doc.setTextColor(100, 116, 139); // Slate-500
   doc.text(`Data de Emissão: ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR')}`, 14, 28);
-  doc.text(`Status LGPD & OAB: ${metrics.oabEthicsStatus} (Score: ${metrics.lgpdComplianceScore}%)`, 14, 34);
+  doc.text(`Tenant: ${tenantId || 'tenant_platform_global'} | Status LGPD & OAB: ${metrics.oabEthicsStatus} (Score: ${metrics.lgpdComplianceScore}%)`, 14, 34);
 
   // Quadro de KPIs Executivos
   autoTable(doc, {
@@ -70,8 +70,9 @@ export function exportBiReportPdf(metrics: BiMetricsResult): void {
   doc.save(`legis_connect_relatorio_bi_${Date.now()}.pdf`);
 }
 
-export function exportBiReportExcel(metrics: BiMetricsResult): void {
+export function exportBiReportExcel(metrics: BiMetricsResult, tenantId?: string): void {
   const kpiData = [
+    { Indicador: 'Tenant Context', Valor: tenantId || 'tenant_platform_global', Unidade: 'Identifier' },
     { Indicador: 'Receita Bruta Total', Valor: metrics.totalRevenue, Unidade: 'BRL' },
     { Indicador: 'Processos Ativos', Valor: metrics.activeCasesCount, Unidade: 'Casos' },
     { Indicador: 'Taxa de Conversão', Valor: metrics.conversionRate, Unidade: 'Percentual' },
