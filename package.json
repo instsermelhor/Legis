@@ -15,7 +15,9 @@
     "test:e2e": "npx tsx scripts/run-all-tests.ts --e2e",
     "test:multitenancy": "npx tsx scripts/run-all-tests.ts --multitenancy",
     "secret-scan": "npx tsx scripts/secret-scan.ts",
-    "quality-gate": "npm run lint && npm run typecheck && npm run secret-scan && npm test && npm run build",
+    "security-gate": "npx tsx scripts/security-audit-gate.ts",
+    "sast": "npx tsx scripts/security-audit-gate.ts",
+    "quality-gate": "npm run lint && npm run typecheck && npm run secret-scan && npm test && npm run security-gate && npm run build",
     "db:migrate-safe": "bash infrastructure/db/run_migrations.sh",
     "preview": "vite preview"
   },
