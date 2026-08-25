@@ -60,6 +60,10 @@ export async function runGeminiTests(): Promise<TestResult[]> {
       category: 'AI',
       passed: false,
       durationMs: 0,
+      error: err?.message || String(err),
+    });
+  }
+
   // Teste 3: Monitor de Cota e Limiar de Alerta de 80%
   try {
     const t0 = performance.now();
