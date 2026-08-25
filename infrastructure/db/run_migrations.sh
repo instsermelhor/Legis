@@ -20,7 +20,13 @@ MIGRATIONS_DIR="$(dirname "$0")/migrations"
 PROJECT_REF="tddzffccnuccewfoczjl"
 LOG_FILE="/tmp/legis_migration_$(date +%Y%m%d_%H%M%S).log"
 
-# Ordem de execução (dependências primeiro)
+# ─── Arquivos RLS pós-migração (Execução Compulsória) ────────────────────────
+RLS_POST_MIGRATION_FILES=(
+  "infrastructure/db/scripts/apply_production_rls.sql"
+  "infrastructure/db/scripts/update_rls_rbac_v2.sql"
+)
+
+# Ordem de execução das migrações (dependências primeiro)
 MIGRATION_FILES=(
   "sprint8_master_migration.sql"
   "sprint11_beta_tables.sql"
@@ -34,14 +40,14 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 echo -e "${BLUE}============================================================${NC}"
-echo -e "${BLUE}  Legis Connect — Database Migration Runner${NC}"
+echo -e "${BLUE}  Legis Connect — Database Migration & RLS Security Runner${NC}"
 echo -e "${BLUE}  Project: ${PROJECT_REF}${NC}"
 echo -e "${BLUE}  Timestamp: $(date '+%Y-%m-%d %H:%M:%S')${NC}"
 echo -e "${BLUE}============================================================${NC}"
 echo ""
 
 # ─── Verificar pré-requisitos ────────────────────────────────────────────────
-echo -e "${YELLOW}[1/4] Verificando pré-requisitos...${NC}"
+echo -e "${YELLOW}[1/5] Verificando pré-requisitos...${NC}"
 
 if ! command -v supabase &> /dev/null; then
   echo -e "${YELLOW}⚠️  Supabase CLI não encontrado. Tentando via npx...${NC}"
@@ -51,16 +57,26 @@ else
   echo -e "${GREEN}✅ Supabase CLI encontrado: $(supabase --version)${NC}"
 fi
 
-# ─── Verificar arquivos de migração ──────────────────────────────────────────
-echo -e "${YELLOW}[2/4] Verificando arquivos de migração...${NC}"
+# ─── Verificar arquivos de migração e RLS ─────────────────────────────────────
+echo -e "${YELLOW}[2/5] Verificando arquivos de migração e scripts RLS...${NC}"
 
 for file in "${MIGRATION_FILES[@]}"; do
   filepath="${MIGRATIONS_DIR}/${file}"
   if [ -f "$filepath" ]; then
     size=$(du -sh "$filepath" | cut -f1)
-    echo -e "  ${GREEN}✅${NC} $file (${size})"
+    echo -e "  ${GREEN}✅ Migração:${NC} $file (${size})"
   else
     echo -e "  ${RED}❌ ARQUIVO NÃO ENCONTRADO: $filepath${NC}"
+    exit 1
+  fi
+done
+
+for rls_file in "${RLS_POST_MIGRATION_FILES[@]}"; do
+  if [ -f "$rls_file" ]; then
+    size=$(du -sh "$rls_file" | cut -f1)
+    echo -e "  ${GREEN}✅ RLS Script:${NC} $rls_file (${size})"
+  else
+    echo -e "  ${RED}❌ SCRIPT RLS OBRIGATÓRIO NÃO ENCONTRADO: $rls_file${NC}"
     exit 1
   fi
 done
@@ -68,7 +84,7 @@ done
 echo ""
 
 # ─── Confirmar execução ──────────────────────────────────────────────────────
-echo -e "${YELLOW}[3/4] Executando migrações...${NC}"
+echo -e "${YELLOW}[3/5] Executando migrações de schema...${NC}"
 echo -e "${RED}⚠️  ATENÇÃO: Esta operação modifica o banco de dados de PRODUÇÃO.${NC}"
 echo ""
 
@@ -87,7 +103,7 @@ fail_count=0
 for file in "${MIGRATION_FILES[@]}"; do
   filepath="${MIGRATIONS_DIR}/${file}"
   echo ""
-  echo -e "  ${BLUE}▶ Executando: ${file}${NC}"
+  echo -e "  ${BLUE}▶ Executando Migração: ${file}${NC}"
 
   if $SUPABASE_CMD db execute --project-ref "$PROJECT_REF" --file "$filepath" >> "$LOG_FILE" 2>&1; then
     echo -e "  ${GREEN}✅ $file — Sucesso${NC}"
@@ -95,37 +111,55 @@ for file in "${MIGRATION_FILES[@]}"; do
   else
     echo -e "  ${RED}❌ $file — Falha! Verifique o log: $LOG_FILE${NC}"
     ((fail_count++))
-    # Não para na falha — tenta executar as demais e reporta no final
   fi
 done
+
+# ─── Execução Compulsória de RLS pós-migração ─────────────────────────────────
+echo ""
+echo -e "${YELLOW}[4/5] Aplicando Políticas de Row-Level Security (RLS) Compulsoriamente...${NC}"
+
+for rls_file in "${RLS_POST_MIGRATION_FILES[@]}"; do
+  echo ""
+  echo -e "  ${BLUE}▶ Aplicando RLS Hardening: ${rls_file}${NC}"
+
+  if $SUPABASE_CMD db execute --project-ref "$PROJECT_REF" --file "$rls_file" >> "$LOG_FILE" 2>&1; then
+    echo -e "  ${GREEN}✅ $rls_file — RLS Aplicado com Sucesso${NC}"
+    ((success_count++))
+  else
+    echo -e "  ${RED}❌ FALHA CRÍTICA DE RLS em $rls_file! Abortando por segurança.${NC}"
+    ((fail_count++))
+    exit 1
+  fi
+done
+
+# ─── Validação de Integridade RLS nas Tabelas ─────────────────────────────────
+echo ""
+echo -e "${YELLOW}[5/5] Auditando status de Row-Level Security (rowsecurity) nas tabelas públicas...${NC}"
+
+RLS_AUDIT_SQL="
+SELECT tablename, rowsecurity
+FROM pg_tables
+WHERE schemaname = 'public'
+ORDER BY tablename;
+"
+
+echo -e "  ${BLUE}Tabelas e Status de RLS no PostgreSQL:${NC}"
+$SUPABASE_CMD db execute --project-ref "$PROJECT_REF" --sql "$RLS_AUDIT_SQL" 2>/dev/null || true
 
 # ─── Sumário ─────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${BLUE}============================================================${NC}"
-echo -e "${BLUE}  SUMÁRIO DA MIGRAÇÃO${NC}"
+echo -e "${BLUE}  SUMÁRIO DA MIGRAÇÃO & RLS HARDENING${NC}"
 echo -e "${BLUE}============================================================${NC}"
-echo -e "  Total de migrações: ${#MIGRATION_FILES[@]}"
+echo -e "  Total de arquivos executados: $((${#MIGRATION_FILES[@]} + ${#RLS_POST_MIGRATION_FILES[@]}))"
 echo -e "  ${GREEN}Sucessos: ${success_count}${NC}"
 if [ $fail_count -gt 0 ]; then
   echo -e "  ${RED}Falhas:   ${fail_count}${NC}"
   echo -e "  Log completo: ${LOG_FILE}"
+  exit 1
 else
   echo -e "  Falhas:   0"
+  echo -e "${GREEN}✅ Migração concluída e 100% das políticas RLS foram reaplicadas com sucesso!${NC}"
+  echo -e "${GREEN}   Log de auditoria: ${LOG_FILE}${NC}"
 fi
 
-echo ""
-echo -e "${YELLOW}[4/4] Verificando tabelas criadas...${NC}"
-
-# Lista as tabelas criadas para confirmar
-$SUPABASE_CMD db execute --project-ref "$PROJECT_REF" \
-  --sql "SELECT tablename, tableowner FROM pg_tables WHERE schemaname = 'public' ORDER BY tablename;" \
-  2>/dev/null | head -40 || true
-
-echo ""
-if [ $fail_count -eq 0 ]; then
-  echo -e "${GREEN}✅ Todas as migrações executadas com sucesso!${NC}"
-  echo -e "${GREEN}   Log: ${LOG_FILE}${NC}"
-else
-  echo -e "${RED}⚠️  ${fail_count} migração(ões) falharam. Verifique: ${LOG_FILE}${NC}"
-  exit 1
-fi
