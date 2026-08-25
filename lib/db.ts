@@ -78,7 +78,7 @@ export const dbCases = {
   },
 
   async create(caseData: Record<string, unknown>, activeTenantId?: string) {
-    const payload = activeTenantId ? { ...caseData, tenant_id: activeTenantId } : caseData;
+    const payload = activeTenantId ? { ...caseData, tenant_id: activeTenantId, tenantId: activeTenantId } : caseData;
     if (isSupabaseConfigured) {
       const { data, error } = await (supabase as any).from('cases').insert(payload).select().single();
       if (error) throw error;
