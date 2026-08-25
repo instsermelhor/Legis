@@ -12,6 +12,7 @@ import { AuditLogger, logPermissionDenied } from './auditLogger';
 export interface SecurityContext {
   userId: string;       // email ou ID único do usuário
   role: SystemRole;
+  tenantId?: string;    // ID do tenant atual
   cpf?: string;         // Para validação de isolamento de dados do cliente
   sessionId?: string;
   customPermissions?: Permission[];
