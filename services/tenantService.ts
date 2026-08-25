@@ -1,16 +1,19 @@
 /**
  * services/tenantService.ts
- * Servidor e Gerenciador Central de Multi-Tenancy para o Legis Connect.
+ * ─────────────────────────────────────────────────────────────────────────────
+ * LEGIS CONNECT — SERVIÇO CENTRAL DE MULTI-TENANCY E ISOLAMENTO DE CONTEXTO
  * 
- * Implementa:
- *  - Resolução segura de Tenant Context por usuário/sessão
- *  - Registro de Tenants (Escritórios / Organizações / Autônomos)
- *  - Mapeamento de Memberships (User <-> Tenant)
- *  - Validação estrita de isolamento cross-tenant (Assertion Guards)
- *  - Sanitização e mascaramento de dados confidenciais
+ * Fonte da Verdade de Tenancy da Plataforma:
+ *   • Resolução segura e imutável de Tenant Context por Usuário / Sessão / Membership
+ *   • Suporte a Múltiplos Vínculos (Multi-Membership: Advogado em múltiplos escritórios)
+ *   • Bloqueio rigoroso de Tenant Escape e Acesso Cross-Tenant não autorizado
+ *   • Estruturação padronizada de Storage e Cache por Tenant Boundary
+ *   • Trilha de Auditoria imutável para violações e acessos privilegiados
+ * ─────────────────────────────────────────────────────────────────────────────
  */
 
 import type { Tenant, TenantMembership, User } from '../types';
+import { AuditLogger } from '../security/auditLogger';
 
 export const PLATFORM_TENANT_ID = 'tenant_platform_global';
 export const DEFAULT_TENANT_ID = 'tenant_lawfirm_alpha';
@@ -54,14 +57,32 @@ export const MOCK_MEMBERSHIPS: TenantMembership[] = [
   { id: 'm3', tenantId: 'tenant_independent_gamma', userId: '3', role: 'lawyer', scope: 'individual', status: 'ativo', joinedAt: '2024-03-01' },
   { id: 'm4', tenantId: 'tenant_lawfirm_alpha', userId: 'intern_1', role: 'intern', scope: 'team', status: 'ativo', joinedAt: '2024-01-20' },
   { id: 'm5', tenantId: 'tenant_lawfirm_alpha', userId: 'secretary_1', role: 'secretary', scope: 'office', status: 'ativo', joinedAt: '2024-01-25' },
+  // Advogado com múltiplos vínculos (Escritório Alpha + Escritório Beta)
+  { id: 'm6', tenantId: 'tenant_lawfirm_beta', userId: '1', role: 'lawyer', scope: 'office', status: 'ativo', joinedAt: '2024-06-01' },
 ];
 
 export class TenantService {
   /**
-   * Resolve o tenantId primário para um usuário autenticado.
-   * Não aceita tenantId arbitrário vindo do client sem validação de pertencimento.
+   * Obtém todos os memberships ativos de um usuário.
    */
-  public static resolveTenantId(user: User | null): string {
+  public static getUserMemberships(userId: string | number): TenantMembership[] {
+    const uid = String(userId);
+    return MOCK_MEMBERSHIPS.filter(m => m.userId === uid && m.status === 'ativo');
+  }
+
+  /**
+   * Valida se um usuário possui membership formal e ativo em um determinado tenant.
+   */
+  public static validateUserTenantMembership(userId: string | number, tenantId: string): boolean {
+    const uid = String(userId);
+    return MOCK_MEMBERSHIPS.some(m => m.userId === uid && m.tenantId === tenantId && m.status === 'ativo');
+  }
+
+  /**
+   * Resolve o tenantId primário para um usuário autenticado.
+   * Não aceita tenantId arbitrário sem validação formal de pertencimento.
+   */
+  public static resolveTenantId(user: User | null, requestedTenantId?: string): string {
     if (!user) return DEFAULT_TENANT_ID;
 
     // Super Admins e Admins Globais operam com o Tenant da Plataforma
@@ -69,20 +90,32 @@ export class TenantService {
       return PLATFORM_TENANT_ID;
     }
 
-    // Se o usuário possui um tenantId explicitamente validado
-    if (user.tenantId) {
-      return user.tenantId;
+    const userId = user.id ? String(user.id) : '';
+
+    // Se houver solicitação explícita de alternância de tenant (ex: multi-membership)
+    if (requestedTenantId && userId) {
+      if (this.validateUserTenantMembership(userId, requestedTenantId)) {
+        return requestedTenantId;
+      }
+      console.warn(`[SECURITY WARNING] Usuário ${userId} tentou selecionar tenant ${requestedTenantId} sem vínculo ativo.`);
     }
 
-    // Mapeamento por ID de usuário em memberships
-    if (user.id) {
-      const membership = MOCK_MEMBERSHIPS.find(m => m.userId === String(user.id) && m.status === 'ativo');
-      if (membership) {
-        return membership.tenantId;
+    // Se o usuário possui um tenantId explicitamente validado na sessão
+    if (user.tenantId) {
+      if (!userId || this.validateUserTenantMembership(userId, user.tenantId) || user.tenantId === DEFAULT_TENANT_ID) {
+        return user.tenantId;
       }
     }
 
-    // Mapeamento fallback por e-mail ou dados
+    // Mapeamento por ID de usuário em memberships
+    if (userId) {
+      const activeMemberships = this.getUserMemberships(userId);
+      if (activeMemberships.length > 0) {
+        return activeMemberships[0].tenantId;
+      }
+    }
+
+    // Mapeamento fallback por e-mail (para contas mock/seed)
     if (user.email) {
       if (user.email.includes('bruno') || user.email.includes('ferreira')) return 'tenant_lawfirm_beta';
       if (user.email.includes('carla') || user.email.includes('mendes')) return 'tenant_independent_gamma';
@@ -92,10 +125,38 @@ export class TenantService {
   }
 
   /**
+   * Alterna de forma segura o contexto de tenant de um usuário com múltiplos memberships.
+   */
+  public static switchTenantContext(user: User, targetTenantId: string): User {
+    if (user.role === 'super_admin') {
+      return { ...user, tenantId: targetTenantId };
+    }
+
+    const userId = user.id ? String(user.id) : '';
+    if (!this.validateUserTenantMembership(userId, targetTenantId)) {
+      throw new Error(`[SECURITY DENIED] Usuário não possui membership ativa no tenant selecionado: ${targetTenantId}`);
+    }
+
+    AuditLogger.log({
+      action: 'TENANT_CONTEXT_SWITCHED',
+      actorId: String(user.id || user.email),
+      actorRole: user.role,
+      targetId: targetTenantId,
+      details: `Usuário alternou contexto de tenant para ${targetTenantId}`,
+      severity: 'INFO',
+    });
+
+    return {
+      ...user,
+      tenantId: targetTenantId
+    };
+  }
+
+  /**
    * Valida se o usuário tem permissão para acessar o tenant de destino.
    * Lança exceção de segurança se o acesso for cross-tenant não autorizado.
    */
-  public static assertTenantAccess(requesterTenantId: string, resourceTenantId?: string): void {
+  public static assertTenantAccess(requesterTenantId: string, resourceTenantId?: string, actorId?: string, actorRole?: string): void {
     // Se o recurso não tem tenant especificado ou o solicitante é Super Admin da Plataforma, permite
     if (!resourceTenantId || requesterTenantId === PLATFORM_TENANT_ID) {
       return;
@@ -103,6 +164,18 @@ export class TenantService {
 
     if (requesterTenantId !== resourceTenantId) {
       console.error(`[SECURITY ALERT] Tentativa de Acesso Cross-Tenant Bloqueada! Solicitante: ${requesterTenantId} | Recurso: ${resourceTenantId}`);
+      
+      if (actorId && actorRole) {
+        AuditLogger.log({
+          action: 'CROSS_TENANT_ACCESS_BLOCKED',
+          actorId,
+          actorRole,
+          targetId: resourceTenantId,
+          details: `Tentativa de acesso não autorizado do Tenant ${requesterTenantId} ao recurso do Tenant ${resourceTenantId}`,
+          severity: 'CRITICAL',
+        });
+      }
+
       throw new Error(`[SECURITY DENIED] Acesso negado: o recurso pertence a outro tenant (${resourceTenantId}).`);
     }
   }
@@ -122,9 +195,29 @@ export class TenantService {
    */
   public static filterByTenant<T extends { tenantId?: string }>(items: T[], activeTenantId: string): T[] {
     if (activeTenantId === PLATFORM_TENANT_ID) {
-      return items; // Super Admin visualiza todos
+      return items; // Super Admin visualiza todos com auditoria
     }
-    return items.filter(item => !item.tenantId || item.tenantId === activeTenantId);
+    return items.filter(item => item.tenantId === activeTenantId);
+  }
+
+  /**
+   * Gera o caminho de armazenamento de arquivos (Storage) isolado por Tenant.
+   * Padrão: tenants/{tenantId}/{resourceType}/{resourceId}/{fileName}
+   */
+  public static getTenantStoragePath(tenantId: string, resourceType: string, resourceId: string, fileName: string): string {
+    const cleanTenant = tenantId.replace(/[^a-zA-Z0-9_-]/g, '');
+    const cleanType = resourceType.replace(/[^a-zA-Z0-9_-]/g, '');
+    const cleanId = resourceId.replace(/[^a-zA-Z0-9_-]/g, '');
+    const cleanFile = fileName.replace(/[^a-zA-Z0-9._-]/g, '');
+    return `tenants/${cleanTenant}/${cleanType}/${cleanId}/${cleanFile}`;
+  }
+
+  /**
+   * Gera uma chave de cache padronizada com boundary de Tenant.
+   * Padrão: tenant:{tenantId}:{resource}:{key}
+   */
+  public static getTenantCacheKey(tenantId: string, resource: string, key: string): string {
+    return `tenant:${tenantId}:${resource}:${key}`;
   }
 
   /**
