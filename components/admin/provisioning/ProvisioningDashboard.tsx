@@ -178,7 +178,6 @@ export const ProvisioningDashboard: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
     const interval = setInterval(load, 3000); // auto-refresh a cada 3s
     return () => clearInterval(interval);
