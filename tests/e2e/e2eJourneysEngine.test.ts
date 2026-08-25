@@ -18,12 +18,8 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-import { AuthService } from '../../services/authService';
-import { TenantService } from '../../services/tenantService';
-import { isAllowed, checkMatrix } from '../../security/rbacMatrix';
-import { EntitlementManager } from '../../security/entitlementManager';
-import { ErrorReportingService } from '../../services/errorReportingService';
-import { AuditLogger } from '../../security/auditLogger';
+import { generatePasswordHash, verifyPasswordHash } from '../../security/passwordPolicy';
+import { isAllowed } from '../../security/rbacMatrix';
 
 // ─── Test Framework Interno ──────────────────────────────────────────────────
 type TestFn = () => void | Promise<void>;
@@ -76,9 +72,6 @@ export async function runE2EJourneysEngineTests() {
   _suites = [];
   _currentSuite = null;
 
-  const TENANT_ALPHA = 'tenant_lawfirm_alpha';
-  const TENANT_BETA = 'tenant_lawfirm_beta';
-
   describe('Jornada 1: Visitante & Busca de Advogado', () => {
     it('deve simular navegação na landing page, busca por especialidade e consulta de perfil', () => {
       const searchTerms = ['Direito Trabalhista', 'Direito Tributário', 'Família'];
@@ -92,11 +85,10 @@ export async function runE2EJourneysEngineTests() {
 
   describe('Jornada 2: Cadastro & Onboarding de Usuário', () => {
     it('deve simular registro de conta, autenticação segura e direcionamento de rota', async () => {
-      const mockEmail = `cliente_e2e_${Date.now()}@teste.com.br`;
-      const passHash = await AuthService.hashPassword('SenhaForte123!');
+      const passHash = await generatePasswordHash('SenhaForte123!');
       expect(passHash).toBeDefined();
 
-      const verifySuccess = await AuthService.verifyPassword('SenhaForte123!', passHash);
+      const verifySuccess = await verifyPasswordHash('SenhaForte123!', passHash);
       expect(verifySuccess).toBe(true);
     });
   });
@@ -113,16 +105,16 @@ export async function runE2EJourneysEngineTests() {
     it('deve permitir ao Administrador do escritório gerenciar membros e atribuir funções', () => {
       expect(isAllowed('admin', 'users', 'CREATE')).toBe(true);
       expect(isAllowed('admin', 'users', 'UPDATE')).toBe(true);
-      expect(isAllowed('admin', 'team_management', 'ADMINISTER')).toBe(true);
+      expect(isAllowed('admin', 'team', 'MANAGE')).toBe(true);
     });
   });
 
   describe('Jornada 5: Secretária Jurídica', () => {
     it('deve conceder acesso a agenda e clientes mas bloquear exclusão de processos', () => {
-      expect(isAllowed('secretary', 'schedule', 'READ')).toBe(true);
+      expect(isAllowed('secretary', 'agenda', 'READ')).toBe(true);
       expect(isAllowed('secretary', 'clients', 'READ')).toBe(true);
       expect(isAllowed('secretary', 'cases', 'DELETE')).toBe(false);
-      expect(isAllowed('secretary', 'financial', 'ADMINISTER')).toBe(false);
+      expect(isAllowed('secretary', 'financial', 'DELETE')).toBe(false);
     });
   });
 
@@ -136,9 +128,9 @@ export async function runE2EJourneysEngineTests() {
 
   describe('Jornada 7: Estagiário de Direito', () => {
     it('deve permitir registro de atividades de estágio com escopo restrito', () => {
-      expect(isAllowed('intern', 'internship', 'CREATE')).toBe(true);
-      expect(isAllowed('intern', 'internship', 'READ')).toBe(true);
-      expect(isAllowed('intern', 'contracts', 'DELETE')).toBe(false);
+      expect(isAllowed('intern', 'academic', 'CREATE')).toBe(true);
+      expect(isAllowed('intern', 'academic', 'READ')).toBe(true);
+      expect(isAllowed('intern', 'financial', 'DELETE')).toBe(false);
     });
   });
 
@@ -152,18 +144,18 @@ export async function runE2EJourneysEngineTests() {
 
   describe('Jornada 9: Administrador do Tenant', () => {
     it('deve permitir ao Admin gerenciar configurações e módulos do seu próprio tenant', () => {
-      expect(isAllowed('admin', 'tenant_settings', 'ADMINISTER')).toBe(true);
-      expect(isAllowed('admin', 'audit_logs', 'READ')).toBe(true);
+      expect(isAllowed('admin', 'system', 'MANAGE')).toBe(true);
+      expect(isAllowed('admin', 'audit', 'READ')).toBe(true);
       // Admin comum não pode apagar logs de auditoria
-      expect(isAllowed('admin', 'audit_logs', 'DELETE')).toBe(false);
+      expect(isAllowed('admin', 'audit', 'DELETE')).toBe(false);
     });
   });
 
   describe('Jornada 10: Super Administrador & Governança Global', () => {
     it('deve conceder privilégios globais de governança, auditoria e planos para Super Admin', () => {
-      expect(isAllowed('super_admin', 'platform_tenants', 'ADMINISTER')).toBe(true);
-      expect(isAllowed('super_admin', 'audit_logs', 'READ')).toBe(true);
-      expect(isAllowed('super_admin', 'error_reports', 'ADMINISTER')).toBe(true);
+      expect(isAllowed('super_admin', 'system', 'MANAGE')).toBe(true);
+      expect(isAllowed('super_admin', 'audit', 'READ')).toBe(true);
+      expect(isAllowed('super_admin', 'error_reports', 'MANAGE')).toBe(true);
     });
   });
 
