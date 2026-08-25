@@ -219,7 +219,7 @@ export async function runModuleCatalogTests() {
           avgCaseDurationDays: 45,
           conversionRate: 80,
           lgpdComplianceScore: 100,
-          oabEthicsStatus: 'Conforme',
+          oabEthicsStatus: '100% Conforme — Provimento 205/2021 OAB',
           revenueBySpecialty: [],
         }, TENANT_NO_BI);
       }).toThrow(/SECURITY DENIED/);
