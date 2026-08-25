@@ -31,10 +31,12 @@ const getAI = () => {
 
 const ai = getAI();
 
-export async function analyzeCaseWithGemini(description: string): Promise<CaseAnalysis> {
+export async function analyzeCaseWithGemini(description: string, tenantId?: string): Promise<CaseAnalysis> {
   const model = "gemini-2.5-flash";
 
-  const systemInstruction = `You are an expert legal assistant. Your task is to analyze a user's case description and extract key information.
+  const tenantContextNote = tenantId ? `\nSecurity Boundary: Context strictly isolated for Tenant '${tenantId}'. Do not link or cross-reference outside data.` : '';
+  const systemInstruction = `You are an expert legal assistant. Your task is to analyze a user's case description and extract key information.${tenantContextNote}
+You must classify the case into one primary area of law and identify up to three relevant specializations.
 You must classify the case into one primary area of law and identify up to three relevant specializations.
 The primary area must be one of the following: ${AREAS_OF_LAW.join(', ')}.
 The specializations should be more specific sub-fields within the primary area.
