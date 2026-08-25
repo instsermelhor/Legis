@@ -31,7 +31,14 @@ const getAI = () => {
 
 const ai = getAI();
 
+import { EntitlementManager } from '../security/entitlementManager';
+
 export async function analyzeCaseWithGemini(description: string, tenantId?: string): Promise<CaseAnalysis> {
+  // Backend Enforcement de Entitlement do Módulo IA
+  if (tenantId && !EntitlementManager.isTenantEntitled(tenantId, 'ai_copilot')) {
+    throw new Error(`[SECURITY DENIED] Tenant '${tenantId}' não possui assinatura ou entitlement ativo para o módulo 'ai_copilot'.`);
+  }
+
   const model = "gemini-2.5-flash";
 
   const tenantContextNote = tenantId ? `\nSecurity Boundary: Context strictly isolated for Tenant '${tenantId}'. Do not link or cross-reference outside data.` : '';
