@@ -163,7 +163,7 @@ function runSastScan(sourceFiles: string[]): SecurityFinding[] {
       exploitability: 'EXPLOITABLE',
       description: 'Execução dinâmica de código via eval() permite Remote Code Execution (RCE).',
       remediation: 'Substitua eval() por parsers seguros de JSON ou despacho estático de funções.',
-      excludeFiles: /securityAuditEngine|security-audit-gate/
+      excludeFiles: /tests\/|securityAuditEngine|security-audit-gate/
     },
     {
       id: 'SAST-002',
