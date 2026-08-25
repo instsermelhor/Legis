@@ -47,7 +47,6 @@ export const ServicesManagementTab: React.FC = () => {
     }
 
     const newService: EfficiencyService = {
-      // eslint-disable-next-line react-hooks/purity
       id: editingId || `serv-${Date.now()}`,
       groupId: formGroupId,
       name: formName,
