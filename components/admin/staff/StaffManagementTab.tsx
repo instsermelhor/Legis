@@ -244,7 +244,6 @@ export const StaffManagementTab: React.FC<StaffManagementTabProps> = ({ actorId 
 
   const loadStaff = () => setStaff(StaffService.getAll());
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadStaff(); }, []); // initial data load — intentional
 
   const filtered = staff.filter(s => {
