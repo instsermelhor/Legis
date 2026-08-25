@@ -285,11 +285,13 @@ export async function runErrorReportingTests() {
     it('deve ISOLAR completamente relatórios do Tenant Alpha contra consultas do Tenant Beta', async () => {
       ErrorReportingService.resetForTesting();
 
+      const uniqueUserId = `user_alpha_isolation_${Date.now()}`;
+
       // Tenant Alpha cria um erro
       const resA = await ErrorReportingService.submitReport({
         error: new Error('Erro confidencial do Tenant Alpha'),
         tenantId: TENANT_ALPHA,
-        userId: 'user_alpha',
+        userId: uniqueUserId,
         userRole: 'lawyer',
       });
       expect(resA.success).toBe(true);
@@ -314,12 +316,13 @@ export async function runErrorReportingTests() {
     it('deve classificar automaticamente tentativas cross-tenant ou bypass como INCIDENTE DE SEGURANÇA CRÍTICO', async () => {
       ErrorReportingService.resetForTesting();
 
+      const uniqueAttackerId = `attacker_sim_${Date.now()}`;
       const securityError = new Error('[SECURITY ALERT] Tentativa de Acesso Cross-Tenant Bloqueada! Solicitante: tenant_alpha | Recurso: tenant_beta');
 
       const res = await ErrorReportingService.submitReport({
         error: securityError,
         tenantId: TENANT_ALPHA,
-        userId: 'attacker_sim',
+        userId: uniqueAttackerId,
         userRole: 'lawyer',
         componentName: 'TenantGuard',
       });
