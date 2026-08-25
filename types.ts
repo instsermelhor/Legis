@@ -13,7 +13,8 @@ export type View =
   | 'mfaChallenge'
   | 'delegationManager'
   | 'myAdminProfile'
-  | 'status';
+  | 'status'
+  | 'errorReports';
 
 export interface Tenant {
   id: string;
