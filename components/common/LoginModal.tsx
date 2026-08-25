@@ -80,7 +80,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   // Reset on close
   useEffect(() => {
     if (!isOpen) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setEmail(''); setPassword(''); setError('');
       setShowPwd(false); setPwdVisible(false); setUserType(null);
       setIsRecovering(false);
