@@ -51,6 +51,7 @@ import { runSupabaseSyncTests } from '../tests/integration/supabaseSync.test';
 import { runUmlSequenceTests } from '../tests/integration/umlSequence.test';
 import { runDatabaseRlsSecurityTests } from '../tests/multitenancy/rls-database-security.test';
 import { runMultiTenancyTests } from '../tests/multitenancy/tenant-isolation.test';
+import { runModuleCatalogTests } from '../tests/unit/moduleCatalog.test';
 
 interface SuiteResult {
   suiteName: string;
@@ -148,6 +149,9 @@ export async function runAllSuites(): Promise<SuiteResult[]> {
   // Suítes de Multitenancy & RLS
   suites.push(await executeSuite('15. PostgreSQL RLS Database Security', 'MULTITENANCY', runDatabaseRlsSecurityTests));
   suites.push(await executeSuite('16. Tenant Isolation & IDOR Defense', 'MULTITENANCY', runMultiTenancyTests));
+
+  // Suíte de Arquitetura Modular & Catálogo
+  suites.push(await executeSuite('17. Module Catalog & Entitlements Engine', 'SECURITY', runModuleCatalogTests));
 
   // Impressão dos resultados
   let totalTestsAll = 0;
