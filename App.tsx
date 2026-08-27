@@ -84,6 +84,7 @@ import {
   createDemoAppointments,
   createDemoLawyer,
   demoIntern,
+  createDemoSecretary,
 } from './services/__dev__/devSeedUsers';
 
 
@@ -504,25 +505,11 @@ const App: React.FC = () => {
     return true;
   }
 
-  // Secretary login
+  // Secretary login (modo dev)
   const handleSecretaryPageLogin = useCallback((credentials: Credentials): boolean => {
     const lowerEmail = credentials.email.toLowerCase();
     if (lowerEmail === TEST_EMAIL && Boolean(credentials.password)) {
-      const testSecretary: Secretary = {
-        id: 9998,
-        name: 'Secretária Teste',
-        email: TEST_EMAIL,
-        phone: '(11) 98888-0000',
-        city: 'São Paulo',
-        state: 'SP',
-        experience: 4,
-        areasOfKnowledge: ['Gestão de Agenda', 'Protocolo Judicial', 'Atendimento ao Cliente'],
-        availability: 'integral',
-        bio: 'Secretária com experiência em escritórios jurídicos de médio porte.',
-        status: 'ativo',
-        joinedDate: new Date().toISOString().split('T')[0],
-        assignedLawyerId: 1, // assigned to first mock lawyer
-      };
+      const testSecretary = createDemoSecretary(TEST_EMAIL);
       const secretaryUser: User = { email: TEST_EMAIL, role: 'secretary', data: testSecretary, name: testSecretary.name };
       setUser(secretaryUser);
       handleNavigate('secretariadoDashboard', secretaryUser);
