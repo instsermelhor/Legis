@@ -2,7 +2,7 @@
 -- Legis Connect Ecosystem — Master Database Setup & RLS Script
 -- ============================================================================
 -- Instruções:
---   1. Acesse https://supabase.com/dashboard/project/tddzffccnuccewfoczjl
+--   1. Acesse seu projeto Supabase em https://supabase.com/dashboard
 --   2. Vá na navegação lateral → SQL Editor → "+ New query"
 --   3. Cole este arquivo completo e clique em "Run" (ou pressione Cmd/Ctrl + Enter)
 -- ============================================================================
