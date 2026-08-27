@@ -29,18 +29,44 @@ function localSet<T>(key: string, value: T): void {
   } catch { /* ignore storage full */ }
 }
 
-/** Define o contexto de segurança RLS na sessão ativas do Supabase/PostgreSQL */
-export async function setDatabaseSecurityContext(tenantId?: string, userId?: string, userRole?: string): Promise<void> {
-  if (isSupabaseConfigured) {
-    try {
-      await (supabase as any).rpc('set_app_security_context', {
-        p_tenant_id: tenantId || '',
-        p_user_id: userId || '',
-        p_user_role: userRole || ''
-      });
-    } catch (e) {
-      console.warn('[db.ts] erro ao injetar contexto de segurança de banco:', e);
-    }
+/**
+ * Define o contexto de segurança RLS na sessão ativa do Supabase/PostgreSQL.
+ *
+ * ⚠️  SEGURANÇA CRÍTICA: Esta função DEVE ser chamada antes de qualquer query
+ * de dados sensíveis. Se falhar, o erro é PROPAGADO para o chamador —
+ * não silenciado — para garantir que nenhuma query execute sem contexto
+ * de tenant/role correto.
+ *
+ * Correção V-004: substituído console.warn + silêncio por throw.
+ */
+export async function setDatabaseSecurityContext(
+  tenantId: string,
+  userId: string,
+  userRole: string,
+): Promise<void> {
+  if (!isSupabaseConfigured) return;
+
+  // Validação defensiva antes de chamar o banco
+  if (!tenantId || !userId || !userRole) {
+    throw new Error(
+      `[SECURITY] setDatabaseSecurityContext: parâmetros obrigatórios ausentes — ` +
+      `tenantId="${tenantId}", userId="${userId}", userRole="${userRole}". ` +
+      `Nenhuma query de dados deve ser executada sem contexto de segurança completo.`
+    );
+  }
+
+  const { error } = await (supabase as any).rpc('set_app_security_context', {
+    p_tenant_id: tenantId,
+    p_user_id:   userId,
+    p_user_role: userRole,
+  });
+
+  if (error) {
+    // Erro BLOQUEANTE — não silencia. O chamador deve tratar.
+    throw new Error(
+      `[SECURITY] Falha crítica ao injetar contexto RLS de segurança: ${error.message}. ` +
+      `Acesso ao banco de dados bloqueado para tenant="${tenantId}" role="${userRole}".`
+    );
   }
 }
 
@@ -547,5 +573,194 @@ export const dbAuditLogs = {
     return logEntry;
   },
 };
+
+// ─── FULL-TEXT SEARCH (C-1) ──────────────────────────────────────────────────
+
+export interface SearchResultItem {
+  id: string;
+  type: 'case' | 'document' | 'contract' | 'client';
+  title: string;
+  description?: string;
+  snippet?: string;
+  createdAt?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export const dbSearch = {
+  /**
+   * Executa busca textual integrada respeitando isolamento multi-tenant.
+   */
+  async search(query: string, activeTenantId?: string, limit = 20): Promise<SearchResultItem[]> {
+    if (!query || query.trim().length === 0) return [];
+    const normalizedQuery = query.trim().toLowerCase();
+
+    if (isSupabaseConfigured) {
+      try {
+        // Tenta RPC de busca full-text no PostgreSQL se configurada
+        const { data, error } = await (supabase as any).rpc('search_platform_entities', {
+          p_query: normalizedQuery,
+          p_tenant_id: activeTenantId || '',
+          p_limit: limit,
+        });
+        if (!error && data) return data as SearchResultItem[];
+      } catch {
+        // Fallback para queries com ilike
+      }
+
+      let casesQuery = (supabase as any).from('cases').select('id, title, client_name, lawyer_name, status, created_at');
+      if (activeTenantId) casesQuery = casesQuery.eq('tenant_id', activeTenantId);
+      casesQuery = casesQuery.or(`title.ilike.%${normalizedQuery}%,client_name.ilike.%${normalizedQuery}%`).limit(limit);
+      const { data: casesData } = await casesQuery;
+
+      const results: SearchResultItem[] = (casesData || []).map((c: any) => ({
+        id: String(c.id),
+        type: 'case',
+        title: c.title || 'Processo sem título',
+        description: `Status: ${c.status || 'N/A'} | Cliente: ${c.client_name || 'N/A'}`,
+        createdAt: c.created_at,
+        metadata: c,
+      }));
+
+      return results;
+    }
+
+    // Modo local / Fallback
+    const cases = localGet<Record<string, any>[]>('legis_cases', []);
+    const filteredCases = cases
+      .filter(c => {
+        if (activeTenantId && c.tenantId && c.tenantId !== activeTenantId) return false;
+        const searchCorpus = `${c.title || ''} ${c.clientName || ''} ${c.lawyerName || ''} ${c.id || ''}`.toLowerCase();
+        return searchCorpus.includes(normalizedQuery);
+      })
+      .slice(0, limit)
+      .map(c => ({
+        id: String(c.id),
+        type: 'case' as const,
+        title: String(c.title || c.id),
+        description: `Status: ${c.status || 'Ativo'} | Cliente: ${c.clientName || 'N/A'}`,
+        createdAt: c.createdAt,
+        metadata: c,
+      }));
+
+    return filteredCases;
+  },
+};
+
+// ─── GED: GESTÃO ELETRÔNICA DE DOCUMENTOS & VERSIONAMENTO (D-1) ─────────────
+
+export interface DocumentVersion {
+  versionId: string;
+  documentId: string;
+  versionNumber: number;
+  fileName: string;
+  storagePath: string;
+  fileSizeBytes: number;
+  mimeType: string;
+  sha256Hash: string;
+  uploadedBy: string;
+  uploadedAt: string;
+  changeSummary?: string;
+  isLatest: boolean;
+}
+
+export const dbGed = {
+  async getVersions(documentId: string, activeTenantId?: string): Promise<DocumentVersion[]> {
+    if (isSupabaseConfigured) {
+      let query = (supabase as any)
+        .from('document_versions')
+        .select('*')
+        .eq('document_id', documentId)
+        .order('version_number', { ascending: false });
+      if (activeTenantId) query = query.eq('tenant_id', activeTenantId);
+      const { data, error } = await query;
+      if (error) throw error;
+      return data ?? [];
+    }
+    const allVersions = localGet<DocumentVersion[]>('legis_document_versions', []);
+    return allVersions.filter(v => v.documentId === documentId);
+  },
+
+  async addVersion(
+    documentId: string,
+    versionData: Omit<DocumentVersion, 'versionId' | 'versionNumber' | 'uploadedAt' | 'isLatest'>,
+    activeTenantId?: string
+  ): Promise<DocumentVersion> {
+    const existing = await this.getVersions(documentId, activeTenantId);
+    const nextVersionNumber = existing.length > 0 ? Math.max(...existing.map(v => v.versionNumber)) + 1 : 1;
+
+    const newVersion: DocumentVersion = {
+      ...versionData,
+      versionId: `v_${documentId}_${nextVersionNumber}_${Date.now()}`,
+      documentId,
+      versionNumber: nextVersionNumber,
+      uploadedAt: new Date().toISOString(),
+      isLatest: true,
+    };
+
+    if (isSupabaseConfigured) {
+      // Marca versões antigas como não-mais latest
+      await (supabase as any)
+        .from('document_versions')
+        .update({ is_latest: false })
+        .eq('document_id', documentId);
+
+      const payload = activeTenantId ? { ...newVersion, tenant_id: activeTenantId } : newVersion;
+      const { data, error } = await (supabase as any).from('document_versions').insert(payload).select().single();
+      if (error) throw error;
+      return data;
+    }
+
+    const allVersions = localGet<DocumentVersion[]>('legis_document_versions', []);
+    const updatedVersions = allVersions.map(v => v.documentId === documentId ? { ...v, isLatest: false } : v);
+    localSet('legis_document_versions', [...updatedVersions, newVersion]);
+    return newVersion;
+  },
+};
+
+// ─── OUTBOUND WEBHOOKS ENGINE (D-2) ──────────────────────────────────────────
+
+export interface WebhookSubscription {
+  id: string;
+  tenantId: string;
+  url: string;
+  events: string[];
+  secret: string;
+  active: boolean;
+  createdAt: string;
+  lastTriggeredAt?: string;
+}
+
+export const dbWebhooks = {
+  async getSubscriptions(tenantId: string): Promise<WebhookSubscription[]> {
+    if (isSupabaseConfigured) {
+      const { data, error } = await (supabase as any)
+        .from('webhook_subscriptions')
+        .select('*')
+        .eq('tenant_id', tenantId)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    }
+    const list = localGet<WebhookSubscription[]>('legis_webhook_subscriptions', []);
+    return list.filter(w => w.tenantId === tenantId);
+  },
+
+  async createSubscription(subscription: Omit<WebhookSubscription, 'id' | 'createdAt'>): Promise<WebhookSubscription> {
+    const newSub: WebhookSubscription = {
+      ...subscription,
+      id: `wh_${Date.now()}`,
+      createdAt: new Date().toISOString(),
+    };
+    if (isSupabaseConfigured) {
+      const { data, error } = await (supabase as any).from('webhook_subscriptions').insert(newSub).select().single();
+      if (error) throw error;
+      return data;
+    }
+    const list = localGet<WebhookSubscription[]>('legis_webhook_subscriptions', []);
+    localSet('legis_webhook_subscriptions', [...list, newSub]);
+    return newSub;
+  },
+};
+
 
 
