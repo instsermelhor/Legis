@@ -455,7 +455,7 @@
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
 
-    <!-- Scroll reveal observer -->
+    <!-- Scroll reveal observer & Service Worker registration -->
     <script>
       document.addEventListener('DOMContentLoaded', () => {
         const observer = new IntersectionObserver((entries) => {
@@ -468,6 +468,12 @@
         }, { threshold: 0.12 });
         document.querySelectorAll('.reveal-section').forEach(el => observer.observe(el));
       });
+
+      if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
     </script>
   </body>
 </html>
