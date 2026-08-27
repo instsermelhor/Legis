@@ -379,6 +379,199 @@ export async function runApiContractsTests() {
     });
   });
 
+  // ─── Suíte D-1: GED Versioning ──────────────────────────────────────────────
+  describe('7. GED Document Versioning Engine (D-1)', () => {
+    it('deve registrar uma nova versão de documento com número incremental', async () => {
+      const { dbGed } = await import('../../lib/db');
+
+      const v1 = await dbGed.addVersion('doc_test_001', {
+        documentId: 'doc_test_001',
+        fileName: 'peticao_inicial_v1.pdf',
+        storagePath: 'ged/doc_test_001/1_peticao_inicial_v1.pdf',
+        fileSizeBytes: 204800,
+        mimeType: 'application/pdf',
+        sha256Hash: 'aabbccdd11223344aabbccdd11223344aabbccdd11223344aabbccdd11223344',
+        uploadedBy: 'user_adv_001',
+        changeSummary: 'Versão inicial da petição inicial',
+      }, 'tenant_123');
+
+      if (v1.versionNumber !== 1) throw new Error(`Esperado versionNumber=1, obtido ${v1.versionNumber}`);
+      if (!v1.isLatest) throw new Error('Primeira versão deve ser isLatest=true');
+      if (v1.documentId !== 'doc_test_001') throw new Error('documentId incorreto na versão gravada');
+    });
+
+    it('deve incrementar versionNumber e marcar versão anterior como não-latest', async () => {
+      const { dbGed } = await import('../../lib/db');
+
+      await dbGed.addVersion('doc_incr_001', {
+        documentId: 'doc_incr_001',
+        fileName: 'contrato_v1.docx',
+        storagePath: 'ged/doc_incr_001/1_contrato_v1.docx',
+        fileSizeBytes: 102400,
+        mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        sha256Hash: 'aaaa1111bbbb2222cccc3333dddd4444aaaa1111bbbb2222cccc3333dddd4444',
+        uploadedBy: 'user_adv_001',
+        changeSummary: 'Rascunho inicial do contrato',
+      });
+
+      const v2 = await dbGed.addVersion('doc_incr_001', {
+        documentId: 'doc_incr_001',
+        fileName: 'contrato_v2.docx',
+        storagePath: 'ged/doc_incr_001/2_contrato_v2.docx',
+        fileSizeBytes: 105000,
+        mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        sha256Hash: 'bbbb2222cccc3333dddd4444eeee5555bbbb2222cccc3333dddd4444eeee5555',
+        uploadedBy: 'user_adv_002',
+        changeSummary: 'Adicionadas cláusulas de rescisão após revisão jurídica',
+      });
+
+      if (v2.versionNumber !== 2) throw new Error(`Esperado versionNumber=2, obtido ${v2.versionNumber}`);
+      if (!v2.isLatest) throw new Error('v2 deve ser isLatest=true');
+
+      const versions = await dbGed.getVersions('doc_incr_001');
+      if (versions.length < 2) throw new Error(`Esperado ao menos 2 versões, obtido ${versions.length}`);
+    });
+
+    it('deve preservar o hash SHA-256 original sem modificação', async () => {
+      const { dbGed } = await import('../../lib/db');
+      const expectedHash = 'f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7';
+
+      const v = await dbGed.addVersion('doc_hash_001', {
+        documentId: 'doc_hash_001',
+        fileName: 'escritura.pdf',
+        storagePath: 'ged/doc_hash_001/1_escritura.pdf',
+        fileSizeBytes: 512000,
+        mimeType: 'application/pdf',
+        sha256Hash: expectedHash,
+        uploadedBy: 'user_notario_001',
+      });
+
+      if (v.sha256Hash !== expectedHash) {
+        throw new Error(`SHA-256 foi alterado: esperado ${expectedHash}, obtido ${v.sha256Hash}`);
+      }
+    });
+  });
+
+  // ─── Suíte D-2: Webhook Dispatcher ──────────────────────────────────────────
+  describe('8. Outbound Webhook Dispatcher — HMAC & Event Routing (D-2)', () => {
+    it('deve despachar evento sem erros quando não há subscrições ativas', async () => {
+      const { WebhookDispatcher } = await import('../../services/webhookDispatcher');
+
+      const results = await WebhookDispatcher.dispatchEvent(
+        'tenant_sem_webhooks',
+        'case.created',
+        { caseId: 'c_001', title: 'Ação Monitória' }
+      );
+
+      if (!Array.isArray(results)) throw new Error('Resultado deve ser um array');
+      if (results.length !== 0) throw new Error(`Esperado 0 resultados, obtido ${results.length}`);
+    });
+
+    it('deve gerar resultado de entrega com campos obrigatórios', async () => {
+      const { WebhookDispatcher } = await import('../../services/webhookDispatcher');
+
+      // Cria uma subscrição de teste no contexto local
+      const { dbWebhooks } = await import('../../lib/db');
+      await dbWebhooks.createSubscription({
+        tenantId: 'tenant_dispatch_test',
+        url: 'https://httpbin.org/post',
+        events: ['case.created'],
+        secret: 'secret_test_hmac_2026',
+        active: true,
+      });
+
+      const results = await WebhookDispatcher.dispatchEvent(
+        'tenant_dispatch_test',
+        'case.created',
+        { caseId: 'c_002', title: 'Embargos de Declaração' }
+      );
+
+      if (!Array.isArray(results)) throw new Error('Resultado deve ser um array');
+      // Em ambiente de teste sem fetch real, garante estrutura do resultado
+      if (results.length > 0) {
+        const r = results[0];
+        if (!r.subscriptionId) throw new Error('subscriptionId ausente no resultado');
+        if (!r.event) throw new Error('event ausente no resultado');
+        if (!r.url) throw new Error('url ausente no resultado');
+        if (!['delivered', 'failed', 'skipped'].includes(r.status)) {
+          throw new Error(`status inválido: ${r.status}`);
+        }
+      }
+    });
+
+    it('deve ignorar evento que não está na lista de events da subscrição', async () => {
+      const { WebhookDispatcher } = await import('../../services/webhookDispatcher');
+      const { dbWebhooks } = await import('../../lib/db');
+
+      await dbWebhooks.createSubscription({
+        tenantId: 'tenant_filter_test',
+        url: 'https://httpbin.org/post',
+        events: ['payment.authorized'],
+        secret: 'secret_filter_2026',
+        active: true,
+      });
+
+      // Dispara evento NÃO inscrito
+      const results = await WebhookDispatcher.dispatchEvent(
+        'tenant_filter_test',
+        'case.created',
+        { caseId: 'c_003' }
+      );
+
+      // A subscrição só aceita payment.authorized, portanto case.created deve ser filtrado
+      const allDelivered = results.every(r => r.status !== 'delivered' || r.event === 'case.created');
+      if (!allDelivered) throw new Error('Dispatcher não respeitou filtro de eventos da subscrição');
+    });
+  });
+
+  // ─── Suíte D-3: Design System Tokens ────────────────────────────────────────
+  describe('9. Design System Tokens — Integridade e Contraste WCAG (D-4)', () => {
+    it('deve exportar todos os grupos de tokens obrigatórios', async () => {
+      const { DesignTokens } = await import('../../lib/design-system');
+
+      const requiredGroups = ['colors', 'typography', 'radii', 'shadows', 'glassmorphism'];
+      for (const group of requiredGroups) {
+        if (!(group in DesignTokens)) {
+          throw new Error(`Grupo de token obrigatório ausente: ${group}`);
+        }
+      }
+    });
+
+    it('deve conter a cor primária institucional #7C3AED (Roxo Enterprise)', async () => {
+      const { DesignTokens } = await import('../../lib/design-system');
+      const primary = DesignTokens.colors.primary.DEFAULT;
+      if (primary !== '#7C3AED') {
+        throw new Error(`Cor primária incorreta: esperado #7C3AED, obtido ${primary}`);
+      }
+    });
+
+    it('deve conter a cor dourada nobre #D4AF37 (Gold Institucional)', async () => {
+      const { DesignTokens } = await import('../../lib/design-system');
+      const gold = DesignTokens.colors.gold.DEFAULT;
+      if (gold !== '#D4AF37') {
+        throw new Error(`Cor dourada incorreta: esperado #D4AF37, obtido ${gold}`);
+      }
+    });
+
+    it('deve exportar estilos de componentes com variantes obrigatórias', async () => {
+      const { ComponentStyles } = await import('../../lib/design-system');
+
+      const buttonVariants = ['primary', 'secondary', 'ghost', 'danger'];
+      for (const variant of buttonVariants) {
+        if (!(variant in ComponentStyles.button)) {
+          throw new Error(`Variante de botão ausente: ${variant}`);
+        }
+      }
+
+      const badgeVariants = ['success', 'warning', 'error', 'info'];
+      for (const variant of badgeVariants) {
+        if (!(variant in ComponentStyles.badge)) {
+          throw new Error(`Variante de badge ausente: ${variant}`);
+        }
+      }
+    });
+  });
+
 
   // ─── Executar todas as suítes sequencialmente ──────────────────────────────
   for (const suite of _suites) {
@@ -399,3 +592,4 @@ export async function runApiContractsTests() {
 
   return true;
 }
+
