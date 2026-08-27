@@ -13,7 +13,7 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-import type { Case, Appointment, Intern } from '../../types';
+import type { Case, Appointment, Intern, Secretary } from '../../types';
 import { mockLawyers } from '../mockLawyerService';
 
 // ─── Casos de demonstração para cliente ───────────────────────────────────────
@@ -110,3 +110,24 @@ export function createDemoLawyer(email: string) {
     name: 'Advogado Demo',
   };
 }
+
+// ─── Secretária de demonstração ───────────────────────────────────────────────
+
+export function createDemoSecretary(email: string): Secretary {
+  return {
+    id: 9998,
+    name: 'Secretária Demo',
+    email,
+    phone: '(11) 98888-0000',
+    city: 'São Paulo',
+    state: 'SP',
+    experience: 4,
+    areasOfKnowledge: ['Gestão de Agenda', 'Protocolo Judicial', 'Atendimento ao Cliente'],
+    availability: 'integral',
+    bio: 'Secretária com experiência em escritórios jurídicos.',
+    status: 'ativo',
+    joinedDate: new Date().toISOString().split('T')[0],
+    assignedLawyerId: 1,
+  };
+}
+
