@@ -74,12 +74,18 @@ import type { Credentials } from './components/auth/LoginForm';
 import type { ClientSignupData } from './components/auth/ClientSignupForm';
 import type { InternSignupData } from './components/auth/InternSignupForm';
 import type { SecretarySignupData } from './components/secretary/SecretariadoSignupForm';
-import { AdminUser } from './services/mockDataService';
 import { StaffService } from './services/staffService';
 import { useAppData } from './context/AppDataContext';
-import { mockLawyers } from './services/mockLawyerService';
 import { initMonitoring } from './lib/monitoring';
 import { chatWithGemini } from './services/geminiService';
+// ⚠️  Dev-only: dados de demonstração usados apenas quando Supabase não está configurado
+import {
+  createDemoClientCases,
+  createDemoAppointments,
+  createDemoLawyer,
+  demoIntern,
+} from './services/__dev__/devSeedUsers';
+
 
 const TEST_EMAIL = 'teste@legisconnect.com.br';
 
@@ -310,69 +316,17 @@ const App: React.FC = () => {
       return true;
     }
 
-    // Client login (any other email)
-    if (password) { // Dummy password check for mock data
-      const mockCases: Case[] = [
-        {
-          id: 'case001',
-          title: 'Processo de Divórcio Consensual',
-          clientName: 'Cliente Exemplo',
-          lawyerName: mockLawyers[0].name,
-          lawyerId: mockLawyers[0].id,
-          status: 'Ativo',
-          stages: [
-            { name: 'Análise Inicial', status: 'completed' },
-            { name: 'Coleta de Documentos', status: 'completed' },
-            { name: 'Elaboração da Petição', status: 'current' },
-            { name: 'Protocolo Judicial', status: 'upcoming' },
-            { name: 'Sentença', status: 'upcoming' },
-          ],
-          reviewSubmitted: false,
-        },
-        {
-          id: 'case002',
-          title: 'Ação de Alimentos',
-          clientName: 'Cliente Exemplo',
-          lawyerName: mockLawyers[1].name,
-          lawyerId: mockLawyers[1].id,
-          status: 'Concluído',
-          stages: [
-            { name: 'Análise Inicial', status: 'completed' },
-            { name: 'Petição Inicial', status: 'completed' },
-            { name: 'Audiência', status: 'completed' },
-            { name: 'Sentença', status: 'completed' },
-          ],
-          reviewSubmitted: false,
-        }
-      ];
-
-      const mockAppointments: Appointment[] = [
-        {
-          id: 'apt-client-1',
-          clientName: 'Cliente Exemplo',
-          date: new Date(new Date().setDate(new Date().getDate() + 3)).toISOString().split('T')[0], // 3 days from now
-          time: '15:00',
-          status: 'Confirmado',
-          modality: 'Videochamada',
-          consultationLink: 'https://meet.legisconnect.com/call/aghadf8923',
-        },
-        {
-          id: 'apt-client-2',
-          clientName: 'Cliente Exemplo',
-          date: new Date(new Date().setDate(new Date().getDate() - 5)).toISOString().split('T')[0], // 5 days ago
-          time: '11:00',
-          status: 'Concluído',
-          modality: 'Videochamada',
-        }
-      ];
+    // Client login (any other email) — apenas em modo dev (sem Supabase)
+    if (password) {
+      const clientName = 'Cliente Demo';
       const clientUser: User = {
         email: lowerEmail,
         role: 'client',
-        name: 'Cliente Exemplo',
+        name: clientName,
         phone: '(11) 91234-5678',
         address: 'Rua das Amostras, 123, São Paulo, SP',
-        caseHistory: mockCases,
-        appointments: mockAppointments
+        caseHistory: createDemoClientCases(clientName),
+        appointments: createDemoAppointments(clientName),
       };
       setUser(clientUser);
       handleNavigate('dashboard', clientUser);
@@ -394,35 +348,29 @@ const App: React.FC = () => {
     setIsProfileSelectorOpen(true);
   };
 
-  // Context-specific login for Lawyers page: test user gets Lawyer Dashboard
+  // Context-specific login for Lawyers page: test user gets Lawyer Dashboard (modo dev)
   const handleLawyerPageLogin = useCallback((credentials: Credentials): boolean => {
     const lowerEmail = credentials.email.toLowerCase();
     if (lowerEmail === TEST_EMAIL && Boolean(credentials.password)) {
-      const testLawyer = { ...mockLawyers[0], contact: { ...mockLawyers[0].contact, email: TEST_EMAIL }, name: 'Advogado Teste' };
-      const lawyerUser: User = { email: TEST_EMAIL, role: 'lawyer', data: testLawyer, name: testLawyer.name };
-      setUser(lawyerUser);
-      handleNavigate('lawyerDashboard', lawyerUser);
-      return true;
+      const testLawyer = createDemoLawyer(TEST_EMAIL);
+      if (testLawyer) {
+        const lawyerUser: User = { email: TEST_EMAIL, role: 'lawyer', data: testLawyer, name: testLawyer.name };
+        setUser(lawyerUser);
+        handleNavigate('lawyerDashboard', lawyerUser);
+        return true;
+      }
     }
     return handleLogin(credentials);
   }, [handleLogin, handleNavigate]);
 
-  // Context-specific login for Interns page: test user gets Intern Dashboard
+  // Context-specific login for Interns page: test user gets Intern Dashboard (modo dev)
   const handleInternPageLogin = useCallback((credentials: Credentials): boolean => {
     const lowerEmail = credentials.email.toLowerCase();
     if (lowerEmail === TEST_EMAIL && Boolean(credentials.password)) {
       const testIntern: Intern = {
-        id: 9999,
+        ...demoIntern,
         name: 'Bacharelando Teste',
-        cpf: '000.000.000-00',
-        university: 'Universidade Legis Connect',
-        semester: '5º ao 7º semestre',
-        specialtyInterest: 'Direito Civil',
         contact: { phone: '(11) 99999-9999', email: TEST_EMAIL },
-        hoursCompleted: 85,
-        availableHours: 200,
-        casesStudied: [],
-        status: 'active',
       };
       const internUser: User = { email: TEST_EMAIL, role: 'intern', data: testIntern, name: testIntern.name };
       setUser(internUser);
@@ -432,47 +380,19 @@ const App: React.FC = () => {
     return handleLogin(credentials);
   }, [handleLogin, handleNavigate]);
 
-  // Context-specific login for Clients page: test user gets Client Dashboard
+  // Context-specific login for Clients page: test user gets Client Dashboard (modo dev)
   const handleClientPageLogin = useCallback((credentials: Credentials): boolean => {
     const lowerEmail = credentials.email.toLowerCase();
     if (lowerEmail === TEST_EMAIL && Boolean(credentials.password)) {
-      const mockCases: Case[] = [
-        {
-          id: 'TEST-2024-001',
-          title: 'Processo de Divórcio Consensual (Teste)',
-          clientName: 'Cliente Teste',
-          lawyerName: mockLawyers[0].name,
-          lawyerId: mockLawyers[0].id,
-          status: 'Ativo',
-          stages: [
-            { name: 'Análise Inicial', status: 'completed' },
-            { name: 'Coleta de Documentos', status: 'completed' },
-            { name: 'Elaboração da Petição', status: 'current' },
-            { name: 'Protocolo Judicial', status: 'upcoming' },
-            { name: 'Sentença', status: 'upcoming' },
-          ],
-          reviewSubmitted: false,
-        },
-      ];
-      const mockAppointments: Appointment[] = [
-        {
-          id: 'apt-test-1',
-          clientName: 'Cliente Teste',
-          date: new Date(new Date().setDate(new Date().getDate() + 5)).toISOString().split('T')[0],
-          time: '14:00',
-          status: 'Confirmado',
-          modality: 'Videochamada',
-          consultationLink: 'https://meet.legisconnect.com/call/teste123',
-        },
-      ];
+      const clientName = 'Cliente Teste';
       const clientUser: User = {
         email: TEST_EMAIL,
         role: 'client',
-        name: 'Cliente Teste',
+        name: clientName,
         phone: '(11) 98765-4321',
         address: 'Av. Legis Connect, 1000, São Paulo, SP',
-        caseHistory: mockCases,
-        appointments: mockAppointments,
+        caseHistory: createDemoClientCases(clientName),
+        appointments: createDemoAppointments(clientName),
       };
       setUser(clientUser);
       handleNavigate('dashboard', clientUser);
