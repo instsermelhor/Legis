@@ -1,13 +1,15 @@
 
 /**
- * dbService.ts
- * Abstração de banco de dados local (localStorage) e nuvem (stubs).
+ * @deprecated services/dbService.ts (Camada Legada Local-First)
+ * ─────────────────────────────────────────────────────────────────────────────
+ * ⚠️  AVISO DE ARQUITETURA (AUDITORIA FASE B):
+ *     Esta camada utiliza localStorage como primeira fonte de dados.
+ *     Para todas as novas funcionalidades e operações sensíveis com isolamento
+ *     multi-tenant (RLS), utilize a camada canônica tipada: `lib/db.ts`.
  *
- * Para conectar à nuvem, substitua as funções stub abaixo pelas chamadas
- * reais do Firebase/Supabase. As interfaces já estão prontas.
- *
- * LOCAL:  localStorage — funciona offline, sem configuração.
- * NUVEM:  Stubs comentados para Firebase Firestore ou Supabase REST.
+ *     Entidades que ainda utilizam este serviço (configurações visuais locais,
+ *     códigos da OAB locais) são mantidas para compatibilidade retroativa.
+ * ─────────────────────────────────────────────────────────────────────────────
  */
 
 // ─── Types ────────────────────────────────────────────────────────────────────
